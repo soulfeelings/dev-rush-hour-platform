@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Устанавливаем pnpm
+RUN npm install -g pnpm
+
+# Копируем package файлы
+COPY package.json pnpm-lock.yaml ./
+
+# Устанавливаем зависимости
+RUN pnpm install --frozen-lockfile
+
+# Копируем исходный код (будет перезаписан volume)
+COPY . .
+
+EXPOSE 5173
+
+CMD ["pnpm", "dev", "--host", "0.0.0.0"]
+

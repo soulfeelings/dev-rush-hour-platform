@@ -1,0 +1,719 @@
+openapi: 3.0.3
+info:
+  title: Real Estate Platform API
+  version: 1.0.0
+  description: MVP платформы недвижимости
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local development server
+
+paths:
+  /projects:
+    get:
+      operationId: listProjects
+      summary: Получить список проектов
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: Список проектов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      summary: Создать проект
+      tags:
+        - Projects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreate"
+      responses:
+        "201":
+          description: Проект создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/{projectId}:
+    get:
+      operationId: getProject
+      summary: Получить проект по ID
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Проект найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Проект не найден
+    put:
+      operationId: updateProject
+      summary: Обновить проект
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdate"
+      responses:
+        "200":
+          description: Проект обновлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      summary: Удалить проект
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Проект удален
+        "404":
+          description: Проект не найден
+
+  /units:
+    get:
+      operationId: listUnits
+      summary: Получить список юнитов
+      tags:
+        - Units
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: string
+          description: Фильтр по проекту
+      responses:
+        "200":
+          description: Список юнитов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Unit"
+    post:
+      operationId: createUnit
+      summary: Создать юнит
+      tags:
+        - Units
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnitCreate"
+      responses:
+        "201":
+          description: Юнит создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unit"
+
+  /units/{unitId}:
+    get:
+      operationId: getUnit
+      summary: Получить юнит по ID
+      tags:
+        - Units
+      parameters:
+        - name: unitId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Юнит найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unit"
+        "404":
+          description: Юнит не найден
+    put:
+      operationId: updateUnit
+      summary: Обновить юнит
+      tags:
+        - Units
+      parameters:
+        - name: unitId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnitUpdate"
+      responses:
+        "200":
+          description: Юнит обновлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unit"
+    delete:
+      operationId: deleteUnit
+      summary: Удалить юнит
+      tags:
+        - Units
+      parameters:
+        - name: unitId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Юнит удален
+        "404":
+          description: Юнит не найден
+
+  /auth/signup:
+    post:
+      operationId: signup
+      summary: Регистрация пользователя
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupRequest"
+      responses:
+        "201":
+          description: Пользователь зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Ошибка валидации
+
+  /auth/login:
+    post:
+      operationId: login
+      summary: Вход пользователя
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Неверные учетные данные
+
+  /users/{userId}:
+    get:
+      operationId: getUser
+      summary: Получить пользователя по ID
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Пользователь найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Пользователь не найден
+    put:
+      operationId: updateUser
+      summary: Обновить пользователя
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Пользователь обновлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /appointments:
+    get:
+      operationId: listAppointments
+      summary: Получить список встреч
+      tags:
+        - Appointments
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Фильтр по пользователю
+      responses:
+        "200":
+          description: Список встреч
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      operationId: createAppointment
+      summary: Создать встречу
+      tags:
+        - Appointments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentCreate"
+      responses:
+        "201":
+          description: Встреча создана
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+
+  /appointments/{appointmentId}:
+    get:
+      operationId: getAppointment
+      summary: Получить встречу по ID
+      tags:
+        - Appointments
+      parameters:
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Встреча найдена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+        "404":
+          description: Встреча не найдена
+    delete:
+      operationId: deleteAppointment
+      summary: Удалить встречу
+      tags:
+        - Appointments
+      parameters:
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Встреча удалена
+        "404":
+          description: Встреча не найдена
+
+  /favorites:
+    get:
+      operationId: listFavorites
+      summary: Получить список избранного
+      tags:
+        - Favorites
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: group
+          in: query
+          schema:
+            type: string
+          description: Фильтр по группе
+      responses:
+        "200":
+          description: Список избранного
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Favorite"
+    post:
+      operationId: createFavorite
+      summary: Добавить в избранное
+      tags:
+        - Favorites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FavoriteCreate"
+      responses:
+        "201":
+          description: Добавлено в избранное
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Favorite"
+
+  /favorites/{favoriteId}:
+    get:
+      operationId: getFavorite
+      summary: Получить избранное по ID
+      tags:
+        - Favorites
+      parameters:
+        - name: favoriteId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Избранное найдено
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Favorite"
+        "404":
+          description: Избранное не найдено
+    delete:
+      operationId: deleteFavorite
+      summary: Удалить из избранного
+      tags:
+        - Favorites
+      parameters:
+        - name: favoriteId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Удалено из избранного
+        "404":
+          description: Избранное не найдено
+
+components:
+  schemas:
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        location:
+          type: string
+        priceFrom:
+          type: number
+        status:
+          type: string
+          enum: [ready, construction, planning]
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProjectCreate:
+      type: object
+      required:
+        - title
+        - location
+        - priceFrom
+        - status
+      properties:
+        title:
+          type: string
+        location:
+          type: string
+        priceFrom:
+          type: number
+        status:
+          type: string
+          enum: [ready, construction, planning]
+        description:
+          type: string
+
+    ProjectUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        location:
+          type: string
+        priceFrom:
+          type: number
+        status:
+          type: string
+          enum: [ready, construction, planning]
+        description:
+          type: string
+
+    Unit:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        floor:
+          type: integer
+        area:
+          type: number
+        bedrooms:
+          type: integer
+        price:
+          type: number
+        status:
+          type: string
+          enum: [available, reserved, sold]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UnitCreate:
+      type: object
+      required:
+        - projectId
+        - floor
+        - area
+        - bedrooms
+        - price
+        - status
+      properties:
+        projectId:
+          type: string
+        floor:
+          type: integer
+        area:
+          type: number
+        bedrooms:
+          type: integer
+        price:
+          type: number
+        status:
+          type: string
+          enum: [available, reserved, sold]
+
+    UnitUpdate:
+      type: object
+      properties:
+        floor:
+          type: integer
+        area:
+          type: number
+        bedrooms:
+          type: integer
+        price:
+          type: number
+        status:
+          type: string
+          enum: [available, reserved, sold]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+
+    SignupRequest:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        name:
+          type: string
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        projectId:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        date:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, confirmed, cancelled]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AppointmentCreate:
+      type: object
+      required:
+        - projectId
+        - name
+        - phone
+        - date
+      properties:
+        projectId:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    Favorite:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        projectId:
+          type: string
+        group:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    FavoriteCreate:
+      type: object
+      required:
+        - projectId
+      properties:
+        projectId:
+          type: string
+        group:
+          type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

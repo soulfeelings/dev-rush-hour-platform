@@ -5,6 +5,12 @@
 - Respond in Russian
 - Commit messages in English: `feature: description`
 
+## Tech Stack
+
+- Backend: Go + Fiber v2 на порту 8080
+- Frontend: React 19 + TypeScript + pnpm на порту 5173
+- API: OpenAPI-first (спека → генерация кода)
+
 ## Code Style
 
 - Don't change code just for linter compliance (e.g., don't change quotes)
@@ -13,14 +19,27 @@
 
 ## Frontend
 
+- Package manager: pnpm (not npm/yarn)
 - Use SCSS Modules for styling (`.module.scss`)
+- Regenerate TypeScript client from OpenAPI using `make generate` in `web/` directory
 - Follow SOLID principles
 
 ## Backend
 
+- OpenAPI spec: `backend/api/openapi.yaml`
+- Generated code: `backend/internal/generated/`
+- Regenerate code after changing openapi.yaml using `make generate` in `backend/` directory
+- Structure: `cmd/` — entrypoint, `internal/` — business logic
 - Follow SOLID principles
 - Follow KISS principle
 - Always type data and API responses
+
+## Code Generation
+
+- Always use `make generate` commands instead of direct tool calls:
+  - Backend: `cd backend && make generate` (generates Go code from OpenAPI)
+  - Frontend: `cd web && make generate` (generates TypeScript client from OpenAPI)
+- Never call oapi-codegen, openapi-typescript, or other generation tools directly
 
 ## Planning
 
