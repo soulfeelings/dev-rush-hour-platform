@@ -138,6 +138,15 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
+# Go
+backend/main
+backend/server
+backend/*.exe
+backend/vendor/
+backend/coverage.out
+backend/coverage.html
+*.test
+
 # Air (Go hot reload)
 backend/tmp/
 backend/build-errors.log
