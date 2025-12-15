@@ -1,0 +1,27 @@
+# Project Rules
+
+## Language
+
+- Respond in Russian
+- Commit messages in English: `feature: description`
+
+## Code Style
+
+- Don't change code just for linter compliance (e.g., don't change quotes)
+- Keep responses concise and to the point
+- Ask for confirmation before writing code
+
+## Frontend
+
+- Use SCSS Modules for styling (`.module.scss`)
+- Follow SOLID principles
+
+## Backend
+
+- Follow SOLID principles
+- Follow KISS principle
+- Always type data and API responses
+
+## Planning
+
+- Use sequential-thinking for complex task planning in agent mode
