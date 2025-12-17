@@ -10,6 +10,7 @@ menu:
 	@echo "  \033[33m3)\033[0m Build"
 	@echo "  \033[33m4)\033[0m Lint"
 	@echo "  \033[33m5)\033[0m Lint and fix"
+	@echo "  \033[33m6)\033[0m Type check"
 	@echo "  \033[33m0)\033[0m Back"
 	@echo ""
 	@read -p "Select option: " choice; \
@@ -19,6 +20,7 @@ menu:
 		3) $(MAKE) build ;; \
 		4) $(MAKE) lint ;; \
 		5) $(MAKE) lint-fix ;; \
+		6) $(MAKE) type-check ;; \
 		0) $(MAKE) -C .. ;; \
 		*) echo "Invalid option" ;; \
 	esac
@@ -37,4 +39,7 @@ lint:
 
 lint-fix:
 	pnpm lint:fix
+
+type-check:
+	pnpm type-check
 

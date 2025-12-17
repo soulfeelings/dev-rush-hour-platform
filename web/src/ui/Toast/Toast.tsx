@@ -1,4 +1,4 @@
-import { HTMLAttributes, forwardRef, useEffect } from 'react'
+import { forwardRef, useEffect, type HTMLAttributes } from 'react'
 import { Check, X, Info, AlertTriangle } from 'lucide-react'
 import styles from './Toast.module.scss'
 

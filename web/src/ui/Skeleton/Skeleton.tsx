@@ -1,4 +1,4 @@
-import { HTMLAttributes, forwardRef } from 'react'
+import { forwardRef, type HTMLAttributes } from 'react'
 import styles from './Skeleton.module.scss'
 
 export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {

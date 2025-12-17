@@ -1,4 +1,4 @@
-import { HTMLAttributes, forwardRef, useEffect } from 'react'
+import { forwardRef, useEffect, type HTMLAttributes } from 'react'
 import { X } from 'lucide-react'
 import styles from './Modal.module.scss'
 

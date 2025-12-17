@@ -1,4 +1,4 @@
-import { HTMLAttributes, forwardRef } from 'react'
+import { forwardRef, type HTMLAttributes } from 'react'
 import styles from './Tooltip.module.scss'
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right'
