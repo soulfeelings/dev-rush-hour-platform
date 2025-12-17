@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // ============================================
 // DESIGN SYSTEM - Dubai Real Estate Platform
 // ============================================
@@ -212,7 +214,7 @@ $transition-slow: 350ms ease;
     height: 600px;
     background: radial-gradient(
       circle,
-      rgba($color-primary, 0.15) 0%,
+      color.change($color-primary, $alpha: 0.15) 0%,
       transparent 70%
     );
     pointer-events: none;
@@ -283,11 +285,11 @@ $transition-slow: 350ms ease;
     height: 6px;
     background: linear-gradient(
       90deg,
-      rgba($color-primary, 0.4) 0%,
-      rgba($color-primary, 0.7) 25%,
-      rgba($color-primary, 0.4) 50%,
-      rgba($color-primary, 0.7) 75%,
-      rgba($color-primary, 0.4) 100%
+      color.change($color-primary, $alpha: 0.4) 0%,
+      color.change($color-primary, $alpha: 0.7) 25%,
+      color.change($color-primary, $alpha: 0.4) 50%,
+      color.change($color-primary, $alpha: 0.7) 75%,
+      color.change($color-primary, $alpha: 0.4) 100%
     );
     background-size: 200% 100%;
     border-radius: 3px;
@@ -461,7 +463,7 @@ $transition-slow: 350ms ease;
   }
 
   &:active:not(:disabled) {
-    background: rgba($color-primary, 0.2);
+    background: color.change($color-primary, $alpha: 0.2);
   }
 }
 
@@ -520,13 +522,13 @@ $transition-slow: 350ms ease;
   }
 
   &:hover {
-    border-color: darken($color-border, 10%);
+    border-color: color.mix(black, $color-border, 10%);
   }
 
   &:focus {
     outline: none;
     border-color: $color-primary;
-    box-shadow: 0 0 0 3px rgba($color-primary, 0.15);
+    box-shadow: 0 0 0 3px color.change($color-primary, $alpha: 0.15);
   }
 }
 
@@ -535,7 +537,7 @@ $transition-slow: 350ms ease;
 
   &:focus {
     border-color: $color-error;
-    box-shadow: 0 0 0 3px rgba($color-error, 0.15);
+    box-shadow: 0 0 0 3px color.change($color-error, $alpha: 0.15);
   }
 }
 
@@ -544,7 +546,7 @@ $transition-slow: 350ms ease;
 
   &:focus {
     border-color: $color-success;
-    box-shadow: 0 0 0 3px rgba($color-success, 0.15);
+    box-shadow: 0 0 0 3px color.change($color-success, $alpha: 0.15);
   }
 }
 
@@ -583,12 +585,12 @@ $transition-slow: 350ms ease;
   text-align: left;
 
   &:hover {
-    border-color: darken($color-border, 10%);
+    border-color: color.mix(black, $color-border, 10%);
   }
 
   &.open {
     border-color: $color-primary;
-    box-shadow: 0 0 0 3px rgba($color-primary, 0.15);
+    box-shadow: 0 0 0 3px color.change($color-primary, $alpha: 0.15);
   }
 }
 
@@ -663,7 +665,7 @@ $transition-slow: 350ms ease;
     border-radius: 3px;
 
     &:hover {
-      background: darken($color-border, 10%);
+      background: color.mix(black, $color-border, 10%);
     }
   }
 }
@@ -737,7 +739,7 @@ $transition-slow: 350ms ease;
     background: transparent;
   }
   50% {
-    background: rgba($color-primary, 0.2);
+    background: color.change($color-primary, $alpha: 0.2);
   }
   100% {
     background: transparent;
@@ -999,9 +1001,9 @@ $transition-slow: 350ms ease;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   border-radius: $radius-lg;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba($color-primary, 0.2),
+  box-shadow: 0 4px 20px color.change($color-primary, $alpha: 0.2),
     0 8px 40px rgba(0, 0, 0, 0.15);
-  border: 2px solid rgba($color-primary, 0.3);
+  border: 2px solid color.change($color-primary, $alpha: 0.3);
 
   &::before {
     content: "";
@@ -1028,7 +1030,7 @@ $transition-slow: 350ms ease;
   align-items: center;
   justify-content: center;
   transition: all $transition-normal;
-  box-shadow: 0 4px 20px rgba($color-primary, 0.4);
+  box-shadow: 0 4px 20px color.change($color-primary, $alpha: 0.4);
   z-index: 1;
 
   &::before {
@@ -1043,7 +1045,7 @@ $transition-slow: 350ms ease;
 
   &:hover {
     transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: 0 6px 30px rgba($color-primary, 0.5);
+    box-shadow: 0 6px 30px color.change($color-primary, $alpha: 0.5);
   }
 
   @media (min-width: $breakpoint-md) {
@@ -1125,7 +1127,7 @@ $transition-slow: 350ms ease;
   background: linear-gradient(
     135deg,
     $color-text 0%,
-    lighten($color-text, 10%) 100%
+    color.mix(white, $color-text, 10%) 100%
   );
   text-align: center;
   color: $color-text-inverse;
@@ -1480,7 +1482,7 @@ $transition-slow: 350ms ease;
   background: linear-gradient(
     90deg,
     $color-border 0%,
-    lighten($color-border, 5%) 50%,
+    color.mix(white, $color-border, 5%) 50%,
     $color-border 100%
   );
   background-size: 200% 100%;
