@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Catalog from './pages/Catalog';
-import DesignDemo from './design-demo/DesignDemo';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Catalog from './pages/Catalog'
+import DesignDemo from './design-demo/DesignDemo'
+import './App.css'
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
         <Route path="/design-demo" element={<DesignDemo />} />
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App

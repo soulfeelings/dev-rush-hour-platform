@@ -4,917 +4,917 @@
  */
 
 export interface paths {
-    "/projects": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Получить список проектов */
-        get: operations["listProjects"];
-        put?: never;
-        /** Создать проект */
-        post: operations["createProject"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/projects/{projectId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Получить проект по ID */
-        get: operations["getProject"];
-        /** Обновить проект */
-        put: operations["updateProject"];
-        post?: never;
-        /** Удалить проект */
-        delete: operations["deleteProject"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/units": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Получить список юнитов */
-        get: operations["listUnits"];
-        put?: never;
-        /** Создать юнит */
-        post: operations["createUnit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/units/{unitId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Получить юнит по ID */
-        get: operations["getUnit"];
-        /** Обновить юнит */
-        put: operations["updateUnit"];
-        post?: never;
-        /** Удалить юнит */
-        delete: operations["deleteUnit"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/signup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Регистрация пользователя */
-        post: operations["signup"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Вход пользователя */
-        post: operations["login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{userId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Получить пользователя по ID */
-        get: operations["getUser"];
-        /** Обновить пользователя */
-        put: operations["updateUser"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/appointments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Получить список встреч */
-        get: operations["listAppointments"];
-        put?: never;
-        /** Создать встречу */
-        post: operations["createAppointment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/appointments/{appointmentId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Получить встречу по ID */
-        get: operations["getAppointment"];
-        put?: never;
-        post?: never;
-        /** Удалить встречу */
-        delete: operations["deleteAppointment"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/favorites": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Получить список избранного */
-        get: operations["listFavorites"];
-        put?: never;
-        /** Добавить в избранное */
-        post: operations["createFavorite"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/favorites/{favoriteId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Получить избранное по ID */
-        get: operations["getFavorite"];
-        put?: never;
-        post?: never;
-        /** Удалить из избранного */
-        delete: operations["deleteFavorite"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  '/projects': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить список проектов */
+    get: operations['listProjects']
+    put?: never
+    /** Создать проект */
+    post: operations['createProject']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/projects/{projectId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить проект по ID */
+    get: operations['getProject']
+    /** Обновить проект */
+    put: operations['updateProject']
+    post?: never
+    /** Удалить проект */
+    delete: operations['deleteProject']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/units': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить список юнитов */
+    get: operations['listUnits']
+    put?: never
+    /** Создать юнит */
+    post: operations['createUnit']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/units/{unitId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить юнит по ID */
+    get: operations['getUnit']
+    /** Обновить юнит */
+    put: operations['updateUnit']
+    post?: never
+    /** Удалить юнит */
+    delete: operations['deleteUnit']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/auth/signup': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Регистрация пользователя */
+    post: operations['signup']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/auth/login': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Вход пользователя */
+    post: operations['login']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/users/{userId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить пользователя по ID */
+    get: operations['getUser']
+    /** Обновить пользователя */
+    put: operations['updateUser']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/appointments': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить список встреч */
+    get: operations['listAppointments']
+    put?: never
+    /** Создать встречу */
+    post: operations['createAppointment']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/appointments/{appointmentId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить встречу по ID */
+    get: operations['getAppointment']
+    put?: never
+    post?: never
+    /** Удалить встречу */
+    delete: operations['deleteAppointment']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/favorites': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить список избранного */
+    get: operations['listFavorites']
+    put?: never
+    /** Добавить в избранное */
+    post: operations['createFavorite']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/favorites/{favoriteId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Получить избранное по ID */
+    get: operations['getFavorite']
+    put?: never
+    post?: never
+    /** Удалить из избранного */
+    delete: operations['deleteFavorite']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
-export type webhooks = Record<string, never>;
+export type webhooks = Record<string, never>
 export interface components {
-    schemas: {
-        Project: {
-            id?: string;
-            title?: string;
-            location?: string;
-            priceFrom?: number;
-            /** @enum {string} */
-            status?: "ready" | "construction" | "planning";
-            description?: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        ProjectCreate: {
-            title: string;
-            location: string;
-            priceFrom: number;
-            /** @enum {string} */
-            status: "ready" | "construction" | "planning";
-            description?: string;
-        };
-        ProjectUpdate: {
-            title?: string;
-            location?: string;
-            priceFrom?: number;
-            /** @enum {string} */
-            status?: "ready" | "construction" | "planning";
-            description?: string;
-        };
-        Unit: {
-            id?: string;
-            projectId?: string;
-            floor?: number;
-            area?: number;
-            bedrooms?: number;
-            price?: number;
-            /** @enum {string} */
-            status?: "available" | "reserved" | "sold";
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        UnitCreate: {
-            projectId: string;
-            floor: number;
-            area: number;
-            bedrooms: number;
-            price: number;
-            /** @enum {string} */
-            status: "available" | "reserved" | "sold";
-        };
-        UnitUpdate: {
-            floor?: number;
-            area?: number;
-            bedrooms?: number;
-            price?: number;
-            /** @enum {string} */
-            status?: "available" | "reserved" | "sold";
-        };
-        User: {
-            id?: string;
-            email?: string;
-            name?: string;
-            phone?: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        UserUpdate: {
-            name?: string;
-            phone?: string;
-        };
-        SignupRequest: {
-            /** Format: email */
-            email: string;
-            password: string;
-            name: string;
-        };
-        LoginRequest: {
-            /** Format: email */
-            email: string;
-            password: string;
-        };
-        AuthResponse: {
-            token?: string;
-            user?: components["schemas"]["User"];
-        };
-        Appointment: {
-            id?: string;
-            userId?: string;
-            projectId?: string;
-            name?: string;
-            phone?: string;
-            /** Format: date-time */
-            date?: string;
-            /** @enum {string} */
-            status?: "pending" | "confirmed" | "cancelled";
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        AppointmentCreate: {
-            projectId: string;
-            name: string;
-            phone: string;
-            /** Format: date-time */
-            date: string;
-        };
-        Favorite: {
-            id?: string;
-            userId?: string;
-            projectId?: string;
-            group?: string;
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        FavoriteCreate: {
-            projectId: string;
-            group?: string;
-        };
-    };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+  schemas: {
+    Project: {
+      id?: string
+      title?: string
+      location?: string
+      priceFrom?: number
+      /** @enum {string} */
+      status?: 'ready' | 'construction' | 'planning'
+      description?: string
+      /** Format: date-time */
+      createdAt?: string
+      /** Format: date-time */
+      updatedAt?: string
+    }
+    ProjectCreate: {
+      title: string
+      location: string
+      priceFrom: number
+      /** @enum {string} */
+      status: 'ready' | 'construction' | 'planning'
+      description?: string
+    }
+    ProjectUpdate: {
+      title?: string
+      location?: string
+      priceFrom?: number
+      /** @enum {string} */
+      status?: 'ready' | 'construction' | 'planning'
+      description?: string
+    }
+    Unit: {
+      id?: string
+      projectId?: string
+      floor?: number
+      area?: number
+      bedrooms?: number
+      price?: number
+      /** @enum {string} */
+      status?: 'available' | 'reserved' | 'sold'
+      /** Format: date-time */
+      createdAt?: string
+      /** Format: date-time */
+      updatedAt?: string
+    }
+    UnitCreate: {
+      projectId: string
+      floor: number
+      area: number
+      bedrooms: number
+      price: number
+      /** @enum {string} */
+      status: 'available' | 'reserved' | 'sold'
+    }
+    UnitUpdate: {
+      floor?: number
+      area?: number
+      bedrooms?: number
+      price?: number
+      /** @enum {string} */
+      status?: 'available' | 'reserved' | 'sold'
+    }
+    User: {
+      id?: string
+      email?: string
+      name?: string
+      phone?: string
+      /** Format: date-time */
+      createdAt?: string
+      /** Format: date-time */
+      updatedAt?: string
+    }
+    UserUpdate: {
+      name?: string
+      phone?: string
+    }
+    SignupRequest: {
+      /** Format: email */
+      email: string
+      password: string
+      name: string
+    }
+    LoginRequest: {
+      /** Format: email */
+      email: string
+      password: string
+    }
+    AuthResponse: {
+      token?: string
+      user?: components['schemas']['User']
+    }
+    Appointment: {
+      id?: string
+      userId?: string
+      projectId?: string
+      name?: string
+      phone?: string
+      /** Format: date-time */
+      date?: string
+      /** @enum {string} */
+      status?: 'pending' | 'confirmed' | 'cancelled'
+      /** Format: date-time */
+      createdAt?: string
+      /** Format: date-time */
+      updatedAt?: string
+    }
+    AppointmentCreate: {
+      projectId: string
+      name: string
+      phone: string
+      /** Format: date-time */
+      date: string
+    }
+    Favorite: {
+      id?: string
+      userId?: string
+      projectId?: string
+      group?: string
+      /** Format: date-time */
+      createdAt?: string
+    }
+    FavoriteCreate: {
+      projectId: string
+      group?: string
+    }
+  }
+  responses: never
+  parameters: never
+  requestBodies: never
+  headers: never
+  pathItems: never
 }
-export type $defs = Record<string, never>;
+export type $defs = Record<string, never>
 export interface operations {
-    listProjects: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Список проектов */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Project"][];
-                };
-            };
-        };
-    };
-    createProject: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ProjectCreate"];
-            };
-        };
-        responses: {
-            /** @description Проект создан */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Project"];
-                };
-            };
-        };
-    };
-    getProject: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Проект найден */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Project"];
-                };
-            };
-            /** @description Проект не найден */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    updateProject: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ProjectUpdate"];
-            };
-        };
-        responses: {
-            /** @description Проект обновлен */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Project"];
-                };
-            };
-        };
-    };
-    deleteProject: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Проект удален */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Проект не найден */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    listUnits: {
-        parameters: {
-            query?: {
-                /** @description Фильтр по проекту */
-                projectId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Список юнитов */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Unit"][];
-                };
-            };
-        };
-    };
-    createUnit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UnitCreate"];
-            };
-        };
-        responses: {
-            /** @description Юнит создан */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Unit"];
-                };
-            };
-        };
-    };
-    getUnit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                unitId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Юнит найден */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Unit"];
-                };
-            };
-            /** @description Юнит не найден */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    updateUnit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                unitId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UnitUpdate"];
-            };
-        };
-        responses: {
-            /** @description Юнит обновлен */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Unit"];
-                };
-            };
-        };
-    };
-    deleteUnit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                unitId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Юнит удален */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Юнит не найден */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    signup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignupRequest"];
-            };
-        };
-        responses: {
-            /** @description Пользователь зарегистрирован */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthResponse"];
-                };
-            };
-            /** @description Ошибка валидации */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        responses: {
-            /** @description Успешный вход */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthResponse"];
-                };
-            };
-            /** @description Неверные учетные данные */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    getUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Пользователь найден */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description Пользователь не найден */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    updateUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserUpdate"];
-            };
-        };
-        responses: {
-            /** @description Пользователь обновлен */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-        };
-    };
-    listAppointments: {
-        parameters: {
-            query?: {
-                /** @description Фильтр по пользователю */
-                userId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Список встреч */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Appointment"][];
-                };
-            };
-        };
-    };
-    createAppointment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AppointmentCreate"];
-            };
-        };
-        responses: {
-            /** @description Встреча создана */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Appointment"];
-                };
-            };
-        };
-    };
-    getAppointment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                appointmentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Встреча найдена */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Appointment"];
-                };
-            };
-            /** @description Встреча не найдена */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    deleteAppointment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                appointmentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Встреча удалена */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Встреча не найдена */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    listFavorites: {
-        parameters: {
-            query: {
-                userId: string;
-                /** @description Фильтр по группе */
-                group?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Список избранного */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Favorite"][];
-                };
-            };
-        };
-    };
-    createFavorite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FavoriteCreate"];
-            };
-        };
-        responses: {
-            /** @description Добавлено в избранное */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Favorite"];
-                };
-            };
-        };
-    };
-    getFavorite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                favoriteId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Избранное найдено */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Favorite"];
-                };
-            };
-            /** @description Избранное не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    deleteFavorite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                favoriteId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Удалено из избранного */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Избранное не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
+  listProjects: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список проектов */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Project'][]
+        }
+      }
+    }
+  }
+  createProject: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ProjectCreate']
+      }
+    }
+    responses: {
+      /** @description Проект создан */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Project']
+        }
+      }
+    }
+  }
+  getProject: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        projectId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Проект найден */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Project']
+        }
+      }
+      /** @description Проект не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  updateProject: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        projectId: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ProjectUpdate']
+      }
+    }
+    responses: {
+      /** @description Проект обновлен */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Project']
+        }
+      }
+    }
+  }
+  deleteProject: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        projectId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Проект удален */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Проект не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  listUnits: {
+    parameters: {
+      query?: {
+        /** @description Фильтр по проекту */
+        projectId?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список юнитов */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Unit'][]
+        }
+      }
+    }
+  }
+  createUnit: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UnitCreate']
+      }
+    }
+    responses: {
+      /** @description Юнит создан */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Unit']
+        }
+      }
+    }
+  }
+  getUnit: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        unitId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Юнит найден */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Unit']
+        }
+      }
+      /** @description Юнит не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  updateUnit: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        unitId: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UnitUpdate']
+      }
+    }
+    responses: {
+      /** @description Юнит обновлен */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Unit']
+        }
+      }
+    }
+  }
+  deleteUnit: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        unitId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Юнит удален */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Юнит не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  signup: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SignupRequest']
+      }
+    }
+    responses: {
+      /** @description Пользователь зарегистрирован */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AuthResponse']
+        }
+      }
+      /** @description Ошибка валидации */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  login: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LoginRequest']
+      }
+    }
+    responses: {
+      /** @description Успешный вход */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AuthResponse']
+        }
+      }
+      /** @description Неверные учетные данные */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  getUser: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        userId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Пользователь найден */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['User']
+        }
+      }
+      /** @description Пользователь не найден */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  updateUser: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        userId: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UserUpdate']
+      }
+    }
+    responses: {
+      /** @description Пользователь обновлен */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['User']
+        }
+      }
+    }
+  }
+  listAppointments: {
+    parameters: {
+      query?: {
+        /** @description Фильтр по пользователю */
+        userId?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список встреч */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Appointment'][]
+        }
+      }
+    }
+  }
+  createAppointment: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AppointmentCreate']
+      }
+    }
+    responses: {
+      /** @description Встреча создана */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Appointment']
+        }
+      }
+    }
+  }
+  getAppointment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        appointmentId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Встреча найдена */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Appointment']
+        }
+      }
+      /** @description Встреча не найдена */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  deleteAppointment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        appointmentId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Встреча удалена */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Встреча не найдена */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  listFavorites: {
+    parameters: {
+      query: {
+        userId: string
+        /** @description Фильтр по группе */
+        group?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Список избранного */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Favorite'][]
+        }
+      }
+    }
+  }
+  createFavorite: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FavoriteCreate']
+      }
+    }
+    responses: {
+      /** @description Добавлено в избранное */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Favorite']
+        }
+      }
+    }
+  }
+  getFavorite: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        favoriteId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Избранное найдено */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Favorite']
+        }
+      }
+      /** @description Избранное не найдено */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  deleteFavorite: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        favoriteId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Удалено из избранного */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Избранное не найдено */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
 }

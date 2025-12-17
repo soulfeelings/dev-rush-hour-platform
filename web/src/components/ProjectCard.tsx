@@ -1,38 +1,38 @@
-import styles from './ProjectCard.module.scss';
+import styles from './ProjectCard.module.scss'
 
 interface ProjectCardProps {
-  title?: string;
-  location?: string;
-  priceFrom?: number;
-  status?: 'ready' | 'construction' | 'planning';
+  title?: string
+  location?: string
+  priceFrom?: number
+  status?: 'ready' | 'construction' | 'planning'
 }
 
 export default function ProjectCard({ title, location, priceFrom, status }: ProjectCardProps) {
   const getStatusLabel = (status?: string) => {
     switch (status) {
       case 'ready':
-        return 'Готов';
+        return 'Готов'
       case 'construction':
-        return 'Строится';
+        return 'Строится'
       case 'planning':
-        return 'Планируется';
+        return 'Планируется'
       default:
-        return '';
+        return ''
     }
-  };
+  }
 
   const getStatusClass = (status?: string) => {
     switch (status) {
       case 'ready':
-        return styles.statusReady;
+        return styles.statusReady
       case 'construction':
-        return styles.statusConstruction;
+        return styles.statusConstruction
       case 'planning':
-        return styles.statusPlanning;
+        return styles.statusPlanning
       default:
-        return '';
+        return ''
     }
-  };
+  }
 
   return (
     <div className={styles.card}>
@@ -44,11 +44,8 @@ export default function ProjectCard({ title, location, priceFrom, status }: Proj
       <h2 className={styles.title}>{title || 'Название проекта'}</h2>
       <p className={styles.location}>{location || 'Местоположение не указано'}</p>
       {priceFrom !== undefined && (
-        <p className={styles.price}>
-          от {priceFrom.toLocaleString('ru-RU')} ₽
-        </p>
+        <p className={styles.price}>от {priceFrom.toLocaleString('ru-RU')} ₽</p>
       )}
     </div>
-  );
+  )
 }
-

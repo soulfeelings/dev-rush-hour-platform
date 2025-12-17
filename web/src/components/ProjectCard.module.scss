@@ -3,7 +3,9 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 1.5rem;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
   position: relative;
 
   &:hover {
@@ -56,4 +58,3 @@
   color: #2563eb;
   margin: 0;
 }
-
