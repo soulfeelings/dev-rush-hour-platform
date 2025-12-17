@@ -9,3 +9,11 @@ pre-commit:
       run: cd web && pnpm format:fix
       glob: "web/**/*.{ts,tsx,js,jsx,json,css,scss,md}"
       stage_fixed: true
+
+pre-push:
+  parallel: true
+  commands:
+    type-check:
+      run: cd web && pnpm type-check
+    lint:
+      run: cd web && pnpm lint
