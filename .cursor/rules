@@ -1,9 +1,11 @@
 # Project Rules
 
-## Language
+## General
 
 - Respond in Russian
-- Commit messages in English: `feature: description`
+- Commits: `feature: description` (English)
+- Ask confirmation before writing code
+- Don't change code just for linter (e.g., quotes)
 
 ## Tech Stack
 
@@ -23,6 +25,18 @@
 - Use SCSS Modules for styling (`.module.scss`)
 - Regenerate TypeScript client from OpenAPI using `make generate` in `web/` directory
 - Follow SOLID principles
+
+### UI Components (`src/ui/`)
+
+**⚠️ Use existing components first. If missing — ask user.**
+
+See available: `src/ui/index.ts`
+
+Icons: `lucide-react` — `import { Search, Heart, Home } from 'lucide-react'`
+
+### Design System (`src/styles/`)
+
+Tokens: `src/styles/_variables.scss` | Mixins: `src/styles/_mixins.scss`
 
 ## Backend
 

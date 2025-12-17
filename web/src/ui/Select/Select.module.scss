@@ -1,0 +1,222 @@
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+}
+
+.select {
+  position: relative;
+  width: 100%;
+
+  &--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.trigger {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  padding-right: $spacing-10;
+  font-family: inherit;
+  font-size: $font-size-md;
+  color: $color-text;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-fast;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  text-align: left;
+
+  &:hover:not(:disabled) {
+    border-color: color.mix(black, $color-border, 10%);
+  }
+
+  &--open {
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px color.change($color-primary, $alpha: 0.15);
+  }
+
+  &--error {
+    border-color: $color-error;
+
+    &.trigger--open {
+      box-shadow: 0 0 0 3px color.change($color-error, $alpha: 0.15);
+    }
+  }
+}
+
+.placeholder {
+  color: $color-text-muted;
+}
+
+.arrow {
+  position: absolute;
+  right: $spacing-4;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform $transition-normal cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+
+  svg {
+    width: 12px;
+    height: 12px;
+    color: $color-text-muted;
+  }
+
+  .trigger--open & {
+    transform: translateY(-50%) rotate(180deg);
+  }
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  z-index: $z-dropdown;
+  overflow: hidden;
+
+  // Animation
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.98);
+  transform-origin: top center;
+  transition:
+    opacity $transition-normal,
+    transform $transition-normal cubic-bezier(0.34, 1.56, 0.64, 1),
+    visibility $transition-normal;
+
+  &--open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.options {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: $spacing-1 0;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $color-border;
+    border-radius: 3px;
+
+    &:hover {
+      background: color.mix(black, $color-border, 10%);
+    }
+  }
+}
+
+.option {
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-md;
+  color: $color-text;
+  cursor: pointer;
+  transition: all $transition-fast;
+  position: relative;
+  overflow: hidden;
+
+  // Ripple effect background
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: $color-primary;
+    opacity: 0;
+    transition: opacity $transition-fast;
+  }
+
+  &:hover {
+    &::before {
+      opacity: 0.08;
+    }
+  }
+
+  &--selected {
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+    background: $color-primary-light;
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: $spacing-4;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E5A732' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E")
+        center/contain no-repeat;
+      animation: checkPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  }
+
+  // Selection animation
+  &--selecting {
+    animation: optionSelect 0.2s ease-out;
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-50%) scale(1.2);
+  }
+  100% {
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes optionSelect {
+  0% {
+    background: transparent;
+  }
+  50% {
+    background: color.change($color-primary, $alpha: 0.2);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+.errorText {
+  font-size: $font-size-sm;
+  color: $color-error;
+}

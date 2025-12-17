@@ -1,0 +1,59 @@
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    $color-border 0%,
+    color.mix(white, $color-border, 5%) 50%,
+    $color-border 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+// Variants
+.skeleton--text {
+  height: 16px;
+  border-radius: $radius-sm;
+  margin-bottom: $spacing-2;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.skeleton--rectangular {
+  border-radius: $radius-sm;
+}
+
+.skeleton--circular {
+  border-radius: $radius-full;
+}
+
+// Lines container
+.lines {
+  display: flex;
+  flex-direction: column;
+}
+
+// Card preset
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.cardContent {
+  padding: $spacing-4;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

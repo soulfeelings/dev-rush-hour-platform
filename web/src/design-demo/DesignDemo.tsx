@@ -1,5 +1,17 @@
 import { useState, useRef, useEffect } from 'react'
 import styles from './DesignDemo.module.scss'
+import {
+  Button,
+  Input,
+  Select,
+  Checkbox,
+  SkeletonCard,
+  Tooltip,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  Toast,
+} from '../ui'
 
 // Icons
 const IconMenu = () => (
@@ -71,12 +83,6 @@ const IconUsers = () => (
 const IconX = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M18 6 6 18M6 6l12 12" />
-  </svg>
-)
-
-const IconCheck = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="20 6 9 17 4 12" />
   </svg>
 )
 
@@ -250,9 +256,7 @@ export default function DesignDemo() {
           </nav>
 
           <div className={styles.headerActions}>
-            <button className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}>
-              List Property
-            </button>
+            <Button size="sm">List Property</Button>
             <button className={styles.menuBtn}>
               <IconMenu />
             </button>
@@ -275,10 +279,10 @@ export default function DesignDemo() {
               luxurious villas to modern apartments.
             </p>
             <div className={styles.heroActions}>
-              <button className={`${styles.btn} ${styles.btnPrimary}`}>
+              <Button>
                 <IconSearch /> Explore Properties
-              </button>
-              <button className={`${styles.btn} ${styles.btnSecondary}`}>Contact Agent</button>
+              </Button>
+              <Button variant="secondary">Contact Agent</Button>
             </div>
           </div>
 
@@ -352,9 +356,9 @@ export default function DesignDemo() {
                 onChange={setPriceRange}
               />
             </div>
-            <button type="button" className={`${styles.btn} ${styles.btnPrimary}`}>
+            <Button type="button">
               <IconSearch /> Search
-            </button>
+            </Button>
           </form>
         </div>
       </section>
@@ -373,12 +377,9 @@ export default function DesignDemo() {
             <h2 className={styles.sectionTitle}>Featured Properties</h2>
             <p className={styles.sectionSubtitle}>Handpicked selections for discerning buyers</p>
           </div>
-          <button
-            className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}
-            style={{ marginTop: '16px' }}
-          >
+          <Button variant="secondary" size="sm" style={{ marginTop: '16px' }}>
             View All
-          </button>
+          </Button>
         </div>
 
         <div className={styles.propertiesGrid}>
@@ -499,16 +500,15 @@ export default function DesignDemo() {
             Join thousands of satisfied buyers who found their perfect property through RushHour.
           </p>
           <div className={styles.ctaActions}>
-            <button className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}>
-              Get Started Today
-            </button>
-            <button
-              className={`${styles.btn} ${styles.btnGhost} ${styles.btnLg}`}
+            <Button size="lg">Get Started Today</Button>
+            <Button
+              variant="ghost"
+              size="lg"
               style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
               onClick={() => setShowModal(true)}
             >
               Schedule a Call
-            </button>
+            </Button>
           </div>
         </div>
       </section>
@@ -791,21 +791,17 @@ export default function DesignDemo() {
             <h3 className={styles.showcaseTitle}>Buttons</h3>
             <p className={styles.showcaseSubtitle}>All button variants and states</p>
             <div className={styles.showcaseRow}>
-              <button className={`${styles.btn} ${styles.btnPrimary}`}>Primary</button>
-              <button className={`${styles.btn} ${styles.btnSecondary}`}>Secondary</button>
-              <button className={`${styles.btn} ${styles.btnGhost}`}>Ghost</button>
-              <button className={`${styles.btn} ${styles.btnPrimary}`} disabled>
+              <Button variant="primary">Primary</Button>
+              <Button variant="secondary">Secondary</Button>
+              <Button variant="ghost">Ghost</Button>
+              <Button variant="primary" disabled>
                 Disabled
-              </button>
+              </Button>
             </div>
             <div className={styles.showcaseRow} style={{ marginTop: '16px' }}>
-              <button className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}>
-                Small
-              </button>
-              <button className={`${styles.btn} ${styles.btnPrimary}`}>Default</button>
-              <button className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}>
-                Large
-              </button>
+              <Button size="sm">Small</Button>
+              <Button size="md">Default</Button>
+              <Button size="lg">Large</Button>
             </div>
           </div>
 
@@ -814,43 +810,24 @@ export default function DesignDemo() {
             <h3 className={styles.showcaseTitle}>Form Elements</h3>
             <p className={styles.showcaseSubtitle}>Inputs, selects, and validation states</p>
             <div style={{ display: 'grid', gap: '16px', maxWidth: '400px' }}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Default Input</label>
-                <input type="text" className={styles.input} placeholder="Enter your email" />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Input with Error</label>
-                <input
-                  type="text"
-                  className={`${styles.input} ${styles.inputError}`}
-                  value="invalid@"
-                />
-                <span className={styles.errorText}>Please enter a valid email address</span>
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Input with Success</label>
-                <input
-                  type="text"
-                  className={`${styles.input} ${styles.inputSuccess}`}
-                  value="valid@email.com"
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Select Dropdown</label>
-                <CustomSelect
-                  options={[
-                    { value: 'opt1', label: 'Option 1' },
-                    { value: 'opt2', label: 'Option 2' },
-                    { value: 'opt3', label: 'Option 3' },
-                  ]}
-                  value={showcaseSelect}
-                  onChange={setShowcaseSelect}
-                />
-              </div>
-              <label className={styles.checkbox}>
-                <input type="checkbox" defaultChecked />
-                <span>I agree to terms and conditions</span>
-              </label>
+              <Input label="Default Input" placeholder="Enter your email" />
+              <Input
+                label="Input with Error"
+                value="invalid@"
+                error="Please enter a valid email address"
+              />
+              <Input label="Input with Success" value="valid@email.com" state="success" />
+              <Select
+                label="Select Dropdown"
+                options={[
+                  { value: 'opt1', label: 'Option 1' },
+                  { value: 'opt2', label: 'Option 2' },
+                  { value: 'opt3', label: 'Option 3' },
+                ]}
+                value={showcaseSelect}
+                onChange={setShowcaseSelect}
+              />
+              <Checkbox label="I agree to terms and conditions" defaultChecked />
             </div>
           </div>
 
@@ -859,14 +836,7 @@ export default function DesignDemo() {
             <h3 className={styles.showcaseTitle}>Loading States</h3>
             <p className={styles.showcaseSubtitle}>Skeleton loading animation</p>
             <div style={{ maxWidth: '300px' }}>
-              <div className={styles.skeletonCard}>
-                <div className={`${styles.skeleton} ${styles.skeletonImage}`} />
-                <div className={styles.skeletonContent}>
-                  <div className={`${styles.skeleton} ${styles.skeletonLine}`} />
-                  <div className={`${styles.skeleton} ${styles.skeletonLine}`} />
-                  <div className={`${styles.skeleton} ${styles.skeletonLine}`} />
-                </div>
-              </div>
+              <SkeletonCard />
             </div>
           </div>
 
@@ -875,12 +845,11 @@ export default function DesignDemo() {
             <h3 className={styles.showcaseTitle}>Tooltips</h3>
             <p className={styles.showcaseSubtitle}>Hover for more information</p>
             <div className={styles.showcaseRow}>
-              <span className={styles.tooltip}>
-                <button className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}>
+              <Tooltip text="This is a tooltip!">
+                <Button variant="secondary" size="sm">
                   Hover me
-                </button>
-                <span className={styles.tooltipText}>This is a tooltip!</span>
-              </span>
+                </Button>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -968,56 +937,37 @@ export default function DesignDemo() {
       </footer>
 
       {/* Modal */}
-      {showModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Schedule a Call</h3>
-              <button className={styles.modalClose} onClick={() => setShowModal(false)}>
-                <IconX />
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Your Name</label>
-                <input type="text" className={styles.input} placeholder="John Doe" />
-              </div>
-              <div className={styles.formGroup} style={{ marginTop: '16px' }}>
-                <label className={styles.label}>Phone Number</label>
-                <input type="tel" className={styles.input} placeholder="+971 50 123 4567" />
-              </div>
-              <div className={styles.formGroup} style={{ marginTop: '16px' }}>
-                <label className={styles.label}>Preferred Time</label>
-                <CustomSelect
-                  options={[
-                    { value: 'morning', label: 'Morning (9AM - 12PM)' },
-                    { value: 'afternoon', label: 'Afternoon (12PM - 5PM)' },
-                    { value: 'evening', label: 'Evening (5PM - 8PM)' },
-                  ]}
-                  value={preferredTime}
-                  onChange={setPreferredTime}
-                />
-              </div>
-            </div>
-            <div className={styles.modalFooter}>
-              <button
-                className={`${styles.btn} ${styles.btnGhost}`}
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-              <button className={`${styles.btn} ${styles.btnPrimary}`}>Schedule Call</button>
-            </div>
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Schedule a Call">
+        <ModalBody>
+          <Input label="Your Name" placeholder="John Doe" />
+          <div style={{ marginTop: '16px' }}>
+            <Input label="Phone Number" type="tel" placeholder="+971 50 123 4567" />
           </div>
-        </div>
-      )}
+          <div style={{ marginTop: '16px' }}>
+            <Select
+              label="Preferred Time"
+              options={[
+                { value: 'morning', label: 'Morning (9AM - 12PM)' },
+                { value: 'afternoon', label: 'Afternoon (12PM - 5PM)' },
+                { value: 'evening', label: 'Evening (5PM - 8PM)' },
+              ]}
+              value={preferredTime}
+              onChange={setPreferredTime}
+            />
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="ghost" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary">Schedule Call</Button>
+        </ModalFooter>
+      </Modal>
 
       {/* Toast */}
-      {showToast && (
-        <div className={`${styles.toast} ${styles.toastSuccess}`}>
-          <IconCheck /> Property added to favorites!
-        </div>
-      )}
+      <Toast open={showToast} onClose={() => setShowToast(false)} variant="success">
+        Property added to favorites!
+      </Toast>
     </div>
   )
 }

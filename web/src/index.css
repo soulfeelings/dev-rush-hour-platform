@@ -1,3 +1,6 @@
+/* Design System Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+
 *,
 *::before,
 *::after {
@@ -14,5 +17,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  font-family: 'Plus Jakarta Sans', 'Noto Naskh Arabic', system-ui, sans-serif;
   background: #fdfbf7;
+  color: #1a1a1a;
 }

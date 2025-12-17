@@ -1,0 +1,64 @@
+@use '../../styles/variables' as *;
+
+.toast {
+  position: fixed;
+  bottom: $spacing-6;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: $color-text;
+  color: $color-text-inverse;
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  font-size: $font-size-sm;
+  z-index: $z-toast;
+  animation: slideUp $transition-normal;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+.content {
+  flex: 1;
+}
+
+// Variants
+.toast--default {
+  background: $color-text;
+}
+
+.toast--success {
+  background: $color-success;
+}
+
+.toast--error {
+  background: $color-error;
+}
+
+.toast--warning {
+  background: $color-warning;
+  color: $color-text;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

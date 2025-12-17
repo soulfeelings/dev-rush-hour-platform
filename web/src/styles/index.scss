@@ -1,0 +1,12 @@
+// ============================================
+// DESIGN SYSTEM - Main Entry Point
+// ============================================
+// Usage in components:
+//   @use '../styles' as ds;
+//   or
+//   @use '../styles/variables' as *;
+//   @use '../styles/mixins' as *;
+// ============================================
+
+@forward 'variables';
+@forward 'mixins';

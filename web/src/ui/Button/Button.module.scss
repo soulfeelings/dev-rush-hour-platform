@@ -1,0 +1,95 @@
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  font-family: inherit;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-md;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all $transition-fast;
+  text-decoration: none;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Variants
+.btn--primary {
+  background: $color-primary;
+  color: $color-text-inverse;
+  border-color: $color-primary;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-hover;
+    border-color: $color-primary-hover;
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &:active:not(:disabled) {
+    background: $color-primary-active;
+    border-color: $color-primary-active;
+    transform: translateY(0);
+  }
+}
+
+.btn--secondary {
+  background: transparent;
+  color: $color-primary;
+  border-color: $color-primary;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-light;
+  }
+
+  &:active:not(:disabled) {
+    background: color.change($color-primary, $alpha: 0.2);
+  }
+}
+
+.btn--ghost {
+  background: transparent;
+  color: $color-text;
+  border-color: transparent;
+
+  &:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.05);
+  }
+}
+
+// Sizes
+.btn--sm {
+  padding: $spacing-2 $spacing-4;
+  font-size: $font-size-sm;
+  min-height: 36px;
+}
+
+.btn--md {
+  padding: $spacing-3 $spacing-6;
+  font-size: $font-size-md;
+  min-height: 48px;
+}
+
+.btn--lg {
+  padding: $spacing-4 $spacing-8;
+  font-size: $font-size-lg;
+  min-height: 56px;
+}
+
+// Full width
+.btn--full {
+  width: 100%;
+}

@@ -8,6 +8,8 @@ menu:
 	@echo "  \033[33m1)\033[0m Generate TypeScript client from OpenAPI"
 	@echo "  \033[33m2)\033[0m Run dev server"
 	@echo "  \033[33m3)\033[0m Build"
+	@echo "  \033[33m4)\033[0m Lint"
+	@echo "  \033[33m5)\033[0m Lint and fix"
 	@echo "  \033[33m0)\033[0m Back"
 	@echo ""
 	@read -p "Select option: " choice; \
@@ -15,6 +17,8 @@ menu:
 		1) $(MAKE) generate ;; \
 		2) $(MAKE) dev ;; \
 		3) $(MAKE) build ;; \
+		4) $(MAKE) lint ;; \
+		5) $(MAKE) lint-fix ;; \
 		0) $(MAKE) -C .. ;; \
 		*) echo "Invalid option" ;; \
 	esac
@@ -27,4 +31,10 @@ dev:
 
 build:
 	pnpm build
+
+lint:
+	pnpm lint
+
+lint-fix:
+	pnpm lint:fix
 

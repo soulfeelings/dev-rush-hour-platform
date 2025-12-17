@@ -1,0 +1,79 @@
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  font-family: inherit;
+  font-size: $font-size-md;
+  color: $color-text;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  transition: all $transition-fast;
+  min-height: 48px;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: $color-text-muted;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: color.mix(black, $color-border, 10%);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px color.change($color-primary, $alpha: 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.input--default {
+  // Default state (no additional styles)
+}
+
+.input--error {
+  border-color: $color-error;
+
+  &:focus {
+    border-color: $color-error;
+    box-shadow: 0 0 0 3px color.change($color-error, $alpha: 0.15);
+  }
+}
+
+.input--success {
+  border-color: $color-success;
+
+  &:focus {
+    border-color: $color-success;
+    box-shadow: 0 0 0 3px color.change($color-success, $alpha: 0.15);
+  }
+}
+
+.helperText {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+}
+
+.errorText {
+  font-size: $font-size-sm;
+  color: $color-error;
+}

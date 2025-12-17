@@ -1,111 +1,14 @@
 @use 'sass:color';
+@use '../styles/variables' as *;
 
 // ============================================
-// DESIGN SYSTEM - Dubai Real Estate Platform
+// DESIGN SYSTEM DEMO - Dubai Real Estate Platform
+// ============================================
+// Variables imported from: ../styles/_variables.scss
 // ============================================
 
-// ----------------
-// COLOR PALETTE
-// ----------------
-$color-primary: #e5a732; // Warm golden yellow (sand-inspired)
-$color-primary-hover: #d19526; // Darker for hover
-$color-primary-active: #bd8620; // Even darker for active
-$color-primary-light: #fdf4e3; // Light tint for backgrounds
-
-$color-secondary: #2d8a7b; // Muted teal (palm green accent)
-$color-secondary-hover: #247568;
-$color-secondary-light: #e8f5f3;
-
-$color-bg: #fdfbf7; // Warm off-white
-$color-bg-card: #ffffff;
-$color-bg-overlay: rgba(0, 0, 0, 0.5);
-
-$color-text: #1a1a1a; // Dark charcoal
-$color-text-secondary: #5a5a5a; // Muted gray
-$color-text-muted: #8a8a8a;
-$color-text-inverse: #ffffff;
-
-$color-border: #e5e0d8; // Warm light border
-$color-border-focus: $color-primary;
-
-$color-success: #3d9970;
-$color-error: #d35649;
-$color-warning: #e5a732;
-
-// ----------------
-// TYPOGRAPHY
-// ----------------
+// Google Fonts import (keep here for demo page)
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
-
-$font-family-primary: 'Plus Jakarta Sans', 'Noto Naskh Arabic', system-ui, sans-serif;
-$font-size-base: 16px;
-$font-size-xs: 0.75rem; // 12px
-$font-size-sm: 0.875rem; // 14px
-$font-size-md: 1rem; // 16px
-$font-size-lg: 1.125rem; // 18px
-$font-size-xl: 1.25rem; // 20px
-$font-size-2xl: 1.5rem; // 24px
-$font-size-3xl: 2rem; // 32px
-$font-size-4xl: 2.5rem; // 40px
-$font-size-5xl: 3rem; // 48px
-
-$line-height-tight: 1.2;
-$line-height-normal: 1.5;
-$line-height-relaxed: 1.75;
-
-$font-weight-regular: 400;
-$font-weight-medium: 500;
-$font-weight-semibold: 600;
-$font-weight-bold: 700;
-
-// ----------------
-// SPACING (8px grid)
-// ----------------
-$spacing-0: 0;
-$spacing-1: 4px;
-$spacing-2: 8px;
-$spacing-3: 12px;
-$spacing-4: 16px;
-$spacing-5: 20px;
-$spacing-6: 24px;
-$spacing-8: 32px;
-$spacing-10: 40px;
-$spacing-12: 48px;
-$spacing-16: 64px;
-$spacing-20: 80px;
-
-// ----------------
-// SHADOWS
-// ----------------
-$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-$shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
-$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-$shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.2);
-
-// ----------------
-// BORDERS
-// ----------------
-$radius-sm: 4px;
-$radius-md: 8px;
-$radius-lg: 12px;
-$radius-xl: 16px;
-$radius-full: 9999px;
-
-// ----------------
-// BREAKPOINTS
-// ----------------
-$breakpoint-sm: 480px;
-$breakpoint-md: 768px;
-$breakpoint-lg: 1024px;
-$breakpoint-xl: 1280px;
-
-// ----------------
-// TRANSITIONS
-// ----------------
-$transition-fast: 150ms ease;
-$transition-normal: 250ms ease;
-$transition-slow: 350ms ease;
 
 // ============================================
 // DEMO PAGE STYLES
