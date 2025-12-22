@@ -1,60 +1,114 @@
+@use '../styles' as *;
+
 .card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1.5rem;
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  transition: all $transition-normal;
   position: relative;
+  cursor: pointer;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+    transform: translateY(-4px);
   }
 }
 
-.status {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
+.imageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.recommendedBadge {
+  position: absolute;
+  top: $spacing-3;
+  left: $spacing-3;
+  padding: $spacing-1 $spacing-3;
+  background: #2563eb;
+  color: $color-text-inverse;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
   text-transform: uppercase;
-  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px;
+  z-index: 2;
 }
 
-.statusReady {
-  background: #dcfce7;
-  color: #166534;
+.logo {
+  position: absolute;
+  bottom: $spacing-3;
+  left: $spacing-3;
+  padding: $spacing-1 $spacing-3;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: $radius-md;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  color: $color-text;
+  backdrop-filter: blur(4px);
+  z-index: 2;
 }
 
-.statusConstruction {
-  background: #fef3c7;
-  color: #92400e;
+.favoriteButton {
+  position: absolute;
+  bottom: $spacing-3;
+  right: $spacing-3;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all $transition-fast;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+  }
+
+  svg {
+    color: $color-text;
+  }
 }
 
-.statusPlanning {
-  background: #e0e7ff;
-  color: #3730a3;
+.content {
+  padding: $spacing-4;
 }
 
-.title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  color: #1a1a1a;
+.developer {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  margin: 0 0 $spacing-1 0;
 }
 
 .location {
-  font-size: 0.9rem;
-  color: #666;
-  margin: 0 0 1rem 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: 0 0 $spacing-2 0;
 }
 
-.price {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2563eb;
+.priceInfo {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  margin: 0 0 $spacing-1 0;
+}
+
+.completionDate {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
   margin: 0;
 }

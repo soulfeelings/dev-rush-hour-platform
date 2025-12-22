@@ -1,51 +1,47 @@
+import { Heart } from 'lucide-react'
 import styles from './ProjectCard.module.scss'
+import type { Property } from '../data/mockProperties'
 
 interface ProjectCardProps {
-  title?: string
-  location?: string
-  priceFrom?: number
-  status?: 'ready' | 'construction' | 'planning'
+  property: Property
+  onFavoriteClick?: (propertyId: string) => void
 }
 
-export default function ProjectCard({ title, location, priceFrom, status }: ProjectCardProps) {
-  const getStatusLabel = (status?: string) => {
-    switch (status) {
-      case 'ready':
-        return 'Готов'
-      case 'construction':
-        return 'Строится'
-      case 'planning':
-        return 'Планируется'
-      default:
-        return ''
-    }
+export default function ProjectCard({ property, onFavoriteClick }: ProjectCardProps) {
+  const formatPrice = (price: number, currency: string) => {
+    const formatted = (price / 1000000).toFixed(1)
+    return `${formatted} млн ${currency}`
   }
 
-  const getStatusClass = (status?: string) => {
-    switch (status) {
-      case 'ready':
-        return styles.statusReady
-      case 'construction':
-        return styles.statusConstruction
-      case 'planning':
-        return styles.statusPlanning
-      default:
-        return ''
-    }
+  const formatBedrooms = (bedrooms: string[]) => {
+    return bedrooms.join(', ')
   }
 
   return (
     <div className={styles.card}>
-      {status && (
-        <span className={`${styles.status} ${getStatusClass(status)}`}>
-          {getStatusLabel(status)}
-        </span>
-      )}
-      <h2 className={styles.title}>{title || 'Название проекта'}</h2>
-      <p className={styles.location}>{location || 'Местоположение не указано'}</p>
-      {priceFrom !== undefined && (
-        <p className={styles.price}>от {priceFrom.toLocaleString('ru-RU')} ₽</p>
-      )}
+      <div className={styles.imageContainer}>
+        <img src={property.image} alt={property.title} />
+        {property.isRecommended && (
+          <span className={styles.recommendedBadge}>РЕКОМЕНДОВАНО</span>
+        )}
+        {property.logo && <div className={styles.logo}>{property.logo}</div>}
+        <button
+          className={styles.favoriteButton}
+          onClick={() => onFavoriteClick?.(property.id)}
+          type="button"
+        >
+          <Heart size={20} />
+        </button>
+      </div>
+      <div className={styles.content}>
+        <p className={styles.developer}>{property.developer}</p>
+        <p className={styles.location}>{property.location}</p>
+        <p className={styles.priceInfo}>
+          {property.types.join(', ')} {formatBedrooms(property.bedrooms)} от{' '}
+          {formatPrice(property.priceFrom, property.currency)}
+        </p>
+        <p className={styles.completionDate}>{property.completionDate}</p>
+      </div>
     </div>
   )
 }

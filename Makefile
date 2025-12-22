@@ -25,36 +25,36 @@ up:
 	@echo "\033[1;32mStarting services with Docker Compose (production)...\033[0m"
 	@echo "\033[1;33mBackend: http://localhost:8080\033[0m"
 	@echo "\033[1;33mWeb: http://localhost:5173\033[0m"
-	docker-compose up
+	docker compose up
 
 up-dev:
 	@echo "\033[1;32mStarting services with Docker Compose (development)...\033[0m"
 	@echo "\033[1;33mBackend: http://localhost:8080\033[0m"
 	@echo "\033[1;33mWeb: http://localhost:5173\033[0m"
-	docker-compose -f docker-compose.dev.yml up --build
+	docker compose -f docker-compose.dev.yml up --build
 
 down:
 	@echo "\033[1;31mStopping services...\033[0m"
-	docker-compose down
+	docker compose down
 
 down-dev:
 	@echo "\033[1;31mStopping dev services...\033[0m"
-	docker-compose -f docker-compose.dev.yml down
+	docker compose -f docker-compose.dev.yml down
 
 rebuild:
 	@echo "\033[1;33mRebuilding services...\033[0m"
 	@echo "\033[1;33mBackend: http://localhost:8080\033[0m"
 	@echo "\033[1;33mWeb: http://localhost:5173\033[0m"
-	docker-compose up -d --build
+	docker compose up -d --build
 
 rebuild-dev:
 	@echo "\033[1;33mRebuilding dev services...\033[0m"
 	@echo "\033[1;33mBackend: http://localhost:8080\033[0m"
 	@echo "\033[1;33mWeb: http://localhost:5173\033[0m"
-	docker-compose -f docker-compose.dev.yml up -d --build
+	docker compose -f docker-compose.dev.yml up -d --build
 
 logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 logs-dev:
-	docker-compose -f docker-compose.dev.yml logs -f
+	docker compose -f docker-compose.dev.yml logs -f

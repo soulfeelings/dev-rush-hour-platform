@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Header from './features/Header'
 import Catalog from './pages/Catalog'
 import DesignDemo from './design-demo/DesignDemo'
 import './App.css'
@@ -6,6 +7,7 @@ import './App.css'
 function App() {
   return (
     <BrowserRouter>
+      <Header />
       <Routes>
         <Route path="/" element={<Navigate to="/design-demo" replace />} />
         <Route path="/catalog" element={<Catalog />} />

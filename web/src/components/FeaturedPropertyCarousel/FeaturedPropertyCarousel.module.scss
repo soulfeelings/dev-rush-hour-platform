@@ -1,0 +1,169 @@
+@use '../../styles' as *;
+
+.carousel {
+  margin-bottom: $spacing-6;
+}
+
+.card {
+  display: flex;
+  gap: $spacing-6;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-4;
+  box-shadow: $shadow-card;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+  }
+}
+
+.imageContainer {
+  position: relative;
+  flex: 0 0 400px;
+  height: 240px;
+  border-radius: $radius-md;
+  overflow: hidden;
+
+  @media (max-width: $breakpoint-md) {
+    flex: 0 0 auto;
+    width: 100%;
+    height: 200px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.tags {
+  position: absolute;
+  top: $spacing-3;
+  left: $spacing-3;
+  display: flex;
+  gap: $spacing-2;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: $spacing-1 $spacing-3;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: $radius-md;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  backdrop-filter: blur(4px);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0 0 $spacing-3 0;
+  line-height: $line-height-tight;
+}
+
+.description {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: 0 0 $spacing-4 0;
+  line-height: $line-height-normal;
+  flex: 1;
+}
+
+.developer {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-2;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: $color-text-secondary;
+  }
+}
+
+.developerName {
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  margin-bottom: 2px;
+}
+
+.developerLabel {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: $spacing-4;
+  padding: 0 $spacing-2;
+}
+
+.dots {
+  display: flex;
+  gap: $spacing-2;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: $color-border;
+  cursor: pointer;
+  transition: all $transition-fast;
+  padding: 0;
+
+  &:hover {
+    background: $color-text-muted;
+  }
+}
+
+.dotActive {
+  background: $color-primary;
+  width: 24px;
+  border-radius: $radius-full;
+}
+
+.navButtons {
+  display: flex;
+  gap: $spacing-2;
+}
+
+.navButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $color-primary-light;
+    border-color: $color-primary;
+  }
+
+  svg {
+    color: $color-text;
+  }
+}
+

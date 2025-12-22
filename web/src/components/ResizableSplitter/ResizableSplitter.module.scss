@@ -1,0 +1,59 @@
+@use '../../styles' as *;
+
+.container {
+  display: flex;
+  height: 100%;
+  position: relative;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+  }
+}
+
+.leftPanel {
+  overflow-y: auto;
+  background: $color-bg;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100% !important;
+    height: 50%;
+  }
+}
+
+.rightPanel {
+  position: relative;
+  background: $color-bg-card;
+  overflow: hidden;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100% !important;
+    height: 50%;
+  }
+}
+
+.splitter {
+  width: 4px;
+  background: $color-border;
+  cursor: col-resize;
+  flex-shrink: 0;
+  position: relative;
+  transition: background $transition-fast;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+
+  &:hover {
+    background: $color-primary;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    top: 0;
+    bottom: 0;
+  }
+}
+

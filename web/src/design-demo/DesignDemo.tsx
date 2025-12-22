@@ -233,37 +233,6 @@ export default function DesignDemo() {
 
   return (
     <div className={styles.demo}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerInner}>
-          <a href="#" className={styles.logo}>
-            Rush<span>Hour</span>
-          </a>
-
-          <nav className={styles.nav}>
-            <a href="#" className={styles.navLink}>
-              Buy
-            </a>
-            <a href="#" className={styles.navLink}>
-              Rent
-            </a>
-            <a href="#" className={styles.navLink}>
-              Off-Plan
-            </a>
-            <a href="#" className={styles.navLink}>
-              Areas
-            </a>
-          </nav>
-
-          <div className={styles.headerActions}>
-            <Button size="sm">List Property</Button>
-            <button className={styles.menuBtn}>
-              <IconMenu />
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroInner}>
