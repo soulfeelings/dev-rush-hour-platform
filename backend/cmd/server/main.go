@@ -130,6 +130,11 @@ func main() {
 
 	server := NewServer()
 
+	// Health check
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "ok"})
+	})
+
 	// Регистрируем handlers с префиксом /api
 	generated.RegisterHandlersWithOptions(app, server, generated.FiberServerOptions{
 		BaseURL: "/api",
