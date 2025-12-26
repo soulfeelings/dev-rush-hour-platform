@@ -10,7 +10,7 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 
 # Устанавливаем зависимости (кэшируется если package.json/pnpm-lock.yaml не изменились)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
