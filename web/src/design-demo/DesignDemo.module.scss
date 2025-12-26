@@ -232,6 +232,27 @@
     height: auto;
     border-radius: $radius-xl;
     box-shadow: $shadow-lg;
+    animation: heroFloat 6s ease-in-out infinite;
+    will-change: transform, box-shadow;
+  }
+}
+
+@keyframes heroFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    box-shadow: $shadow-lg;
+  }
+  25% {
+    transform: translateY(-12px) rotate(0.5deg) scale(1.01);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-0.3deg) scale(1.005);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+  }
+  75% {
+    transform: translateY(-15px) rotate(0.3deg) scale(1.015);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
   }
 }
 
