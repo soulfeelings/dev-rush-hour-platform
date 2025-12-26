@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Heart } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import styles from './FeaturedPropertyCarousel.module.scss'
 import type { Property } from '../../data/mockProperties'
 
@@ -98,4 +98,3 @@ export default function FeaturedPropertyCarousel({
     </div>
   )
 }
-
