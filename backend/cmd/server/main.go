@@ -195,7 +195,11 @@ func main() {
 		return c.Send(data)
 	})
 
-	log.Println("API running on :8080")
-	log.Println("Swagger UI: http://localhost:8080/swagger")
-	log.Fatal(app.Listen(":8080"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Printf("API running on :%s", port)
+	log.Printf("Swagger UI: http://localhost:%s/swagger", port)
+	log.Fatal(app.Listen(":" + port))
 }
