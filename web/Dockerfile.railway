@@ -28,9 +28,10 @@ FROM nginx:alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# SPA routing config (no proxy to backend)
-RUN echo 'server { \
-    listen 80; \
+# Remove default nginx config and create template with PORT placeholder
+RUN rm -f /etc/nginx/conf.d/default.conf && \
+    mkdir -p /etc/nginx/templates && echo 'server { \
+    listen ${PORT}; \
     server_name _; \
     root /usr/share/nginx/html; \
     index index.html; \
@@ -39,9 +40,8 @@ RUN echo 'server { \
     } \
     gzip on; \
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml; \
-}' > /etc/nginx/conf.d/default.conf
+}' > /etc/nginx/templates/default.conf.template
 
-EXPOSE 80
-
+# nginx will substitute $PORT at runtime from environment
 CMD ["nginx", "-g", "daemon off;"]
 
