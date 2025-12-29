@@ -1,0 +1,137 @@
+@use '../../styles' as *;
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-6;
+}
+
+.header {
+  margin-bottom: $spacing-8;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: $spacing-4;
+  color: $color-text-secondary;
+  text-decoration: none;
+  font-size: $font-size-sm;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $color-primary;
+  }
+}
+
+.title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $color-text;
+  margin: 0;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-8;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.imageSection {
+  position: sticky;
+  top: $spacing-6;
+  height: fit-content;
+}
+
+.mainImage {
+  width: 100%;
+  border-radius: $radius-lg;
+  object-fit: cover;
+  box-shadow: $shadow-md;
+}
+
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+}
+
+.infoCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+
+  h2 {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $color-text;
+    margin: 0 0 $spacing-6 0;
+  }
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-3 0;
+  border-bottom: 1px solid $color-border;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.label {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.value {
+  font-size: $font-size-sm;
+  color: $color-text;
+  font-weight: $font-weight-medium;
+  text-align: right;
+}
+
+.description {
+  margin-top: $spacing-6;
+  padding-top: $spacing-6;
+  border-top: 1px solid $color-border;
+
+  h3 {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text;
+    margin: 0 0 $spacing-3 0;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    line-height: $line-height-relaxed;
+    margin: 0;
+  }
+}
+
+.notFound {
+  text-align: center;
+  padding: $spacing-20 0;
+
+  h1 {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: $color-text;
+    margin: 0 0 $spacing-4 0;
+  }
+
+  p {
+    font-size: $font-size-md;
+    color: $color-text-secondary;
+    margin: 0 0 $spacing-6 0;
+  }
+}
+

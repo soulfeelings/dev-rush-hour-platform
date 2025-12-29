@@ -21,3 +21,19 @@ body {
   background: #fdfbf7;
   color: #1a1a1a;
 }
+
+/* Leaflet Marker Popup Styles */
+.marker-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.marker-popup .leaflet-popup-content {
+  margin: 0;
+}
+
+.marker-popup .leaflet-popup-tip {
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

@@ -12,11 +12,24 @@ export interface Property {
   areaUnit: string
   image: string
   logo?: string
+  logoUrl?: string
   tags?: string[]
   isRecommended?: boolean
   coordinates: [number, number]
   isFeatured?: boolean
   description?: string
+  status: 'старт продаж' | 'анонс продаж' | 'в продаже'
+}
+
+export const developerLogos: Record<string, string> = {
+  'Segrex Development L.L.C Агентство':
+    'https://avatars.mds.yandex.net/i?id=70d28def6aafbd8f46b5a6028a7218f0_l-5310919-images-thumbs&n=13',
+  'Major Developments':
+    'https://avatars.mds.yandex.net/i?id=c6a1772c7effeac59b29a17ea8103e7133ae2d79-9151820-images-thumbs&n=13',
+  'DIA Developments':
+    'https://novostroyki.bazametrov.ru/storage/uploads/developers/2052/logo.jpg',
+  'Emaar Properties':
+    'https://avatars.mds.yandex.net/i?id=6106b51626c0974294528879d7d72c1d_l-5670589-images-thumbs&n=13',
 }
 
 export const mockProperties: Property[] = [
@@ -40,6 +53,7 @@ export const mockProperties: Property[] = [
     description:
       'Полностью меблированная 3-комнатная квартира площадью 1,533.25 sq. ft. в Sea Legend Tower One',
     coordinates: [25.0772, 55.1398],
+    status: 'старт продаж',
   },
   {
     id: '2',
@@ -55,8 +69,9 @@ export const mockProperties: Property[] = [
     areaUnit: '',
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
     logo: 'COLIBRI VIEWS',
-    isRecommended: true,
-    coordinates: [25.2048, 55.2708],
+    isRecommended: false,
+    coordinates: [25.3340, 55.3070],
+    status: 'анонс продаж',
   },
   {
     id: '3',
@@ -73,7 +88,8 @@ export const mockProperties: Property[] = [
     image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800',
     logo: 'Luz Ora Residences',
     isRecommended: true,
-    coordinates: [25.2048, 55.2708],
+    coordinates: [25.3216, 55.2911],
+    status: 'в продаже',
   },
   {
     id: '4',
@@ -88,8 +104,9 @@ export const mockProperties: Property[] = [
     area: 0,
     areaUnit: '',
     image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800',
-    isRecommended: true,
-    coordinates: [25.1124, 55.139],
+    isRecommended: false,
+    coordinates: [25.1124, 55.1390],
+    status: 'в продаже',
   },
   {
     id: '5',
@@ -106,6 +123,7 @@ export const mockProperties: Property[] = [
     image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800',
     isRecommended: false,
     coordinates: [25.1972, 55.2744],
+    status: 'в продаже',
   },
 ]
 
