@@ -1,7 +1,13 @@
 import dubaiDistricts from './dubai_districts.json'
 
-export interface District {
-  id: string
+interface DistrictFeatures {
+  waterfront: boolean
+  beach_access: boolean
+  park_view: boolean
+  city_view: boolean
+}
+
+interface DistrictProperties {
   name: string
   name_ar: string
   description: string
@@ -24,26 +30,35 @@ export interface District {
   investment_grade: string
   rental_yield: number
   price_trend: string
-  features: {
-    waterfront: boolean
-    beach_access: boolean
-    park_view: boolean
-    city_view: boolean
-  }
+  features: DistrictFeatures
   tags: string[]
   visible: boolean
   color: string
+}
+
+interface GeoJsonFeature {
+  id: string
+  properties: DistrictProperties
   geometry: {
     type: string
     coordinates: number[][][]
   }
 }
 
-export const districts: District[] = (dubaiDistricts as any).features.map((feature: any) => {
+export interface District extends DistrictProperties {
+  id: string
+  geometry: {
+    type: string
+    coordinates: number[][][]
+  }
+}
+
+export const districts: District[] = (
+  dubaiDistricts as unknown as { features: GeoJsonFeature[] }
+).features.map((feature: GeoJsonFeature) => {
   return {
     id: feature.id,
     ...feature.properties,
     geometry: feature.geometry,
   }
 })
-

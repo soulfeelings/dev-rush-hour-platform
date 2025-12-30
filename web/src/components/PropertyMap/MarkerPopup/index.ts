@@ -1,2 +1,2 @@
-export { default, createMarkerPopupHTML } from './MarkerPopup'
-
+export { default } from './MarkerPopup'
+export { createMarkerPopupHTML } from './utils'
