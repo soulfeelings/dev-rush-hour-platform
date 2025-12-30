@@ -13,7 +13,7 @@ import { districts, type District } from '../../data/dubai_districts_data'
 
 const createDistrictPopupHTML = (district: District) => {
   const propertyCount = mockProperties.filter(p => p.districtId === district.id).length
-  
+
   return `
     <div class="marker-popup-content">
       <div class="marker-popup-image">
@@ -159,12 +159,12 @@ export default function PropertyMap({
           autoPan: true,
         }).setContent(createDistrictPopupHTML(district))
 
-        polygon.on('mouseover', (e) => {
+        polygon.on('mouseover', e => {
           polygon.setStyle({ weight: 4 })
           polygon.bindPopup(popup).openPopup(e.latlng)
         })
 
-        polygon.on('mousemove', (e) => {
+        polygon.on('mousemove', e => {
           popup.setLatLng(e.latlng)
         })
 

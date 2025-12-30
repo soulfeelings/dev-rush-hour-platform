@@ -44,7 +44,7 @@ export default function DistrictDetail() {
         <div className={styles.infoSection}>
           <div className={styles.infoCard}>
             <h2>Информация о районе</h2>
-            
+
             <div className={styles.infoGrid}>
               <div className={styles.infoRow}>
                 <span className={styles.label}>Категория:</span>
@@ -147,7 +147,11 @@ export default function DistrictDetail() {
                     to={`/project/${property.id}`}
                     className={styles.propertyCard}
                   >
-                    <img src={property.image} alt={property.title} className={styles.propertyImage} />
+                    <img
+                      src={property.image}
+                      alt={property.title}
+                      className={styles.propertyImage}
+                    />
                     <div className={styles.propertyInfo}>
                       <h3 className={styles.propertyTitle}>{property.title}</h3>
                       <p className={styles.propertyLocation}>{property.location}</p>
@@ -177,4 +181,3 @@ export default function DistrictDetail() {
     </div>
   )
 }
-

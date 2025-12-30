@@ -27,8 +27,7 @@ export const developerLogos: Record<string, string> = {
     'https://avatars.mds.yandex.net/i?id=70d28def6aafbd8f46b5a6028a7218f0_l-5310919-images-thumbs&n=13',
   'Major Developments':
     'https://avatars.mds.yandex.net/i?id=c6a1772c7effeac59b29a17ea8103e7133ae2d79-9151820-images-thumbs&n=13',
-  'DIA Developments':
-    'https://novostroyki.bazametrov.ru/storage/uploads/developers/2052/logo.jpg',
+  'DIA Developments': 'https://novostroyki.bazametrov.ru/storage/uploads/developers/2052/logo.jpg',
   'Emaar Properties':
     'https://avatars.mds.yandex.net/i?id=6106b51626c0974294528879d7d72c1d_l-5670589-images-thumbs&n=13',
 }
@@ -72,7 +71,7 @@ export const mockProperties: Property[] = [
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
     logo: 'COLIBRI VIEWS',
     isRecommended: false,
-    coordinates: [25.3340, 55.3070],
+    coordinates: [25.334, 55.307],
     status: 'анонс продаж',
   },
   {
@@ -107,7 +106,7 @@ export const mockProperties: Property[] = [
     areaUnit: '',
     image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800',
     isRecommended: false,
-    coordinates: [25.1154, 55.1390],
+    coordinates: [25.1154, 55.139],
     status: 'в продаже',
     districtId: 'palm-jumeirah',
   },
