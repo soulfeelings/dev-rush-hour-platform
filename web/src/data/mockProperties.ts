@@ -19,6 +19,7 @@ export interface Property {
   isFeatured?: boolean
   description?: string
   status: 'старт продаж' | 'анонс продаж' | 'в продаже'
+  districtId?: string
 }
 
 export const developerLogos: Record<string, string> = {
@@ -54,6 +55,7 @@ export const mockProperties: Property[] = [
       'Полностью меблированная 3-комнатная квартира площадью 1,533.25 sq. ft. в Sea Legend Tower One',
     coordinates: [25.0772, 55.1398],
     status: 'старт продаж',
+    districtId: 'dubai-marina',
   },
   {
     id: '2',
@@ -105,8 +107,9 @@ export const mockProperties: Property[] = [
     areaUnit: '',
     image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800',
     isRecommended: false,
-    coordinates: [25.1124, 55.1390],
+    coordinates: [25.1154, 55.1390],
     status: 'в продаже',
+    districtId: 'palm-jumeirah',
   },
   {
     id: '5',
@@ -124,6 +127,7 @@ export const mockProperties: Property[] = [
     isRecommended: false,
     coordinates: [25.1972, 55.2744],
     status: 'в продаже',
+    districtId: 'downtown-dubai',
   },
 ]
 
