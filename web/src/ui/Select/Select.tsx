@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useId } from 'react'
 import styles from './Select.module.scss'
 
 const IconChevronDown = () => (
@@ -34,6 +34,8 @@ export function Select({
   const [isOpen, setIsOpen] = useState(false)
   const [selectingValue, setSelectingValue] = useState<string | null>(null)
   const selectRef = useRef<HTMLDivElement>(null)
+  const generatedId = useId()
+  const buttonId = `select-${generatedId}`
 
   const selectedOption = options.find(opt => opt.value === value)
 
@@ -65,13 +67,18 @@ export function Select({
 
   return (
     <div className={styles.formGroup}>
-      {label && <label className={styles.label}>{label}</label>}
+      {label && (
+        <label htmlFor={buttonId} className={styles.label}>
+          {label}
+        </label>
+      )}
       <div
         className={`${styles.select} ${disabled ? styles['select--disabled'] : ''}`}
         ref={selectRef}
       >
         <button
           type="button"
+          id={buttonId}
           className={`${styles.trigger} ${isOpen ? styles['trigger--open'] : ''} ${error ? styles['trigger--error'] : ''}`}
           onClick={handleToggle}
           disabled={disabled}

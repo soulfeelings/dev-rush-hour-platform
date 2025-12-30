@@ -14,12 +14,6 @@ import {
 } from '../ui'
 
 // Icons
-const IconMenu = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M3 12h18M3 6h18M3 18h18" />
-  </svg>
-)
-
 const IconHeart = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -109,9 +103,11 @@ interface CustomSelectProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
+  label?: string
+  id?: string
 }
 
-function CustomSelect({ options, value, onChange, placeholder }: CustomSelectProps) {
+function CustomSelect({ options, value, onChange, placeholder, label, id }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectingValue, setSelectingValue] = useState<string | null>(null)
   const selectRef = useRef<HTMLDivElement>(null)
@@ -140,8 +136,14 @@ function CustomSelect({ options, value, onChange, placeholder }: CustomSelectPro
 
   return (
     <div className={styles.customSelect} ref={selectRef}>
+      {label && (
+        <label htmlFor={id} className={styles.label}>
+          {label}
+        </label>
+      )}
       <button
         type="button"
+        id={id}
         className={`${styles.customSelectTrigger} ${isOpen ? styles.open : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -284,8 +286,9 @@ export default function DesignDemo() {
           <h2 className={styles.searchTitle}>Find Your Perfect Property</h2>
           <form className={styles.searchForm}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Location</label>
               <CustomSelect
+                id="search-location"
+                label="Location"
                 options={[
                   { value: 'all', label: 'All Dubai' },
                   { value: 'palm', label: 'Palm Jumeirah' },
@@ -298,8 +301,9 @@ export default function DesignDemo() {
               />
             </div>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Property Type</label>
               <CustomSelect
+                id="search-property-type"
+                label="Property Type"
                 options={[
                   { value: 'all', label: 'All Types' },
                   { value: 'villa', label: 'Villa' },
@@ -312,8 +316,9 @@ export default function DesignDemo() {
               />
             </div>
             <div className={styles.formGroup}>
-              <label className={styles.label}>Price Range</label>
               <CustomSelect
+                id="search-price-range"
+                label="Price Range"
                 options={[
                   { value: 'any', label: 'Any Price' },
                   { value: 'under1m', label: 'Under 1M AED' },
@@ -782,10 +787,10 @@ export default function DesignDemo() {
               <Input label="Default Input" placeholder="Enter your email" />
               <Input
                 label="Input with Error"
-                value="invalid@"
+                defaultValue="invalid@"
                 error="Please enter a valid email address"
               />
-              <Input label="Input with Success" value="valid@email.com" state="success" />
+              <Input label="Input with Success" defaultValue="valid@email.com" state="success" />
               <Select
                 label="Select Dropdown"
                 options={[

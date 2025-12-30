@@ -40,11 +40,13 @@
   line-height: $line-height-tight;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-:global(.marker-popup-developer) {
+:global(.marker-popup-developer),
+:global(.marker-popup-subtitle) {
   font-size: $font-size-xs;
   color: $color-text-secondary;
   margin: 0;
@@ -52,6 +54,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+:global(.marker-popup-price) {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-top: $spacing-1;
 }
 
 .popup {
@@ -101,6 +110,7 @@
   line-height: $line-height-tight;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

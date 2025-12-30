@@ -5,3 +5,35 @@
   height: 100%;
   min-height: 600px;
 }
+
+.districtFilterButton {
+  position: absolute;
+  top: 90px;
+  left: 10px;
+  z-index: 1000;
+  width: 34px;
+  height: 34px;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all $transition-fast;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: #333;
+  }
+
+  &:hover {
+    background: #f4f4f4;
+  }
+
+  &:active {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+}
