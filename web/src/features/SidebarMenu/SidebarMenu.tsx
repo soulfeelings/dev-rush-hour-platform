@@ -8,7 +8,6 @@ interface SidebarMenuProps {
   onClose: () => void
 }
 
-
 export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
   const { t } = useTranslation()
 
@@ -60,4 +59,3 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
     </>
   )
 }
-

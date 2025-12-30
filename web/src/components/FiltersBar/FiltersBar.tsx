@@ -58,13 +58,28 @@ export default function FiltersBar() {
         />
       </div>
       <div className={styles.selectWrapper}>
-        <Select options={priceOptions} value="all" onChange={() => {}} placeholder={t('filters.price.placeholder')} />
+        <Select
+          options={priceOptions}
+          value="all"
+          onChange={() => {}}
+          placeholder={t('filters.price.placeholder')}
+        />
       </div>
       <div className={styles.selectWrapper}>
-        <Select options={bedroomsOptions} value="all" onChange={() => {}} placeholder={t('filters.bedrooms.placeholder')} />
+        <Select
+          options={bedroomsOptions}
+          value="all"
+          onChange={() => {}}
+          placeholder={t('filters.bedrooms.placeholder')}
+        />
       </div>
       <div className={styles.selectWrapper}>
-        <Select options={statusOptions} value="all" onChange={() => {}} placeholder={t('filters.status.placeholder')} />
+        <Select
+          options={statusOptions}
+          value="all"
+          onChange={() => {}}
+          placeholder={t('filters.status.placeholder')}
+        />
       </div>
       <button className={styles.moreFiltersButton} type="button">
         <Filter size={16} />
@@ -73,4 +88,3 @@ export default function FiltersBar() {
     </div>
   )
 }
-

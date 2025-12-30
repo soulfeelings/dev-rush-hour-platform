@@ -18,9 +18,15 @@ interface PropertyMapProps {
   onPropertyClick?: (propertyId: string) => void
 }
 
-const createIcon = (isRecommended: boolean) => {
-  const size = isRecommended ? 24 : 20
-  const color = isRecommended ? '#e5a732' : '#2563eb'
+const createIcon = (isRecommended: boolean, isSelected: boolean) => {
+  let size = isRecommended ? 24 : 20
+  let color = isRecommended ? '#e5a732' : '#2563eb'
+
+  if (isSelected) {
+    size = 32
+    color = '#dc2626'
+  }
+
   return L.divIcon({
     className: '',
     html: `<div style="width: ${size}px; height: ${size}px; background: ${color}; border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); cursor: pointer;"></div>`,
@@ -31,7 +37,7 @@ const createIcon = (isRecommended: boolean) => {
 
 export default function PropertyMap({
   properties,
-  selectedPropertyId: _selectedPropertyId,
+  selectedPropertyId,
   onPropertyClick,
 }: PropertyMapProps) {
   const mapRef = useRef<L.Map | null>(null)
@@ -57,8 +63,9 @@ export default function PropertyMap({
     markersRef.current = []
 
     properties.forEach(property => {
+      const isSelected = property.id === selectedPropertyId
       const marker = L.marker(property.coordinates, {
-        icon: createIcon(property.isRecommended || false),
+        icon: createIcon(property.isRecommended || false, isSelected),
       }).addTo(map)
 
       marker.on('click', () => {
@@ -76,7 +83,19 @@ export default function PropertyMap({
     return () => {
       markersRef.current.forEach(marker => marker.remove())
     }
-  }, [properties, onPropertyClick])
+  }, [properties, selectedPropertyId, onPropertyClick])
+
+  useEffect(() => {
+    if (!mapRef.current || !selectedPropertyId) return
+
+    const selectedProperty = properties.find(p => p.id === selectedPropertyId)
+    if (selectedProperty) {
+      mapRef.current.setView(selectedProperty.coordinates, 14, {
+        animate: true,
+        duration: 0.5,
+      })
+    }
+  }, [selectedPropertyId, properties])
 
   return <div id="property-map" className={styles.map} />
 }

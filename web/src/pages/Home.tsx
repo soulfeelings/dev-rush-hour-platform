@@ -2,15 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import styles from './Home.module.scss'
-import {
-  Button,
-  Input,
-  Select,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  Toast,
-} from '../ui'
+import { Button, Input, Select, Modal, ModalBody, ModalFooter, Toast } from '../ui'
 
 const IconHeart = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -359,7 +351,9 @@ export default function Home() {
         <div className={styles.heroInner}>
           <div className={styles.heroContent}>
             <h1 className={styles.heroTitle}>
-              {t('home.hero.title')} <span className={styles.heroHighlight}>{t('home.hero.titleHighlight')}</span> {t('home.hero.titleSuffix')}
+              {t('home.hero.title')}{' '}
+              <span className={styles.heroHighlight}>{t('home.hero.titleHighlight')}</span>{' '}
+              {t('home.hero.titleSuffix')}
             </h1>
             <p className={styles.heroDesc}>{t('home.hero.description')}</p>
             <div className={styles.heroActions}>
@@ -465,7 +459,12 @@ export default function Home() {
             <h2 className={styles.sectionTitle}>{t('home.properties.title')}</h2>
             <p className={styles.sectionSubtitle}>{t('home.properties.subtitle')}</p>
           </div>
-          <Button variant="secondary" size="sm" style={{ marginTop: '16px' }} onClick={() => navigate('/catalog')}>
+          <Button
+            variant="secondary"
+            size="sm"
+            style={{ marginTop: '16px' }}
+            onClick={() => navigate('/catalog')}
+          >
             {t('home.properties.viewAll')}
           </Button>
         </div>
@@ -580,7 +579,9 @@ export default function Home() {
           <h2 className={styles.ctaTitle}>{t('home.cta.title')}</h2>
           <p className={styles.ctaDesc}>{t('home.cta.description')}</p>
           <div className={styles.ctaActions}>
-            <Button size="lg" onClick={() => navigate('/catalog')}>{t('home.cta.getStarted')}</Button>
+            <Button size="lg" onClick={() => navigate('/catalog')}>
+              {t('home.cta.getStarted')}
+            </Button>
             <Button
               variant="ghost"
               size="lg"
@@ -673,11 +674,22 @@ export default function Home() {
       </footer>
 
       {/* Modal */}
-      <Modal open={showModal} onClose={() => setShowModal(false)} title={t('home.modal.scheduleCall.title')}>
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title={t('home.modal.scheduleCall.title')}
+      >
         <ModalBody>
-          <Input label={t('home.modal.scheduleCall.name')} placeholder={t('home.modal.scheduleCall.namePlaceholder')} />
+          <Input
+            label={t('home.modal.scheduleCall.name')}
+            placeholder={t('home.modal.scheduleCall.namePlaceholder')}
+          />
           <div style={{ marginTop: '16px' }}>
-            <Input label={t('home.modal.scheduleCall.phone')} type="tel" placeholder={t('home.modal.scheduleCall.phonePlaceholder')} />
+            <Input
+              label={t('home.modal.scheduleCall.phone')}
+              type="tel"
+              placeholder={t('home.modal.scheduleCall.phonePlaceholder')}
+            />
           </div>
           <div style={{ marginTop: '16px' }}>
             <Select
@@ -707,4 +719,3 @@ export default function Home() {
     </div>
   )
 }
-

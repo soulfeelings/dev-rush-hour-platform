@@ -37,7 +37,8 @@ export const mockProperties: Property[] = [
     tags: ['9 декабря', 'Акция для клиентов'],
     isRecommended: true,
     isFeatured: true,
-    description: 'Полностью меблированная 3-комнатная квартира площадью 1,533.25 sq. ft. в Sea Legend Tower One',
+    description:
+      'Полностью меблированная 3-комнатная квартира площадью 1,533.25 sq. ft. в Sea Legend Tower One',
     coordinates: [25.0772, 55.1398],
   },
   {
@@ -88,7 +89,7 @@ export const mockProperties: Property[] = [
     areaUnit: '',
     image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800',
     isRecommended: true,
-    coordinates: [25.1124, 55.1390],
+    coordinates: [25.1124, 55.139],
   },
   {
     id: '5',
@@ -109,4 +110,3 @@ export const mockProperties: Property[] = [
 ]
 
 export const featuredProperties = mockProperties.filter(p => p.isFeatured)
-
