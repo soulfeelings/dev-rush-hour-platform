@@ -1,10 +1,13 @@
 pre-commit:
   parallel: true
   commands:
-    lint:
+    lint-fix:
       run: cd web && pnpm lint:fix
       glob: "web/**/*.{ts,tsx,js,jsx}"
       stage_fixed: true
+    lint-check:
+      run: cd web && pnpm lint
+      glob: "web/**/*.{ts,tsx,js,jsx}"
     format:
       run: cd web && pnpm format:fix
       glob: "web/**/*.{ts,tsx,js,jsx,json,css,scss,md}"
