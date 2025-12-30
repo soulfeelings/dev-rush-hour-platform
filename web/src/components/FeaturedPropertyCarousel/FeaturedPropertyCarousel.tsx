@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import styles from './FeaturedPropertyCarousel.module.scss'
 import type { Property } from '../../data/mockProperties'
 
@@ -20,6 +21,7 @@ export default function FeaturedPropertyCarousel({
   properties,
   autoPlayInterval = 5000,
 }: FeaturedPropertyCarouselProps) {
+  const { t } = useTranslation()
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
@@ -68,7 +70,7 @@ export default function FeaturedPropertyCarousel({
             <IconExcavator />
             <div>
               <div className={styles.developerName}>{currentProperty.developer}</div>
-              <div className={styles.developerLabel}>Агентство</div>
+              <div className={styles.developerLabel}>{t('featuredCarousel.agency')}</div>
             </div>
           </div>
         </div>

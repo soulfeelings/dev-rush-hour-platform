@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { X, ChevronDown } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import styles from './SidebarMenu.module.scss'
 
 interface SidebarMenuProps {
@@ -9,6 +10,8 @@ interface SidebarMenuProps {
 
 
 export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
+  const { t } = useTranslation()
+
   return (
     <>
       {isOpen && <div className={styles.overlay} onClick={onClose} />}
@@ -23,31 +26,31 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
         </div>
         <nav className={styles.nav}>
           <a href="#" className={styles.navItem}>
-            Новости и события
+            {t('sidebar.news')}
           </a>
           <a href="#" className={styles.navItem}>
-            Обучение
+            {t('sidebar.training')}
           </a>
           <a href="#" className={styles.navItem}>
-            Новостройки и застройщики
+            {t('sidebar.developments')}
             <button className={styles.chevronButton} type="button">
               <ChevronDown size={16} />
             </button>
           </a>
           <a href="#" className={styles.navItem}>
-            Для агентов
+            {t('sidebar.forAgents')}
             <button className={styles.chevronButton} type="button">
               <ChevronDown size={16} />
             </button>
           </a>
           <a href="#" className={styles.navItem}>
-            Районы
+            {t('sidebar.areas')}
           </a>
           <a href="#" className={styles.navItem}>
-            Стоимость и функции
+            {t('sidebar.priceAndFeatures')}
           </a>
           <a href="#" className={styles.navItem}>
-            Об RushHour
+            {t('sidebar.about')}
             <button className={styles.chevronButton} type="button">
               <ChevronDown size={16} />
             </button>

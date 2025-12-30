@@ -1,480 +1,15 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import styles from './DesignDemo.module.scss'
-import {
-  Button,
-  Input,
-  Select,
-  Checkbox,
-  SkeletonCard,
-  Tooltip,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  Toast,
-} from '../ui'
-
-const IconHeart = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-  </svg>
-)
-
-const IconLocation = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-)
-
-const IconBed = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9" />
-  </svg>
-)
-
-const IconBath = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1zM6 12V5a2 2 0 0 1 2-2h3v2.25M4 21l1-1.5M20 21l-1-1.5" />
-  </svg>
-)
-
-const IconArea = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="3" y="3" width="18" height="18" rx="2" />
-    <path d="M3 9h18M9 21V9" />
-  </svg>
-)
-
-const IconSearch = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="11" cy="11" r="8" />
-    <path d="m21 21-4.3-4.3" />
-  </svg>
-)
-
-const IconShield = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-  </svg>
-)
-
-const IconHome = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-    <polyline points="9 22 9 12 15 12 15 22" />
-  </svg>
-)
-
-const IconUsers = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-  </svg>
-)
-
-const IconX = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M18 6 6 18M6 6l12 12" />
-  </svg>
-)
-
-const IconStar = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-  </svg>
-)
-
-const IconChevronDown = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-)
-
-// Custom Select Component
-interface SelectOption {
-  value: string
-  label: string
-}
-
-interface CustomSelectProps {
-  options: SelectOption[]
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-}
-
-function CustomSelect({ options, value, onChange, placeholder }: CustomSelectProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectingValue, setSelectingValue] = useState<string | null>(null)
-  const selectRef = useRef<HTMLDivElement>(null)
-
-  const selectedOption = options.find(opt => opt.value === value)
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const handleSelect = (optionValue: string) => {
-    setSelectingValue(optionValue)
-    setTimeout(() => {
-      onChange(optionValue)
-      setIsOpen(false)
-      setSelectingValue(null)
-    }, 150)
-  }
-
-  return (
-    <div className={styles.customSelect} ref={selectRef}>
-      <button
-        type="button"
-        className={`${styles.customSelectTrigger} ${isOpen ? styles.open : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {selectedOption?.label || placeholder || 'Select...'}
-        <span className={styles.customSelectArrow}>
-          <IconChevronDown />
-        </span>
-      </button>
-      <div className={`${styles.customSelectDropdown} ${isOpen ? styles.open : ''}`}>
-        <div className={styles.customSelectOptions}>
-          {options.map(option => (
-            <div
-              key={option.value}
-              className={`${styles.customSelectOption} ${
-                value === option.value ? styles.selected : ''
-              } ${selectingValue === option.value ? styles.selecting : ''}`}
-              onClick={() => handleSelect(option.value)}
-            >
-              {option.label}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Property data
-const properties = [
-  {
-    id: 1,
-    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=400&fit=crop',
-    title: 'Luxury Villa in Palm Jumeirah',
-    location: 'Palm Jumeirah, Dubai',
-    price: 'AED 15,500,000',
-    beds: 5,
-    baths: 6,
-    area: '8,500 sq ft',
-    badge: 'Featured',
-    featured: true,
-  },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop',
-    title: 'Modern Apartment Downtown',
-    location: 'Downtown Dubai',
-    price: 'AED 3,200,000',
-    beds: 2,
-    baths: 2,
-    area: '1,450 sq ft',
-    badge: 'New',
-    featured: false,
-  },
-  {
-    id: 3,
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop',
-    title: 'Penthouse with Marina View',
-    location: 'Dubai Marina',
-    price: 'AED 8,900,000',
-    beds: 4,
-    baths: 4,
-    area: '4,200 sq ft',
-    badge: null,
-    featured: false,
-  },
-]
+import { Button, Input, Select, Checkbox, SkeletonCard, Tooltip } from '../ui'
 
 export default function DesignDemo() {
-  const [showModal, setShowModal] = useState(false)
-  const [showToast, setShowToast] = useState(false)
-  const [favorites, setFavorites] = useState<number[]>([])
-
-  // Search form states
-  const [location, setLocation] = useState('all')
-  const [propertyType, setPropertyType] = useState('all')
-  const [priceRange, setPriceRange] = useState('any')
-
+  const { t } = useTranslation()
   // Showcase form state
   const [showcaseSelect, setShowcaseSelect] = useState('opt1')
 
-  // Modal form state
-  const [preferredTime, setPreferredTime] = useState('morning')
-
-  const toggleFavorite = (id: number) => {
-    setFavorites(prev => (prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]))
-    setShowToast(true)
-    setTimeout(() => setShowToast(false), 3000)
-  }
-
   return (
     <div className={styles.demo}>
-      {/* Hero Section */}
-      <section className={styles.hero}>
-        <div className={styles.heroInner}>
-          <div className={styles.heroContent}>
-            <div className={styles.heroBadge}>
-              <IconStar /> #1 Property Platform in Dubai
-            </div>
-            <h1 className={styles.heroTitle}>
-              Find Your <span className={styles.heroHighlight}>Dream Home</span> in Dubai
-            </h1>
-            <p className={styles.heroDesc}>
-              Discover premium properties across Dubai's most prestigious neighborhoods. From
-              luxurious villas to modern apartments.
-            </p>
-            <div className={styles.heroActions}>
-              <Button>
-                <IconSearch /> Explore Properties
-              </Button>
-              <Button variant="secondary">Contact Agent</Button>
-            </div>
-          </div>
-
-          <div className={styles.heroImage}>
-            <img
-              src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop"
-              alt="Luxury Dubai Property"
-            />
-            <div className={styles.heroStats}>
-              <div className={styles.statCard}>
-                <div className={styles.statValue}>2,500+</div>
-                <div className={styles.statLabel}>Properties</div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statValue}>500+</div>
-                <div className={styles.statLabel}>Happy Clients</div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statValue}>50+</div>
-                <div className={styles.statLabel}>Areas</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Search Section */}
-      <section className={styles.search}>
-        <div className={styles.searchCard}>
-          <h2 className={styles.searchTitle}>Find Your Perfect Property</h2>
-          <form className={styles.searchForm}>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Location</label>
-              <CustomSelect
-                options={[
-                  { value: 'all', label: 'All Dubai' },
-                  { value: 'palm', label: 'Palm Jumeirah' },
-                  { value: 'downtown', label: 'Downtown Dubai' },
-                  { value: 'marina', label: 'Dubai Marina' },
-                  { value: 'business', label: 'Business Bay' },
-                ]}
-                value={location}
-                onChange={setLocation}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Property Type</label>
-              <CustomSelect
-                options={[
-                  { value: 'all', label: 'All Types' },
-                  { value: 'villa', label: 'Villa' },
-                  { value: 'apartment', label: 'Apartment' },
-                  { value: 'penthouse', label: 'Penthouse' },
-                  { value: 'townhouse', label: 'Townhouse' },
-                ]}
-                value={propertyType}
-                onChange={setPropertyType}
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Price Range</label>
-              <CustomSelect
-                options={[
-                  { value: 'any', label: 'Any Price' },
-                  { value: 'under1m', label: 'Under 1M AED' },
-                  { value: '1m-3m', label: '1M - 3M AED' },
-                  { value: '3m-5m', label: '3M - 5M AED' },
-                  { value: '5m+', label: '5M+ AED' },
-                ]}
-                value={priceRange}
-                onChange={setPriceRange}
-              />
-            </div>
-            <Button type="button">
-              <IconSearch /> Search
-            </Button>
-          </form>
-        </div>
-      </section>
-
-      {/* Properties Section */}
-      <section className={styles.properties}>
-        <div
-          className={styles.sectionHeader}
-          style={{
-            justifyContent: 'center',
-            textAlign: 'center',
-            flexDirection: 'column',
-          }}
-        >
-          <div>
-            <h2 className={styles.sectionTitle}>Featured Properties</h2>
-            <p className={styles.sectionSubtitle}>Handpicked selections for discerning buyers</p>
-          </div>
-          <Button variant="secondary" size="sm" style={{ marginTop: '16px' }}>
-            View All
-          </Button>
-        </div>
-
-        <div className={styles.propertiesGrid}>
-          {properties.map(property => (
-            <article key={property.id} className={styles.card}>
-              <div className={styles.cardImage}>
-                <img src={property.image} alt={property.title} />
-                {property.badge && (
-                  <span
-                    className={`${styles.cardBadge} ${
-                      property.featured ? styles.cardBadgeFeatured : ''
-                    }`}
-                  >
-                    {property.badge}
-                  </span>
-                )}
-                <button
-                  className={`${styles.cardFavorite} ${
-                    favorites.includes(property.id) ? styles.active : ''
-                  }`}
-                  onClick={() => toggleFavorite(property.id)}
-                >
-                  <IconHeart />
-                </button>
-              </div>
-              <div className={styles.cardContent}>
-                <div className={styles.cardPrice}>{property.price}</div>
-                <h3 className={styles.cardTitle}>{property.title}</h3>
-                <div className={styles.cardLocation}>
-                  <IconLocation />
-                  {property.location}
-                </div>
-                <div className={styles.cardDetails}>
-                  <span className={styles.cardDetail}>
-                    <IconBed /> {property.beds} Beds
-                  </span>
-                  <span className={styles.cardDetail}>
-                    <IconBath /> {property.baths} Baths
-                  </span>
-                  <span className={styles.cardDetail}>
-                    <IconArea /> {property.area}
-                  </span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className={styles.features}>
-        <div
-          className={styles.sectionHeader}
-          style={{ justifyContent: 'center', textAlign: 'center' }}
-        >
-          <div>
-            <h2 className={styles.sectionTitle}>Why Choose RushHour</h2>
-            <p className={styles.sectionSubtitle}>Your trusted partner in Dubai real estate</p>
-          </div>
-        </div>
-
-        {/* Video Block with Burj Khalifa frame */}
-        <div className={styles.videoBlock}>
-          <div className={styles.videoFrame}>
-            <svg
-              className={`${styles.burjSilhouette} ${styles.left}`}
-              viewBox="0 0 60 200"
-              fill="currentColor"
-            >
-              <path d="M30 0 L32 20 L35 20 L35 40 L38 40 L38 60 L40 60 L40 80 L42 80 L42 100 L44 100 L44 120 L46 120 L46 140 L48 140 L48 160 L50 160 L50 180 L55 180 L55 200 L5 200 L5 180 L10 180 L10 160 L12 160 L12 140 L14 140 L14 120 L16 120 L16 100 L18 100 L18 80 L20 80 L20 60 L22 60 L22 40 L25 40 L25 20 L28 20 Z" />
-            </svg>
-            <div className={styles.videoContainer}>
-              <button className={styles.videoPlayBtn} aria-label="Play video" />
-            </div>
-            <svg className={styles.burjSilhouette} viewBox="0 0 60 200" fill="currentColor">
-              <path d="M30 0 L32 20 L35 20 L35 40 L38 40 L38 60 L40 60 L40 80 L42 80 L42 100 L44 100 L44 120 L46 120 L46 140 L48 140 L48 160 L50 160 L50 180 L55 180 L55 200 L5 200 L5 180 L10 180 L10 160 L12 160 L12 140 L14 140 L14 120 L16 120 L16 100 L18 100 L18 80 L20 80 L20 60 L22 60 L22 40 L25 40 L25 20 L28 20 Z" />
-            </svg>
-          </div>
-          <p className={styles.videoCaption}>Discover Dubai's finest properties</p>
-        </div>
-
-        <div className={styles.featuresGrid}>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>
-              <IconShield />
-            </div>
-            <h3 className={styles.featureTitle}>Verified Listings</h3>
-            <p className={styles.featureDesc}>
-              Every property is verified by our team to ensure accuracy and authenticity.
-            </p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>
-              <IconHome />
-            </div>
-            <h3 className={styles.featureTitle}>Premium Selection</h3>
-            <p className={styles.featureDesc}>
-              Curated collection of the finest properties across Dubai's best locations.
-            </p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIcon}>
-              <IconUsers />
-            </div>
-            <h3 className={styles.featureTitle}>Expert Guidance</h3>
-            <p className={styles.featureDesc}>
-              Dedicated advisors to help you through every step of your property journey.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className={styles.cta}>
-        <div className={styles.ctaInner}>
-          <h2 className={styles.ctaTitle}>Ready to Find Your Dream Home?</h2>
-          <p className={styles.ctaDesc}>
-            Join thousands of satisfied buyers who found their perfect property through RushHour.
-          </p>
-          <div className={styles.ctaActions}>
-            <Button size="lg">Get Started Today</Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
-              onClick={() => setShowModal(true)}
-            >
-              Schedule a Call
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* UI Components Showcase */}
       <section className={styles.showcase}>
         <div className={styles.showcaseInner}>
@@ -483,17 +18,15 @@ export default function DesignDemo() {
             style={{ justifyContent: 'center', textAlign: 'center' }}
           >
             <div>
-              <h2 className={styles.sectionTitle}>Design System Showcase</h2>
-              <p className={styles.sectionSubtitle}>All UI components and styles</p>
+              <h2 className={styles.sectionTitle}>{t('designDemo.title')}</h2>
+              <p className={styles.sectionSubtitle}>{t('designDemo.subtitle')}</p>
             </div>
           </div>
 
           {/* Colors */}
           <div className={styles.showcaseSection}>
-            <h3 className={styles.showcaseTitle}>Color Palette</h3>
-            <p className={styles.showcaseSubtitle}>
-              All colors and shades used in the design system
-            </p>
+            <h3 className={styles.showcaseTitle}>{t('designDemo.colors.title')}</h3>
+            <p className={styles.showcaseSubtitle}>{t('designDemo.colors.subtitle')}</p>
 
             {/* Primary Colors */}
             <p
@@ -504,13 +37,13 @@ export default function DesignDemo() {
                 marginTop: '16px',
               }}
             >
-              PRIMARY
+              {t('designDemo.colors.primary')}
             </p>
             <div className={styles.showcaseRow}>
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#E5A732' }} />
                 <div className={styles.swatchLabel}>
-                  Primary
+                  {t('designDemo.colors.swatches.primary')}
                   <br />
                   #E5A732
                 </div>
@@ -518,7 +51,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#D19526' }} />
                 <div className={styles.swatchLabel}>
-                  Hover
+                  {t('designDemo.colors.swatches.hover')}
                   <br />
                   #D19526
                 </div>
@@ -526,7 +59,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#BD8620' }} />
                 <div className={styles.swatchLabel}>
-                  Active
+                  {t('designDemo.colors.swatches.active')}
                   <br />
                   #BD8620
                 </div>
@@ -534,7 +67,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#FDF4E3' }} />
                 <div className={styles.swatchLabel}>
-                  Light
+                  {t('designDemo.colors.swatches.light')}
                   <br />
                   #FDF4E3
                 </div>
@@ -550,13 +83,13 @@ export default function DesignDemo() {
                 marginTop: '24px',
               }}
             >
-              SECONDARY
+              {t('designDemo.colors.secondary')}
             </p>
             <div className={styles.showcaseRow}>
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#2D8A7B' }} />
                 <div className={styles.swatchLabel}>
-                  Secondary
+                  {t('designDemo.colors.swatches.secondary')}
                   <br />
                   #2D8A7B
                 </div>
@@ -564,7 +97,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#247568' }} />
                 <div className={styles.swatchLabel}>
-                  Hover
+                  {t('designDemo.colors.swatches.hover')}
                   <br />
                   #247568
                 </div>
@@ -572,7 +105,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#E8F5F3' }} />
                 <div className={styles.swatchLabel}>
-                  Light
+                  {t('designDemo.colors.swatches.light')}
                   <br />
                   #E8F5F3
                 </div>
@@ -588,13 +121,13 @@ export default function DesignDemo() {
                 marginTop: '24px',
               }}
             >
-              BACKGROUNDS
+              {t('designDemo.colors.backgrounds')}
             </p>
             <div className={styles.showcaseRow}>
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#FDFBF7' }} />
                 <div className={styles.swatchLabel}>
-                  Page BG
+                  {t('designDemo.colors.swatches.pageBg')}
                   <br />
                   #FDFBF7
                 </div>
@@ -602,7 +135,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#FFFFFF' }} />
                 <div className={styles.swatchLabel}>
-                  Card BG
+                  {t('designDemo.colors.swatches.cardBg')}
                   <br />
                   #FFFFFF
                 </div>
@@ -610,9 +143,9 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: 'rgba(0,0,0,0.5)' }} />
                 <div className={styles.swatchLabel}>
-                  Overlay
+                  {t('designDemo.colors.swatches.overlay')}
                   <br />
-                  50% black
+                  {t('designDemo.colors.swatches.overlayValue')}
                 </div>
               </div>
             </div>
@@ -626,13 +159,13 @@ export default function DesignDemo() {
                 marginTop: '24px',
               }}
             >
-              TEXT
+              {t('designDemo.colors.text')}
             </p>
             <div className={styles.showcaseRow}>
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#1A1A1A' }} />
                 <div className={styles.swatchLabel}>
-                  Primary
+                  {t('designDemo.colors.swatches.primary')}
                   <br />
                   #1A1A1A
                 </div>
@@ -640,7 +173,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#5A5A5A' }} />
                 <div className={styles.swatchLabel}>
-                  Secondary
+                  {t('designDemo.colors.swatches.secondary')}
                   <br />
                   #5A5A5A
                 </div>
@@ -648,7 +181,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#8A8A8A' }} />
                 <div className={styles.swatchLabel}>
-                  Muted
+                  {t('designDemo.colors.swatches.muted')}
                   <br />
                   #8A8A8A
                 </div>
@@ -659,7 +192,7 @@ export default function DesignDemo() {
                   style={{ background: '#FFFFFF', border: '1px solid #E5E0D8' }}
                 />
                 <div className={styles.swatchLabel}>
-                  Inverse
+                  {t('designDemo.colors.swatches.inverse')}
                   <br />
                   #FFFFFF
                 </div>
@@ -675,13 +208,13 @@ export default function DesignDemo() {
                 marginTop: '24px',
               }}
             >
-              BORDERS
+              {t('designDemo.colors.borders')}
             </p>
             <div className={styles.showcaseRow}>
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#E5E0D8' }} />
                 <div className={styles.swatchLabel}>
-                  Border
+                  {t('designDemo.colors.swatches.border')}
                   <br />
                   #E5E0D8
                 </div>
@@ -697,13 +230,13 @@ export default function DesignDemo() {
                 marginTop: '24px',
               }}
             >
-              STATUS
+              {t('designDemo.colors.status')}
             </p>
             <div className={styles.showcaseRow}>
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#3D9970' }} />
                 <div className={styles.swatchLabel}>
-                  Success
+                  {t('designDemo.colors.swatches.success')}
                   <br />
                   #3D9970
                 </div>
@@ -711,7 +244,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#D35649' }} />
                 <div className={styles.swatchLabel}>
-                  Error
+                  {t('designDemo.colors.swatches.error')}
                   <br />
                   #D35649
                 </div>
@@ -719,7 +252,7 @@ export default function DesignDemo() {
               <div className={styles.colorSwatch}>
                 <div className={styles.swatchColor} style={{ background: '#E5A732' }} />
                 <div className={styles.swatchLabel}>
-                  Warning
+                  {t('designDemo.colors.swatches.warning')}
                   <br />
                   #E5A732
                 </div>
@@ -729,74 +262,87 @@ export default function DesignDemo() {
 
           {/* Typography */}
           <div className={styles.showcaseSection}>
-            <h3 className={styles.showcaseTitle}>Typography</h3>
-            <p className={styles.showcaseSubtitle}>Plus Jakarta Sans + Noto Naskh Arabic</p>
+            <h3 className={styles.showcaseTitle}>{t('designDemo.typography.title')}</h3>
+            <p className={styles.showcaseSubtitle}>{t('designDemo.typography.subtitle')}</p>
             <div className={styles.typographyDemo}>
-              <h1 style={{ fontSize: '3rem', fontWeight: 700 }}>Heading 1 — 48px Bold</h1>
-              <h2 style={{ fontSize: '2rem', fontWeight: 600 }}>Heading 2 — 32px Semibold</h2>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 600 }}>Heading 3 — 24px Semibold</h3>
-              <h4 style={{ fontSize: '1.25rem', fontWeight: 500 }}>Heading 4 — 20px Medium</h4>
-              <p style={{ fontSize: '1rem' }}>
-                Body text — 16px Regular. The quick brown fox jumps over the lazy dog.
-              </p>
+              <h1 style={{ fontSize: '3rem', fontWeight: 700 }}>
+                {t('designDemo.typography.heading1')}
+              </h1>
+              <h2 style={{ fontSize: '2rem', fontWeight: 600 }}>
+                {t('designDemo.typography.heading2')}
+              </h2>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 600 }}>
+                {t('designDemo.typography.heading3')}
+              </h3>
+              <h4 style={{ fontSize: '1.25rem', fontWeight: 500 }}>
+                {t('designDemo.typography.heading4')}
+              </h4>
+              <p style={{ fontSize: '1rem' }}>{t('designDemo.typography.body')}</p>
               <p style={{ fontSize: '0.875rem', color: '#5A5A5A' }}>
-                Small text — 14px. Secondary information and captions.
+                {t('designDemo.typography.small')}
               </p>
               <p style={{ fontSize: '0.75rem', color: '#8A8A8A' }}>
-                Caption — 12px. Muted helper text.
+                {t('designDemo.typography.caption')}
               </p>
             </div>
           </div>
 
           {/* Buttons */}
           <div className={styles.showcaseSection}>
-            <h3 className={styles.showcaseTitle}>Buttons</h3>
-            <p className={styles.showcaseSubtitle}>All button variants and states</p>
+            <h3 className={styles.showcaseTitle}>{t('designDemo.buttons.title')}</h3>
+            <p className={styles.showcaseSubtitle}>{t('designDemo.buttons.subtitle')}</p>
             <div className={styles.showcaseRow}>
-              <Button variant="primary">Primary</Button>
-              <Button variant="secondary">Secondary</Button>
-              <Button variant="ghost">Ghost</Button>
+              <Button variant="primary">{t('designDemo.buttons.primary')}</Button>
+              <Button variant="secondary">{t('designDemo.buttons.secondary')}</Button>
+              <Button variant="ghost">{t('designDemo.buttons.ghost')}</Button>
               <Button variant="primary" disabled>
-                Disabled
+                {t('designDemo.buttons.disabled')}
               </Button>
             </div>
             <div className={styles.showcaseRow} style={{ marginTop: '16px' }}>
-              <Button size="sm">Small</Button>
-              <Button size="md">Default</Button>
-              <Button size="lg">Large</Button>
+              <Button size="sm">{t('designDemo.buttons.small')}</Button>
+              <Button size="md">{t('designDemo.buttons.default')}</Button>
+              <Button size="lg">{t('designDemo.buttons.large')}</Button>
             </div>
           </div>
 
           {/* Form Elements */}
           <div className={styles.showcaseSection}>
-            <h3 className={styles.showcaseTitle}>Form Elements</h3>
-            <p className={styles.showcaseSubtitle}>Inputs, selects, and validation states</p>
+            <h3 className={styles.showcaseTitle}>{t('designDemo.forms.title')}</h3>
+            <p className={styles.showcaseSubtitle}>{t('designDemo.forms.subtitle')}</p>
             <div style={{ display: 'grid', gap: '16px', maxWidth: '400px' }}>
-              <Input label="Default Input" placeholder="Enter your email" />
               <Input
-                label="Input with Error"
-                value="invalid@"
-                error="Please enter a valid email address"
+                label={t('designDemo.forms.defaultInput')}
+                placeholder={t('designDemo.forms.defaultPlaceholder')}
               />
-              <Input label="Input with Success" value="valid@email.com" state="success" />
+              <Input
+                label={t('designDemo.forms.errorInput')}
+                value="invalid@"
+                error={t('designDemo.forms.errorMessage')}
+              />
+              <Input
+                label={t('designDemo.forms.successInput')}
+                value="valid@email.com"
+                state="success"
+              />
               <Select
-                label="Select Dropdown"
+                label={t('designDemo.forms.selectLabel')}
                 options={[
-                  { value: 'opt1', label: 'Option 1' },
-                  { value: 'opt2', label: 'Option 2' },
-                  { value: 'opt3', label: 'Option 3' },
+                  { value: 'opt1', label: t('designDemo.forms.option1') },
+                  { value: 'opt2', label: t('designDemo.forms.option2') },
+                  { value: 'opt3', label: t('designDemo.forms.option3') },
                 ]}
                 value={showcaseSelect}
                 onChange={setShowcaseSelect}
               />
-              <Checkbox label="I agree to terms and conditions" defaultChecked />
+              <Checkbox label={t('designDemo.forms.checkboxLabel')} defaultChecked />
             </div>
           </div>
 
           {/* Loading Skeleton */}
           <div className={styles.showcaseSection}>
-            <h3 className={styles.showcaseTitle}>Loading States</h3>
-            <p className={styles.showcaseSubtitle}>Skeleton loading animation</p>
+            <h3 className={styles.showcaseTitle}>{t('designDemo.loading.title')}</h3>
+            <p className={styles.showcaseSubtitle}>{t('designDemo.loading.subtitle')}</p>
             <div style={{ maxWidth: '300px' }}>
               <SkeletonCard />
             </div>
@@ -804,132 +350,18 @@ export default function DesignDemo() {
 
           {/* Tooltip Demo */}
           <div className={styles.showcaseSection}>
-            <h3 className={styles.showcaseTitle}>Tooltips</h3>
-            <p className={styles.showcaseSubtitle}>Hover for more information</p>
+            <h3 className={styles.showcaseTitle}>{t('designDemo.tooltips.title')}</h3>
+            <p className={styles.showcaseSubtitle}>{t('designDemo.tooltips.subtitle')}</p>
             <div className={styles.showcaseRow}>
-              <Tooltip text="This is a tooltip!">
+              <Tooltip text={t('designDemo.tooltips.text')}>
                 <Button variant="secondary" size="sm">
-                  Hover me
+                  {t('designDemo.tooltips.hoverMe')}
                 </Button>
               </Tooltip>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <div className={styles.footerGrid}>
-            <div className={styles.footerBrand}>
-              <h3>
-                Rush<span>Hour</span>
-              </h3>
-              <p>
-                Your trusted partner for premium real estate in Dubai. Find your dream home today.
-              </p>
-            </div>
-            <div className={styles.footerColumn}>
-              <h4>Properties</h4>
-              <ul>
-                <li>
-                  <a href="#">Buy</a>
-                </li>
-                <li>
-                  <a href="#">Rent</a>
-                </li>
-                <li>
-                  <a href="#">Off-Plan</a>
-                </li>
-                <li>
-                  <a href="#">Commercial</a>
-                </li>
-              </ul>
-            </div>
-            <div className={styles.footerColumn}>
-              <h4>Company</h4>
-              <ul>
-                <li>
-                  <a href="#">About Us</a>
-                </li>
-                <li>
-                  <a href="#">Careers</a>
-                </li>
-                <li>
-                  <a href="#">Press</a>
-                </li>
-                <li>
-                  <a href="#">Contact</a>
-                </li>
-              </ul>
-            </div>
-            <div className={styles.footerColumn}>
-              <h4>Support</h4>
-              <ul>
-                <li>
-                  <a href="#">Help Center</a>
-                </li>
-                <li>
-                  <a href="#">Privacy Policy</a>
-                </li>
-                <li>
-                  <a href="#">Terms of Use</a>
-                </li>
-                <li>
-                  <a href="#">FAQ</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className={styles.footerBottom}>
-            <p className={styles.footerCopyright}>© 2024 RushHour. All rights reserved.</p>
-            <div className={styles.footerSocials}>
-              <a href="#">
-                <IconX />
-              </a>
-              <a href="#">
-                <IconHome />
-              </a>
-              <a href="#">
-                <IconUsers />
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {/* Modal */}
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Schedule a Call">
-        <ModalBody>
-          <Input label="Your Name" placeholder="John Doe" />
-          <div style={{ marginTop: '16px' }}>
-            <Input label="Phone Number" type="tel" placeholder="+971 50 123 4567" />
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <Select
-              label="Preferred Time"
-              options={[
-                { value: 'morning', label: 'Morning (9AM - 12PM)' },
-                { value: 'afternoon', label: 'Afternoon (12PM - 5PM)' },
-                { value: 'evening', label: 'Evening (5PM - 8PM)' },
-              ]}
-              value={preferredTime}
-              onChange={setPreferredTime}
-            />
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="ghost" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary">Schedule Call</Button>
-        </ModalFooter>
-      </Modal>
-
-      {/* Toast */}
-      <Toast open={showToast} onClose={() => setShowToast(false)} variant="success">
-        Property added to favorites!
-      </Toast>
     </div>
   )
 }

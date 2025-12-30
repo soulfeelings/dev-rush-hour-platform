@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Map } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Select } from '../ui/Select'
 import FiltersBar from '../components/FiltersBar'
 import FeaturedPropertyCarousel from '../components/FeaturedPropertyCarousel'
@@ -9,18 +10,19 @@ import ResizableSplitter from '../components/ResizableSplitter'
 import { mockProperties, featuredProperties } from '../data/mockProperties'
 import styles from './Catalog.module.scss'
 
-const sortOptions = [
-  { value: 'default', label: 'По умолчанию' },
-  { value: 'price-asc', label: 'Цена: по возрастанию' },
-  { value: 'price-desc', label: 'Цена: по убыванию' },
-  { value: 'date-asc', label: 'Дата: сначала новые' },
-  { value: 'date-desc', label: 'Дата: сначала старые' },
-]
-
 export default function Catalog() {
+  const { t } = useTranslation()
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
   const [sortValue, setSortValue] = useState('default')
   const [isMapOpen, setIsMapOpen] = useState(false)
+
+  const sortOptions = [
+    { value: 'default', label: t('catalog.sort.default') },
+    { value: 'price-asc', label: t('catalog.sort.priceAsc') },
+    { value: 'price-desc', label: t('catalog.sort.priceDesc') },
+    { value: 'date-asc', label: t('catalog.sort.dateAsc') },
+    { value: 'date-desc', label: t('catalog.sort.dateDesc') },
+  ]
 
   const handlePropertyClick = (propertyId: string) => {
     setSelectedPropertyId(propertyId === selectedPropertyId ? undefined : propertyId)
@@ -39,7 +41,7 @@ export default function Catalog() {
       <FeaturedPropertyCarousel properties={featuredProperties} />
       <div className={styles.resultsHeader}>
         <span className={styles.resultsCount}>
-          {displayedResults} из {totalResults} результатов
+          {t('catalog.results.count', { displayed: displayedResults, total: totalResults })}
         </span>
         <div className={styles.headerActions}>
           <div className={styles.sortContainer}>
@@ -47,12 +49,12 @@ export default function Catalog() {
               options={sortOptions}
               value={sortValue}
               onChange={setSortValue}
-              placeholder="Сортировать"
+              placeholder={t('catalog.sort.placeholder')}
             />
           </div>
           <button className={styles.mapButton} onClick={() => setIsMapOpen(true)} type="button">
             <Map size={18} />
-            Карта
+            {t('catalog.map.button')}
           </button>
         </div>
       </div>

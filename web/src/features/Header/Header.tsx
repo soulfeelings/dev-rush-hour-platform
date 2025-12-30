@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../../ui/Button'
 import SidebarMenu from '../SidebarMenu'
 import styles from './Header.module.scss'
@@ -17,8 +18,74 @@ const IconUser = () => (
   </svg>
 )
 
+const IconGlobe = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+)
+
+function LanguageSelector() {
+  const { i18n } = useTranslation()
+  const [isOpen, setIsOpen] = useState(false)
+  const selectorRef = useRef<HTMLDivElement>(null)
+
+  const languages = [{ code: 'en', label: 'EN' }]
+
+  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0]
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (selectorRef.current && !selectorRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  const handleLanguageChange = (langCode: string) => {
+    i18n.changeLanguage(langCode)
+    setIsOpen(false)
+  }
+
+  return (
+    <div className={styles.languageSelector} ref={selectorRef}>
+      <button className={styles.languageBtn} onClick={() => setIsOpen(!isOpen)} type="button">
+        <IconGlobe />
+        <span>{currentLanguage.label}</span>
+      </button>
+      {isOpen && (
+        <>
+          <div className={styles.languageOverlay} onClick={() => setIsOpen(false)} />
+          <div className={styles.languageDropdown}>
+            {languages.map(lang => (
+              <button
+                key={lang.code}
+                className={`${styles.languageOption} ${
+                  i18n.language === lang.code ? styles['languageOption--active'] : ''
+                }`}
+                onClick={() => handleLanguageChange(lang.code)}
+                type="button"
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
 
 export default function Header() {
+  const { t } = useTranslation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
@@ -33,25 +100,14 @@ export default function Header() {
           </Link>
           <nav className={styles.nav}>
             <Link to="/catalog" className={styles.navLink}>
-              Каталог
+              {t('header.nav.catalog')}
             </Link>
-            <a href="#" className={styles.navLink}>
-              Buy
-            </a>
-            <a href="#" className={styles.navLink}>
-              Rent
-            </a>
-            <a href="#" className={styles.navLink}>
-              Off-Plan
-            </a>
-            <a href="#" className={styles.navLink}>
-              Areas
-            </a>
+            <Link to="/design-demo" className={styles.navLink}>
+              {t('header.nav.designDemo')}
+            </Link>
           </nav>
           <div className={styles.headerActions}>
-            <Button size="sm" className={styles.desktopButton}>
-              List Property
-            </Button>
+            <LanguageSelector />
             <button className={styles.profileBtn} type="button">
               <IconUser />
             </button>
@@ -62,4 +118,3 @@ export default function Header() {
     </>
   )
 }
-
