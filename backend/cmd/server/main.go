@@ -5,11 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"rush-hour-platform/backend/internal/generated"
+	"rush-hour-platform/backend/internal/handlers"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"rush-hour-platform/backend/internal/generated"
-	"rush-hour-platform/backend/internal/handlers"
 )
 
 type Server struct {

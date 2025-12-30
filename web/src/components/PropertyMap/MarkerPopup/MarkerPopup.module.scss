@@ -1,0 +1,126 @@
+@use '../../../styles' as *;
+
+:global(.marker-popup-content) {
+  display: flex;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  min-width: 280px;
+  max-width: 320px;
+  font-family: $font-family-primary;
+}
+
+:global(.marker-popup-image) {
+  flex-shrink: 0;
+  width: 100px;
+  height: 80px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+:global(.marker-popup-text) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+:global(.marker-popup-title) {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  margin: 0 0 $spacing-1 0;
+  line-height: $line-height-tight;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+:global(.marker-popup-developer),
+:global(.marker-popup-subtitle) {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:global(.marker-popup-price) {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-top: $spacing-1;
+}
+
+.popup {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-lg;
+  min-width: 280px;
+  max-width: 320px;
+  font-family: $font-family-primary;
+}
+
+.popupContent {
+  display: flex;
+  gap: $spacing-3;
+  padding: $spacing-3;
+}
+
+.imageContainer {
+  flex-shrink: 0;
+  width: 100px;
+  height: 80px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.textContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  margin: 0 0 $spacing-1 0;
+  line-height: $line-height-tight;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.developer {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

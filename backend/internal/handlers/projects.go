@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"rush-hour-platform/backend/internal/generated"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type ProjectsHandler struct{}

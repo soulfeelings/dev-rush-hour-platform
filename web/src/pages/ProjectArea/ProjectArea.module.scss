@@ -1,0 +1,166 @@
+@use '../../styles' as *;
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: $spacing-6;
+}
+
+.header {
+  margin-bottom: $spacing-8;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: $spacing-4;
+  color: $color-text-secondary;
+  text-decoration: none;
+  font-size: $font-size-sm;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $color-primary;
+  }
+}
+
+.title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $color-text;
+  margin: 0 0 $spacing-3 0;
+}
+
+.subtitle {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin: 0;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-8;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mapSection {
+  position: sticky;
+  top: $spacing-6;
+  height: fit-content;
+  min-height: 600px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+}
+
+.districtsList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+}
+
+.listTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0 0 $spacing-4 0;
+}
+
+.districtsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.districtCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+  border-left: 4px solid $color-primary;
+  text-decoration: none;
+  transition: all $transition-normal;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.districtHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-3;
+}
+
+.districtName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0;
+}
+
+.districtNameAr {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-family: 'Noto Naskh Arabic', serif;
+}
+
+.districtDescription {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+  margin: 0 0 $spacing-4 0;
+}
+
+.districtStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-4;
+  padding: $spacing-4 0;
+  border-top: 1px solid $color-border;
+  border-bottom: 1px solid $color-border;
+  margin-bottom: $spacing-4;
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+    gap: $spacing-2;
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: $color-text-muted;
+  font-weight: $font-weight-medium;
+}
+
+.statValue {
+  font-size: $font-size-sm;
+  color: $color-text;
+  font-weight: $font-weight-semibold;
+}
+
+.districtTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.tag {
+  font-size: 0.75rem;
+  color: $color-text-secondary;
+  background: $color-bg;
+  padding: $spacing-1 $spacing-3;
+  border-radius: $radius-sm;
+  border: 1px solid $color-border;
+}
