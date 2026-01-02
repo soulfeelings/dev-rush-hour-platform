@@ -1,0 +1,100 @@
+@use 'sass:color';
+@use '../../styles/variables' as *;
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: $spacing-6 auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.filterBar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  padding: $spacing-4;
+  border-radius: $radius-xl;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    padding: $spacing-4;
+    gap: $spacing-3;
+  }
+}
+
+.selectGroup {
+  display: flex;
+  flex: 1;
+  gap: $spacing-4;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+}
+
+.selectWrapper {
+  flex: 1;
+  min-width: 180px;
+
+  :global(.form-group) {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    min-width: 0;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-3;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+  }
+}
+
+.searchButton, .agentButton {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  height: 48px;
+  padding: 0 $spacing-6;
+  white-space: nowrap;
+
+  @media (max-width: $breakpoint-md) {
+    flex: 1;
+    justify-content: center;
+    padding: 0 $spacing-4;
+  }
+}
+
+.agentButton {
+  background-color: #25D366; // WhatsApp green
+  border-color: #25D366;
+  color: white;
+
+  &:hover {
+    background-color: color.scale(#25D366, $lightness: -10%);
+    border-color: color.scale(#25D366, $lightness: -10%);
+  }
+}
+
+.buttonText {
+  @media (max-width: $breakpoint-lg) {
+    display: none;
+  }
+  
+  @media (max-width: $breakpoint-md) {
+    display: inline;
+  }
+}

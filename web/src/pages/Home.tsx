@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import styles from './Home.module.scss'
 import { Button, Input, Select, Modal, ModalBody, ModalFooter, Toast } from '../ui'
+import HeroFilters from '../components/HeroFilters'
 
 const IconHeart = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -356,12 +357,7 @@ export default function Home() {
               {t('home.hero.titleSuffix')}
             </h1>
             <p className={styles.heroDesc}>{t('home.hero.description')}</p>
-            <div className={styles.heroActions}>
-              <Button onClick={() => navigate('/catalog')}>
-                <IconSearch /> {t('home.hero.exploreProperties')}
-              </Button>
-              <Button variant="secondary">{t('home.hero.contactAgent')}</Button>
-            </div>
+            <HeroFilters />
           </div>
         </div>
       </section>
