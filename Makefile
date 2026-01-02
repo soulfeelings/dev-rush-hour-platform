@@ -5,15 +5,15 @@ menu:
 	@echo "\033[1;36m         Rush Hour Platform            \033[0m"
 	@echo "\033[1;36m═══════════════════════════════════════\033[0m"
 	@echo ""
-	@echo "  \033[33m1)\033[0m Backend"
-	@echo "  \033[33m2)\033[0m Web"
+	@echo "  \033[33m1)\033[0m Web"
+	@echo "  \033[33m2)\033[0m Backend"
 	@echo "  \033[33m3)\033[0m Run with Docker Compose (dev)"
 	@echo "  \033[33m4)\033[0m Run with Docker Compose (prod)"
 	@echo ""
 	@read -p "Select option: " choice; \
 	case $$choice in \
-		1) $(MAKE) -C backend ;; \
-		2) $(MAKE) -C web ;; \
+		1) $(MAKE) -C web ;; \
+		2) $(MAKE) -C backend ;; \
 		3) $(MAKE) up-dev ;; \
 		4) $(MAKE) up ;; \
 		*) echo "Invalid option" ;; \
