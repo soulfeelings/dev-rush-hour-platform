@@ -7,6 +7,7 @@ interface ResizableSplitterProps {
   initialLeftWidth?: number
   minLeftWidth?: number
   minRightWidth?: number
+  onWidthChange?: (width: number) => void
 }
 
 export default function ResizableSplitter({
@@ -15,10 +16,15 @@ export default function ResizableSplitter({
   initialLeftWidth = 60,
   minLeftWidth = 30,
   minRightWidth = 20,
+  onWidthChange,
 }: ResizableSplitterProps) {
   const [leftWidth, setLeftWidth] = useState(initialLeftWidth)
   const [isResizing, setIsResizing] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    onWidthChange?.(leftWidth)
+  }, [onWidthChange, leftWidth])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -32,6 +38,7 @@ export default function ResizableSplitter({
 
       if (newLeftWidth >= minLeft && newLeftWidth <= maxLeft) {
         setLeftWidth(newLeftWidth)
+        onWidthChange?.(newLeftWidth)
       }
     }
 
