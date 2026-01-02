@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Map } from 'lucide-react'
 import { Select } from '../ui/Select'
 import FiltersBar from '../components/FiltersBar'
@@ -24,6 +24,29 @@ const GRID_CONSTANTS = {
   MIN_RIGHT_WIDTH: 20,
 } as const
 
+// Ключ для localStorage
+const SPLITTER_POSITION_KEY = 'catalog-splitter-position'
+
+// Функции для работы с localStorage
+const saveSplitterPosition = (position: number) => {
+  try {
+    localStorage.setItem(SPLITTER_POSITION_KEY, position.toString())
+    console.log('position', position)
+  } catch (error) {
+    console.warn('Failed to save splitter position:', error)
+  }
+}
+
+const loadSplitterPosition = (): number => {
+  try {
+    const saved = localStorage.getItem(SPLITTER_POSITION_KEY)
+    return saved ? parseFloat(saved) : GRID_CONSTANTS.INITIAL_LEFT_WIDTH
+  } catch (error) {
+    console.warn('Failed to load splitter position:', error)
+    return GRID_CONSTANTS.INITIAL_LEFT_WIDTH
+  }
+}
+
 const sortOptions = [
   { value: 'default', label: 'По умолчанию' },
   { value: 'price-asc', label: 'Цена: по возрастанию' },
@@ -36,9 +59,9 @@ export default function Catalog() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
   const [sortValue, setSortValue] = useState('default')
   const [isMapOpen, setIsMapOpen] = useState(false)
-  const [panelWidth, setPanelWidth] = useState(GRID_CONSTANTS.INITIAL_LEFT_WIDTH)
+  const [panelWidth, setPanelWidth] = useState(loadSplitterPosition())
   const [screenWidth, setScreenWidth] = useState(window.innerWidth)
-
+  console.log('panelWidth', panelWidth)
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth)
     window.addEventListener('resize', handleResize)
@@ -47,13 +70,19 @@ export default function Catalog() {
 
   const getGridColumns = (catalogWidth: number, screenWidth: number) => {
     // Определяем максимальное количество колонок на основе размера экрана
-    const maxColumnsByScreen = screenWidth >= GRID_CONSTANTS.BREAKPOINT_XL ? 3 :
-                               screenWidth >= GRID_CONSTANTS.BREAKPOINT_MD ? 2 : 1
+    const maxColumnsByScreen =
+      screenWidth >= GRID_CONSTANTS.BREAKPOINT_XL
+        ? 3
+        : screenWidth >= GRID_CONSTANTS.BREAKPOINT_MD
+          ? 2
+          : 1
 
     // Определяем желаемое количество колонок на основе ширины каталога
     let desiredColumnsByWidth = 1
-    if (catalogWidth >= GRID_CONSTANTS.PANEL_WIDTH_BREAKPOINT_1 &&
-        catalogWidth < GRID_CONSTANTS.PANEL_WIDTH_BREAKPOINT_2) {
+    if (
+      catalogWidth >= GRID_CONSTANTS.PANEL_WIDTH_BREAKPOINT_1 &&
+      catalogWidth < GRID_CONSTANTS.PANEL_WIDTH_BREAKPOINT_2
+    ) {
       desiredColumnsByWidth = 2
     } else if (catalogWidth >= GRID_CONSTANTS.PANEL_WIDTH_BREAKPOINT_2) {
       desiredColumnsByWidth = 3
@@ -71,6 +100,11 @@ export default function Catalog() {
     console.log('Favorite clicked:', propertyId)
   }
 
+  const handleFinishResizing = useCallback((width: number) => {
+    saveSplitterPosition(width)
+  }, [])
+
+  console.log('panelWidth', panelWidth)
   const regularProperties = mockProperties.filter(p => !p.isFeatured)
   const totalResults = mockProperties.length
   const displayedResults = regularProperties.length
@@ -99,7 +133,9 @@ export default function Catalog() {
       </div>
       <div
         className={styles.grid}
-        style={{ gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)` }}
+        style={{
+          gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
+        }}
       >
         {regularProperties.map(property => (
           <ProjectCard
@@ -130,10 +166,11 @@ export default function Catalog() {
           <ResizableSplitter
             leftPanel={mapContent}
             rightPanel={catalogContent}
-            initialLeftWidth={GRID_CONSTANTS.INITIAL_LEFT_WIDTH}
+            initialLeftWidth={panelWidth}
             minLeftWidth={GRID_CONSTANTS.MIN_LEFT_WIDTH}
             minRightWidth={GRID_CONSTANTS.MIN_RIGHT_WIDTH}
             onWidthChange={setPanelWidth}
+            onFinishResizing={handleFinishResizing}
           />
         </div>
         <div className={styles.mobileLayout}>{catalogContent}</div>
