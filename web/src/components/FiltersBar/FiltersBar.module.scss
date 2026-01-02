@@ -3,24 +3,19 @@
 .filtersBar {
   display: flex;
   gap: $spacing-2;
-  flex-wrap: wrap;
-  margin-bottom: $spacing-6;
-  padding-bottom: $spacing-4;
-  border-bottom: 1px solid $color-border;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  padding: $spacing-2 $spacing-4;
 
   @media (max-width: $breakpoint-md) {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: $spacing-3;
-    margin-bottom: $spacing-4;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
+    padding: 0;
   }
 }
 

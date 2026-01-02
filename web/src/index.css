@@ -20,6 +20,15 @@ body {
   font-family: 'Plus Jakarta Sans', 'Noto Naskh Arabic', system-ui, sans-serif;
   background: #fdfbf7;
   color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 /* Leaflet Marker Popup Styles */

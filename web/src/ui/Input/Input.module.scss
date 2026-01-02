@@ -15,7 +15,7 @@
 
 .input {
   width: 100%;
-  padding: $spacing-3 $spacing-4;
+  padding: $spacing-2 $spacing-3;
   font-family: inherit;
   font-size: $font-size-md;
   color: $color-text;
@@ -23,7 +23,6 @@
   border: 1px solid $color-border;
   border-radius: $radius-md;
   transition: all $transition-fast;
-  min-height: 48px;
   box-sizing: border-box;
 
   &::placeholder {

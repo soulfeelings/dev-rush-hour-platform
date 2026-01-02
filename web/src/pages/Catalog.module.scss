@@ -3,21 +3,16 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 80px);
-  margin-top: 80px;
   overflow: hidden;
+  height: 100%;
 }
 
 .filtersWrapper {
   width: 100%;
-  padding: $spacing-3 $spacing-4;
+  padding: $spacing-1 $spacing-2;
   background: $color-bg-card;
   border-bottom: 1px solid $color-border;
   flex-shrink: 0;
-
-  @media (min-width: $breakpoint-md) {
-    padding: $spacing-4 $spacing-6;
-  }
 }
 
 .contentWrapper {

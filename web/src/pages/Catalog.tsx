@@ -92,7 +92,7 @@ export default function Catalog() {
         </div>
         <div className={styles.mobileLayout}>{catalogContent}</div>
       </div>
-      {isMapOpen && (
+      {/* {isMapOpen && (
         <div className={styles.mapModalOverlay} onClick={() => setIsMapOpen(false)}>
           <div className={styles.mapModal} onClick={e => e.stopPropagation()}>
             <button
@@ -105,7 +105,7 @@ export default function Catalog() {
             <div className={styles.mapModalContent}>{mapContent}</div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

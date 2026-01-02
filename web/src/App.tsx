@@ -12,14 +12,16 @@ function App() {
   return (
     <BrowserRouter>
       <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/catalog" element={<Catalog />} />
-        <Route path="/project/:id" element={<ProjectDetail />} />
-        <Route path="/areas" element={<ProjectArea />} />
-        <Route path="/area/:id" element={<DistrictDetail />} />
-        <Route path="/design-demo" element={<DesignDemo />} />
-      </Routes>
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/catalog" element={<Catalog />} />
+          <Route path="/project/:id" element={<ProjectDetail />} />
+          <Route path="/areas" element={<ProjectArea />} />
+          <Route path="/area/:id" element={<DistrictDetail />} />
+          <Route path="/design-demo" element={<DesignDemo />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   )
 }
