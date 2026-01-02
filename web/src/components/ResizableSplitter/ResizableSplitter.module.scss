@@ -32,27 +32,74 @@
 }
 
 .splitter {
-  width: 4px;
-  background: $color-border;
-  cursor: col-resize;
-  flex-shrink: 0;
   position: relative;
-  transition: background $transition-fast;
+  width: 14px; // широкий hit-area для удобного захвата
+  cursor: col-resize;
+  background: transparent; // тело невидимое
+  flex-shrink: 0;
+  transition: all $transition-fast;
 
   @media (max-width: $breakpoint-md) {
     display: none;
   }
 
-  &:hover {
-    background: $color-primary;
-  }
-
+  // Тонкая красивая линия
   &::before {
     content: '';
     position: absolute;
-    left: -2px;
-    right: -2px;
-    top: 0;
-    bottom: 0;
+    top: 10px;
+    bottom: 10px;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 999px;
+    transition: all 0.15s ease;
+  }
+
+  // Граббер с точками
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 26px;
+    transform: translate(-50%, -50%);
+    border-radius: 999px;
+    background:
+      radial-gradient(circle, rgba(0, 0, 0, 0.25) 2px, transparent 3px) 50% 20% / 8px 8px no-repeat,
+      radial-gradient(circle, rgba(0, 0, 0, 0.25) 2px, transparent 3px) 50% 50% / 8px 8px no-repeat,
+      radial-gradient(circle, rgba(0, 0, 0, 0.25) 2px, transparent 3px) 50% 80% / 8px 8px no-repeat;
+    opacity: 0.6;
+    transition: all 0.15s ease;
+  }
+
+  // Hover эффекты
+  &:hover {
+    &::before {
+      background: $color-primary;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+      width: 3px;
+    }
+
+    &::after {
+      opacity: 1;
+      filter: saturate(1.2);
+    }
+  }
+
+  // Active состояние при перетаскивании
+  &.isResizing {
+    &::before {
+      background: $color-primary;
+      box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.18);
+      width: 4px;
+    }
+
+    &::after {
+      opacity: 1;
+      filter: saturate(1.2);
+    }
   }
 }

@@ -11,6 +11,7 @@ menu:
 	@echo "  \033[33m4)\033[0m Lint"
 	@echo "  \033[33m5)\033[0m Lint and fix"
 	@echo "  \033[33m6)\033[0m Type check"
+	@echo "  \033[33m7)\033[0m Run Storybook"
 	@echo "  \033[33m0)\033[0m Back"
 	@echo ""
 	@read -p "Select option: " choice; \
@@ -21,6 +22,7 @@ menu:
 		4) $(MAKE) lint ;; \
 		5) $(MAKE) lint-fix ;; \
 		6) $(MAKE) type-check ;; \
+		7) $(MAKE) storybook ;; \
 		0) $(MAKE) -C .. ;; \
 		*) echo "Invalid option" ;; \
 	esac
@@ -42,4 +44,7 @@ lint-fix:
 
 type-check:
 	pnpm type-check
+
+storybook:
+	pnpm storybook
 

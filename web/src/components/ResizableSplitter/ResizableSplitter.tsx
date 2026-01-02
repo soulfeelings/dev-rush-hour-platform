@@ -67,7 +67,7 @@ export default function ResizableSplitter({
         {leftPanel}
       </div>
       <div
-        className={styles.splitter}
+        className={`${styles.splitter} ${isResizing ? styles.isResizing : ''}`}
         onMouseDown={() => setIsResizing(true)}
         role="separator"
         aria-orientation="vertical"
