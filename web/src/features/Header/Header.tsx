@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import SidebarMenu from '../SidebarMenu'
+import { Select } from '../../ui'
 import styles from './Header.module.scss'
 
 const IconMenu = () => (
@@ -24,62 +25,18 @@ const IconGlobe = () => (
   </svg>
 )
 
+const languageOptions = [{ value: 'en', label: 'EN' }]
+
 function LanguageSelector() {
   const { i18n } = useTranslation()
-  const [isOpen, setIsOpen] = useState(false)
-  const selectorRef = useRef<HTMLDivElement>(null)
-
-  const languages = [{ code: 'en', label: 'EN' }]
-
-  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0]
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (selectorRef.current && !selectorRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen])
-
-  const handleLanguageChange = (langCode: string) => {
-    i18n.changeLanguage(langCode)
-    setIsOpen(false)
-  }
 
   return (
-    <div className={styles.languageSelector} ref={selectorRef}>
-      <button className={styles.languageBtn} onClick={() => setIsOpen(!isOpen)} type="button">
-        <IconGlobe />
-        <span>{currentLanguage.label}</span>
-      </button>
-      {isOpen && (
-        <>
-          <div className={styles.languageOverlay} onClick={() => setIsOpen(false)} />
-          <div className={styles.languageDropdown}>
-            {languages.map(lang => (
-              <button
-                key={lang.code}
-                className={`${styles.languageOption} ${
-                  i18n.language === lang.code ? styles['languageOption--active'] : ''
-                }`}
-                onClick={() => handleLanguageChange(lang.code)}
-                type="button"
-              >
-                {lang.label}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+    <Select
+      options={languageOptions}
+      value={i18n.language}
+      onChange={lang => i18n.changeLanguage(lang)}
+      icon={<IconGlobe />}
+    />
   )
 }
 

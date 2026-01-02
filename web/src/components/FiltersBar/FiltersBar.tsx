@@ -1,11 +1,14 @@
-import { Search, Filter, Plane } from 'lucide-react'
+import { useState } from 'react'
+import { Search, SlidersHorizontal, Plane, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
+import { Tag } from '../../ui/Tag'
 import styles from './FiltersBar.module.scss'
 
 export default function FiltersBar() {
   const { t } = useTranslation()
+  const [activeFilters, setActiveFilters] = useState<string[]>(['advancement'])
 
   const propertyTypeOptions = [
     { value: 'all', label: t('filters.propertyType.all') },
@@ -36,55 +39,79 @@ export default function FiltersBar() {
     { value: 'construction', label: t('filters.status.construction') },
     { value: 'planning', label: t('filters.status.planning') },
   ]
+
+  const removeFilter = (filter: string) => {
+    setActiveFilters(prev => prev.filter(f => f !== filter))
+  }
+
+  const clearAllFilters = () => {
+    setActiveFilters([])
+  }
+
   return (
     <div className={styles.filtersBar}>
-      <Button variant="secondary" size="sm" className={styles.locationButton}>
+      <Button variant="primary" size="sm">
         <Plane size={16} />
         {t('filters.location.dubai')}
       </Button>
-      <button className={styles.searchButton} type="button">
-        <Search size={18} />
+
+      <Button variant="secondary" size="sm">
+        <Search size={16} />
         {t('filters.search.button')}
-      </button>
-      <button className={styles.filterButton} type="button">
-        {t('filters.advancement.button')}
-      </button>
-      <div className={styles.selectWrapper}>
-        <Select
-          options={propertyTypeOptions}
-          value="all"
-          onChange={() => {}}
-          placeholder={t('filters.propertyType.placeholder')}
-        />
-      </div>
-      <div className={styles.selectWrapper}>
-        <Select
-          options={priceOptions}
-          value="all"
-          onChange={() => {}}
-          placeholder={t('filters.price.placeholder')}
-        />
-      </div>
-      <div className={styles.selectWrapper}>
-        <Select
-          options={bedroomsOptions}
-          value="all"
-          onChange={() => {}}
-          placeholder={t('filters.bedrooms.placeholder')}
-        />
-      </div>
-      <div className={styles.selectWrapper}>
-        <Select
-          options={statusOptions}
-          value="all"
-          onChange={() => {}}
-          placeholder={t('filters.status.placeholder')}
-        />
-      </div>
-      <button className={styles.moreFiltersButton} type="button">
-        <Filter size={16} />
+      </Button>
+
+      {activeFilters.includes('advancement') && (
+        <Tag onRemove={() => removeFilter('advancement')}>
+          {t('filters.advancement.button')}
+        </Tag>
+      )}
+
+      <Select
+        options={propertyTypeOptions}
+        value="all"
+        onChange={() => {}}
+        placeholder={t('filters.propertyType.placeholder')}
+      />
+
+      <Select
+        options={priceOptions}
+        value="all"
+        onChange={() => {}}
+        placeholder={t('filters.price.placeholder')}
+      />
+
+      <Select
+        options={bedroomsOptions}
+        value="all"
+        onChange={() => {}}
+        placeholder={t('filters.bedrooms.placeholder')}
+      />
+
+      <Select
+        options={statusOptions}
+        value="all"
+        onChange={() => {}}
+        placeholder={t('filters.status.placeholder')}
+      />
+
+      <Button variant="secondary" size="sm" className={styles.moreFiltersButton}>
+        <SlidersHorizontal size={16} />
         {t('filters.moreFilters.button')}
-      </button>
+        {activeFilters.length > 0 && (
+          <span className={styles.badge}>{activeFilters.length}</span>
+        )}
+      </Button>
+
+      {activeFilters.length > 0 && (
+        <button
+          type="button"
+          className={styles.clearButton}
+          onClick={clearAllFilters}
+        >
+          {t('filters.clearFilters.button')}
+          <X size={14} />
+        </button>
+      )}
     </div>
   )
 }

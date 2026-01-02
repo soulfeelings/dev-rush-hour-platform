@@ -34,6 +34,10 @@ See available: `src/ui/index.ts`
 
 Icons: `lucide-react` — `import { Search, Heart, Home } from 'lucide-react'`
 
+**При создании нового компонента спросить:**
+1. Создать Storybook story? (только интерактивные варианты)
+2. Добавить в DesignDemo?
+
 ### Design System (`src/styles/`)
 
 Tokens: `src/styles/_variables.scss` | Mixins: `src/styles/_mixins.scss`

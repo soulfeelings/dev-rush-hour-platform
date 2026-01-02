@@ -8,15 +8,16 @@
   gap: $spacing-2;
   font-family: inherit;
   font-weight: $font-weight-medium;
-  border-radius: $radius-md;
-  border: 2px solid transparent;
+  border-radius: $radius-full;
+  border: none;
   cursor: pointer;
   transition: all $transition-fast;
   text-decoration: none;
+  white-space: nowrap;
 
   svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     flex-shrink: 0;
   }
 
@@ -30,43 +31,38 @@
 .btn--primary {
   background: $color-primary;
   color: $color-text-inverse;
-  border-color: $color-primary;
 
   &:hover:not(:disabled) {
     background: $color-primary-hover;
-    border-color: $color-primary-hover;
-    transform: translateY(-1px);
-    box-shadow: $shadow-md;
   }
 
   &:active:not(:disabled) {
     background: $color-primary-active;
-    border-color: $color-primary-active;
-    transform: translateY(0);
   }
 }
 
 .btn--secondary {
-  background: transparent;
-  color: $color-primary;
-  border-color: $color-primary;
+  background: $color-bg-card;
+  color: $color-text-secondary;
+  border: 1px solid $color-border;
 
   &:hover:not(:disabled) {
-    background: $color-primary-light;
+    border-color: color.mix(black, $color-border, 15%);
+    color: $color-text;
   }
 
   &:active:not(:disabled) {
-    background: color.change($color-primary, $alpha: 0.2);
+    background: color.mix(black, $color-bg-card, 3%);
   }
 }
 
 .btn--ghost {
   background: transparent;
-  color: $color-text;
-  border-color: transparent;
+  color: $color-text-secondary;
 
   &:hover:not(:disabled) {
     background: rgba(0, 0, 0, 0.05);
+    color: $color-text;
   }
 }
 
@@ -74,18 +70,19 @@
 .btn--sm {
   padding: $spacing-2 $spacing-4;
   font-size: $font-size-sm;
-  min-height: 36px;
+  height: 36px;
 }
 
 .btn--md {
-  padding: $spacing-2 $spacing-3;
-  font-size: $font-size-md;
+  padding: $spacing-2 $spacing-5;
+  font-size: $font-size-sm;
+  height: 40px;
 }
 
 .btn--lg {
-  padding: $spacing-4 $spacing-8;
-  font-size: $font-size-lg;
-  min-height: 56px;
+  padding: $spacing-3 $spacing-6;
+  font-size: $font-size-md;
+  height: 48px;
 }
 
 // Full width

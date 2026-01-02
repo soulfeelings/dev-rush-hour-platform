@@ -15,7 +15,6 @@
 
 .select {
   position: relative;
-  width: 100%;
 
   &--disabled {
     opacity: 0.5;
@@ -24,37 +23,36 @@
 }
 
 .trigger {
-  width: 100%;
-  padding: $spacing-2 $spacing-3;
-  padding-right: $spacing-10;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $spacing-2 $spacing-4;
+  padding-right: $spacing-8;
   font-family: inherit;
-  font-size: $font-size-md;
-  color: $color-text;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
   background: $color-bg-card;
   border: 1px solid $color-border;
-  border-radius: $radius-md;
+  border-radius: $radius-full;
   cursor: pointer;
   transition: all $transition-fast;
-  display: flex;
-  align-items: center;
   position: relative;
   text-align: left;
+  white-space: nowrap;
+  height: 36px;
 
   &:hover:not(:disabled) {
-    border-color: color.mix(black, $color-border, 10%);
+    border-color: color.mix(black, $color-border, 15%);
+    color: $color-text;
   }
 
   &--open {
     border-color: $color-primary;
-    box-shadow: 0 0 0 3px color.change($color-primary, $alpha: 0.15);
+    color: $color-text;
   }
 
   &--error {
     border-color: $color-error;
-
-    &.trigger--open {
-      box-shadow: 0 0 0 3px color.change($color-error, $alpha: 0.15);
-    }
   }
 }
 
@@ -62,13 +60,27 @@
   color: $color-text-muted;
 }
 
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
 .arrow {
   position: absolute;
-  right: $spacing-4;
+  right: $spacing-3;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,9 +88,10 @@
   pointer-events: none;
 
   svg {
-    width: 12px;
-    height: 12px;
-    color: $color-text-muted;
+    width: 10px;
+    height: 10px;
+    color: currentColor;
+    opacity: 0.6;
   }
 
   .trigger--open & {
@@ -92,9 +105,9 @@
   left: 0;
   background: $color-bg-card;
   border: 1px solid $color-border;
-  border-radius: $radius-md;
+  border-radius: $radius-lg;
   box-shadow: $shadow-lg;
-  z-index: 1000; // Must be higher than header (100) since it's now in body
+  z-index: 1000;
   overflow: hidden;
 }
 

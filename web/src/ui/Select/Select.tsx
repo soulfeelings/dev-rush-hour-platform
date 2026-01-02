@@ -22,6 +22,7 @@ export interface SelectProps {
   label?: string
   error?: string
   disabled?: boolean
+  icon?: React.ReactNode
 }
 
 export function Select({
@@ -32,6 +33,7 @@ export function Select({
   label,
   error,
   disabled = false,
+  icon,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectingValue, setSelectingValue] = useState<string | null>(null)
@@ -133,6 +135,7 @@ export function Select({
           onClick={handleToggle}
           disabled={disabled}
         >
+          {icon && <span className={styles.icon}>{icon}</span>}
           <span className={selectedOption ? '' : styles.placeholder}>
             {selectedOption?.label || placeholder}
           </span>

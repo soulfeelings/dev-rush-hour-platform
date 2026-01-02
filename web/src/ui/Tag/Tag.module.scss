@@ -1,0 +1,45 @@
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $spacing-2 $spacing-3;
+  background: $color-primary;
+  color: $color-text-inverse;
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  height: 36px;
+  white-space: nowrap;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+.removeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin-left: $spacing-1;
+  background: transparent;
+  border: none;
+  border-radius: $radius-full;
+  color: currentColor;
+  opacity: 0.8;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+

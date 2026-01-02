@@ -189,6 +189,7 @@
   "filters.status.construction": "Under Construction",
   "filters.status.planning": "Planning",
   "filters.status.placeholder": "Sale Status",
+  "filters.clearFilters.button": "Clear filters",
   "header.nav.catalog": "Catalog",
   "header.nav.designDemo": "Design Demo",
   "header.listProperty.button": "List Property",
