@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
-import { Map } from 'lucide-react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Select } from '../ui/Select'
 import FiltersBar from '../components/FiltersBar'
 import ProjectCard from '../components/ProjectCard'
@@ -31,7 +30,6 @@ const SPLITTER_POSITION_KEY = 'catalog-splitter-position'
 const saveSplitterPosition = (position: number) => {
   try {
     localStorage.setItem(SPLITTER_POSITION_KEY, position.toString())
-    console.log('position', position)
   } catch (error) {
     console.warn('Failed to save splitter position:', error)
   }
@@ -58,10 +56,10 @@ const sortOptions = [
 export default function Catalog() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
   const [sortValue, setSortValue] = useState('default')
-  const [isMapOpen, setIsMapOpen] = useState(false)
   const [panelWidth, setPanelWidth] = useState(loadSplitterPosition())
   const [screenWidth, setScreenWidth] = useState(window.innerWidth)
-  console.log('panelWidth', panelWidth)
+  const mapRef = useRef<any>(null)
+
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth)
     window.addEventListener('resize', handleResize)
@@ -102,9 +100,10 @@ export default function Catalog() {
 
   const handleFinishResizing = useCallback((width: number) => {
     saveSplitterPosition(width)
+    // Обновляем карту после изменения размера
+    mapRef.current?.refreshMap()
   }, [])
 
-  console.log('panelWidth', panelWidth)
   const regularProperties = mockProperties.filter(p => !p.isFeatured)
   const totalResults = mockProperties.length
   const displayedResults = regularProperties.length
@@ -125,10 +124,6 @@ export default function Catalog() {
               placeholder="Сортировать"
             />
           </div>
-          <button className={styles.mapButton} onClick={() => setIsMapOpen(true)} type="button">
-            <Map size={18} />
-            Карта
-          </button>
         </div>
       </div>
       <div
@@ -150,6 +145,7 @@ export default function Catalog() {
 
   const mapContent = (
     <PropertyMap
+      ref={mapRef}
       properties={mockProperties}
       selectedPropertyId={selectedPropertyId}
       onPropertyClick={handlePropertyClick}
