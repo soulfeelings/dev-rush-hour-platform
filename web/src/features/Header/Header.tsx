@@ -89,7 +89,7 @@ export default function Header() {
 
   return (
     <>
-      <header className={styles.header}>
+      <header data-testid="header" className={styles.header}>
         <div className={styles.headerInner}>
           <button className={styles.menuBtn} onClick={() => setIsMenuOpen(true)} type="button">
             <IconMenu />

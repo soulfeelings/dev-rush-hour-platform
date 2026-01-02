@@ -19,3 +19,4 @@ export const createMarkerPopupHTML = (property: Property): string => {
     </div>
   `
 }
+

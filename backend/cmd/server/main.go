@@ -79,7 +79,7 @@ func (s *Server) DeleteProject(c *fiber.Ctx, projectId string) error {
 }
 
 func (s *Server) GetProject(c *fiber.Ctx, projectId string) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	return s.projectsHandler.GetProject(c, projectId)
 }
 
 func (s *Server) UpdateProject(c *fiber.Ctx, projectId string) error {

@@ -2,11 +2,10 @@ import { useState } from 'react'
 import { Map } from 'lucide-react'
 import { Select } from '../ui/Select'
 import FiltersBar from '../components/FiltersBar'
-import FeaturedPropertyCarousel from '../components/FeaturedPropertyCarousel'
 import ProjectCard from '../components/ProjectCard'
 import PropertyMap from '../components/PropertyMap'
 import ResizableSplitter from '../components/ResizableSplitter'
-import { mockProperties, featuredProperties } from '../data/mockProperties'
+import { mockProperties } from '../data/mockProperties'
 import styles from './Catalog.module.scss'
 
 const sortOptions = [
@@ -36,7 +35,7 @@ export default function Catalog() {
 
   const catalogContent = (
     <div className={styles.catalogContent}>
-      <FeaturedPropertyCarousel properties={featuredProperties} />
+      {/* <FeaturedPropertyCarousel properties={featuredProperties} /> */}
       <div className={styles.resultsHeader}>
         <span className={styles.resultsCount}>
           {displayedResults} из {totalResults} результатов

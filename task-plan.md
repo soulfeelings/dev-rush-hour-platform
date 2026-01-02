@@ -79,7 +79,7 @@ oapi-codegen -package generated -generate "types,fiber" -o backend/internal/gene
 
 ---
 
-### 7. Реализация страницы проекта с деталями и юнитами
+### ✅ 7. Реализация страницы проекта с деталями и юнитами
 
 **Промпт:**
 Создай страницу `/project/:id`

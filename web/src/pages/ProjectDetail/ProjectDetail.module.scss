@@ -1,3 +1,4 @@
+@use "sass:color";
 @use '../../styles' as *;
 
 .container {
@@ -50,6 +51,19 @@
   width: 100%;
   border-radius: $radius-lg;
   object-fit: cover;
+  box-shadow: $shadow-md;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 400px;
+  border-radius: $radius-lg;
+  background: $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-secondary;
+  font-size: $font-size-lg;
   box-shadow: $shadow-md;
 }
 
@@ -132,5 +146,86 @@
     font-size: $font-size-md;
     color: $color-text-secondary;
     margin: 0 0 $spacing-6 0;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: $spacing-20 0;
+
+  h1 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-medium;
+    color: $color-text-secondary;
+    margin: 0;
+  }
+}
+
+.unitsSection {
+  margin-top: $spacing-12;
+
+  h2 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $color-text;
+    margin: 0 0 $spacing-6 0;
+  }
+}
+
+.unitsTable {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: $spacing-4 $spacing-3;
+      text-align: left;
+      font-size: $font-size-sm;
+      border-bottom: 1px solid $color-border;
+    }
+
+    th {
+      font-weight: $font-weight-semibold;
+      color: $color-text;
+      background: $color-border;
+    }
+
+    td {
+      color: $color-text-secondary;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+.unitStatus {
+  display: inline-block;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+
+  &.unitStatusavailable {
+    background: color.change($color-success, $alpha: 0.1);
+    color: $color-success;
+  }
+
+  &.unitStatusreserved {
+    background: color.change($color-warning, $alpha: 0.1);
+    color: $color-warning;
+  }
+
+  &.unitStatussold {
+    background: color.change($color-error, $alpha: 0.1);
+    color: $color-error;
   }
 }
