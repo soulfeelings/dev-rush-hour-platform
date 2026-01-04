@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { MessageCircle, Search } from 'lucide-react'
+import { MessageCircle, Search, MapPin, Building2, Home, Bed, DollarSign } from 'lucide-react'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
 import { BedsBathsSelect } from './BedsBathsSelect'
@@ -109,6 +109,7 @@ Filters:
                 value={location}
                 onChange={setLocation}
                 placeholder={t('filters.location.placeholder')}
+                icon={<MapPin size={18} />}
                 fullWidth
                 fullHeight
               />
@@ -119,6 +120,7 @@ Filters:
                 value={developer}
                 onChange={setDeveloper}
                 placeholder={t('filters.developer.placeholder')}
+                icon={<Building2 size={18} />}
                 fullWidth
                 fullHeight
               />
@@ -129,6 +131,7 @@ Filters:
                 value={project}
                 onChange={setProject}
                 placeholder={t('filters.project.placeholder')}
+                icon={<Home size={18} />}
                 fullWidth
                 fullHeight
                 searchable
@@ -140,6 +143,7 @@ Filters:
                 value={propertyType}
                 onChange={setPropertyType}
                 placeholder={t('filters.propertyType.placeholder')}
+                icon={<Home size={18} />}
                 fullWidth
                 fullHeight
               />
@@ -151,6 +155,7 @@ Filters:
                 onBedroomsChange={setBeds}
                 onBathroomsChange={setBaths}
                 placeholder={t('filters.bathrooms.placeholder')}
+                icon={<Bed size={18} />}
                 fullWidth
                 fullHeight
               />
@@ -162,6 +167,7 @@ Filters:
                 onMinPriceChange={setMinPrice}
                 onMaxPriceChange={setMaxPrice}
                 placeholder={t('filters.price.placeholder')}
+                icon={<DollarSign size={18} />}
                 fullWidth
                 fullHeight
               />

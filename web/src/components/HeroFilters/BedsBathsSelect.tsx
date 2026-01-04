@@ -11,6 +11,7 @@ interface BedsBathsSelectProps {
   onBedroomsChange: (value: string) => void
   onBathroomsChange: (value: string) => void
   placeholder?: string
+  icon?: React.ReactNode
   fullWidth?: boolean
   fullHeight?: boolean
 }
@@ -24,6 +25,7 @@ export function BedsBathsSelect({
   onBedroomsChange,
   onBathroomsChange,
   placeholder,
+  icon,
   fullWidth = false,
   fullHeight = false,
 }: BedsBathsSelectProps) {
@@ -141,6 +143,7 @@ export function BedsBathsSelect({
           className={`${styles.trigger} ${isOpen ? styles['trigger--open'] : ''} ${fullWidth ? styles['trigger--fullWidth'] : ''} ${fullHeight ? styles['trigger--fullHeight'] : ''}`}
           onClick={handleToggle}
         >
+          {icon && <span className={styles.icon}>{icon}</span>}
           <span className={bedrooms === 'all' && bathrooms === 'all' ? styles.placeholder : ''}>
             {getDisplayText()}
           </span>

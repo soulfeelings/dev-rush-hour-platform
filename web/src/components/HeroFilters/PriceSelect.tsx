@@ -11,6 +11,7 @@ interface PriceSelectProps {
   onMinPriceChange: (value: string) => void
   onMaxPriceChange: (value: string) => void
   placeholder?: string
+  icon?: React.ReactNode
   fullWidth?: boolean
   fullHeight?: boolean
 }
@@ -21,6 +22,7 @@ export function PriceSelect({
   onMinPriceChange,
   onMaxPriceChange,
   placeholder = 'Price (AED)',
+  icon,
   fullWidth = false,
   fullHeight = false,
 }: PriceSelectProps) {
@@ -154,6 +156,7 @@ export function PriceSelect({
           className={`${styles.trigger} ${isOpen ? styles['trigger--open'] : ''} ${fullWidth ? styles['trigger--fullWidth'] : ''} ${fullHeight ? styles['trigger--fullHeight'] : ''}`}
           onClick={handleToggle}
         >
+          {icon && <span className={styles.icon}>{icon}</span>}
           <span className={!minPrice && !maxPrice ? styles.placeholder : ''}>
             {getDisplayText()}
           </span>
