@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/repo"
+
+	"github.com/google/uuid"
 )
 
 type AreasService struct {
@@ -27,5 +29,36 @@ func (s *AreasService) GetBySlug(slug string) (*domain.Area, error) {
 		return nil, fmt.Errorf("area not found")
 	}
 	return area, nil
+}
+
+func (s *AreasService) Create(area *domain.Area) error {
+	return s.areaRepo.Create(area)
+}
+
+func (s *AreasService) Update(id uuid.UUID, area *domain.Area) error {
+	existing, err := s.areaRepo.GetByID(id)
+	if err != nil {
+		return fmt.Errorf("failed to get area: %w", err)
+	}
+	if existing == nil {
+		return fmt.Errorf("area not found")
+	}
+
+	return s.areaRepo.Update(id, area)
+}
+
+func (s *AreasService) GetByID(id uuid.UUID) (*domain.Area, error) {
+	area, err := s.areaRepo.GetByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get area: %w", err)
+	}
+	if area == nil {
+		return nil, fmt.Errorf("area not found")
+	}
+	return area, nil
+}
+
+func (s *AreasService) ListAll() ([]domain.Area, error) {
+	return s.areaRepo.ListAll()
 }
 

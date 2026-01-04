@@ -24,4 +24,3 @@ export function Tag({ children, onRemove, testId = 'ui-tag' }: TagProps) {
     </span>
   )
 }
-

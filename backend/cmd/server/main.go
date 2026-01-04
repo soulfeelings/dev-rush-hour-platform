@@ -9,6 +9,7 @@ import (
 	"rush-hour-platform/backend/internal/config"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/handlers"
+	"rush-hour-platform/backend/internal/middleware"
 	"rush-hour-platform/backend/internal/repo"
 	"rush-hour-platform/backend/internal/services"
 
@@ -19,10 +20,15 @@ import (
 )
 
 type Server struct {
-	projectsHandler *handlers.ProjectsHandler
-	areasHandler    *handlers.AreasHandler
-	lotsHandler     *handlers.LotsHandler
-	leadsHandler    *handlers.LeadsHandler
+	projectsHandler      *handlers.ProjectsHandler
+	areasHandler         *handlers.AreasHandler
+	lotsHandler          *handlers.LotsHandler
+	leadsHandler         *handlers.LeadsHandler
+	adminDevelopersHandler *handlers.AdminDevelopersHandler
+	adminAreasHandler      *handlers.AdminAreasHandler
+	adminProjectsHandler   *handlers.AdminProjectsHandler
+	adminLotsHandler       *handlers.AdminLotsHandler
+	adminLeadsHandler      *handlers.AdminLeadsHandler
 }
 
 func NewServer(db *sql.DB) *Server {
@@ -31,19 +37,26 @@ func NewServer(db *sql.DB) *Server {
 	projectRepo := repo.NewProjectRepo(db)
 	lotRepo := repo.NewLotRepo(db)
 	leadRepo := repo.NewLeadRepo(db)
+	developerRepo := repo.NewDeveloperRepo(db)
 
 	// Services
 	areasService := services.NewAreasService(areaRepo)
-	projectsService := services.NewProjectsService(projectRepo)
+	projectsService := services.NewProjectsService(projectRepo, lotRepo)
 	lotsService := services.NewLotsService(lotRepo)
 	leadsService := services.NewLeadsService(leadRepo)
+	developersService := services.NewDevelopersService(developerRepo)
 
 	// Handlers
 	return &Server{
-		projectsHandler: handlers.NewProjectsHandler(projectsService),
-		areasHandler:    handlers.NewAreasHandler(areasService),
-		lotsHandler:     handlers.NewLotsHandler(lotsService),
-		leadsHandler:    handlers.NewLeadsHandler(leadsService),
+		projectsHandler:        handlers.NewProjectsHandler(projectsService),
+		areasHandler:           handlers.NewAreasHandler(areasService),
+		lotsHandler:            handlers.NewLotsHandler(lotsService),
+		leadsHandler:           handlers.NewLeadsHandler(leadsService),
+		adminDevelopersHandler: handlers.NewAdminDevelopersHandler(developersService),
+		adminAreasHandler:      handlers.NewAdminAreasHandler(areasService),
+		adminProjectsHandler:   handlers.NewAdminProjectsHandler(projectsService),
+		adminLotsHandler:       handlers.NewAdminLotsHandler(lotsService),
+		adminLeadsHandler:      handlers.NewAdminLeadsHandler(leadsService),
 	}
 }
 
@@ -73,8 +86,62 @@ func (s *Server) ListProjects(c *fiber.Ctx, params generated.ListProjectsParams)
 	return s.projectsHandler.ListProjects(c, params)
 }
 
-func (s *Server) GetProject(c *fiber.Ctx, slug string) error {
-	return s.projectsHandler.GetProject(c, slug)
+func (s *Server) GetProject(c *fiber.Ctx, slug string, params generated.GetProjectParams) error {
+	return s.projectsHandler.GetProject(c, slug, params)
+}
+
+// Admin methods
+
+func (s *Server) AdminListDevelopers(c *fiber.Ctx) error {
+	return s.adminDevelopersHandler.ListDevelopers(c)
+}
+
+func (s *Server) AdminCreateDeveloper(c *fiber.Ctx) error {
+	return s.adminDevelopersHandler.CreateDeveloper(c)
+}
+
+func (s *Server) AdminUpdateDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminDevelopersHandler.UpdateDeveloper(c, id)
+}
+
+func (s *Server) AdminListAreas(c *fiber.Ctx) error {
+	return s.adminAreasHandler.ListAreas(c)
+}
+
+func (s *Server) AdminCreateArea(c *fiber.Ctx) error {
+	return s.adminAreasHandler.CreateArea(c)
+}
+
+func (s *Server) AdminUpdateArea(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminAreasHandler.UpdateArea(c, id)
+}
+
+func (s *Server) AdminListProjects(c *fiber.Ctx) error {
+	return s.adminProjectsHandler.ListProjects(c)
+}
+
+func (s *Server) AdminCreateProject(c *fiber.Ctx) error {
+	return s.adminProjectsHandler.CreateProject(c)
+}
+
+func (s *Server) AdminUpdateProject(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminProjectsHandler.UpdateProject(c, id)
+}
+
+func (s *Server) AdminListLots(c *fiber.Ctx) error {
+	return s.adminLotsHandler.ListLots(c)
+}
+
+func (s *Server) AdminCreateLot(c *fiber.Ctx) error {
+	return s.adminLotsHandler.CreateLot(c)
+}
+
+func (s *Server) AdminUpdateLot(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminLotsHandler.UpdateLot(c, id)
+}
+
+func (s *Server) AdminListLeads(c *fiber.Ctx, params generated.AdminListLeadsParams) error {
+	return s.adminLeadsHandler.ListLeads(c, params)
 }
 
 func main() {
@@ -104,12 +171,31 @@ func main() {
 
 	server := NewServer(db)
 
+	// Media handler
+	mediaHandler := handlers.NewMediaHandler(cfg.Media.UploadDir, cfg.Media.PublicURL)
+
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	// Регистрируем handlers из OpenAPI (автогенерация)
+	// Media upload endpoint (admin only)
+	app.Post("/api/admin/media/upload", middleware.AdminAuth(cfg), func(c *fiber.Ctx) error {
+		return mediaHandler.Upload(c)
+	})
+
+	// Serve uploaded media files
+	app.Get("/api/media/:filename", func(c *fiber.Ctx) error {
+		return mediaHandler.ServeFile(c)
+	})
+
+	// Apply admin auth middleware to all routes (it checks path internally)
+	app.Use(middleware.AdminAuth(cfg))
+
+	// Apply rate limiting middleware (it checks path internally)
+	app.Use(middleware.LeadsRateLimitMiddleware())
+
+	// Register all routes (public + admin)
 	generated.RegisterHandlersWithOptions(app, server, generated.FiberServerOptions{
 		BaseURL: "/api",
 	})

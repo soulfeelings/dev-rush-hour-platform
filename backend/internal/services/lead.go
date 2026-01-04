@@ -21,3 +21,7 @@ func (s *LeadsService) Create(lead *domain.Lead) error {
 	return nil
 }
 
+func (s *LeadsService) List(status *domain.LeadStatus) ([]domain.Lead, error) {
+	return s.leadRepo.List(status)
+}
+

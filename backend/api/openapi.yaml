@@ -92,6 +92,14 @@ paths:
           required: true
           schema:
             type: string
+        - name: includeLots
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            maximum: 50
+          description: Количество лотов для включения в ответ (0 = не включать)
       responses:
         "200":
           description: Проект найден
@@ -234,6 +242,375 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
 
+  /admin/developers:
+    get:
+      operationId: adminListDevelopers
+      summary: Получить список застройщиков (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список застройщиков
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Developer"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: adminCreateDeveloper
+      summary: Создать застройщика (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeveloperCreateRequest"
+      responses:
+        "201":
+          description: Застройщик создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Developer"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/developers/{id}:
+    patch:
+      operationId: adminUpdateDeveloper
+      summary: Обновить застройщика (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeveloperUpdateRequest"
+      responses:
+        "200":
+          description: Застройщик обновлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Developer"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/areas:
+    get:
+      operationId: adminListAreas
+      summary: Получить список районов (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список районов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Area"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: adminCreateArea
+      summary: Создать район (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AreaCreateRequest"
+      responses:
+        "201":
+          description: Район создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Area"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/areas/{id}:
+    patch:
+      operationId: adminUpdateArea
+      summary: Обновить район (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AreaUpdateRequest"
+      responses:
+        "200":
+          description: Район обновлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Area"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/projects:
+    get:
+      operationId: adminListProjects
+      summary: Получить список проектов (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список проектов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: adminCreateProject
+      summary: Создать проект (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreateRequest"
+      responses:
+        "201":
+          description: Проект создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/projects/{id}:
+    patch:
+      operationId: adminUpdateProject
+      summary: Обновить проект (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdateRequest"
+      responses:
+        "200":
+          description: Проект обновлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/lots:
+    get:
+      operationId: adminListLots
+      summary: Получить список лотов (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список лотов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lot"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: adminCreateLot
+      summary: Создать лот (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LotCreateRequest"
+      responses:
+        "201":
+          description: Лот создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lot"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/lots/{id}:
+    patch:
+      operationId: adminUpdateLot
+      summary: Обновить лот (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LotUpdateRequest"
+      responses:
+        "200":
+          description: Лот обновлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lot"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/leads:
+    get:
+      operationId: adminListLeads
+      summary: Получить список заявок (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [new, in_progress, done, spam]
+          description: Фильтр по статусу
+      responses:
+        "200":
+          description: Список заявок
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lead"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
 components:
   schemas:
     Area:
@@ -343,6 +720,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        lots:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lot"
+          description: Первые N лотов проекта (если запрошено через includeLots)
 
     ProjectData:
       type: object
@@ -606,6 +988,236 @@ components:
           type: object
           additionalProperties: true
 
+    Developer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        data:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DeveloperCreateRequest:
+      type: object
+      required:
+        - slug
+        - name
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+        data:
+          type: object
+          additionalProperties: true
+
+    DeveloperUpdateRequest:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        data:
+          type: object
+          additionalProperties: true
+
+    AreaCreateRequest:
+      type: object
+      required:
+        - slug
+        - name
+        - city
+        - lat
+        - lng
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        city:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+        data:
+          $ref: "#/components/schemas/AreaData"
+
+    AreaUpdateRequest:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        city:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        status:
+          type: string
+          enum: [active, inactive]
+        data:
+          $ref: "#/components/schemas/AreaData"
+
+    ProjectCreateRequest:
+      type: object
+      required:
+        - slug
+        - name
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [active, archived]
+          default: active
+        developerId:
+          type: string
+          format: uuid
+        areaId:
+          type: string
+          format: uuid
+        lat:
+          type: number
+        lng:
+          type: number
+        data:
+          $ref: "#/components/schemas/ProjectData"
+
+    ProjectUpdateRequest:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [active, archived]
+        developerId:
+          type: string
+          format: uuid
+        areaId:
+          type: string
+          format: uuid
+        lat:
+          type: number
+        lng:
+          type: number
+        data:
+          $ref: "#/components/schemas/ProjectData"
+
+    LotCreateRequest:
+      type: object
+      required:
+        - projectId
+        - type
+        - priceAmount
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        developerId:
+          type: string
+          format: uuid
+        areaId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [apartment, villa, townhouse, penthouse]
+        status:
+          type: string
+          enum: [active, hidden, reserved, sold]
+          default: active
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        areaSqm:
+          type: number
+        floor:
+          type: integer
+        priceCurrency:
+          type: string
+          default: AED
+        priceAmount:
+          type: number
+        bonusKeys:
+          type: array
+          items:
+            type: string
+        data:
+          $ref: "#/components/schemas/LotData"
+
+    LotUpdateRequest:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        developerId:
+          type: string
+          format: uuid
+        areaId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [apartment, villa, townhouse, penthouse]
+        status:
+          type: string
+          enum: [active, hidden, reserved, sold]
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        areaSqm:
+          type: number
+        floor:
+          type: integer
+        priceCurrency:
+          type: string
+        priceAmount:
+          type: number
+        bonusKeys:
+          type: array
+          items:
+            type: string
+        data:
+          $ref: "#/components/schemas/LotData"
+
     Error:
       type: object
       properties:
@@ -658,3 +1270,21 @@ components:
             error:
               code: "internal_error"
               message: "Internal server error"
+
+    Unauthorized:
+      description: Не авторизован
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: "unauthorized"
+              message: "Invalid or missing API key"
+
+  securitySchemes:
+    AdminApiKey:
+      type: apiKey
+      in: header
+      name: X-Admin-Key
+      description: API ключ для доступа к админ-эндпоинтам

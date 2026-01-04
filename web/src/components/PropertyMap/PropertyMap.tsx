@@ -133,6 +133,50 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
     const districtLayersRef = useRef<L.Polygon[]>([])
     const [showDistricts, setShowDistricts] = useState(false)
 
+    const updateMarkers = useCallback(() => {
+      if (!mapRef.current) return
+
+      const map = mapRef.current
+      const currentZoom = map.getZoom()
+
+      markersRef.current.forEach(marker => marker.remove())
+      markersRef.current = []
+
+      properties.forEach(property => {
+        const isRecommended = property.isRecommended || false
+        const isSelected = property.id === selectedPropertyId
+        const logoUrl = property.logoUrl || developerLogos[property.developer]
+        const { size } = getMarkerConfig(isRecommended, currentZoom, isSelected)
+
+        const marker = L.marker(property.coordinates, {
+          icon: createIcon(isRecommended, property.status, logoUrl, currentZoom, isSelected),
+        }).addTo(map)
+
+        const popup = L.popup({
+          offset: [0, -(size / 2 + 10)],
+          className: 'marker-popup',
+          closeButton: false,
+          autoPan: true,
+          autoPanPadding: [20, 20],
+        }).setContent(createMarkerPopupHTML(property))
+
+        marker.on('click', () => {
+          onPropertyClick?.(property.id)
+          navigate(`/project/${property.id}`)
+        })
+
+        marker.on('mouseover', () => {
+          marker.bindPopup(popup).openPopup()
+        })
+
+        marker.on('mouseout', () => {
+          marker.closePopup()
+        })
+
+        markersRef.current.push(marker)
+      })
+    }, [properties, selectedPropertyId, onPropertyClick, navigate])
+
     useImperativeHandle(ref, () => ({
       invalidateSize: () => {
         if (mapRef.current) {
@@ -239,50 +283,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         setShowDistricts(true)
       }
     }, [showDistricts, navigate])
-
-    const updateMarkers = useCallback(() => {
-      if (!mapRef.current) return
-
-      const map = mapRef.current
-      const currentZoom = map.getZoom()
-
-      markersRef.current.forEach(marker => marker.remove())
-      markersRef.current = []
-
-      properties.forEach(property => {
-        const isRecommended = property.isRecommended || false
-        const isSelected = property.id === selectedPropertyId
-        const logoUrl = property.logoUrl || developerLogos[property.developer]
-        const { size } = getMarkerConfig(isRecommended, currentZoom, isSelected)
-
-        const marker = L.marker(property.coordinates, {
-          icon: createIcon(isRecommended, property.status, logoUrl, currentZoom, isSelected),
-        }).addTo(map)
-
-        const popup = L.popup({
-          offset: [0, -(size / 2 + 10)],
-          className: 'marker-popup',
-          closeButton: false,
-          autoPan: true,
-          autoPanPadding: [20, 20],
-        }).setContent(createMarkerPopupHTML(property))
-
-        marker.on('click', () => {
-          onPropertyClick?.(property.id)
-          navigate(`/project/${property.id}`)
-        })
-
-        marker.on('mouseover', () => {
-          marker.bindPopup(popup).openPopup()
-        })
-
-        marker.on('mouseout', () => {
-          marker.closePopup()
-        })
-
-        markersRef.current.push(marker)
-      })
-    }, [properties, selectedPropertyId, onPropertyClick, navigate])
 
     useEffect(() => {
       if (!mapRef.current) {

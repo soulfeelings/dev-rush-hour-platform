@@ -47,8 +47,9 @@ func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjec
 	return c.JSON(result)
 }
 
-func (h *ProjectsHandler) GetProject(c *fiber.Ctx, slug string) error {
-	project, err := h.projectsService.GetBySlug(slug)
+func (h *ProjectsHandler) GetProject(c *fiber.Ctx, slug string, params generated.GetProjectParams) error {
+	includeLots := params.IncludeLots
+	project, lots, err := h.projectsService.GetBySlug(slug, includeLots)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
 			Error: &struct {
@@ -62,5 +63,14 @@ func (h *ProjectsHandler) GetProject(c *fiber.Ctx, slug string) error {
 		})
 	}
 
-	return c.JSON(mappers.DomainProjectToGenerated(project))
+	result := mappers.DomainProjectToGenerated(project)
+	if result != nil && includeLots != nil && *includeLots > 0 && len(lots) > 0 {
+		generatedLots := make([]generated.Lot, len(lots))
+		for i := range lots {
+			generatedLots[i] = *mappers.DomainLotToGenerated(&lots[i])
+		}
+		result.Lots = &generatedLots
+	}
+
+	return c.JSON(result)
 }

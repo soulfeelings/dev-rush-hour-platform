@@ -51,7 +51,7 @@ export default function ProjectDetail() {
       try {
         const [projectData, unitsData] = await Promise.all([
           fetchProject(id),
-          fetchProjectUnits(id)
+          fetchProjectUnits(id),
         ])
 
         if (!projectData) {
@@ -60,7 +60,7 @@ export default function ProjectDetail() {
           setProject(projectData)
           setUnits(unitsData)
         }
-      } catch (err) {
+      } catch {
         setError('Ошибка загрузки данных')
       } finally {
         setLoading(false)
@@ -96,19 +96,27 @@ export default function ProjectDetail() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'ready': return 'Готов'
-      case 'construction': return 'Строительство'
-      case 'planning': return 'Планирование'
-      default: return status
+      case 'ready':
+        return 'Готов'
+      case 'construction':
+        return 'Строительство'
+      case 'planning':
+        return 'Планирование'
+      default:
+        return status
     }
   }
 
   const getUnitStatusText = (status: string) => {
     switch (status) {
-      case 'available': return 'Доступна'
-      case 'reserved': return 'Забронирована'
-      case 'sold': return 'Продана'
-      default: return status
+      case 'available':
+        return 'Доступна'
+      case 'reserved':
+        return 'Забронирована'
+      case 'sold':
+        return 'Продана'
+      default:
+        return status
     }
   }
 
@@ -175,7 +183,9 @@ export default function ProjectDetail() {
                     <td>{unit.area} м²</td>
                     <td>{(unit.price! / 1000000).toFixed(1)} млн ₽</td>
                     <td>
-                      <span className={`${styles.unitStatus} ${styles[`unitStatus${unit.status}`]}`}>
+                      <span
+                        className={`${styles.unitStatus} ${styles[`unitStatus${unit.status}`]}`}
+                      >
                         {getUnitStatusText(unit.status!)}
                       </span>
                     </td>

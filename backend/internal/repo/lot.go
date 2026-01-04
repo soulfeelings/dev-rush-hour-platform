@@ -268,3 +268,167 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 	return lots, total, rows.Err()
 }
 
+func (r *LotRepo) Create(lot *domain.Lot) error {
+	dataJSON, err := json.Marshal(lot.Data)
+	if err != nil {
+		return err
+	}
+
+	var projectID, developerID, areaID sql.NullString
+	if lot.ProjectID != nil {
+		projectID = sql.NullString{String: lot.ProjectID.String(), Valid: true}
+	}
+	if lot.DeveloperID != nil {
+		developerID = sql.NullString{String: lot.DeveloperID.String(), Valid: true}
+	}
+	if lot.AreaID != nil {
+		areaID = sql.NullString{String: lot.AreaID.String(), Valid: true}
+	}
+
+	var bedrooms, bathrooms, floor sql.NullInt64
+	if lot.Bedrooms != nil {
+		bedrooms = sql.NullInt64{Int64: int64(*lot.Bedrooms), Valid: true}
+	}
+	if lot.Bathrooms != nil {
+		bathrooms = sql.NullInt64{Int64: int64(*lot.Bathrooms), Valid: true}
+	}
+	if lot.Floor != nil {
+		floor = sql.NullInt64{Int64: int64(*lot.Floor), Valid: true}
+	}
+
+	var areaSqm sql.NullFloat64
+	if lot.AreaSqm != nil {
+		areaSqm = sql.NullFloat64{Float64: *lot.AreaSqm, Valid: true}
+	}
+
+	err = r.db.QueryRow(`
+		INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bathrooms, area_sqm, floor, price_currency, price_amount, bonus_keys, data)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		RETURNING id, created_at, updated_at
+	`, lot.Status, projectID, developerID, areaID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceCurrency, lot.PriceAmount, pq.Array(lot.BonusKeys), dataJSON).Scan(
+		&lot.ID, &lot.CreatedAt, &lot.UpdatedAt,
+	)
+
+	return err
+}
+
+func (r *LotRepo) Update(id uuid.UUID, lot *domain.Lot) error {
+	dataJSON, err := json.Marshal(lot.Data)
+	if err != nil {
+		return err
+	}
+
+	var projectID, developerID, areaID sql.NullString
+	if lot.ProjectID != nil {
+		projectID = sql.NullString{String: lot.ProjectID.String(), Valid: true}
+	}
+	if lot.DeveloperID != nil {
+		developerID = sql.NullString{String: lot.DeveloperID.String(), Valid: true}
+	}
+	if lot.AreaID != nil {
+		areaID = sql.NullString{String: lot.AreaID.String(), Valid: true}
+	}
+
+	var bedrooms, bathrooms, floor sql.NullInt64
+	if lot.Bedrooms != nil {
+		bedrooms = sql.NullInt64{Int64: int64(*lot.Bedrooms), Valid: true}
+	}
+	if lot.Bathrooms != nil {
+		bathrooms = sql.NullInt64{Int64: int64(*lot.Bathrooms), Valid: true}
+	}
+	if lot.Floor != nil {
+		floor = sql.NullInt64{Int64: int64(*lot.Floor), Valid: true}
+	}
+
+	var areaSqm sql.NullFloat64
+	if lot.AreaSqm != nil {
+		areaSqm = sql.NullFloat64{Float64: *lot.AreaSqm, Valid: true}
+	}
+
+	err = r.db.QueryRow(`
+		UPDATE lots
+		SET status = $1, project_id = $2, developer_id = $3, area_id = $4, type = $5, bedrooms = $6, bathrooms = $7, area_sqm = $8, floor = $9, price_currency = $10, price_amount = $11, bonus_keys = $12, data = $13, updated_at = NOW()
+		WHERE id = $14
+		RETURNING updated_at
+	`, lot.Status, projectID, developerID, areaID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceCurrency, lot.PriceAmount, pq.Array(lot.BonusKeys), dataJSON, id).Scan(&lot.UpdatedAt)
+
+	return err
+}
+
+func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, error) {
+	if limit <= 0 {
+		return []domain.Lot{}, nil
+	}
+
+	query := `
+		SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
+		       area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at
+		FROM lots
+		WHERE project_id = $1 AND status = 'active'
+		ORDER BY created_at DESC
+		LIMIT $2
+	`
+
+	rows, err := r.db.Query(query, projectID, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var lots []domain.Lot
+	for rows.Next() {
+		var lot domain.Lot
+		var dataJSON []byte
+		var projectID, developerID, areaID sql.NullString
+		var bedrooms, bathrooms, floor sql.NullInt64
+		var areaSqm sql.NullFloat64
+		var bonusKeys pq.StringArray
+
+		if err := rows.Scan(
+			&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
+			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
+			&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+			&lot.CreatedAt, &lot.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		if projectID.Valid {
+			id := uuid.MustParse(projectID.String)
+			lot.ProjectID = &id
+		}
+		if developerID.Valid {
+			id := uuid.MustParse(developerID.String)
+			lot.DeveloperID = &id
+		}
+		if areaID.Valid {
+			id := uuid.MustParse(areaID.String)
+			lot.AreaID = &id
+		}
+		if bedrooms.Valid {
+			b := int(bedrooms.Int64)
+			lot.Bedrooms = &b
+		}
+		if bathrooms.Valid {
+			b := int(bathrooms.Int64)
+			lot.Bathrooms = &b
+		}
+		if areaSqm.Valid {
+			lot.AreaSqm = &areaSqm.Float64
+		}
+		if floor.Valid {
+			f := int(floor.Int64)
+			lot.Floor = &f
+		}
+		lot.BonusKeys = []string(bonusKeys)
+
+		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+			return nil, err
+		}
+
+		lots = append(lots, lot)
+	}
+
+	return lots, rows.Err()
+}
+

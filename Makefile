@@ -31,7 +31,7 @@ up-dev:
 	@echo "\033[1;32mStarting services with Docker Compose (development)...\033[0m"
 	@echo "\033[1;33mBackend: http://localhost:8080\033[0m"
 	@echo "\033[1;33mWeb: http://localhost:5173\033[0m"
-	docker compose -f docker-compose.dev.yml up --build
+	docker compose -f docker-compose.dev.yml up -d --build
 
 down:
 	@echo "\033[1;31mStopping services...\033[0m"

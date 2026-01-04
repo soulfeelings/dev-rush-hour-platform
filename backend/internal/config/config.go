@@ -7,6 +7,8 @@ import (
 type Config struct {
 	DB DBConfig
 	Server ServerConfig
+	Admin AdminConfig
+	Media MediaConfig
 }
 
 type DBConfig struct {
@@ -22,6 +24,15 @@ type ServerConfig struct {
 	Port string
 }
 
+type AdminConfig struct {
+	APIKey string
+}
+
+type MediaConfig struct {
+	UploadDir string
+	PublicURL string
+}
+
 func Load() *Config {
 	return &Config{
 		DB: DBConfig{
@@ -34,6 +45,13 @@ func Load() *Config {
 		},
 		Server: ServerConfig{
 			Port: getEnv("PORT", "8080"),
+		},
+		Admin: AdminConfig{
+			APIKey: getEnv("ADMIN_API_KEY", ""),
+		},
+		Media: MediaConfig{
+			UploadDir: getEnv("MEDIA_UPLOAD_DIR", "./uploads"),
+			PublicURL: getEnv("MEDIA_PUBLIC_URL", "http://localhost:8080/api/media"),
 		},
 	}
 }

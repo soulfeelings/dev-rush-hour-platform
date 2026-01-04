@@ -97,3 +97,98 @@ func (r *AreaRepo) GetIDBySlug(slug string) (*uuid.UUID, error) {
 	return &id, nil
 }
 
+func (r *AreaRepo) Create(area *domain.Area) error {
+	dataJSON, err := json.Marshal(area.Data)
+	if err != nil {
+		return err
+	}
+
+	err = r.db.QueryRow(`
+		INSERT INTO areas (slug, name, city, lat, lng, status, data)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id, created_at, updated_at
+	`, area.Slug, area.Name, area.City, area.Lat, area.Lng, area.Status, dataJSON).Scan(
+		&area.ID, &area.CreatedAt, &area.UpdatedAt,
+	)
+
+	return err
+}
+
+func (r *AreaRepo) Update(id uuid.UUID, area *domain.Area) error {
+	dataJSON, err := json.Marshal(area.Data)
+	if err != nil {
+		return err
+	}
+
+	err = r.db.QueryRow(`
+		UPDATE areas
+		SET slug = $1, name = $2, city = $3, lat = $4, lng = $5, status = $6, data = $7, updated_at = NOW()
+		WHERE id = $8
+		RETURNING updated_at
+	`, area.Slug, area.Name, area.City, area.Lat, area.Lng, area.Status, dataJSON, id).Scan(&area.UpdatedAt)
+
+	return err
+}
+
+func (r *AreaRepo) GetByID(id uuid.UUID) (*domain.Area, error) {
+	var area domain.Area
+	var dataJSON []byte
+
+	err := r.db.QueryRow(`
+		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
+		FROM areas
+		WHERE id = $1
+	`, id).Scan(
+		&area.ID, &area.Slug, &area.Name, &area.City,
+		&area.Lat, &area.Lng, &area.Status, &dataJSON,
+		&area.CreatedAt, &area.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+		return nil, err
+	}
+
+	return &area, nil
+}
+
+func (r *AreaRepo) ListAll() ([]domain.Area, error) {
+	rows, err := r.db.Query(`
+		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
+		FROM areas
+		ORDER BY name
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var areas []domain.Area
+	for rows.Next() {
+		var area domain.Area
+		var dataJSON []byte
+
+		if err := rows.Scan(
+			&area.ID, &area.Slug, &area.Name, &area.City,
+			&area.Lat, &area.Lng, &area.Status, &dataJSON,
+			&area.CreatedAt, &area.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+			return nil, err
+		}
+
+		areas = append(areas, area)
+	}
+
+	return areas, rows.Err()
+}
+

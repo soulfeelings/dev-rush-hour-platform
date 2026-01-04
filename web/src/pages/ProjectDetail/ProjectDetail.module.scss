@@ -1,4 +1,4 @@
-@use "sass:color";
+@use 'sass:color';
 @use '../../styles' as *;
 
 .container {
@@ -183,7 +183,8 @@
     width: 100%;
     border-collapse: collapse;
 
-    th, td {
+    th,
+    td {
       padding: $spacing-4 $spacing-3;
       text-align: left;
       font-size: $font-size-sm;

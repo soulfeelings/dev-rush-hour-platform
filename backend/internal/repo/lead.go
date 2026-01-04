@@ -3,6 +3,7 @@ package repo
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"rush-hour-platform/backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -88,5 +89,65 @@ func (r *LeadRepo) GetByID(id uuid.UUID) (*domain.Lead, error) {
 	}
 
 	return &lead, nil
+}
+
+func (r *LeadRepo) List(status *domain.LeadStatus) ([]domain.Lead, error) {
+	query := `
+		SELECT id, status, type, source, project_id, lot_id, name, phone, email, data, created_at, updated_at
+		FROM leads
+	`
+	args := []interface{}{}
+	argPos := 1
+
+	if status != nil {
+		query += ` WHERE status = $` + fmt.Sprintf("%d", argPos)
+		args = append(args, string(*status))
+		argPos++
+	}
+
+	query += ` ORDER BY created_at DESC`
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var leads []domain.Lead
+	for rows.Next() {
+		var lead domain.Lead
+		var dataJSON []byte
+		var projectID, lotID, email, source sql.NullString
+
+		if err := rows.Scan(
+			&lead.ID, &lead.Status, &lead.Type, &source, &projectID, &lotID,
+			&lead.Name, &lead.Phone, &email, &dataJSON, &lead.CreatedAt, &lead.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		if projectID.Valid {
+			id := uuid.MustParse(projectID.String)
+			lead.ProjectID = &id
+		}
+		if lotID.Valid {
+			id := uuid.MustParse(lotID.String)
+			lead.LotID = &id
+		}
+		if email.Valid {
+			lead.Email = &email.String
+		}
+		if source.Valid {
+			lead.Source = &source.String
+		}
+
+		if err := json.Unmarshal(dataJSON, &lead.Data); err != nil {
+			return nil, err
+		}
+
+		leads = append(leads, lead)
+	}
+
+	return leads, rows.Err()
 }
 

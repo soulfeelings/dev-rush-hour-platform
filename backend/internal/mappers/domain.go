@@ -2,9 +2,10 @@ package mappers
 
 import (
 	"encoding/json"
-	"time"
 	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/generated"
+	"time"
+
 	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
@@ -400,5 +401,513 @@ func float32Ptr(f float32) *float32 {
 
 func timePtr(t time.Time) *time.Time {
 	return &t
+}
+
+func stringPtr(s string) *string {
+	return &s
+}
+
+func intPtr(i int) *int {
+	return &i
+}
+
+// Admin mappers: Generated -> Domain
+
+func GeneratedDeveloperCreateToDomain(req *generated.DeveloperCreateRequest) (*domain.Developer, error) {
+	dev := &domain.Developer{
+		Slug:   req.Slug,
+		Name:   req.Name,
+		Status: domain.DeveloperStatusActive,
+		Data:   make(map[string]interface{}),
+	}
+
+	if req.Status != nil {
+		dev.Status = domain.DeveloperStatus(*req.Status)
+	}
+	if req.Data != nil {
+		dev.Data = *req.Data
+	}
+
+	return dev, nil
+}
+
+func GeneratedDeveloperUpdateToDomain(req *generated.DeveloperUpdateRequest) (*domain.Developer, error) {
+	dev := &domain.Developer{
+		Data: make(map[string]interface{}),
+	}
+
+	if req.Slug != nil {
+		dev.Slug = *req.Slug
+	}
+	if req.Name != nil {
+		dev.Name = *req.Name
+	}
+	if req.Status != nil {
+		dev.Status = domain.DeveloperStatus(*req.Status)
+	}
+	if req.Data != nil {
+		dev.Data = *req.Data
+	}
+
+	return dev, nil
+}
+
+func DomainDeveloperToGenerated(dev *domain.Developer) *generated.Developer {
+	if dev == nil {
+		return nil
+	}
+	id := openapi_types.UUID(dev.ID)
+	status := generated.DeveloperStatus(dev.Status)
+	result := &generated.Developer{
+		Id:        &id,
+		Slug:      &dev.Slug,
+		Name:      &dev.Name,
+		Status:    &status,
+		CreatedAt: timePtr(dev.CreatedAt),
+		UpdatedAt: timePtr(dev.UpdatedAt),
+	}
+	if dev.Data != nil && len(dev.Data) > 0 {
+		result.Data = &dev.Data
+	}
+	return result
+}
+
+func GeneratedAreaCreateToDomain(req *generated.AreaCreateRequest) (*domain.Area, error) {
+	area := &domain.Area{
+		Slug:   req.Slug,
+		Name:   req.Name,
+		City:   req.City,
+		Lat:    float64(req.Lat),
+		Lng:    float64(req.Lng),
+		Status: domain.AreaStatusActive,
+	}
+
+	if req.Status != nil {
+		area.Status = domain.AreaStatus(*req.Status)
+	}
+	if req.Data != nil {
+		area.Data = domainAreaDataFromGenerated(req.Data)
+	}
+
+	return area, nil
+}
+
+func GeneratedAreaUpdateToDomain(req *generated.AreaUpdateRequest) (*domain.Area, error) {
+	area := &domain.Area{}
+
+	if req.Slug != nil {
+		area.Slug = *req.Slug
+	}
+	if req.Name != nil {
+		area.Name = *req.Name
+	}
+	if req.City != nil {
+		area.City = *req.City
+	}
+	if req.Lat != nil {
+		area.Lat = float64(*req.Lat)
+	}
+	if req.Lng != nil {
+		area.Lng = float64(*req.Lng)
+	}
+	if req.Status != nil {
+		area.Status = domain.AreaStatus(*req.Status)
+	}
+	if req.Data != nil {
+		area.Data = domainAreaDataFromGenerated(req.Data)
+	}
+
+	return area, nil
+}
+
+func domainAreaDataFromGenerated(data *generated.AreaData) domain.AreaData {
+	result := domain.AreaData{}
+	if data.Boundary != nil {
+		result.Boundary = generatedGeoJSONToDomain(data.Boundary)
+	}
+	if data.Center != nil {
+		result.Center = generatedPointToDomain(data.Center)
+	}
+	if data.Zoom != nil {
+		result.Zoom = data.Zoom
+	}
+	if data.Bbox != nil {
+		result.BBox = generatedBBoxToDomain(data.Bbox)
+	}
+	if data.Seo != nil {
+		result.SEO = *data.Seo
+	}
+	return result
+}
+
+func generatedGeoJSONToDomain(gj *generated.GeoJSONPolygon) *domain.GeoJSONPolygon {
+	if gj == nil {
+		return nil
+	}
+	coords := make([][][]float64, len(*gj.Coordinates))
+	for i, ring := range *gj.Coordinates {
+		coords[i] = make([][]float64, len(ring))
+		for j, point := range ring {
+			coords[i][j] = make([]float64, len(point))
+			for k, val := range point {
+				coords[i][j][k] = float64(val)
+			}
+		}
+	}
+	return &domain.GeoJSONPolygon{
+		Type:        string(*gj.Type),
+		Coordinates: coords,
+	}
+}
+
+func generatedPointToDomain(p *generated.Point) *domain.Point {
+	if p == nil {
+		return nil
+	}
+	return &domain.Point{
+		Lat: float64(*p.Lat),
+		Lng: float64(*p.Lng),
+	}
+}
+
+func generatedBBoxToDomain(bbox *generated.BoundingBox) *domain.BoundingBox {
+	if bbox == nil {
+		return nil
+	}
+	return &domain.BoundingBox{
+		SouthWest: *generatedPointToDomain(bbox.SouthWest),
+		NorthEast: *generatedPointToDomain(bbox.NorthEast),
+	}
+}
+
+func GeneratedProjectCreateToDomain(req *generated.ProjectCreateRequest) (*domain.Project, error) {
+	project := &domain.Project{
+		Slug:   req.Slug,
+		Name:   req.Name,
+		Status: domain.ProjectStatusActive,
+	}
+
+	if req.Status != nil {
+		project.Status = domain.ProjectStatus(*req.Status)
+	}
+	if req.DeveloperId != nil {
+		id := uuid.UUID(*req.DeveloperId)
+		project.DeveloperID = &id
+	}
+	if req.AreaId != nil {
+		id := uuid.UUID(*req.AreaId)
+		project.AreaID = &id
+	}
+	if req.Lat != nil {
+		lat := float64(*req.Lat)
+		project.Lat = &lat
+	}
+	if req.Lng != nil {
+		lng := float64(*req.Lng)
+		project.Lng = &lng
+	}
+	if req.Data != nil {
+		project.Data = domainProjectDataFromGenerated(req.Data)
+	}
+
+	return project, nil
+}
+
+func GeneratedProjectUpdateToDomain(req *generated.ProjectUpdateRequest) (*domain.Project, error) {
+	project := &domain.Project{}
+
+	if req.Slug != nil {
+		project.Slug = *req.Slug
+	}
+	if req.Name != nil {
+		project.Name = *req.Name
+	}
+	if req.Status != nil {
+		project.Status = domain.ProjectStatus(*req.Status)
+	}
+	if req.DeveloperId != nil {
+		id := uuid.UUID(*req.DeveloperId)
+		project.DeveloperID = &id
+	}
+	if req.AreaId != nil {
+		id := uuid.UUID(*req.AreaId)
+		project.AreaID = &id
+	}
+	if req.Lat != nil {
+		lat := float64(*req.Lat)
+		project.Lat = &lat
+	}
+	if req.Lng != nil {
+		lng := float64(*req.Lng)
+		project.Lng = &lng
+	}
+	if req.Data != nil {
+		project.Data = domainProjectDataFromGenerated(req.Data)
+	}
+
+	return project, nil
+}
+
+func domainProjectDataFromGenerated(data *generated.ProjectData) domain.ProjectData {
+	result := domain.ProjectData{}
+	if data.Description != nil {
+		result.Description = data.Description
+	}
+	if data.Specs != nil {
+		result.Specs = *data.Specs
+	}
+	if data.FeaturesAmenities != nil {
+		result.FeaturesAmenities = *data.FeaturesAmenities
+	}
+	if data.Media != nil {
+		result.Media = generatedMediaToDomain(data.Media)
+	}
+	return result
+}
+
+func generatedMediaToDomain(media *generated.Media) *domain.Media {
+	if media == nil {
+		return nil
+	}
+	result := &domain.Media{}
+	if media.Cover != nil {
+		result.Cover = generatedMediaItemToDomain(media.Cover)
+	}
+	if media.Gallery != nil {
+		result.Gallery = make([]domain.MediaItem, len(*media.Gallery))
+		for i, item := range *media.Gallery {
+			result.Gallery[i] = *generatedMediaItemToDomain(&item)
+		}
+	}
+	return result
+}
+
+func generatedMediaItemToDomain(item *generated.MediaItem) *domain.MediaItem {
+	if item == nil {
+		return nil
+	}
+	result := &domain.MediaItem{}
+	if item.Id != nil {
+		result.ID = *item.Id
+	}
+	if item.Url != nil {
+		result.URL = *item.Url
+	}
+	return result
+}
+
+func GeneratedLotCreateToDomain(req *generated.LotCreateRequest) (*domain.Lot, error) {
+	projectID := uuid.UUID(req.ProjectId)
+	lot := &domain.Lot{
+		ProjectID:     &projectID,
+		Type:          domain.LotType(req.Type),
+		Status:        domain.LotStatusActive,
+		PriceCurrency: "AED",
+		PriceAmount:   float64(req.PriceAmount),
+		BonusKeys:     []string{},
+	}
+	if req.BonusKeys != nil {
+		lot.BonusKeys = *req.BonusKeys
+	}
+
+	if req.DeveloperId != nil {
+		id := uuid.UUID(*req.DeveloperId)
+		lot.DeveloperID = &id
+	}
+	if req.AreaId != nil {
+		id := uuid.UUID(*req.AreaId)
+		lot.AreaID = &id
+	}
+	if req.Status != nil {
+		lot.Status = domain.LotStatus(*req.Status)
+	}
+	if req.Bedrooms != nil {
+		bedrooms := int(*req.Bedrooms)
+		lot.Bedrooms = &bedrooms
+	}
+	if req.Bathrooms != nil {
+		bathrooms := int(*req.Bathrooms)
+		lot.Bathrooms = &bathrooms
+	}
+	if req.AreaSqm != nil {
+		areaSqm := float64(*req.AreaSqm)
+		lot.AreaSqm = &areaSqm
+	}
+	if req.Floor != nil {
+		floor := int(*req.Floor)
+		lot.Floor = &floor
+	}
+	if req.PriceCurrency != nil {
+		lot.PriceCurrency = *req.PriceCurrency
+	}
+	if req.BonusKeys != nil {
+		lot.BonusKeys = *req.BonusKeys
+	}
+	if req.Data != nil {
+		lot.Data = domainLotDataFromGenerated(req.Data)
+	}
+
+	return lot, nil
+}
+
+func GeneratedLotUpdateToDomain(req *generated.LotUpdateRequest) (*domain.Lot, error) {
+	lot := &domain.Lot{}
+
+	if req.ProjectId != nil {
+		id := uuid.UUID(*req.ProjectId)
+		lot.ProjectID = &id
+	}
+	if req.DeveloperId != nil {
+		id := uuid.UUID(*req.DeveloperId)
+		lot.DeveloperID = &id
+	}
+	if req.AreaId != nil {
+		id := uuid.UUID(*req.AreaId)
+		lot.AreaID = &id
+	}
+	if req.Type != nil {
+		lot.Type = domain.LotType(*req.Type)
+	}
+	if req.Status != nil {
+		lot.Status = domain.LotStatus(*req.Status)
+	}
+	if req.Bedrooms != nil {
+		bedrooms := int(*req.Bedrooms)
+		lot.Bedrooms = &bedrooms
+	}
+	if req.Bathrooms != nil {
+		bathrooms := int(*req.Bathrooms)
+		lot.Bathrooms = &bathrooms
+	}
+	if req.AreaSqm != nil {
+		areaSqm := float64(*req.AreaSqm)
+		lot.AreaSqm = &areaSqm
+	}
+	if req.Floor != nil {
+		floor := int(*req.Floor)
+		lot.Floor = &floor
+	}
+	if req.PriceCurrency != nil {
+		lot.PriceCurrency = *req.PriceCurrency
+	}
+	if req.PriceAmount != nil {
+		lot.PriceAmount = float64(*req.PriceAmount)
+	}
+	if req.BonusKeys != nil {
+		lot.BonusKeys = *req.BonusKeys
+	}
+	if req.Data != nil {
+		lot.Data = domainLotDataFromGenerated(req.Data)
+	}
+
+	return lot, nil
+}
+
+func domainLotDataFromGenerated(data *generated.LotData) domain.LotData {
+	result := domain.LotData{}
+	if data.Media != nil {
+		result.Media = generatedLotMediaToDomain(data.Media)
+	}
+	if data.PaymentPlan != nil {
+		result.PaymentPlan = generatedPaymentPlanToDomain(data.PaymentPlan)
+	}
+	if data.Bonuses != nil {
+		result.Bonuses = generatedBonusesToDomain(*data.Bonuses)
+	}
+	if data.FloorPosition != nil {
+		result.FloorPosition = generatedFloorPositionToDomain(data.FloorPosition)
+	}
+	if data.Tags != nil {
+		result.Tags = *data.Tags
+	}
+	return result
+}
+
+func generatedLotMediaToDomain(media *generated.LotMedia) *domain.LotMedia {
+	if media == nil {
+		return nil
+	}
+	result := &domain.LotMedia{}
+	if media.Photos != nil {
+		result.Photos = make([]domain.MediaItem, len(*media.Photos))
+		for i, item := range *media.Photos {
+			if m := generatedMediaItemToDomain(&item); m != nil {
+				result.Photos[i] = *m
+			}
+		}
+	}
+	if media.FloorPlanImages != nil {
+		result.FloorPlanImages = make([]domain.MediaItem, len(*media.FloorPlanImages))
+		for i, item := range *media.FloorPlanImages {
+			if m := generatedMediaItemToDomain(&item); m != nil {
+				result.FloorPlanImages[i] = *m
+			}
+		}
+	}
+	if media.Cover != nil {
+		result.Cover = generatedMediaItemToDomain(media.Cover)
+	}
+	return result
+}
+
+func generatedPaymentPlanToDomain(plan *generated.PaymentPlan) *domain.PaymentPlan {
+	if plan == nil || plan.Schedule == nil {
+		return nil
+	}
+	result := &domain.PaymentPlan{
+		Schedule: make([]domain.PaymentScheduleItem, len(*plan.Schedule)),
+	}
+	for i, item := range *plan.Schedule {
+		stage := ""
+		if item.Stage != nil {
+			stage = *item.Stage
+		}
+		dueDate := ""
+		if item.DueDate != nil {
+			dueDate = *item.DueDate
+		}
+		result.Schedule[i] = domain.PaymentScheduleItem{
+			Stage:    stage,
+			Percent:  float64(*item.Percent),
+			Amount:   float64(*item.Amount),
+			DueDate:  dueDate,
+		}
+	}
+	return result
+}
+
+func generatedBonusesToDomain(bonuses []generated.Bonus) []domain.Bonus {
+	result := make([]domain.Bonus, len(bonuses))
+	for i, b := range bonuses {
+		title := ""
+		if b.Title != nil {
+			title = *b.Title
+		}
+		style := ""
+		if b.Style != nil {
+			style = *b.Style
+		}
+		description := ""
+		if b.Description != nil {
+			description = *b.Description
+		}
+		result[i] = domain.Bonus{
+			Title:       title,
+			Style:       style,
+			Description: description,
+		}
+	}
+	return result
+}
+
+func generatedFloorPositionToDomain(fp *generated.FloorPosition) *domain.FloorPosition {
+	if fp == nil {
+		return nil
+	}
+	return &domain.FloorPosition{
+		Label: *fp.Label,
+		X:     float64(*fp.X),
+		Y:     float64(*fp.Y),
+	}
 }
 

@@ -38,6 +38,27 @@ export function PriceSelect({
   const generatedId = useId()
   const buttonId = `price-${generatedId}`
 
+  const handleCancel = () => {
+    setLocalMinPrice(minPrice)
+    setLocalMaxPrice(maxPrice)
+    setIsOpen(false)
+  }
+
+  const handleReset = () => {
+    setLocalMinPrice('')
+    setLocalMaxPrice('')
+    onMinPriceChange('')
+    onMaxPriceChange('')
+    setIsOpen(false)
+  }
+
+  const handleDone = () => {
+    onMinPriceChange(localMinPrice)
+    onMaxPriceChange(localMaxPrice)
+    setIsOpen(false)
+  }
+
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setLocalMinPrice(minPrice)
     setLocalMaxPrice(maxPrice)
@@ -119,26 +140,6 @@ export function PriceSelect({
       })
     }
     setIsOpen(!isOpen)
-  }
-
-  const handleReset = () => {
-    setLocalMinPrice('')
-    setLocalMaxPrice('')
-    onMinPriceChange('')
-    onMaxPriceChange('')
-    setIsOpen(false)
-  }
-
-  const handleDone = () => {
-    onMinPriceChange(localMinPrice)
-    onMaxPriceChange(localMaxPrice)
-    setIsOpen(false)
-  }
-
-  const handleCancel = () => {
-    setLocalMinPrice(minPrice)
-    setLocalMaxPrice(maxPrice)
-    setIsOpen(false)
   }
 
   return (

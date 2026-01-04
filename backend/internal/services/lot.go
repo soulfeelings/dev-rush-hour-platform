@@ -41,3 +41,19 @@ func (s *LotsService) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	return lot, nil
 }
 
+func (s *LotsService) Create(lot *domain.Lot) error {
+	return s.lotRepo.Create(lot)
+}
+
+func (s *LotsService) Update(id uuid.UUID, lot *domain.Lot) error {
+	existing, err := s.lotRepo.GetByID(id)
+	if err != nil {
+		return fmt.Errorf("failed to get lot: %w", err)
+	}
+	if existing == nil {
+		return fmt.Errorf("lot not found")
+	}
+
+	return s.lotRepo.Update(id, lot)
+}
+

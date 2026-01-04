@@ -25,10 +25,13 @@ export default function ResizableSplitter({
   const containerRef = useRef<HTMLDivElement>(null)
   const currentWidthRef = useRef(initialLeftWidth)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    setLeftWidth(initialLeftWidth)
+    if (leftWidth !== initialLeftWidth) {
+      setLeftWidth(initialLeftWidth)
+    }
     currentWidthRef.current = initialLeftWidth
-  }, [initialLeftWidth])
+  }, [initialLeftWidth, leftWidth])
 
   useEffect(() => {
     onWidthChange?.(leftWidth)

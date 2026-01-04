@@ -61,9 +61,7 @@ export default function FiltersBar() {
       </Button>
 
       {activeFilters.includes('advancement') && (
-        <Tag onRemove={() => removeFilter('advancement')}>
-          {t('filters.advancement.button')}
-        </Tag>
+        <Tag onRemove={() => removeFilter('advancement')}>{t('filters.advancement.button')}</Tag>
       )}
 
       <Select
@@ -97,17 +95,11 @@ export default function FiltersBar() {
       <Button variant="secondary" size="sm" className={styles.moreFiltersButton}>
         <SlidersHorizontal size={16} />
         {t('filters.moreFilters.button')}
-        {activeFilters.length > 0 && (
-          <span className={styles.badge}>{activeFilters.length}</span>
-        )}
+        {activeFilters.length > 0 && <span className={styles.badge}>{activeFilters.length}</span>}
       </Button>
 
       {activeFilters.length > 0 && (
-        <button
-          type="button"
-          className={styles.clearButton}
-          onClick={clearAllFilters}
-        >
+        <button type="button" className={styles.clearButton} onClick={clearAllFilters}>
           {t('filters.clearFilters.button')}
           <X size={14} />
         </button>

@@ -6,6 +6,7 @@ import PropertyMap from '../components/PropertyMap'
 import ResizableSplitter from '../components/ResizableSplitter'
 import { mockProperties } from '../data/mockProperties'
 import styles from './Catalog.module.scss'
+import type { PropertyMapRef } from '../components/PropertyMap/PropertyMap'
 
 // Константы для размеров и брейкпоинтов
 const GRID_CONSTANTS = {
@@ -58,7 +59,7 @@ export default function Catalog() {
   const [sortValue, setSortValue] = useState('default')
   const [panelWidth, setPanelWidth] = useState(loadSplitterPosition())
   const [screenWidth, setScreenWidth] = useState(window.innerWidth)
-  const mapRef = useRef<any>(null)
+  const mapRef = useRef<PropertyMapRef | null>(null)
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth)
