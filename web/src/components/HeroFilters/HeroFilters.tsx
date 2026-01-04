@@ -16,14 +16,7 @@ export default function HeroFilters() {
   const [beds, setBeds] = useState('all')
   const [budget, setBudget] = useState('all')
 
-  const locationOptions = [
-    { value: 'all', label: t('filters.location.all') },
-    { value: 'dubai-marina', label: t('filters.location.dubaiMarina') },
-    { value: 'palm-jumeirah', label: t('filters.location.palmJumeirah') },
-    { value: 'downtown-dubai', label: t('filters.location.downtownDubai') },
-    { value: 'jumeirah', label: t('filters.location.jumeirah') },
-    { value: 'business-bay', label: t('filters.location.businessBay') },
-  ]
+  const locationOptions = [{ value: 'dubai', label: t('filters.location.dubai') }]
 
   const developerOptions = [
     { value: 'all', label: t('filters.developer.all') },
@@ -132,6 +125,7 @@ Filters:
                 placeholder={t('filters.project.placeholder')}
                 fullWidth
                 fullHeight
+                searchable
               />
             </div>
             <div className={styles.selectWrapper}>

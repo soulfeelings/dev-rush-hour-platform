@@ -137,6 +137,32 @@
   overflow: hidden;
 }
 
+.searchWrapper {
+  padding: $spacing-2;
+  border-bottom: 1px solid $color-border;
+}
+
+.searchInput {
+  width: 100%;
+  padding: $spacing-2 $spacing-3;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  color: $color-text;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  outline: none;
+  transition: border-color $transition-fast;
+
+  &:focus {
+    border-color: $color-primary;
+  }
+
+  &::placeholder {
+    color: $color-text-muted;
+  }
+}
+
 .options {
   max-height: 240px;
   overflow-y: auto;
@@ -240,4 +266,11 @@
 .errorText {
   font-size: $font-size-sm;
   color: $color-error;
+}
+
+.noResults {
+  padding: $spacing-4;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
 }

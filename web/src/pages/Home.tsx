@@ -132,29 +132,6 @@ const properties = [
   },
 ]
 
-const getBenefitsData = (t: (key: string) => string) => [
-  {
-    icon: IconService,
-    title: t('home.benefits.serviceCharge.title'),
-    description: t('home.benefits.serviceCharge.description'),
-  },
-  {
-    icon: IconFurniture,
-    title: t('home.benefits.furnished.title'),
-    description: t('home.benefits.furnished.description'),
-  },
-  {
-    icon: IconVisa,
-    title: t('home.benefits.visa.title'),
-    description: t('home.benefits.visa.description'),
-  },
-  {
-    icon: IconGift,
-    title: t('home.benefits.referral.title'),
-    description: t('home.benefits.referral.description'),
-  },
-]
-
 export default function Home() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -196,24 +173,6 @@ export default function Home() {
       </section>
 
       {/* Quiz Section */}
-
-      {/* Benefits Section */}
-      <section className={styles.benefits}>
-        <div className={styles.benefitsGrid}>
-          {getBenefitsData(t).map((benefit, index) => {
-            const IconComponent = benefit.icon
-            return (
-              <div key={index} className={styles.benefitCard}>
-                <div className={styles.benefitIcon}>
-                  <IconComponent />
-                </div>
-                <h3 className={styles.benefitTitle}>{benefit.title}</h3>
-                <p className={styles.benefitDesc}>{benefit.description}</p>
-              </div>
-            )
-          })}
-        </div>
-      </section>
 
       {/* Properties Section */}
       <section className={styles.properties}>
@@ -339,6 +298,34 @@ export default function Home() {
             </div>
             <h3 className={styles.featureTitle}>{t('home.features.expert.title')}</h3>
             <p className={styles.featureDesc}>{t('home.features.expert.description')}</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <IconService />
+            </div>
+            <h3 className={styles.featureTitle}>{t('home.features.serviceCharge.title')}</h3>
+            <p className={styles.featureDesc}>{t('home.features.serviceCharge.description')}</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <IconFurniture />
+            </div>
+            <h3 className={styles.featureTitle}>{t('home.features.furnished.title')}</h3>
+            <p className={styles.featureDesc}>{t('home.features.furnished.description')}</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <IconVisa />
+            </div>
+            <h3 className={styles.featureTitle}>{t('home.features.visa.title')}</h3>
+            <p className={styles.featureDesc}>{t('home.features.visa.description')}</p>
+          </div>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <IconGift />
+            </div>
+            <h3 className={styles.featureTitle}>{t('home.features.referral.title')}</h3>
+            <p className={styles.featureDesc}>{t('home.features.referral.description')}</p>
           </div>
         </div>
       </section>
