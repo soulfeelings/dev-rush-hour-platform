@@ -23,6 +23,8 @@ export interface SelectProps {
   error?: string
   disabled?: boolean
   icon?: React.ReactNode
+  fullWidth?: boolean
+  fullHeight?: boolean
 }
 
 export function Select({
@@ -34,6 +36,8 @@ export function Select({
   error,
   disabled = false,
   icon,
+  fullWidth = false,
+  fullHeight = false,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectingValue, setSelectingValue] = useState<string | null>(null)
@@ -120,18 +124,23 @@ export function Select({
   }
 
   return (
-    <div className={styles.formGroup} ref={selectRef}>
+    <div
+      className={`${styles.formGroup} ${fullWidth ? styles['formGroup--fullWidth'] : ''} ${fullHeight ? styles['formGroup--fullHeight'] : ''}`}
+      ref={selectRef}
+    >
       {label && (
         <label htmlFor={buttonId} className={styles.label}>
           {label}
         </label>
       )}
-      <div className={`${styles.select} ${disabled ? styles['select--disabled'] : ''}`}>
+      <div
+        className={`${styles.select} ${disabled ? styles['select--disabled'] : ''} ${fullWidth ? styles['select--fullWidth'] : ''} ${fullHeight ? styles['select--fullHeight'] : ''}`}
+      >
         <button
           type="button"
           id={buttonId}
           ref={triggerRef}
-          className={`${styles.trigger} ${isOpen ? styles['trigger--open'] : ''} ${error ? styles['trigger--error'] : ''}`}
+          className={`${styles.trigger} ${isOpen ? styles['trigger--open'] : ''} ${error ? styles['trigger--error'] : ''} ${fullWidth ? styles['trigger--fullWidth'] : ''} ${fullHeight ? styles['trigger--fullHeight'] : ''}`}
           onClick={handleToggle}
           disabled={disabled}
         >

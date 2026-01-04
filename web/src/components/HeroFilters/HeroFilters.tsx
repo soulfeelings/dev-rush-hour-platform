@@ -82,7 +82,8 @@ export default function HeroFilters() {
     const locationLabel = locationOptions.find(opt => opt.value === location)?.label || location
     const developerLabel = developerOptions.find(opt => opt.value === developer)?.label || developer
     const projectLabel = projectOptions.find(opt => opt.value === project)?.label || project
-    const propertyTypeLabel = propertyTypeOptions.find(opt => opt.value === propertyType)?.label || propertyType
+    const propertyTypeLabel =
+      propertyTypeOptions.find(opt => opt.value === propertyType)?.label || propertyType
     const bedsLabel = bedroomsOptions.find(opt => opt.value === beds)?.label || beds
     const budgetLabel = priceOptions.find(opt => opt.value === budget)?.label || budget
 
@@ -101,71 +102,80 @@ Filters:
   return (
     <div className={styles.container}>
       <div className={styles.filterBar}>
-        <div className={styles.selectGroup}>
-          <div className={styles.selectWrapper}>
-            <Select
-              options={locationOptions}
-              value={location}
-              onChange={setLocation}
-              placeholder={t('filters.location.placeholder')}
-            />
+        <div className={styles.topRow}>
+          <div className={styles.selectGroup}>
+            <div className={styles.selectWrapper}>
+              <Select
+                options={locationOptions}
+                value={location}
+                onChange={setLocation}
+                placeholder={t('filters.location.placeholder')}
+                fullWidth
+                fullHeight
+              />
+            </div>
+            <div className={styles.selectWrapper}>
+              <Select
+                options={developerOptions}
+                value={developer}
+                onChange={setDeveloper}
+                placeholder={t('filters.developer.placeholder')}
+                fullWidth
+                fullHeight
+              />
+            </div>
+            <div className={styles.selectWrapper}>
+              <Select
+                options={projectOptions}
+                value={project}
+                onChange={setProject}
+                placeholder={t('filters.project.placeholder')}
+                fullWidth
+                fullHeight
+              />
+            </div>
+            <div className={styles.selectWrapper}>
+              <Select
+                options={propertyTypeOptions}
+                value={propertyType}
+                onChange={setPropertyType}
+                placeholder={t('filters.propertyType.placeholder')}
+                fullWidth
+                fullHeight
+              />
+            </div>
+            <div className={styles.selectWrapper}>
+              <Select
+                options={bedroomsOptions}
+                value={beds}
+                onChange={setBeds}
+                placeholder={t('filters.bedrooms.placeholder')}
+                fullWidth
+                fullHeight
+              />
+            </div>
+            <div className={styles.selectWrapper}>
+              <Select
+                options={priceOptions}
+                value={budget}
+                onChange={setBudget}
+                placeholder={t('filters.price.placeholder')}
+                fullWidth
+                fullHeight
+              />
+            </div>
           </div>
-          <div className={styles.selectWrapper}>
-            <Select
-              options={developerOptions}
-              value={developer}
-              onChange={setDeveloper}
-              placeholder={t('filters.developer.placeholder')}
-            />
-          </div>
-          <div className={styles.selectWrapper}>
-            <Select
-              options={projectOptions}
-              value={project}
-              onChange={setProject}
-              placeholder={t('filters.project.placeholder')}
-            />
-          </div>
-          <div className={styles.selectWrapper}>
-            <Select
-              options={propertyTypeOptions}
-              value={propertyType}
-              onChange={setPropertyType}
-              placeholder={t('filters.propertyType.placeholder')}
-            />
-          </div>
-          <div className={styles.selectWrapper}>
-            <Select
-              options={bedroomsOptions}
-              value={beds}
-              onChange={setBeds}
-              placeholder={t('filters.bedrooms.placeholder')}
-            />
-          </div>
-          <div className={styles.selectWrapper}>
-            <Select
-              options={priceOptions}
-              value={budget}
-              onChange={setBudget}
-              placeholder={t('filters.price.placeholder')}
-            />
-          </div>
-        </div>
 
-        <div className={styles.actions}>
-          <Button onClick={handleSearch} className={styles.searchButton}>
-            <Search size={20} />
-            <span className={styles.buttonText}>{t('filters.search.button')}</span>
-          </Button>
-
-          <Button variant="ghost" className={styles.moreFiltersButton}>
-            <span className={styles.buttonText}>{t('filters.moreFilters.button')}</span>
-          </Button>
-
-          <Button variant="secondary" onClick={handleContactAgent} className={styles.agentButton}>
-            <MessageCircle size={20} />
-            <span className={styles.buttonText}>{t('home.hero.contactAgent')}</span>
-          </Button>
+          <div className={styles.actions}>
+            <Button onClick={handleSearch} className={styles.searchButton}>
+              <Search size={20} />
+              <span className={styles.buttonText}>{t('filters.search.button')}</span>
+            </Button>
+            <Button variant="secondary" onClick={handleContactAgent} className={styles.agentButton}>
+              <MessageCircle size={20} />
+              <span className={styles.buttonText}>{t('home.hero.contactAgent')}</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
