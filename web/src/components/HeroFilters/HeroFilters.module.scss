@@ -43,7 +43,6 @@
 
 .selectWrapper {
   flex: 1;
-  min-width: 180px;
 
   :global(.form-group) {
     margin-bottom: 0;
@@ -63,7 +62,8 @@
   }
 }
 
-.searchButton, .agentButton {
+.searchButton,
+.agentButton {
   display: flex;
   align-items: center;
   gap: $spacing-2;
@@ -79,13 +79,13 @@
 }
 
 .agentButton {
-  background-color: #25D366; // WhatsApp green
-  border-color: #25D366;
+  background-color: #25d366; // WhatsApp green
+  border-color: #25d366;
   color: white;
 
   &:hover {
-    background-color: color.scale(#25D366, $lightness: -10%);
-    border-color: color.scale(#25D366, $lightness: -10%);
+    background-color: color.scale(#25d366, $lightness: -10%);
+    border-color: color.scale(#25d366, $lightness: -10%);
   }
 }
 
@@ -93,7 +93,7 @@
   @media (max-width: $breakpoint-lg) {
     display: none;
   }
-  
+
   @media (max-width: $breakpoint-md) {
     display: inline;
   }

@@ -9,8 +9,45 @@ import styles from './HeroFilters.module.scss'
 export default function HeroFilters() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [location, setLocation] = useState('all')
+  const [developer, setDeveloper] = useState('all')
+  const [project, setProject] = useState('all')
+  const [propertyType, setPropertyType] = useState('all')
   const [beds, setBeds] = useState('all')
   const [budget, setBudget] = useState('all')
+
+  const locationOptions = [
+    { value: 'all', label: t('filters.location.all') },
+    { value: 'dubai-marina', label: t('filters.location.dubaiMarina') },
+    { value: 'palm-jumeirah', label: t('filters.location.palmJumeirah') },
+    { value: 'downtown-dubai', label: t('filters.location.downtownDubai') },
+    { value: 'jumeirah', label: t('filters.location.jumeirah') },
+    { value: 'business-bay', label: t('filters.location.businessBay') },
+  ]
+
+  const developerOptions = [
+    { value: 'all', label: t('filters.developer.all') },
+    { value: 'emaar', label: 'Emaar' },
+    { value: 'damac', label: 'DAMAC' },
+    { value: 'nakheel', label: 'Nakheel' },
+    { value: 'dubai-properties', label: 'Dubai Properties' },
+  ]
+
+  const projectOptions = [
+    { value: 'all', label: t('filters.project.all') },
+    { value: 'dubai-marina-walk', label: 'Dubai Marina Walk' },
+    { value: 'palm-jumeirah-residences', label: 'Palm Jumeirah Residences' },
+    { value: 'downtown-views', label: 'Downtown Views' },
+  ]
+
+  const propertyTypeOptions = [
+    { value: 'all', label: t('filters.propertyType.all') },
+    { value: 'apartment', label: t('filters.propertyType.apartment') },
+    { value: 'villa', label: t('filters.propertyType.villa') },
+    { value: 'townhouse', label: t('filters.propertyType.townhouse') },
+    { value: 'penthouse', label: t('filters.propertyType.penthouse') },
+    { value: 'duplex', label: t('filters.propertyType.duplex') },
+  ]
 
   const bedroomsOptions = [
     { value: 'all', label: t('filters.bedrooms.all') },
@@ -31,6 +68,10 @@ export default function HeroFilters() {
 
   const handleSearch = () => {
     const params = new URLSearchParams()
+    if (location !== 'all') params.set('location', location)
+    if (developer !== 'all') params.set('developer', developer)
+    if (project !== 'all') params.set('project', project)
+    if (propertyType !== 'all') params.set('type', propertyType)
     if (beds !== 'all') params.set('bedrooms', beds)
     if (budget !== 'all') params.set('price', budget)
     navigate(`/catalog?${params.toString()}`)
@@ -38,11 +79,19 @@ export default function HeroFilters() {
 
   const handleContactAgent = () => {
     const phone = '971544313048'
+    const locationLabel = locationOptions.find(opt => opt.value === location)?.label || location
+    const developerLabel = developerOptions.find(opt => opt.value === developer)?.label || developer
+    const projectLabel = projectOptions.find(opt => opt.value === project)?.label || project
+    const propertyTypeLabel = propertyTypeOptions.find(opt => opt.value === propertyType)?.label || propertyType
     const bedsLabel = bedroomsOptions.find(opt => opt.value === beds)?.label || beds
     const budgetLabel = priceOptions.find(opt => opt.value === budget)?.label || budget
 
-    const message = `Hello! I'm interested in properties in Dubai. 
-Filters: 
+    const message = `Hello! I'm interested in properties in Dubai.
+Filters:
+- Location: ${locationLabel}
+- Developer: ${developerLabel}
+- Project: ${projectLabel}
+- Property Type: ${propertyTypeLabel}
 - Bedrooms: ${bedsLabel}
 - Budget: ${budgetLabel}`
 
@@ -53,6 +102,38 @@ Filters:
     <div className={styles.container}>
       <div className={styles.filterBar}>
         <div className={styles.selectGroup}>
+          <div className={styles.selectWrapper}>
+            <Select
+              options={locationOptions}
+              value={location}
+              onChange={setLocation}
+              placeholder={t('filters.location.placeholder')}
+            />
+          </div>
+          <div className={styles.selectWrapper}>
+            <Select
+              options={developerOptions}
+              value={developer}
+              onChange={setDeveloper}
+              placeholder={t('filters.developer.placeholder')}
+            />
+          </div>
+          <div className={styles.selectWrapper}>
+            <Select
+              options={projectOptions}
+              value={project}
+              onChange={setProject}
+              placeholder={t('filters.project.placeholder')}
+            />
+          </div>
+          <div className={styles.selectWrapper}>
+            <Select
+              options={propertyTypeOptions}
+              value={propertyType}
+              onChange={setPropertyType}
+              placeholder={t('filters.propertyType.placeholder')}
+            />
+          </div>
           <div className={styles.selectWrapper}>
             <Select
               options={bedroomsOptions}
@@ -75,6 +156,10 @@ Filters:
           <Button onClick={handleSearch} className={styles.searchButton}>
             <Search size={20} />
             <span className={styles.buttonText}>{t('filters.search.button')}</span>
+          </Button>
+
+          <Button variant="ghost" className={styles.moreFiltersButton}>
+            <span className={styles.buttonText}>{t('filters.moreFilters.button')}</span>
           </Button>
 
           <Button variant="secondary" onClick={handleContactAgent} className={styles.agentButton}>
