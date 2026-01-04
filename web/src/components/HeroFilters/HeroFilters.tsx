@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { MessageCircle, Search } from 'lucide-react'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
+import { BedsBathsSelect } from './BedsBathsSelect'
 import styles from './HeroFilters.module.scss'
 
 export default function HeroFilters() {
@@ -14,6 +15,7 @@ export default function HeroFilters() {
   const [project, setProject] = useState('all')
   const [propertyType, setPropertyType] = useState('all')
   const [beds, setBeds] = useState('all')
+  const [baths, setBaths] = useState('all')
   const [budget, setBudget] = useState('all')
 
   const locationOptions = [{ value: 'dubai', label: t('filters.location.dubai') }]
@@ -42,15 +44,6 @@ export default function HeroFilters() {
     { value: 'duplex', label: t('filters.propertyType.duplex') },
   ]
 
-  const bedroomsOptions = [
-    { value: 'all', label: t('filters.bedrooms.all') },
-    { value: 'studio', label: t('filters.bedrooms.studio') },
-    { value: '1', label: t('filters.bedrooms.one') },
-    { value: '2', label: t('filters.bedrooms.two') },
-    { value: '3', label: t('filters.bedrooms.three') },
-    { value: '4+', label: t('filters.bedrooms.fourPlus') },
-  ]
-
   const priceOptions = [
     { value: 'all', label: t('filters.price.all') },
     { value: '0-1m', label: t('filters.price.under1m') },
@@ -66,6 +59,7 @@ export default function HeroFilters() {
     if (project !== 'all') params.set('project', project)
     if (propertyType !== 'all') params.set('type', propertyType)
     if (beds !== 'all') params.set('bedrooms', beds)
+    if (baths !== 'all') params.set('bathrooms', baths)
     if (budget !== 'all') params.set('price', budget)
     navigate(`/catalog?${params.toString()}`)
   }
@@ -77,7 +71,20 @@ export default function HeroFilters() {
     const projectLabel = projectOptions.find(opt => opt.value === project)?.label || project
     const propertyTypeLabel =
       propertyTypeOptions.find(opt => opt.value === propertyType)?.label || propertyType
-    const bedsLabel = bedroomsOptions.find(opt => opt.value === beds)?.label || beds
+    const bedsLabel =
+      beds === 'all'
+        ? t('filters.bedrooms.all')
+        : beds === 'studio'
+          ? t('filters.bedrooms.studio')
+          : beds === '7+'
+            ? '7+'
+            : `${beds} ${t('filters.bedrooms.one').replace('1 ', '')}`
+    const bathsLabel =
+      baths === 'all'
+        ? t('home.properties.baths')
+        : baths === '7+'
+          ? '7+'
+          : `${baths} ${t('home.properties.baths')}`
     const budgetLabel = priceOptions.find(opt => opt.value === budget)?.label || budget
 
     const message = `Hello! I'm interested in properties in Dubai.
@@ -87,6 +94,7 @@ Filters:
 - Project: ${projectLabel}
 - Property Type: ${propertyTypeLabel}
 - Bedrooms: ${bedsLabel}
+- Bathrooms: ${bathsLabel}
 - Budget: ${budgetLabel}`
 
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
@@ -139,11 +147,12 @@ Filters:
               />
             </div>
             <div className={styles.selectWrapper}>
-              <Select
-                options={bedroomsOptions}
-                value={beds}
-                onChange={setBeds}
-                placeholder={t('filters.bedrooms.placeholder')}
+              <BedsBathsSelect
+                bedrooms={beds}
+                bathrooms={baths}
+                onBedroomsChange={setBeds}
+                onBathroomsChange={setBaths}
+                placeholder={t('filters.bathrooms.placeholder')}
                 fullWidth
                 fullHeight
               />

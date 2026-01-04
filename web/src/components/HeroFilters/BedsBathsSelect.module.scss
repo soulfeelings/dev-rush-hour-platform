@@ -1,0 +1,151 @@
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+
+  &--fullWidth {
+    width: 100%;
+  }
+
+  &--fullHeight {
+    height: 100%;
+  }
+}
+
+.select {
+  position: relative;
+
+  &--fullWidth {
+    width: 100%;
+  }
+
+  &--fullHeight {
+    height: 100%;
+  }
+}
+
+.trigger {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-1;
+  padding: $spacing-2 $spacing-4;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: all $transition-fast;
+  position: relative;
+  text-align: left;
+  white-space: nowrap;
+  height: 36px;
+
+  &--fullWidth {
+    display: flex;
+    width: 100%;
+  }
+
+  &--fullHeight {
+    height: 100%;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: color.mix(black, $color-border, 15%);
+    color: $color-text;
+  }
+
+  &--open {
+    border-color: $color-primary;
+    color: $color-text;
+  }
+}
+
+.placeholder {
+  color: $color-text-muted;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform $transition-fast;
+
+  .trigger--open & {
+    transform: rotate(180deg);
+  }
+}
+
+.dropdown {
+  position: absolute;
+  z-index: 1000;
+  background: white;
+  border-radius: $radius-lg;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid $color-border;
+  overflow: hidden;
+  min-width: 300px;
+}
+
+.content {
+  padding: $spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.sectionTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+}
+
+.optionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.optionButton {
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-sm;
+  font-family: inherit;
+  color: $color-text-secondary;
+  background: #f5f5f5;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+  min-width: 40px;
+  text-align: center;
+  font-weight: $font-weight-regular;
+
+  &:hover {
+    background: #e8e8e8;
+    color: $color-text;
+  }
+
+  &--selected {
+    background: $color-primary;
+    color: white;
+
+    &:hover {
+      background: color.scale($color-primary, $lightness: -5%);
+    }
+  }
+}
+
