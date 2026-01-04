@@ -57,6 +57,15 @@
   text-align: left;
   white-space: nowrap;
   height: 36px;
+  min-width: 0;
+
+  > span:not(.icon):not(.arrow) {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
   &--fullWidth {
     display: flex;

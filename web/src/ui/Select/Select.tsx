@@ -22,6 +22,7 @@ export interface SelectProps {
   fullWidth?: boolean
   fullHeight?: boolean
   searchable?: boolean
+  hideAllInTrigger?: boolean
 }
 
 export function Select({
@@ -36,6 +37,7 @@ export function Select({
   fullWidth = false,
   fullHeight = false,
   searchable = false,
+  hideAllInTrigger = false,
 }: SelectProps) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
@@ -116,7 +118,8 @@ export function Select({
   const handleSelect = (optionValue: string) => {
     setSelectingValue(optionValue)
     setTimeout(() => {
-      onChange(optionValue)
+      // Если кликнули на уже выбранное значение - сбрасываем выбор
+      onChange(value === optionValue ? '' : optionValue)
       setIsOpen(false)
       setSelectingValue(null)
       setSearchQuery('')
@@ -173,8 +176,16 @@ export function Select({
           disabled={disabled}
         >
           {icon && <span className={styles.icon}>{icon}</span>}
-          <span className={selectedOption ? '' : styles.placeholder}>
-            {selectedOption?.label || placeholder}
+          <span
+            className={
+              selectedOption && (!hideAllInTrigger || selectedOption.value !== 'all')
+                ? ''
+                : styles.placeholder
+            }
+          >
+            {selectedOption && (!hideAllInTrigger || selectedOption.value !== 'all')
+              ? selectedOption.label
+              : placeholder}
           </span>
           <span className={styles.arrow}>
             <ChevronUp size={16} />

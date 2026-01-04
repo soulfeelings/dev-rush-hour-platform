@@ -20,7 +20,10 @@ export default function HeroFilters() {
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
 
-  const locationOptions = [{ value: 'dubai', label: t('filters.location.dubai') }]
+  const locationOptions = [
+    { value: 'all', label: t('filters.location.all') },
+    { value: 'dubai', label: t('filters.location.dubai') },
+  ]
 
   const developerOptions = [
     { value: 'all', label: t('filters.developer.all') },
@@ -61,11 +64,17 @@ export default function HeroFilters() {
 
   const handleContactAgent = () => {
     const phone = '971544313048'
-    const locationLabel = locationOptions.find(opt => opt.value === location)?.label || location
-    const developerLabel = developerOptions.find(opt => opt.value === developer)?.label || developer
-    const projectLabel = projectOptions.find(opt => opt.value === project)?.label || project
+    const locationLabel =
+      locationOptions.find(opt => opt.value === location)?.label ||
+      t('filters.location.placeholder')
+    const developerLabel =
+      developerOptions.find(opt => opt.value === developer)?.label ||
+      t('filters.developer.placeholder')
+    const projectLabel =
+      projectOptions.find(opt => opt.value === project)?.label || t('filters.project.placeholder')
     const propertyTypeLabel =
-      propertyTypeOptions.find(opt => opt.value === propertyType)?.label || propertyType
+      propertyTypeOptions.find(opt => opt.value === propertyType)?.label ||
+      t('filters.propertyType.placeholder')
     const bedsLabel =
       beds === 'all'
         ? t('filters.bedrooms.all')
@@ -112,6 +121,7 @@ Filters:
                 icon={<MapPin size={18} />}
                 fullWidth
                 fullHeight
+                hideAllInTrigger
               />
             </div>
             <div className={styles.selectWrapper}>
@@ -124,6 +134,7 @@ Filters:
                 fullWidth
                 fullHeight
                 searchable
+                hideAllInTrigger
               />
             </div>
             <div className={styles.selectWrapper}>
@@ -136,6 +147,7 @@ Filters:
                 fullWidth
                 fullHeight
                 searchable
+                hideAllInTrigger
               />
             </div>
             <div className={styles.selectWrapper}>
@@ -147,6 +159,7 @@ Filters:
                 icon={<Home size={18} />}
                 fullWidth
                 fullHeight
+                hideAllInTrigger
               />
             </div>
             <div className={styles.selectWrapper}>
