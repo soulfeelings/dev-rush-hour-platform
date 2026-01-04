@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from '@storybook/test'
 import { Select } from './Select'
 
@@ -27,4 +27,3 @@ export const Interactive: Story = {
     onChange: fn(),
   },
 }
-
