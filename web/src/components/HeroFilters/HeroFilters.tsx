@@ -5,6 +5,7 @@ import { MessageCircle, Search } from 'lucide-react'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
 import { BedsBathsSelect } from './BedsBathsSelect'
+import { PriceSelect } from './PriceSelect'
 import styles from './HeroFilters.module.scss'
 
 export default function HeroFilters() {
@@ -16,7 +17,8 @@ export default function HeroFilters() {
   const [propertyType, setPropertyType] = useState('all')
   const [beds, setBeds] = useState('all')
   const [baths, setBaths] = useState('all')
-  const [budget, setBudget] = useState('all')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
 
   const locationOptions = [{ value: 'dubai', label: t('filters.location.dubai') }]
 
@@ -44,14 +46,6 @@ export default function HeroFilters() {
     { value: 'duplex', label: t('filters.propertyType.duplex') },
   ]
 
-  const priceOptions = [
-    { value: 'all', label: t('filters.price.all') },
-    { value: '0-1m', label: t('filters.price.under1m') },
-    { value: '1-2m', label: t('filters.price.1to2m') },
-    { value: '2-5m', label: t('filters.price.2to5m') },
-    { value: '5m+', label: t('filters.price.5mPlus') },
-  ]
-
   const handleSearch = () => {
     const params = new URLSearchParams()
     if (location !== 'all') params.set('location', location)
@@ -60,7 +54,8 @@ export default function HeroFilters() {
     if (propertyType !== 'all') params.set('type', propertyType)
     if (beds !== 'all') params.set('bedrooms', beds)
     if (baths !== 'all') params.set('bathrooms', baths)
-    if (budget !== 'all') params.set('price', budget)
+    if (minPrice) params.set('minPrice', minPrice)
+    if (maxPrice) params.set('maxPrice', maxPrice)
     navigate(`/catalog?${params.toString()}`)
   }
 
@@ -85,7 +80,10 @@ export default function HeroFilters() {
         : baths === '7+'
           ? '7+'
           : `${baths} ${t('home.properties.baths')}`
-    const budgetLabel = priceOptions.find(opt => opt.value === budget)?.label || budget
+    const priceLabel =
+      minPrice || maxPrice
+        ? `${minPrice || '0'} - ${maxPrice || t('filters.price.any')} AED`
+        : t('filters.price.all')
 
     const message = `Hello! I'm interested in properties in Dubai.
 Filters:
@@ -95,7 +93,7 @@ Filters:
 - Property Type: ${propertyTypeLabel}
 - Bedrooms: ${bedsLabel}
 - Bathrooms: ${bathsLabel}
-- Budget: ${budgetLabel}`
+- Price: ${priceLabel}`
 
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
   }
@@ -158,10 +156,11 @@ Filters:
               />
             </div>
             <div className={styles.selectWrapper}>
-              <Select
-                options={priceOptions}
-                value={budget}
-                onChange={setBudget}
+              <PriceSelect
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                onMinPriceChange={setMinPrice}
+                onMaxPriceChange={setMaxPrice}
                 placeholder={t('filters.price.placeholder')}
                 fullWidth
                 fullHeight

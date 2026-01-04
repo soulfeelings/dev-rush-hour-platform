@@ -2,13 +2,8 @@ import { useState, useRef, useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { ChevronUp } from 'lucide-react'
 import styles from './Select.module.scss'
-
-const IconChevronDown = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-)
 
 export interface SelectOption {
   value: string
@@ -182,7 +177,7 @@ export function Select({
             {selectedOption?.label || placeholder}
           </span>
           <span className={styles.arrow}>
-            <IconChevronDown />
+            <ChevronUp size={16} />
           </span>
         </button>
 
