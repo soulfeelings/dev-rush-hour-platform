@@ -123,6 +123,7 @@ Filters:
                 icon={<Building2 size={18} />}
                 fullWidth
                 fullHeight
+                searchable
               />
             </div>
             <div className={styles.selectWrapper}>
