@@ -1,0 +1,19 @@
+DROP INDEX IF EXISTS idx_leads_created_at_desc;
+DROP INDEX IF EXISTS idx_leads_lot_id;
+DROP INDEX IF EXISTS idx_leads_project_id;
+DROP INDEX IF EXISTS idx_leads_status;
+DROP INDEX IF EXISTS idx_areas_city;
+DROP INDEX IF EXISTS idx_projects_status;
+DROP INDEX IF EXISTS idx_projects_area_id;
+DROP INDEX IF EXISTS idx_projects_developer_id;
+DROP INDEX IF EXISTS idx_lots_data_gin;
+DROP INDEX IF EXISTS idx_lots_composite_list;
+DROP INDEX IF EXISTS idx_lots_bonus_keys;
+DROP INDEX IF EXISTS idx_lots_area_sqm;
+DROP INDEX IF EXISTS idx_lots_price_amount;
+DROP INDEX IF EXISTS idx_lots_bedrooms;
+DROP INDEX IF EXISTS idx_lots_type;
+DROP INDEX IF EXISTS idx_lots_status;
+DROP INDEX IF EXISTS idx_lots_area_id;
+DROP INDEX IF EXISTS idx_lots_project_id;
+

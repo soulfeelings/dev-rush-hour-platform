@@ -1,6 +1,23 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=rushhour
+      - POSTGRES_PASSWORD=rushhour_prod
+      - POSTGRES_DB=rushhour_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rushhour"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -9,6 +26,15 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=rushhour
+      - DB_PASSWORD=rushhour_prod
+      - DB_NAME=rushhour_db
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
   web:
@@ -22,3 +48,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  postgres_data:

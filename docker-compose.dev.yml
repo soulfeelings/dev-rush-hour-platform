@@ -1,6 +1,54 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rushhour-postgres-dev
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=rushhour
+      - POSTGRES_PASSWORD=rushhour_dev
+      - POSTGRES_DB=rushhour_db
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rushhour -d rushhour_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "log_statement=all"
+      - "-c"
+      - "log_destination=stderr"
+
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=rushhour
+      - DB_PASSWORD=rushhour_dev
+      - DB_NAME=rushhour_db
+      - DB_SSLMODE=disable
+    volumes:
+      - ./backend:/app
+    command: sh -c "go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest && migrate -path internal/migrations -database 'postgres://rushhour:rushhour_dev@postgres:5432/rushhour_db?sslmode=disable' up"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   backend:
     build:
       context: ./backend
@@ -9,10 +57,21 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=rushhour
+      - DB_PASSWORD=rushhour_dev
+      - DB_NAME=rushhour_db
+      - DB_SSLMODE=disable
     volumes:
       - ./backend:/app
       - /app/go/pkg/mod
     command: air
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   web:
@@ -30,3 +89,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  postgres_data:

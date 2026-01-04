@@ -1,20 +1,73 @@
 openapi: 3.0.3
 info:
-  title: Real Estate Platform API
+  title: Rush Hour Real Estate Platform API
   version: 1.0.0
-  description: MVP платформы недвижимости
+  description: MVP платформы недвижимости - публичные эндпоинты
 
 servers:
   - url: http://localhost:8080/api
     description: Local development server
 
 paths:
+  /areas:
+    get:
+      operationId: listAreas
+      summary: Получить список районов
+      tags:
+        - Areas
+      parameters:
+        - name: include
+          in: query
+          schema:
+            type: string
+            enum: [boundary]
+          description: Включить границы районов (GeoJSON)
+      responses:
+        "200":
+          description: Список районов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Area"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /areas/{slug}:
+    get:
+      operationId: getArea
+      summary: Получить район по slug
+      tags:
+        - Areas
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Район найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Area"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
   /projects:
     get:
       operationId: listProjects
       summary: Получить список проектов
       tags:
         - Projects
+      parameters:
+        - name: area
+          in: query
+          schema:
+            type: string
+          description: Фильтр по slug района
       responses:
         "200":
           description: Список проектов
@@ -24,33 +77,17 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Project"
-    post:
-      operationId: createProject
-      summary: Создать проект
-      tags:
-        - Projects
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ProjectCreate"
-      responses:
-        "201":
-          description: Проект создан
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Project"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
-  /projects/{projectId}:
+  /projects/{slug}:
     get:
       operationId: getProject
-      summary: Получить проект по ID
+      summary: Получить проект по slug
       tags:
         - Projects
       parameters:
-        - name: projectId
+        - name: slug
           in: path
           required: true
           schema:
@@ -63,419 +100,243 @@ paths:
               schema:
                 $ref: "#/components/schemas/Project"
         "404":
-          description: Проект не найден
-    put:
-      operationId: updateProject
-      summary: Обновить проект
-      tags:
-        - Projects
-      parameters:
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ProjectUpdate"
-      responses:
-        "200":
-          description: Проект обновлен
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Project"
-    delete:
-      operationId: deleteProject
-      summary: Удалить проект
-      tags:
-        - Projects
-      parameters:
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: Проект удален
-        "404":
-          description: Проект не найден
+          $ref: "#/components/responses/NotFound"
 
-  /units:
+  /lots:
     get:
-      operationId: listUnits
-      summary: Получить список юнитов
+      operationId: listLots
+      summary: Получить список лотов (каталог)
       tags:
-        - Units
+        - Lots
       parameters:
-        - name: projectId
+        - name: area
           in: query
           schema:
             type: string
-          description: Фильтр по проекту
+          description: Фильтр по slug района
+        - name: project
+          in: query
+          schema:
+            type: string
+          description: Фильтр по slug проекта
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [apartment, villa, townhouse, penthouse]
+          description: Тип лота
+        - name: bedrooms
+          in: query
+          schema:
+            type: integer
+          description: Количество спален
+        - name: priceMin
+          in: query
+          schema:
+            type: number
+          description: Минимальная цена
+        - name: priceMax
+          in: query
+          schema:
+            type: number
+          description: Максимальная цена
+        - name: areaMin
+          in: query
+          schema:
+            type: number
+          description: Минимальная площадь (м²)
+        - name: areaMax
+          in: query
+          schema:
+            type: number
+          description: Максимальная площадь (м²)
+        - name: bonus
+          in: query
+          schema:
+            type: string
+          description: Фильтр по ключу бонуса (например, goldenVisa)
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [price_asc, price_desc, area_desc, newest]
+            default: newest
+          description: Сортировка
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Номер страницы
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Количество элементов на странице
       responses:
         "200":
-          description: Список юнитов
+          description: Список лотов
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Unit"
-    post:
-      operationId: createUnit
-      summary: Создать юнит
-      tags:
-        - Units
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UnitCreate"
-      responses:
-        "201":
-          description: Юнит создан
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Unit"
+                $ref: "#/components/schemas/LotsListResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
-  /units/{unitId}:
+  /lots/{id}:
     get:
-      operationId: getUnit
-      summary: Получить юнит по ID
+      operationId: getLot
+      summary: Получить лот по ID
       tags:
-        - Units
+        - Lots
       parameters:
-        - name: unitId
+        - name: id
           in: path
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         "200":
-          description: Юнит найден
+          description: Лот найден
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Unit"
+                $ref: "#/components/schemas/Lot"
         "404":
-          description: Юнит не найден
-    put:
-      operationId: updateUnit
-      summary: Обновить юнит
-      tags:
-        - Units
-      parameters:
-        - name: unitId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UnitUpdate"
-      responses:
-        "200":
-          description: Юнит обновлен
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Unit"
-    delete:
-      operationId: deleteUnit
-      summary: Удалить юнит
-      tags:
-        - Units
-      parameters:
-        - name: unitId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: Юнит удален
-        "404":
-          description: Юнит не найден
+          $ref: "#/components/responses/NotFound"
 
-  /auth/signup:
+  /leads:
     post:
-      operationId: signup
-      summary: Регистрация пользователя
+      operationId: createLead
+      summary: Создать заявку (lead)
       tags:
-        - Auth
+        - Leads
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SignupRequest"
+              $ref: "#/components/schemas/LeadCreateRequest"
       responses:
         "201":
-          description: Пользователь зарегистрирован
+          description: Заявка создана
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthResponse"
+                $ref: "#/components/schemas/Lead"
         "400":
-          description: Ошибка валидации
-
-  /auth/login:
-    post:
-      operationId: login
-      summary: Вход пользователя
-      tags:
-        - Auth
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LoginRequest"
-      responses:
-        "200":
-          description: Успешный вход
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthResponse"
-        "401":
-          description: Неверные учетные данные
-
-  /users/{userId}:
-    get:
-      operationId: getUser
-      summary: Получить пользователя по ID
-      tags:
-        - Users
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Пользователь найден
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "404":
-          description: Пользователь не найден
-    put:
-      operationId: updateUser
-      summary: Обновить пользователя
-      tags:
-        - Users
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserUpdate"
-      responses:
-        "200":
-          description: Пользователь обновлен
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-
-  /appointments:
-    get:
-      operationId: listAppointments
-      summary: Получить список встреч
-      tags:
-        - Appointments
-      parameters:
-        - name: userId
-          in: query
-          schema:
-            type: string
-          description: Фильтр по пользователю
-      responses:
-        "200":
-          description: Список встреч
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Appointment"
-    post:
-      operationId: createAppointment
-      summary: Создать встречу
-      tags:
-        - Appointments
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AppointmentCreate"
-      responses:
-        "201":
-          description: Встреча создана
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Appointment"
-
-  /appointments/{appointmentId}:
-    get:
-      operationId: getAppointment
-      summary: Получить встречу по ID
-      tags:
-        - Appointments
-      parameters:
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Встреча найдена
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Appointment"
-        "404":
-          description: Встреча не найдена
-    delete:
-      operationId: deleteAppointment
-      summary: Удалить встречу
-      tags:
-        - Appointments
-      parameters:
-        - name: appointmentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: Встреча удалена
-        "404":
-          description: Встреча не найдена
-
-  /favorites:
-    get:
-      operationId: listFavorites
-      summary: Получить список избранного
-      tags:
-        - Favorites
-      parameters:
-        - name: userId
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: group
-          in: query
-          schema:
-            type: string
-          description: Фильтр по группе
-      responses:
-        "200":
-          description: Список избранного
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Favorite"
-    post:
-      operationId: createFavorite
-      summary: Добавить в избранное
-      tags:
-        - Favorites
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FavoriteCreate"
-      responses:
-        "201":
-          description: Добавлено в избранное
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Favorite"
-
-  /favorites/{favoriteId}:
-    get:
-      operationId: getFavorite
-      summary: Получить избранное по ID
-      tags:
-        - Favorites
-      parameters:
-        - name: favoriteId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Избранное найдено
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Favorite"
-        "404":
-          description: Избранное не найдено
-    delete:
-      operationId: deleteFavorite
-      summary: Удалить из избранного
-      tags:
-        - Favorites
-      parameters:
-        - name: favoriteId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: Удалено из избранного
-        "404":
-          description: Избранное не найдено
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
 components:
   schemas:
+    Area:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        city:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        status:
+          type: string
+          enum: [active, inactive]
+        data:
+          $ref: "#/components/schemas/AreaData"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AreaData:
+      type: object
+      properties:
+        boundary:
+          $ref: "#/components/schemas/GeoJSONPolygon"
+        center:
+          $ref: "#/components/schemas/Point"
+        zoom:
+          type: integer
+        bbox:
+          $ref: "#/components/schemas/BoundingBox"
+        seo:
+          type: object
+          additionalProperties: true
+
+    GeoJSONPolygon:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Polygon]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+                minItems: 2
+                maxItems: 2
+
+    Point:
+      type: object
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
+
+    BoundingBox:
+      type: object
+      properties:
+        southWest:
+          $ref: "#/components/schemas/Point"
+        northEast:
+          $ref: "#/components/schemas/Point"
+
     Project:
       type: object
       properties:
         id:
           type: string
-        title:
+          format: uuid
+        slug:
           type: string
-        location:
+        name:
           type: string
-        priceFrom:
-          type: number
         status:
           type: string
-          enum: [ready, construction, planning]
-        description:
+          enum: [active, archived]
+        developerId:
           type: string
+          format: uuid
+        areaId:
+          type: string
+          format: uuid
+        lat:
+          type: number
+        lng:
+          type: number
+        data:
+          $ref: "#/components/schemas/ProjectData"
         createdAt:
           type: string
           format: date-time
@@ -483,185 +344,82 @@ components:
           type: string
           format: date-time
 
-    ProjectCreate:
-      type: object
-      required:
-        - title
-        - location
-        - priceFrom
-        - status
-      properties:
-        title:
-          type: string
-        location:
-          type: string
-        priceFrom:
-          type: number
-        status:
-          type: string
-          enum: [ready, construction, planning]
-        description:
-          type: string
-
-    ProjectUpdate:
+    ProjectData:
       type: object
       properties:
-        title:
-          type: string
-        location:
-          type: string
-        priceFrom:
-          type: number
-        status:
-          type: string
-          enum: [ready, construction, planning]
         description:
-          type: string
+          oneOf:
+            - type: string
+            - type: object
+              additionalProperties:
+                type: string
+        specs:
+          type: object
+          additionalProperties: true
+        featuresAmenities:
+          type: array
+          items: {}
+        media:
+          $ref: "#/components/schemas/Media"
 
-    Unit:
+    Media:
+      type: object
+      properties:
+        cover:
+          $ref: "#/components/schemas/MediaItem"
+        gallery:
+          type: array
+          items:
+            $ref: "#/components/schemas/MediaItem"
+
+    MediaItem:
       type: object
       properties:
         id:
           type: string
-        projectId:
+        url:
           type: string
-        floor:
-          type: integer
-        area:
-          type: number
-        bedrooms:
-          type: integer
-        price:
-          type: number
-        status:
-          type: string
-          enum: [available, reserved, sold]
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
 
-    UnitCreate:
-      type: object
-      required:
-        - projectId
-        - floor
-        - area
-        - bedrooms
-        - price
-        - status
-      properties:
-        projectId:
-          type: string
-        floor:
-          type: integer
-        area:
-          type: number
-        bedrooms:
-          type: integer
-        price:
-          type: number
-        status:
-          type: string
-          enum: [available, reserved, sold]
-
-    UnitUpdate:
-      type: object
-      properties:
-        floor:
-          type: integer
-        area:
-          type: number
-        bedrooms:
-          type: integer
-        price:
-          type: number
-        status:
-          type: string
-          enum: [available, reserved, sold]
-
-    User:
+    Lot:
       type: object
       properties:
         id:
           type: string
-        email:
-          type: string
-        name:
-          type: string
-        phone:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-
-    UserUpdate:
-      type: object
-      properties:
-        name:
-          type: string
-        phone:
-          type: string
-
-    SignupRequest:
-      type: object
-      required:
-        - email
-        - password
-        - name
-      properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-        name:
-          type: string
-
-    LoginRequest:
-      type: object
-      required:
-        - email
-        - password
-      properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-
-    AuthResponse:
-      type: object
-      properties:
-        token:
-          type: string
-        user:
-          $ref: "#/components/schemas/User"
-
-    Appointment:
-      type: object
-      properties:
-        id:
-          type: string
-        userId:
-          type: string
-        projectId:
-          type: string
-        name:
-          type: string
-        phone:
-          type: string
-        date:
-          type: string
-          format: date-time
+          format: uuid
         status:
           type: string
-          enum: [pending, confirmed, cancelled]
+          enum: [active, hidden, reserved, sold]
+        projectId:
+          type: string
+          format: uuid
+        developerId:
+          type: string
+          format: uuid
+        areaId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [apartment, villa, townhouse, penthouse]
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        areaSqm:
+          type: number
+        floor:
+          type: integer
+        priceCurrency:
+          type: string
+          default: AED
+        priceAmount:
+          type: number
+        bonusKeys:
+          type: array
+          items:
+            type: string
+        data:
+          $ref: "#/components/schemas/LotData"
         createdAt:
           type: string
           format: date-time
@@ -669,51 +427,234 @@ components:
           type: string
           format: date-time
 
-    AppointmentCreate:
+    LotData:
+      type: object
+      properties:
+        media:
+          $ref: "#/components/schemas/LotMedia"
+        paymentPlan:
+          $ref: "#/components/schemas/PaymentPlan"
+        bonuses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Bonus"
+        floorPosition:
+          $ref: "#/components/schemas/FloorPosition"
+        tags:
+          type: array
+          items:
+            type: string
+
+    LotMedia:
+      type: object
+      properties:
+        photos:
+          type: array
+          items:
+            $ref: "#/components/schemas/MediaItem"
+        floorPlanImages:
+          type: array
+          items:
+            $ref: "#/components/schemas/MediaItem"
+        cover:
+          $ref: "#/components/schemas/MediaItem"
+
+    PaymentPlan:
+      type: object
+      properties:
+        schedule:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentScheduleItem"
+
+    PaymentScheduleItem:
+      type: object
+      properties:
+        stage:
+          type: string
+        percent:
+          type: number
+        amount:
+          type: number
+        dueDate:
+          type: string
+
+    Bonus:
+      type: object
+      properties:
+        title:
+          type: string
+        style:
+          type: string
+        description:
+          type: string
+
+    FloorPosition:
+      type: object
+      properties:
+        label:
+          type: string
+        x:
+          type: number
+        y:
+          type: number
+
+    LotsListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lot"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    LeadCreateRequest:
       type: object
       required:
-        - projectId
+        - type
         - name
         - phone
-        - date
       properties:
+        type:
+          type: string
+          enum: [callback, viewing, details]
+        source:
+          type: string
         projectId:
           type: string
+          format: uuid
+        lotId:
+          type: string
+          format: uuid
         name:
           type: string
+          minLength: 2
+          maxLength: 255
         phone:
           type: string
-        date:
+          minLength: 5
+          maxLength: 50
+        email:
           type: string
-          format: date-time
+          format: email
+        data:
+          $ref: "#/components/schemas/LeadDataRequest"
 
-    Favorite:
+    LeadDataRequest:
+      type: object
+      properties:
+        preferred:
+          type: string
+        comment:
+          type: string
+        pageUrl:
+          type: string
+        utm:
+          type: object
+          additionalProperties: true
+
+    Lead:
       type: object
       properties:
         id:
           type: string
-        userId:
+          format: uuid
+        status:
+          type: string
+          enum: [new, in_progress, done, spam]
+        type:
+          type: string
+          enum: [callback, viewing, details]
+        source:
           type: string
         projectId:
           type: string
-        group:
+          format: uuid
+        lotId:
           type: string
+          format: uuid
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        data:
+          $ref: "#/components/schemas/LeadData"
         createdAt:
           type: string
           format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
-    FavoriteCreate:
+    LeadData:
       type: object
-      required:
-        - projectId
       properties:
-        projectId:
+        preferred:
           type: string
-        group:
+        comment:
           type: string
+        pageUrl:
+          type: string
+        utm:
+          type: object
+          additionalProperties: true
 
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              oneOf:
+                - type: string
+                - type: object
+                  additionalProperties: true
+
+  responses:
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: "not_found"
+              message: "Resource not found"
+
+    ValidationError:
+      description: Ошибка валидации
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: "validation_error"
+              message: "validation failed"
+              details:
+                name: "required"
+                email: "invalid_email"
+
+    InternalError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: "internal_error"
+              message: "Internal server error"

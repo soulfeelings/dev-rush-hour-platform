@@ -4,6 +4,7 @@
 package generated
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"time"
@@ -13,324 +14,547 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
-// Defines values for AppointmentStatus.
+// Defines values for AreaStatus.
 const (
-	Cancelled AppointmentStatus = "cancelled"
-	Confirmed AppointmentStatus = "confirmed"
-	Pending   AppointmentStatus = "pending"
+	AreaStatusActive   AreaStatus = "active"
+	AreaStatusInactive AreaStatus = "inactive"
+)
+
+// Defines values for GeoJSONPolygonType.
+const (
+	Polygon GeoJSONPolygonType = "Polygon"
+)
+
+// Defines values for LeadStatus.
+const (
+	Done       LeadStatus = "done"
+	InProgress LeadStatus = "in_progress"
+	New        LeadStatus = "new"
+	Spam       LeadStatus = "spam"
+)
+
+// Defines values for LeadType.
+const (
+	LeadTypeCallback LeadType = "callback"
+	LeadTypeDetails  LeadType = "details"
+	LeadTypeViewing  LeadType = "viewing"
+)
+
+// Defines values for LeadCreateRequestType.
+const (
+	LeadCreateRequestTypeCallback LeadCreateRequestType = "callback"
+	LeadCreateRequestTypeDetails  LeadCreateRequestType = "details"
+	LeadCreateRequestTypeViewing  LeadCreateRequestType = "viewing"
+)
+
+// Defines values for LotStatus.
+const (
+	LotStatusActive   LotStatus = "active"
+	LotStatusHidden   LotStatus = "hidden"
+	LotStatusReserved LotStatus = "reserved"
+	LotStatusSold     LotStatus = "sold"
+)
+
+// Defines values for LotType.
+const (
+	LotTypeApartment LotType = "apartment"
+	LotTypePenthouse LotType = "penthouse"
+	LotTypeTownhouse LotType = "townhouse"
+	LotTypeVilla     LotType = "villa"
 )
 
 // Defines values for ProjectStatus.
 const (
-	ProjectStatusConstruction ProjectStatus = "construction"
-	ProjectStatusPlanning     ProjectStatus = "planning"
-	ProjectStatusReady        ProjectStatus = "ready"
+	Active   ProjectStatus = "active"
+	Archived ProjectStatus = "archived"
 )
 
-// Defines values for ProjectCreateStatus.
+// Defines values for ListAreasParamsInclude.
 const (
-	ProjectCreateStatusConstruction ProjectCreateStatus = "construction"
-	ProjectCreateStatusPlanning     ProjectCreateStatus = "planning"
-	ProjectCreateStatusReady        ProjectCreateStatus = "ready"
+	Boundary ListAreasParamsInclude = "boundary"
 )
 
-// Defines values for ProjectUpdateStatus.
+// Defines values for ListLotsParamsType.
 const (
-	Construction ProjectUpdateStatus = "construction"
-	Planning     ProjectUpdateStatus = "planning"
-	Ready        ProjectUpdateStatus = "ready"
+	ListLotsParamsTypeApartment ListLotsParamsType = "apartment"
+	ListLotsParamsTypePenthouse ListLotsParamsType = "penthouse"
+	ListLotsParamsTypeTownhouse ListLotsParamsType = "townhouse"
+	ListLotsParamsTypeVilla     ListLotsParamsType = "villa"
 )
 
-// Defines values for UnitStatus.
+// Defines values for ListLotsParamsSort.
 const (
-	UnitStatusAvailable UnitStatus = "available"
-	UnitStatusReserved  UnitStatus = "reserved"
-	UnitStatusSold      UnitStatus = "sold"
+	AreaDesc  ListLotsParamsSort = "area_desc"
+	Newest    ListLotsParamsSort = "newest"
+	PriceAsc  ListLotsParamsSort = "price_asc"
+	PriceDesc ListLotsParamsSort = "price_desc"
 )
 
-// Defines values for UnitCreateStatus.
-const (
-	UnitCreateStatusAvailable UnitCreateStatus = "available"
-	UnitCreateStatusReserved  UnitCreateStatus = "reserved"
-	UnitCreateStatusSold      UnitCreateStatus = "sold"
-)
-
-// Defines values for UnitUpdateStatus.
-const (
-	Available UnitUpdateStatus = "available"
-	Reserved  UnitUpdateStatus = "reserved"
-	Sold      UnitUpdateStatus = "sold"
-)
-
-// Appointment defines model for Appointment.
-type Appointment struct {
-	CreatedAt *time.Time         `json:"createdAt,omitempty"`
-	Date      *time.Time         `json:"date,omitempty"`
-	Id        *string            `json:"id,omitempty"`
-	Name      *string            `json:"name,omitempty"`
-	Phone     *string            `json:"phone,omitempty"`
-	ProjectId *string            `json:"projectId,omitempty"`
-	Status    *AppointmentStatus `json:"status,omitempty"`
-	UpdatedAt *time.Time         `json:"updatedAt,omitempty"`
-	UserId    *string            `json:"userId,omitempty"`
+// Area defines model for Area.
+type Area struct {
+	City      *string             `json:"city,omitempty"`
+	CreatedAt *time.Time          `json:"createdAt,omitempty"`
+	Data      *AreaData           `json:"data,omitempty"`
+	Id        *openapi_types.UUID `json:"id,omitempty"`
+	Lat       *float32            `json:"lat,omitempty"`
+	Lng       *float32            `json:"lng,omitempty"`
+	Name      *string             `json:"name,omitempty"`
+	Slug      *string             `json:"slug,omitempty"`
+	Status    *AreaStatus         `json:"status,omitempty"`
+	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
 }
 
-// AppointmentStatus defines model for Appointment.Status.
-type AppointmentStatus string
+// AreaStatus defines model for Area.Status.
+type AreaStatus string
 
-// AppointmentCreate defines model for AppointmentCreate.
-type AppointmentCreate struct {
-	Date      time.Time `json:"date"`
-	Name      string    `json:"name"`
-	Phone     string    `json:"phone"`
-	ProjectId string    `json:"projectId"`
+// AreaData defines model for AreaData.
+type AreaData struct {
+	Bbox     *BoundingBox            `json:"bbox,omitempty"`
+	Boundary *GeoJSONPolygon         `json:"boundary,omitempty"`
+	Center   *Point                  `json:"center,omitempty"`
+	Seo      *map[string]interface{} `json:"seo,omitempty"`
+	Zoom     *int                    `json:"zoom,omitempty"`
 }
 
-// AuthResponse defines model for AuthResponse.
-type AuthResponse struct {
-	Token *string `json:"token,omitempty"`
-	User  *User   `json:"user,omitempty"`
+// Bonus defines model for Bonus.
+type Bonus struct {
+	Description *string `json:"description,omitempty"`
+	Style       *string `json:"style,omitempty"`
+	Title       *string `json:"title,omitempty"`
 }
 
-// Favorite defines model for Favorite.
-type Favorite struct {
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	Group     *string    `json:"group,omitempty"`
-	Id        *string    `json:"id,omitempty"`
-	ProjectId *string    `json:"projectId,omitempty"`
-	UserId    *string    `json:"userId,omitempty"`
+// BoundingBox defines model for BoundingBox.
+type BoundingBox struct {
+	NorthEast *Point `json:"northEast,omitempty"`
+	SouthWest *Point `json:"southWest,omitempty"`
 }
 
-// FavoriteCreate defines model for FavoriteCreate.
-type FavoriteCreate struct {
-	Group     *string `json:"group,omitempty"`
-	ProjectId string  `json:"projectId"`
+// Error defines model for Error.
+type Error struct {
+	Error *struct {
+		Code    *string              `json:"code,omitempty"`
+		Details *Error_Error_Details `json:"details,omitempty"`
+		Message *string              `json:"message,omitempty"`
+	} `json:"error,omitempty"`
 }
 
-// LoginRequest defines model for LoginRequest.
-type LoginRequest struct {
-	Email    openapi_types.Email `json:"email"`
-	Password string              `json:"password"`
+// ErrorErrorDetails0 defines model for .
+type ErrorErrorDetails0 = string
+
+// ErrorErrorDetails1 defines model for .
+type ErrorErrorDetails1 map[string]interface{}
+
+// Error_Error_Details defines model for Error.Error.Details.
+type Error_Error_Details struct {
+	union json.RawMessage
+}
+
+// FloorPosition defines model for FloorPosition.
+type FloorPosition struct {
+	Label *string  `json:"label,omitempty"`
+	X     *float32 `json:"x,omitempty"`
+	Y     *float32 `json:"y,omitempty"`
+}
+
+// GeoJSONPolygon defines model for GeoJSONPolygon.
+type GeoJSONPolygon struct {
+	Coordinates *[][][]float32      `json:"coordinates,omitempty"`
+	Type        *GeoJSONPolygonType `json:"type,omitempty"`
+}
+
+// GeoJSONPolygonType defines model for GeoJSONPolygon.Type.
+type GeoJSONPolygonType string
+
+// Lead defines model for Lead.
+type Lead struct {
+	CreatedAt *time.Time          `json:"createdAt,omitempty"`
+	Data      *LeadData           `json:"data,omitempty"`
+	Email     *string             `json:"email,omitempty"`
+	Id        *openapi_types.UUID `json:"id,omitempty"`
+	LotId     *openapi_types.UUID `json:"lotId,omitempty"`
+	Name      *string             `json:"name,omitempty"`
+	Phone     *string             `json:"phone,omitempty"`
+	ProjectId *openapi_types.UUID `json:"projectId,omitempty"`
+	Source    *string             `json:"source,omitempty"`
+	Status    *LeadStatus         `json:"status,omitempty"`
+	Type      *LeadType           `json:"type,omitempty"`
+	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
+}
+
+// LeadStatus defines model for Lead.Status.
+type LeadStatus string
+
+// LeadType defines model for Lead.Type.
+type LeadType string
+
+// LeadCreateRequest defines model for LeadCreateRequest.
+type LeadCreateRequest struct {
+	Data      *LeadDataRequest      `json:"data,omitempty"`
+	Email     *openapi_types.Email  `json:"email,omitempty"`
+	LotId     *openapi_types.UUID   `json:"lotId,omitempty"`
+	Name      string                `json:"name"`
+	Phone     string                `json:"phone"`
+	ProjectId *openapi_types.UUID   `json:"projectId,omitempty"`
+	Source    *string               `json:"source,omitempty"`
+	Type      LeadCreateRequestType `json:"type"`
+}
+
+// LeadCreateRequestType defines model for LeadCreateRequest.Type.
+type LeadCreateRequestType string
+
+// LeadData defines model for LeadData.
+type LeadData struct {
+	Comment   *string                 `json:"comment,omitempty"`
+	PageUrl   *string                 `json:"pageUrl,omitempty"`
+	Preferred *string                 `json:"preferred,omitempty"`
+	Utm       *map[string]interface{} `json:"utm,omitempty"`
+}
+
+// LeadDataRequest defines model for LeadDataRequest.
+type LeadDataRequest struct {
+	Comment   *string                 `json:"comment,omitempty"`
+	PageUrl   *string                 `json:"pageUrl,omitempty"`
+	Preferred *string                 `json:"preferred,omitempty"`
+	Utm       *map[string]interface{} `json:"utm,omitempty"`
+}
+
+// Lot defines model for Lot.
+type Lot struct {
+	AreaId        *openapi_types.UUID `json:"areaId,omitempty"`
+	AreaSqm       *float32            `json:"areaSqm,omitempty"`
+	Bathrooms     *int                `json:"bathrooms,omitempty"`
+	Bedrooms      *int                `json:"bedrooms,omitempty"`
+	BonusKeys     *[]string           `json:"bonusKeys,omitempty"`
+	CreatedAt     *time.Time          `json:"createdAt,omitempty"`
+	Data          *LotData            `json:"data,omitempty"`
+	DeveloperId   *openapi_types.UUID `json:"developerId,omitempty"`
+	Floor         *int                `json:"floor,omitempty"`
+	Id            *openapi_types.UUID `json:"id,omitempty"`
+	PriceAmount   *float32            `json:"priceAmount,omitempty"`
+	PriceCurrency *string             `json:"priceCurrency,omitempty"`
+	ProjectId     *openapi_types.UUID `json:"projectId,omitempty"`
+	Status        *LotStatus          `json:"status,omitempty"`
+	Type          *LotType            `json:"type,omitempty"`
+	UpdatedAt     *time.Time          `json:"updatedAt,omitempty"`
+}
+
+// LotStatus defines model for Lot.Status.
+type LotStatus string
+
+// LotType defines model for Lot.Type.
+type LotType string
+
+// LotData defines model for LotData.
+type LotData struct {
+	Bonuses       *[]Bonus       `json:"bonuses,omitempty"`
+	FloorPosition *FloorPosition `json:"floorPosition,omitempty"`
+	Media         *LotMedia      `json:"media,omitempty"`
+	PaymentPlan   *PaymentPlan   `json:"paymentPlan,omitempty"`
+	Tags          *[]string      `json:"tags,omitempty"`
+}
+
+// LotMedia defines model for LotMedia.
+type LotMedia struct {
+	Cover           *MediaItem   `json:"cover,omitempty"`
+	FloorPlanImages *[]MediaItem `json:"floorPlanImages,omitempty"`
+	Photos          *[]MediaItem `json:"photos,omitempty"`
+}
+
+// LotsListResponse defines model for LotsListResponse.
+type LotsListResponse struct {
+	Items *[]Lot `json:"items,omitempty"`
+	Limit *int   `json:"limit,omitempty"`
+	Page  *int   `json:"page,omitempty"`
+	Total *int   `json:"total,omitempty"`
+}
+
+// Media defines model for Media.
+type Media struct {
+	Cover   *MediaItem   `json:"cover,omitempty"`
+	Gallery *[]MediaItem `json:"gallery,omitempty"`
+}
+
+// MediaItem defines model for MediaItem.
+type MediaItem struct {
+	Id  *string `json:"id,omitempty"`
+	Url *string `json:"url,omitempty"`
+}
+
+// PaymentPlan defines model for PaymentPlan.
+type PaymentPlan struct {
+	Schedule *[]PaymentScheduleItem `json:"schedule,omitempty"`
+}
+
+// PaymentScheduleItem defines model for PaymentScheduleItem.
+type PaymentScheduleItem struct {
+	Amount  *float32 `json:"amount,omitempty"`
+	DueDate *string  `json:"dueDate,omitempty"`
+	Percent *float32 `json:"percent,omitempty"`
+	Stage   *string  `json:"stage,omitempty"`
+}
+
+// Point defines model for Point.
+type Point struct {
+	Lat *float32 `json:"lat,omitempty"`
+	Lng *float32 `json:"lng,omitempty"`
 }
 
 // Project defines model for Project.
 type Project struct {
-	CreatedAt   *time.Time     `json:"createdAt,omitempty"`
-	Description *string        `json:"description,omitempty"`
-	Id          *string        `json:"id,omitempty"`
-	Location    *string        `json:"location,omitempty"`
-	PriceFrom   *float32       `json:"priceFrom,omitempty"`
-	Status      *ProjectStatus `json:"status,omitempty"`
-	Title       *string        `json:"title,omitempty"`
-	UpdatedAt   *time.Time     `json:"updatedAt,omitempty"`
+	AreaId      *openapi_types.UUID `json:"areaId,omitempty"`
+	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
+	Data        *ProjectData        `json:"data,omitempty"`
+	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
+	Id          *openapi_types.UUID `json:"id,omitempty"`
+	Lat         *float32            `json:"lat,omitempty"`
+	Lng         *float32            `json:"lng,omitempty"`
+	Name        *string             `json:"name,omitempty"`
+	Slug        *string             `json:"slug,omitempty"`
+	Status      *ProjectStatus      `json:"status,omitempty"`
+	UpdatedAt   *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // ProjectStatus defines model for Project.Status.
 type ProjectStatus string
 
-// ProjectCreate defines model for ProjectCreate.
-type ProjectCreate struct {
-	Description *string             `json:"description,omitempty"`
-	Location    string              `json:"location"`
-	PriceFrom   float32             `json:"priceFrom"`
-	Status      ProjectCreateStatus `json:"status"`
-	Title       string              `json:"title"`
+// ProjectData defines model for ProjectData.
+type ProjectData struct {
+	Description       *ProjectData_Description `json:"description,omitempty"`
+	FeaturesAmenities *[]interface{}           `json:"featuresAmenities,omitempty"`
+	Media             *Media                   `json:"media,omitempty"`
+	Specs             *map[string]interface{}  `json:"specs,omitempty"`
 }
 
-// ProjectCreateStatus defines model for ProjectCreate.Status.
-type ProjectCreateStatus string
+// ProjectDataDescription0 defines model for .
+type ProjectDataDescription0 = string
 
-// ProjectUpdate defines model for ProjectUpdate.
-type ProjectUpdate struct {
-	Description *string              `json:"description,omitempty"`
-	Location    *string              `json:"location,omitempty"`
-	PriceFrom   *float32             `json:"priceFrom,omitempty"`
-	Status      *ProjectUpdateStatus `json:"status,omitempty"`
-	Title       *string              `json:"title,omitempty"`
+// ProjectDataDescription1 defines model for .
+type ProjectDataDescription1 map[string]string
+
+// ProjectData_Description defines model for ProjectData.Description.
+type ProjectData_Description struct {
+	union json.RawMessage
 }
 
-// ProjectUpdateStatus defines model for ProjectUpdate.Status.
-type ProjectUpdateStatus string
+// InternalError defines model for InternalError.
+type InternalError = Error
 
-// SignupRequest defines model for SignupRequest.
-type SignupRequest struct {
-	Email    openapi_types.Email `json:"email"`
-	Name     string              `json:"name"`
-	Password string              `json:"password"`
+// NotFound defines model for NotFound.
+type NotFound = Error
+
+// ValidationError defines model for ValidationError.
+type ValidationError = Error
+
+// ListAreasParams defines parameters for ListAreas.
+type ListAreasParams struct {
+	// Include Включить границы районов (GeoJSON)
+	Include *ListAreasParamsInclude `form:"include,omitempty" json:"include,omitempty"`
 }
 
-// Unit defines model for Unit.
-type Unit struct {
-	Area      *float32    `json:"area,omitempty"`
-	Bedrooms  *int        `json:"bedrooms,omitempty"`
-	CreatedAt *time.Time  `json:"createdAt,omitempty"`
-	Floor     *int        `json:"floor,omitempty"`
-	Id        *string     `json:"id,omitempty"`
-	Price     *float32    `json:"price,omitempty"`
-	ProjectId *string     `json:"projectId,omitempty"`
-	Status    *UnitStatus `json:"status,omitempty"`
-	UpdatedAt *time.Time  `json:"updatedAt,omitempty"`
+// ListAreasParamsInclude defines parameters for ListAreas.
+type ListAreasParamsInclude string
+
+// ListLotsParams defines parameters for ListLots.
+type ListLotsParams struct {
+	// Area Фильтр по slug района
+	Area *string `form:"area,omitempty" json:"area,omitempty"`
+
+	// Project Фильтр по slug проекта
+	Project *string `form:"project,omitempty" json:"project,omitempty"`
+
+	// Type Тип лота
+	Type *ListLotsParamsType `form:"type,omitempty" json:"type,omitempty"`
+
+	// Bedrooms Количество спален
+	Bedrooms *int `form:"bedrooms,omitempty" json:"bedrooms,omitempty"`
+
+	// PriceMin Минимальная цена
+	PriceMin *float32 `form:"priceMin,omitempty" json:"priceMin,omitempty"`
+
+	// PriceMax Максимальная цена
+	PriceMax *float32 `form:"priceMax,omitempty" json:"priceMax,omitempty"`
+
+	// AreaMin Минимальная площадь (м²)
+	AreaMin *float32 `form:"areaMin,omitempty" json:"areaMin,omitempty"`
+
+	// AreaMax Максимальная площадь (м²)
+	AreaMax *float32 `form:"areaMax,omitempty" json:"areaMax,omitempty"`
+
+	// Bonus Фильтр по ключу бонуса (например, goldenVisa)
+	Bonus *string `form:"bonus,omitempty" json:"bonus,omitempty"`
+
+	// Sort Сортировка
+	Sort *ListLotsParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Page Номер страницы
+	Page *int `form:"page,omitempty" json:"page,omitempty"`
+
+	// Limit Количество элементов на странице
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
-// UnitStatus defines model for Unit.Status.
-type UnitStatus string
+// ListLotsParamsType defines parameters for ListLots.
+type ListLotsParamsType string
 
-// UnitCreate defines model for UnitCreate.
-type UnitCreate struct {
-	Area      float32          `json:"area"`
-	Bedrooms  int              `json:"bedrooms"`
-	Floor     int              `json:"floor"`
-	Price     float32          `json:"price"`
-	ProjectId string           `json:"projectId"`
-	Status    UnitCreateStatus `json:"status"`
+// ListLotsParamsSort defines parameters for ListLots.
+type ListLotsParamsSort string
+
+// ListProjectsParams defines parameters for ListProjects.
+type ListProjectsParams struct {
+	// Area Фильтр по slug района
+	Area *string `form:"area,omitempty" json:"area,omitempty"`
 }
 
-// UnitCreateStatus defines model for UnitCreate.Status.
-type UnitCreateStatus string
+// CreateLeadJSONRequestBody defines body for CreateLead for application/json ContentType.
+type CreateLeadJSONRequestBody = LeadCreateRequest
 
-// UnitUpdate defines model for UnitUpdate.
-type UnitUpdate struct {
-	Area     *float32          `json:"area,omitempty"`
-	Bedrooms *int              `json:"bedrooms,omitempty"`
-	Floor    *int              `json:"floor,omitempty"`
-	Price    *float32          `json:"price,omitempty"`
-	Status   *UnitUpdateStatus `json:"status,omitempty"`
+// AsErrorErrorDetails0 returns the union data inside the Error_Error_Details as a ErrorErrorDetails0
+func (t Error_Error_Details) AsErrorErrorDetails0() (ErrorErrorDetails0, error) {
+	var body ErrorErrorDetails0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-// UnitUpdateStatus defines model for UnitUpdate.Status.
-type UnitUpdateStatus string
-
-// User defines model for User.
-type User struct {
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	Email     *string    `json:"email,omitempty"`
-	Id        *string    `json:"id,omitempty"`
-	Name      *string    `json:"name,omitempty"`
-	Phone     *string    `json:"phone,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+// FromErrorErrorDetails0 overwrites any union data inside the Error_Error_Details as the provided ErrorErrorDetails0
+func (t *Error_Error_Details) FromErrorErrorDetails0(v ErrorErrorDetails0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
 }
 
-// UserUpdate defines model for UserUpdate.
-type UserUpdate struct {
-	Name  *string `json:"name,omitempty"`
-	Phone *string `json:"phone,omitempty"`
+// MergeErrorErrorDetails0 performs a merge with any union data inside the Error_Error_Details, using the provided ErrorErrorDetails0
+func (t *Error_Error_Details) MergeErrorErrorDetails0(v ErrorErrorDetails0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
 }
 
-// ListAppointmentsParams defines parameters for ListAppointments.
-type ListAppointmentsParams struct {
-	// UserId Фильтр по пользователю
-	UserId *string `form:"userId,omitempty" json:"userId,omitempty"`
+// AsErrorErrorDetails1 returns the union data inside the Error_Error_Details as a ErrorErrorDetails1
+func (t Error_Error_Details) AsErrorErrorDetails1() (ErrorErrorDetails1, error) {
+	var body ErrorErrorDetails1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
 }
 
-// ListFavoritesParams defines parameters for ListFavorites.
-type ListFavoritesParams struct {
-	UserId string `form:"userId" json:"userId"`
-
-	// Group Фильтр по группе
-	Group *string `form:"group,omitempty" json:"group,omitempty"`
+// FromErrorErrorDetails1 overwrites any union data inside the Error_Error_Details as the provided ErrorErrorDetails1
+func (t *Error_Error_Details) FromErrorErrorDetails1(v ErrorErrorDetails1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
 }
 
-// ListUnitsParams defines parameters for ListUnits.
-type ListUnitsParams struct {
-	// ProjectId Фильтр по проекту
-	ProjectId *string `form:"projectId,omitempty" json:"projectId,omitempty"`
+// MergeErrorErrorDetails1 performs a merge with any union data inside the Error_Error_Details, using the provided ErrorErrorDetails1
+func (t *Error_Error_Details) MergeErrorErrorDetails1(v ErrorErrorDetails1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
 }
 
-// CreateAppointmentJSONRequestBody defines body for CreateAppointment for application/json ContentType.
-type CreateAppointmentJSONRequestBody = AppointmentCreate
+func (t Error_Error_Details) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
 
-// LoginJSONRequestBody defines body for Login for application/json ContentType.
-type LoginJSONRequestBody = LoginRequest
+func (t *Error_Error_Details) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
-// SignupJSONRequestBody defines body for Signup for application/json ContentType.
-type SignupJSONRequestBody = SignupRequest
+// AsProjectDataDescription0 returns the union data inside the ProjectData_Description as a ProjectDataDescription0
+func (t ProjectData_Description) AsProjectDataDescription0() (ProjectDataDescription0, error) {
+	var body ProjectDataDescription0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
 
-// CreateFavoriteJSONRequestBody defines body for CreateFavorite for application/json ContentType.
-type CreateFavoriteJSONRequestBody = FavoriteCreate
+// FromProjectDataDescription0 overwrites any union data inside the ProjectData_Description as the provided ProjectDataDescription0
+func (t *ProjectData_Description) FromProjectDataDescription0(v ProjectDataDescription0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-// CreateProjectJSONRequestBody defines body for CreateProject for application/json ContentType.
-type CreateProjectJSONRequestBody = ProjectCreate
+// MergeProjectDataDescription0 performs a merge with any union data inside the ProjectData_Description, using the provided ProjectDataDescription0
+func (t *ProjectData_Description) MergeProjectDataDescription0(v ProjectDataDescription0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
 
-// UpdateProjectJSONRequestBody defines body for UpdateProject for application/json ContentType.
-type UpdateProjectJSONRequestBody = ProjectUpdate
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
 
-// CreateUnitJSONRequestBody defines body for CreateUnit for application/json ContentType.
-type CreateUnitJSONRequestBody = UnitCreate
+// AsProjectDataDescription1 returns the union data inside the ProjectData_Description as a ProjectDataDescription1
+func (t ProjectData_Description) AsProjectDataDescription1() (ProjectDataDescription1, error) {
+	var body ProjectDataDescription1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
 
-// UpdateUnitJSONRequestBody defines body for UpdateUnit for application/json ContentType.
-type UpdateUnitJSONRequestBody = UnitUpdate
+// FromProjectDataDescription1 overwrites any union data inside the ProjectData_Description as the provided ProjectDataDescription1
+func (t *ProjectData_Description) FromProjectDataDescription1(v ProjectDataDescription1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
 
-// UpdateUserJSONRequestBody defines body for UpdateUser for application/json ContentType.
-type UpdateUserJSONRequestBody = UserUpdate
+// MergeProjectDataDescription1 performs a merge with any union data inside the ProjectData_Description, using the provided ProjectDataDescription1
+func (t *ProjectData_Description) MergeProjectDataDescription1(v ProjectDataDescription1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ProjectData_Description) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ProjectData_Description) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Получить список встреч
-	// (GET /appointments)
-	ListAppointments(c *fiber.Ctx, params ListAppointmentsParams) error
-	// Создать встречу
-	// (POST /appointments)
-	CreateAppointment(c *fiber.Ctx) error
-	// Удалить встречу
-	// (DELETE /appointments/{appointmentId})
-	DeleteAppointment(c *fiber.Ctx, appointmentId string) error
-	// Получить встречу по ID
-	// (GET /appointments/{appointmentId})
-	GetAppointment(c *fiber.Ctx, appointmentId string) error
-	// Вход пользователя
-	// (POST /auth/login)
-	Login(c *fiber.Ctx) error
-	// Регистрация пользователя
-	// (POST /auth/signup)
-	Signup(c *fiber.Ctx) error
-	// Получить список избранного
-	// (GET /favorites)
-	ListFavorites(c *fiber.Ctx, params ListFavoritesParams) error
-	// Добавить в избранное
-	// (POST /favorites)
-	CreateFavorite(c *fiber.Ctx) error
-	// Удалить из избранного
-	// (DELETE /favorites/{favoriteId})
-	DeleteFavorite(c *fiber.Ctx, favoriteId string) error
-	// Получить избранное по ID
-	// (GET /favorites/{favoriteId})
-	GetFavorite(c *fiber.Ctx, favoriteId string) error
+	// Получить список районов
+	// (GET /areas)
+	ListAreas(c *fiber.Ctx, params ListAreasParams) error
+	// Получить район по slug
+	// (GET /areas/{slug})
+	GetArea(c *fiber.Ctx, slug string) error
+	// Создать заявку (lead)
+	// (POST /leads)
+	CreateLead(c *fiber.Ctx) error
+	// Получить список лотов (каталог)
+	// (GET /lots)
+	ListLots(c *fiber.Ctx, params ListLotsParams) error
+	// Получить лот по ID
+	// (GET /lots/{id})
+	GetLot(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список проектов
 	// (GET /projects)
-	ListProjects(c *fiber.Ctx) error
-	// Создать проект
-	// (POST /projects)
-	CreateProject(c *fiber.Ctx) error
-	// Удалить проект
-	// (DELETE /projects/{projectId})
-	DeleteProject(c *fiber.Ctx, projectId string) error
-	// Получить проект по ID
-	// (GET /projects/{projectId})
-	GetProject(c *fiber.Ctx, projectId string) error
-	// Обновить проект
-	// (PUT /projects/{projectId})
-	UpdateProject(c *fiber.Ctx, projectId string) error
-	// Получить список юнитов
-	// (GET /units)
-	ListUnits(c *fiber.Ctx, params ListUnitsParams) error
-	// Создать юнит
-	// (POST /units)
-	CreateUnit(c *fiber.Ctx) error
-	// Удалить юнит
-	// (DELETE /units/{unitId})
-	DeleteUnit(c *fiber.Ctx, unitId string) error
-	// Получить юнит по ID
-	// (GET /units/{unitId})
-	GetUnit(c *fiber.Ctx, unitId string) error
-	// Обновить юнит
-	// (PUT /units/{unitId})
-	UpdateUnit(c *fiber.Ctx, unitId string) error
-	// Получить пользователя по ID
-	// (GET /users/{userId})
-	GetUser(c *fiber.Ctx, userId string) error
-	// Обновить пользователя
-	// (PUT /users/{userId})
-	UpdateUser(c *fiber.Ctx, userId string) error
+	ListProjects(c *fiber.Ctx, params ListProjectsParams) error
+	// Получить проект по slug
+	// (GET /projects/{slug})
+	GetProject(c *fiber.Ctx, slug string) error
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -340,13 +564,13 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc fiber.Handler
 
-// ListAppointments operation middleware
-func (siw *ServerInterfaceWrapper) ListAppointments(c *fiber.Ctx) error {
+// ListAreas operation middleware
+func (siw *ServerInterfaceWrapper) ListAreas(c *fiber.Ctx) error {
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params ListAppointmentsParams
+	var params ListAreasParams
 
 	var query url.Values
 	query, err = url.ParseQuery(string(c.Request().URI().QueryString()))
@@ -354,73 +578,45 @@ func (siw *ServerInterfaceWrapper) ListAppointments(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for query string: %w", err).Error())
 	}
 
-	// ------------- Optional query parameter "userId" -------------
+	// ------------- Optional query parameter "include" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "userId", query, &params.UserId)
+	err = runtime.BindQueryParameter("form", true, false, "include", query, &params.Include)
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter userId: %w", err).Error())
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter include: %w", err).Error())
 	}
 
-	return siw.Handler.ListAppointments(c, params)
+	return siw.Handler.ListAreas(c, params)
 }
 
-// CreateAppointment operation middleware
-func (siw *ServerInterfaceWrapper) CreateAppointment(c *fiber.Ctx) error {
-
-	return siw.Handler.CreateAppointment(c)
-}
-
-// DeleteAppointment operation middleware
-func (siw *ServerInterfaceWrapper) DeleteAppointment(c *fiber.Ctx) error {
+// GetArea operation middleware
+func (siw *ServerInterfaceWrapper) GetArea(c *fiber.Ctx) error {
 
 	var err error
 
-	// ------------- Path parameter "appointmentId" -------------
-	var appointmentId string
+	// ------------- Path parameter "slug" -------------
+	var slug string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "appointmentId", c.Params("appointmentId"), &appointmentId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "slug", c.Params("slug"), &slug, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter appointmentId: %w", err).Error())
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter slug: %w", err).Error())
 	}
 
-	return siw.Handler.DeleteAppointment(c, appointmentId)
+	return siw.Handler.GetArea(c, slug)
 }
 
-// GetAppointment operation middleware
-func (siw *ServerInterfaceWrapper) GetAppointment(c *fiber.Ctx) error {
+// CreateLead operation middleware
+func (siw *ServerInterfaceWrapper) CreateLead(c *fiber.Ctx) error {
 
-	var err error
-
-	// ------------- Path parameter "appointmentId" -------------
-	var appointmentId string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "appointmentId", c.Params("appointmentId"), &appointmentId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter appointmentId: %w", err).Error())
-	}
-
-	return siw.Handler.GetAppointment(c, appointmentId)
+	return siw.Handler.CreateLead(c)
 }
 
-// Login operation middleware
-func (siw *ServerInterfaceWrapper) Login(c *fiber.Ctx) error {
-
-	return siw.Handler.Login(c)
-}
-
-// Signup operation middleware
-func (siw *ServerInterfaceWrapper) Signup(c *fiber.Ctx) error {
-
-	return siw.Handler.Signup(c)
-}
-
-// ListFavorites operation middleware
-func (siw *ServerInterfaceWrapper) ListFavorites(c *fiber.Ctx) error {
+// ListLots operation middleware
+func (siw *ServerInterfaceWrapper) ListLots(c *fiber.Ctx) error {
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params ListFavoritesParams
+	var params ListLotsParams
 
 	var query url.Values
 	query, err = url.ParseQuery(string(c.Request().URI().QueryString()))
@@ -428,95 +624,131 @@ func (siw *ServerInterfaceWrapper) ListFavorites(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for query string: %w", err).Error())
 	}
 
-	// ------------- Required query parameter "userId" -------------
+	// ------------- Optional query parameter "area" -------------
 
-	if paramValue := c.Query("userId"); paramValue != "" {
-
-	} else {
-		err = fmt.Errorf("Query argument userId is required, but not found")
-		c.Status(fiber.StatusBadRequest).JSON(err)
-		return err
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "userId", query, &params.UserId)
+	err = runtime.BindQueryParameter("form", true, false, "area", query, &params.Area)
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter userId: %w", err).Error())
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter area: %w", err).Error())
 	}
 
-	// ------------- Optional query parameter "group" -------------
+	// ------------- Optional query parameter "project" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "group", query, &params.Group)
+	err = runtime.BindQueryParameter("form", true, false, "project", query, &params.Project)
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter group: %w", err).Error())
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter project: %w", err).Error())
 	}
 
-	return siw.Handler.ListFavorites(c, params)
+	// ------------- Optional query parameter "type" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "type", query, &params.Type)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter type: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "bedrooms" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "bedrooms", query, &params.Bedrooms)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter bedrooms: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "priceMin" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "priceMin", query, &params.PriceMin)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter priceMin: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "priceMax" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "priceMax", query, &params.PriceMax)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter priceMax: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "areaMin" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "areaMin", query, &params.AreaMin)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter areaMin: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "areaMax" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "areaMax", query, &params.AreaMax)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter areaMax: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "bonus" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "bonus", query, &params.Bonus)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter bonus: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", query, &params.Sort)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter sort: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", query, &params.Page)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter page: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", query, &params.Limit)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter limit: %w", err).Error())
+	}
+
+	return siw.Handler.ListLots(c, params)
 }
 
-// CreateFavorite operation middleware
-func (siw *ServerInterfaceWrapper) CreateFavorite(c *fiber.Ctx) error {
-
-	return siw.Handler.CreateFavorite(c)
-}
-
-// DeleteFavorite operation middleware
-func (siw *ServerInterfaceWrapper) DeleteFavorite(c *fiber.Ctx) error {
+// GetLot operation middleware
+func (siw *ServerInterfaceWrapper) GetLot(c *fiber.Ctx) error {
 
 	var err error
 
-	// ------------- Path parameter "favoriteId" -------------
-	var favoriteId string
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithOptions("simple", "favoriteId", c.Params("favoriteId"), &favoriteId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter favoriteId: %w", err).Error())
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
 	}
 
-	return siw.Handler.DeleteFavorite(c, favoriteId)
-}
-
-// GetFavorite operation middleware
-func (siw *ServerInterfaceWrapper) GetFavorite(c *fiber.Ctx) error {
-
-	var err error
-
-	// ------------- Path parameter "favoriteId" -------------
-	var favoriteId string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "favoriteId", c.Params("favoriteId"), &favoriteId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter favoriteId: %w", err).Error())
-	}
-
-	return siw.Handler.GetFavorite(c, favoriteId)
+	return siw.Handler.GetLot(c, id)
 }
 
 // ListProjects operation middleware
 func (siw *ServerInterfaceWrapper) ListProjects(c *fiber.Ctx) error {
 
-	return siw.Handler.ListProjects(c)
-}
-
-// CreateProject operation middleware
-func (siw *ServerInterfaceWrapper) CreateProject(c *fiber.Ctx) error {
-
-	return siw.Handler.CreateProject(c)
-}
-
-// DeleteProject operation middleware
-func (siw *ServerInterfaceWrapper) DeleteProject(c *fiber.Ctx) error {
-
 	var err error
 
-	// ------------- Path parameter "projectId" -------------
-	var projectId string
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListProjectsParams
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectId", c.Params("projectId"), &projectId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	var query url.Values
+	query, err = url.ParseQuery(string(c.Request().URI().QueryString()))
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter projectId: %w", err).Error())
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for query string: %w", err).Error())
 	}
 
-	return siw.Handler.DeleteProject(c, projectId)
+	// ------------- Optional query parameter "area" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "area", query, &params.Area)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter area: %w", err).Error())
+	}
+
+	return siw.Handler.ListProjects(c, params)
 }
 
 // GetProject operation middleware
@@ -524,141 +756,15 @@ func (siw *ServerInterfaceWrapper) GetProject(c *fiber.Ctx) error {
 
 	var err error
 
-	// ------------- Path parameter "projectId" -------------
-	var projectId string
+	// ------------- Path parameter "slug" -------------
+	var slug string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectId", c.Params("projectId"), &projectId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "slug", c.Params("slug"), &slug, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter projectId: %w", err).Error())
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter slug: %w", err).Error())
 	}
 
-	return siw.Handler.GetProject(c, projectId)
-}
-
-// UpdateProject operation middleware
-func (siw *ServerInterfaceWrapper) UpdateProject(c *fiber.Ctx) error {
-
-	var err error
-
-	// ------------- Path parameter "projectId" -------------
-	var projectId string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectId", c.Params("projectId"), &projectId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter projectId: %w", err).Error())
-	}
-
-	return siw.Handler.UpdateProject(c, projectId)
-}
-
-// ListUnits operation middleware
-func (siw *ServerInterfaceWrapper) ListUnits(c *fiber.Ctx) error {
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ListUnitsParams
-
-	var query url.Values
-	query, err = url.ParseQuery(string(c.Request().URI().QueryString()))
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for query string: %w", err).Error())
-	}
-
-	// ------------- Optional query parameter "projectId" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "projectId", query, &params.ProjectId)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter projectId: %w", err).Error())
-	}
-
-	return siw.Handler.ListUnits(c, params)
-}
-
-// CreateUnit operation middleware
-func (siw *ServerInterfaceWrapper) CreateUnit(c *fiber.Ctx) error {
-
-	return siw.Handler.CreateUnit(c)
-}
-
-// DeleteUnit operation middleware
-func (siw *ServerInterfaceWrapper) DeleteUnit(c *fiber.Ctx) error {
-
-	var err error
-
-	// ------------- Path parameter "unitId" -------------
-	var unitId string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "unitId", c.Params("unitId"), &unitId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter unitId: %w", err).Error())
-	}
-
-	return siw.Handler.DeleteUnit(c, unitId)
-}
-
-// GetUnit operation middleware
-func (siw *ServerInterfaceWrapper) GetUnit(c *fiber.Ctx) error {
-
-	var err error
-
-	// ------------- Path parameter "unitId" -------------
-	var unitId string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "unitId", c.Params("unitId"), &unitId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter unitId: %w", err).Error())
-	}
-
-	return siw.Handler.GetUnit(c, unitId)
-}
-
-// UpdateUnit operation middleware
-func (siw *ServerInterfaceWrapper) UpdateUnit(c *fiber.Ctx) error {
-
-	var err error
-
-	// ------------- Path parameter "unitId" -------------
-	var unitId string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "unitId", c.Params("unitId"), &unitId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter unitId: %w", err).Error())
-	}
-
-	return siw.Handler.UpdateUnit(c, unitId)
-}
-
-// GetUser operation middleware
-func (siw *ServerInterfaceWrapper) GetUser(c *fiber.Ctx) error {
-
-	var err error
-
-	// ------------- Path parameter "userId" -------------
-	var userId string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "userId", c.Params("userId"), &userId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter userId: %w", err).Error())
-	}
-
-	return siw.Handler.GetUser(c, userId)
-}
-
-// UpdateUser operation middleware
-func (siw *ServerInterfaceWrapper) UpdateUser(c *fiber.Ctx) error {
-
-	var err error
-
-	// ------------- Path parameter "userId" -------------
-	var userId string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "userId", c.Params("userId"), &userId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter userId: %w", err).Error())
-	}
-
-	return siw.Handler.UpdateUser(c, userId)
+	return siw.Handler.GetProject(c, slug)
 }
 
 // FiberServerOptions provides options for the Fiber server.
@@ -682,48 +788,18 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 		router.Use(fiber.Handler(m))
 	}
 
-	router.Get(options.BaseURL+"/appointments", wrapper.ListAppointments)
+	router.Get(options.BaseURL+"/areas", wrapper.ListAreas)
 
-	router.Post(options.BaseURL+"/appointments", wrapper.CreateAppointment)
+	router.Get(options.BaseURL+"/areas/:slug", wrapper.GetArea)
 
-	router.Delete(options.BaseURL+"/appointments/:appointmentId", wrapper.DeleteAppointment)
+	router.Post(options.BaseURL+"/leads", wrapper.CreateLead)
 
-	router.Get(options.BaseURL+"/appointments/:appointmentId", wrapper.GetAppointment)
+	router.Get(options.BaseURL+"/lots", wrapper.ListLots)
 
-	router.Post(options.BaseURL+"/auth/login", wrapper.Login)
-
-	router.Post(options.BaseURL+"/auth/signup", wrapper.Signup)
-
-	router.Get(options.BaseURL+"/favorites", wrapper.ListFavorites)
-
-	router.Post(options.BaseURL+"/favorites", wrapper.CreateFavorite)
-
-	router.Delete(options.BaseURL+"/favorites/:favoriteId", wrapper.DeleteFavorite)
-
-	router.Get(options.BaseURL+"/favorites/:favoriteId", wrapper.GetFavorite)
+	router.Get(options.BaseURL+"/lots/:id", wrapper.GetLot)
 
 	router.Get(options.BaseURL+"/projects", wrapper.ListProjects)
 
-	router.Post(options.BaseURL+"/projects", wrapper.CreateProject)
-
-	router.Delete(options.BaseURL+"/projects/:projectId", wrapper.DeleteProject)
-
-	router.Get(options.BaseURL+"/projects/:projectId", wrapper.GetProject)
-
-	router.Put(options.BaseURL+"/projects/:projectId", wrapper.UpdateProject)
-
-	router.Get(options.BaseURL+"/units", wrapper.ListUnits)
-
-	router.Post(options.BaseURL+"/units", wrapper.CreateUnit)
-
-	router.Delete(options.BaseURL+"/units/:unitId", wrapper.DeleteUnit)
-
-	router.Get(options.BaseURL+"/units/:unitId", wrapper.GetUnit)
-
-	router.Put(options.BaseURL+"/units/:unitId", wrapper.UpdateUnit)
-
-	router.Get(options.BaseURL+"/users/:userId", wrapper.GetUser)
-
-	router.Put(options.BaseURL+"/users/:userId", wrapper.UpdateUser)
+	router.Get(options.BaseURL+"/projects/:slug", wrapper.GetProject)
 
 }

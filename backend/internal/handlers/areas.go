@@ -8,21 +8,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type ProjectsHandler struct {
-	projectsService *services.ProjectsService
+type AreasHandler struct {
+	areasService *services.AreasService
 }
 
-func NewProjectsHandler(projectsService *services.ProjectsService) *ProjectsHandler {
-	return &ProjectsHandler{projectsService: projectsService}
+func NewAreasHandler(areasService *services.AreasService) *AreasHandler {
+	return &AreasHandler{areasService: areasService}
 }
 
-func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjectsParams) error {
-	var areaSlug *string
-	if params.Area != nil {
-		areaSlug = params.Area
-	}
+func (h *AreasHandler) ListAreas(c *fiber.Ctx, params generated.ListAreasParams) error {
+	includeBoundary := params.Include != nil && *params.Include == generated.Boundary
 
-	projects, err := h.projectsService.List(areaSlug)
+	areas, err := h.areasService.List(includeBoundary)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
 			Error: &struct {
@@ -36,9 +33,9 @@ func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjec
 		})
 	}
 
-	result := make([]generated.Project, len(projects))
-	for i := range projects {
-		gen := mappers.DomainProjectToGenerated(&projects[i])
+	result := make([]generated.Area, len(areas))
+	for i := range areas {
+		gen := mappers.DomainAreaToGenerated(&areas[i])
 		if gen != nil {
 			result[i] = *gen
 		}
@@ -47,8 +44,8 @@ func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjec
 	return c.JSON(result)
 }
 
-func (h *ProjectsHandler) GetProject(c *fiber.Ctx, slug string) error {
-	project, err := h.projectsService.GetBySlug(slug)
+func (h *AreasHandler) GetArea(c *fiber.Ctx, slug string) error {
+	area, err := h.areasService.GetBySlug(slug)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
 			Error: &struct {
@@ -62,5 +59,5 @@ func (h *ProjectsHandler) GetProject(c *fiber.Ctx, slug string) error {
 		})
 	}
 
-	return c.JSON(mappers.DomainProjectToGenerated(project))
+	return c.JSON(mappers.DomainAreaToGenerated(area))
 }
