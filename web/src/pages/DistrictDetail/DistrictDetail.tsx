@@ -7,7 +7,9 @@ import styles from './DistrictDetail.module.scss'
 export default function DistrictDetail() {
   const { id } = useParams<{ id: string }>()
   const district = districts.find(d => d.id === id)
-  const districtProperties = mockProperties.filter(p => p.districtId === id)
+  const districtProperties = mockProperties.filter(
+    p => p.districtId === id && p.status === 'active'
+  )
 
   if (!district) {
     return (

@@ -1,2 +1,0 @@
-DELETE FROM lots WHERE id LIKE 'l10-%';
-

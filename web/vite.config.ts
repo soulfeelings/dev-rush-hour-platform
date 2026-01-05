@@ -12,10 +12,18 @@ export default defineConfig({
       usePolling: true,
     },
     host: true,
+    port: 5174,
     // Needed for Docker
     strictPort: true,
     hmr: {
-      clientPort: 5173,
+      clientPort: 5174,
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   test: {

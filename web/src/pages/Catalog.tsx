@@ -4,7 +4,7 @@ import FiltersBar from '../components/FiltersBar'
 import ProjectCard from '../components/ProjectCard'
 import PropertyMap from '../components/PropertyMap'
 import ResizableSplitter from '../components/ResizableSplitter'
-import { mockProperties } from '../data/mockProperties'
+import { useProjects } from '../hooks/useProjects'
 import styles from './Catalog.module.scss'
 import type { PropertyMapRef } from '../components/PropertyMap/PropertyMap'
 
@@ -60,6 +60,7 @@ export default function Catalog() {
   const [panelWidth, setPanelWidth] = useState(loadSplitterPosition())
   const [screenWidth, setScreenWidth] = useState(window.innerWidth)
   const mapRef = useRef<PropertyMapRef | null>(null)
+  const { projects, loading, error } = useProjects()
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth)
@@ -105,8 +106,9 @@ export default function Catalog() {
     mapRef.current?.refreshMap()
   }, [])
 
-  const regularProperties = mockProperties.filter(p => !p.isFeatured)
-  const totalResults = mockProperties.length
+  const activeProperties = projects.filter(p => p.status === 'active')
+  const regularProperties = activeProperties.filter(p => !p.isFeatured)
+  const totalResults = activeProperties.length
   const displayedResults = regularProperties.length
 
   const catalogContent = (
@@ -127,27 +129,38 @@ export default function Catalog() {
           </div>
         </div>
       </div>
-      <div
-        className={styles.grid}
-        style={{
-          gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
-        }}
-      >
-        {regularProperties.map(property => (
-          <ProjectCard
-            key={property.id}
-            property={property}
-            onFavoriteClick={handleFavoriteClick}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <div className={styles.loading}>
+          <p>Загрузка проектов...</p>
+        </div>
+      ) : error ? (
+        <div className={styles.error}>
+          <p>Ошибка загрузки: {error}</p>
+          <button onClick={() => window.location.reload()}>Повторить</button>
+        </div>
+      ) : (
+        <div
+          className={styles.grid}
+          style={{
+            gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
+          }}
+        >
+          {regularProperties.map(property => (
+            <ProjectCard
+              key={property.id}
+              property={property}
+              onFavoriteClick={handleFavoriteClick}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 
   const mapContent = (
     <PropertyMap
       ref={mapRef}
-      properties={mockProperties}
+      properties={activeProperties}
       selectedPropertyId={selectedPropertyId}
       onPropertyClick={handlePropertyClick}
     />

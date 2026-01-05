@@ -4,13 +4,26 @@ import type { components } from '../../api'
 import styles from './ProjectDetail.module.scss'
 
 type Project = components['schemas']['Project']
-type Unit = components['schemas']['Unit']
 
-const API_BASE = 'http://localhost:8080/api'
+// Тип для лота из API (не включен в сгенерированные типы)
+interface Lot {
+  id?: string
+  status?: 'active' | 'hidden' | 'reserved' | 'sold'
+  projectId?: string
+  developerId?: string
+  areaId?: string
+  type?: 'apartment' | 'villa' | 'townhouse' | 'penthouse'
+  bedrooms?: number
+  bathrooms?: number
+  areaSqm?: number
+  floor?: number
+  priceCurrency?: string
+  priceAmount?: number
+}
 
-async function fetchProject(id: string): Promise<Project | null> {
+async function fetchProject(slug: string): Promise<Project | null> {
   try {
-    const response = await fetch(`${API_BASE}/projects/${id}`)
+    const response = await fetch(`/api/projects/${slug}`)
     if (response.ok) {
       return await response.json()
     }
@@ -21,44 +34,44 @@ async function fetchProject(id: string): Promise<Project | null> {
   }
 }
 
-async function fetchProjectUnits(projectId: string): Promise<Unit[]> {
+async function fetchProjectLots(projectSlug: string): Promise<Lot[]> {
   try {
-    const response = await fetch(`${API_BASE}/units?projectId=${projectId}`)
+    const response = await fetch(`/api/lots?project=${projectSlug}`)
     if (response.ok) {
       return await response.json()
     }
     return []
   } catch (error) {
-    console.error('Error fetching units:', error)
+    console.error('Error fetching lots:', error)
     return []
   }
 }
 
 export default function ProjectDetail() {
-  const { id } = useParams<{ id: string }>()
+  const { slug } = useParams<{ slug: string }>()
   const [project, setProject] = useState<Project | null>(null)
-  const [units, setUnits] = useState<Unit[]>([])
+  const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!id) return
+    if (!slug) return
 
     const loadData = async () => {
       setLoading(true)
       setError(null)
 
       try {
-        const [projectData, unitsData] = await Promise.all([
-          fetchProject(id),
-          fetchProjectUnits(id),
+        const [projectData, lotsData] = await Promise.all([
+          fetchProject(slug),
+          fetchProjectLots(slug),
         ])
 
         if (!projectData) {
           setError('Проект не найден')
         } else {
           setProject(projectData)
-          setUnits(unitsData)
+          setLots(lotsData)
         }
       } catch {
         setError('Ошибка загрузки данных')
@@ -68,7 +81,7 @@ export default function ProjectDetail() {
     }
 
     loadData()
-  }, [id])
+  }, [slug])
 
   if (loading) {
     return (
@@ -85,7 +98,7 @@ export default function ProjectDetail() {
       <div className={styles.container}>
         <div className={styles.notFound}>
           <h1>Объект не найден</h1>
-          <p>{error || `Объект с ID "${id}" не существует.`}</p>
+          <p>{error || `Объект "${slug}" не существует.`}</p>
           <Link to="/catalog" className={styles.backLink}>
             Вернуться в каталог
           </Link>
@@ -107,14 +120,16 @@ export default function ProjectDetail() {
     }
   }
 
-  const getUnitStatusText = (status: string) => {
+  const getLotStatusText = (status: string) => {
     switch (status) {
-      case 'available':
-        return 'Доступна'
+      case 'active':
+        return 'Доступен'
+      case 'hidden':
+        return 'Скрыт'
       case 'reserved':
-        return 'Забронирована'
+        return 'Забронирован'
       case 'sold':
-        return 'Продана'
+        return 'Продан'
       default:
         return status
     }
@@ -163,30 +178,36 @@ export default function ProjectDetail() {
         </div>
       </div>
 
-      {units.length > 0 && (
+      {lots.length > 0 && (
         <div className={styles.unitsSection}>
-          <h2>Доступные юниты</h2>
+          <h2>Доступные лоты</h2>
           <div className={styles.unitsTable}>
             <table>
               <thead>
                 <tr>
-                  <th>Этаж</th>
+                  <th>Тип</th>
+                  <th>Спальни</th>
                   <th>Площадь</th>
                   <th>Цена</th>
                   <th>Статус</th>
                 </tr>
               </thead>
               <tbody>
-                {units.map((unit, index) => (
-                  <tr key={unit.id || index}>
-                    <td>{unit.floor}</td>
-                    <td>{unit.area} м²</td>
-                    <td>{(unit.price! / 1000000).toFixed(1)} млн ₽</td>
+                {lots.map((lot, index) => (
+                  <tr key={lot.id || index}>
+                    <td>{lot.type}</td>
+                    <td>{lot.bedrooms}</td>
+                    <td>{lot.areaSqm} м²</td>
+                    <td>
+                      {lot.priceAmount
+                        ? `${(lot.priceAmount / 1000000).toFixed(1)} млн ${lot.priceCurrency || 'AED'}`
+                        : '-'}
+                    </td>
                     <td>
                       <span
-                        className={`${styles.unitStatus} ${styles[`unitStatus${unit.status}`]}`}
+                        className={`${styles.unitStatus} ${styles[`unitStatus${lot.status}`]}`}
                       >
-                        {getUnitStatusText(unit.status!)}
+                        {getLotStatusText(lot.status!)}
                       </span>
                     </td>
                   </tr>

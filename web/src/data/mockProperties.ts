@@ -18,7 +18,8 @@ export interface Property {
   coordinates: [number, number]
   isFeatured?: boolean
   description?: string
-  sale: 'sale start' | 'sale announcement' | 'sale'
+  sale: 'start of sales' | 'sales announcement' | 'sale'
+  status: 'active' | 'inactive'
   districtId?: string
 }
 
@@ -34,7 +35,7 @@ export const developerLogos: Record<string, string> = {
 
 export const mockProperties: Property[] = [
   {
-    id: '1',
+    id: 'sea-legend-tower-one',
     title: 'Sea Legend Tower One: Меблированная 3-комнатная квартира',
     location: 'Dubai Marina',
     developer: 'Segrex Development L.L.C Агентство',
@@ -53,11 +54,12 @@ export const mockProperties: Property[] = [
     description:
       'Полностью меблированная 3-комнатная квартира площадью 1,533.25 sq. ft. в Sea Legend Tower One',
     coordinates: [25.0772, 55.1398],
-    sale: 'sale start',
+    sale: 'start of sales',
+    status: 'active',
     districtId: 'dubai-marina',
   },
   {
-    id: '2',
+    id: 'colibri-views',
     title: 'Colibri Views',
     location: 'Al Jazeera Al Hamra Industrial',
     developer: 'Major Developments',
@@ -72,10 +74,11 @@ export const mockProperties: Property[] = [
     logo: 'COLIBRI VIEWS',
     isRecommended: false,
     coordinates: [25.334, 55.307],
-    sale: 'sale announcement',
+    sale: 'sales announcement',
+    status: 'active',
   },
   {
-    id: '3',
+    id: 'luz-ora-residences',
     title: 'Luz Ora Residences',
     location: 'Dubai Islands',
     developer: 'DIA Developments',
@@ -91,9 +94,10 @@ export const mockProperties: Property[] = [
     isRecommended: true,
     coordinates: [25.3216, 55.2911],
     sale: 'sale',
+    status: 'active',
   },
   {
-    id: '4',
+    id: 'palm-jumeirah-residence',
     title: 'Palm Jumeirah Residence',
     location: 'Palm Jumeirah',
     developer: 'Emaar Properties',
@@ -108,10 +112,11 @@ export const mockProperties: Property[] = [
     isRecommended: false,
     coordinates: [25.1154, 55.139],
     sale: 'sale',
+    status: 'active',
     districtId: 'palm-jumeirah',
   },
   {
-    id: '5',
+    id: 'downtown-dubai-tower',
     title: 'Downtown Dubai Tower',
     location: 'Downtown Dubai',
     developer: 'Emaar Properties',
@@ -126,8 +131,10 @@ export const mockProperties: Property[] = [
     isRecommended: false,
     coordinates: [25.1972, 55.2744],
     sale: 'sale',
+    status: 'active',
     districtId: 'downtown-dubai',
   },
 ]
 
-export const featuredProperties = mockProperties.filter(p => p.isFeatured)
+export const featuredProperties = mockProperties.filter(p => p.isFeatured && p.status === 'active')
+
