@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"rush-hour-platform/backend/internal/config"
 	"rush-hour-platform/backend/internal/generated"
@@ -237,7 +238,7 @@ func main() {
 			"../api/openapi.yaml",
 			filepath.Join(filepath.Dir(os.Args[0]), "../api/openapi.yaml"),
 		}
-		
+
 		var data []byte
 		var err error
 		for _, path := range paths {
@@ -246,13 +247,19 @@ func main() {
 				break
 			}
 		}
-		
+
 		if err != nil {
 			return c.Status(500).SendString("OpenAPI file not found: " + err.Error())
 		}
-		
+
+		// Заменяем хардкодный URL на текущий хост из запроса
+		protocol := c.Protocol()
+		host := c.Hostname()
+		currentServerURL := protocol + "://" + host + "/api"
+		content := strings.ReplaceAll(string(data), "http://localhost:8080/api", currentServerURL)
+
 		c.Set("Content-Type", "application/x-yaml")
-		return c.Send(data)
+		return c.SendString(content)
 	})
 
 	port := cfg.Server.Port
