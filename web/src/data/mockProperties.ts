@@ -18,7 +18,7 @@ export interface Property {
   coordinates: [number, number]
   isFeatured?: boolean
   description?: string
-  status: 'старт продаж' | 'анонс продаж' | 'в продаже'
+  sale: 'sale start' | 'sale announcement' | 'sale'
   districtId?: string
 }
 
@@ -53,7 +53,7 @@ export const mockProperties: Property[] = [
     description:
       'Полностью меблированная 3-комнатная квартира площадью 1,533.25 sq. ft. в Sea Legend Tower One',
     coordinates: [25.0772, 55.1398],
-    status: 'старт продаж',
+    sale: 'sale start',
     districtId: 'dubai-marina',
   },
   {
@@ -72,7 +72,7 @@ export const mockProperties: Property[] = [
     logo: 'COLIBRI VIEWS',
     isRecommended: false,
     coordinates: [25.334, 55.307],
-    status: 'анонс продаж',
+    sale: 'sale announcement',
   },
   {
     id: '3',
@@ -90,7 +90,7 @@ export const mockProperties: Property[] = [
     logo: 'Luz Ora Residences',
     isRecommended: true,
     coordinates: [25.3216, 55.2911],
-    status: 'в продаже',
+    sale: 'sale',
   },
   {
     id: '4',
@@ -107,7 +107,7 @@ export const mockProperties: Property[] = [
     image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800',
     isRecommended: false,
     coordinates: [25.1154, 55.139],
-    status: 'в продаже',
+    sale: 'sale',
     districtId: 'palm-jumeirah',
   },
   {
@@ -125,7 +125,7 @@ export const mockProperties: Property[] = [
     image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800',
     isRecommended: false,
     coordinates: [25.1972, 55.2744],
-    status: 'в продаже',
+    sale: 'sale',
     districtId: 'downtown-dubai',
   },
 ]

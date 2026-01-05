@@ -81,17 +81,17 @@ const getMarkerConfig = (isRecommended: boolean, zoom: number, isSelected: boole
   return { size: 45, isSolid: false }
 }
 
-const getStatusColor = (status: Property['status'], isSelected: boolean) => {
+const getStatusColor = (sale: Property['sale'], isSelected: boolean) => {
   if (isSelected) {
     return '#dc2626'
   }
 
-  switch (status) {
-    case 'в продаже':
+  switch (sale) {
+    case 'sale':
       return '#2563eb'
-    case 'старт продаж':
+    case 'sale start':
       return '#e5a732'
-    case 'анонс продаж':
+    case 'sale announcement':
       return '#ef4444'
     default:
       return '#2563eb'
@@ -100,14 +100,14 @@ const getStatusColor = (status: Property['status'], isSelected: boolean) => {
 
 const createIcon = (
   isRecommended: boolean,
-  status: Property['status'],
+  sale: Property['sale'],
   logoUrl: string | undefined,
   zoom: number,
   isSelected: boolean = false
 ) => {
   const { size, isSolid } = getMarkerConfig(isRecommended, zoom, isSelected)
   const borderRadius = isRecommended ? '50%' : '2px'
-  const color = getStatusColor(status, isSelected)
+  const color = getStatusColor(sale, isSelected)
 
   const backgroundStyle = isSolid
     ? `background: ${color};`
@@ -149,7 +149,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         const { size } = getMarkerConfig(isRecommended, currentZoom, isSelected)
 
         const marker = L.marker(property.coordinates, {
-          icon: createIcon(isRecommended, property.status, logoUrl, currentZoom, isSelected),
+          icon: createIcon(isRecommended, property.sale, logoUrl, currentZoom, isSelected),
         }).addTo(map)
 
         const popup = L.popup({

@@ -159,7 +159,7 @@ export default function DistrictDetail() {
                         <span className={styles.propertyPrice}>
                           {(property.priceFrom / 1000000).toFixed(1)}M {property.currency}
                         </span>
-                        <span className={styles.propertyStatus}>{property.status}</span>
+                        <span className={styles.propertyStatus}>{property.sale}</span>
                       </div>
                     </div>
                   </Link>
