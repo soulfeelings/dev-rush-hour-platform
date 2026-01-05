@@ -24,11 +24,11 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 	var lat, lng sql.NullFloat64
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, developer_id, area_id, lat, lng, data, created_at, updated_at
+		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at
 		FROM projects
 		WHERE slug = $1
 	`, slug).Scan(
-		&project.ID, &project.Slug, &project.Name, &project.Status,
+		&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
 		&developerID, &areaID, &lat, &lng, &dataJSON,
 		&project.CreatedAt, &project.UpdatedAt,
 	)
@@ -64,7 +64,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 
 func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 	query := `
-		SELECT p.id, p.slug, p.name, p.status, p.developer_id, p.area_id, p.lat, p.lng, p.data, p.created_at, p.updated_at
+		SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng, p.data, p.created_at, p.updated_at
 		FROM projects p
 	`
 	args := []interface{}{}
@@ -95,7 +95,7 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 		var lat, lng sql.NullFloat64
 
 		if err := rows.Scan(
-			&project.ID, &project.Slug, &project.Name, &project.Status,
+			&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
 			&developerID, &areaID, &lat, &lng, &dataJSON,
 			&project.CreatedAt, &project.UpdatedAt,
 		); err != nil {
@@ -162,10 +162,10 @@ func (r *ProjectRepo) Create(project *domain.Project) error {
 	}
 
 	err = r.db.QueryRow(`
-		INSERT INTO projects (slug, name, status, developer_id, area_id, lat, lng, data)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng, data)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id, created_at, updated_at
-	`, project.Slug, project.Name, project.Status, developerID, areaID, lat, lng, dataJSON).Scan(
+	`, project.Slug, project.Name, project.Status, project.Sale, developerID, areaID, lat, lng, dataJSON).Scan(
 		&project.ID, &project.CreatedAt, &project.UpdatedAt,
 	)
 
@@ -196,10 +196,10 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 
 	err = r.db.QueryRow(`
 		UPDATE projects
-		SET slug = $1, name = $2, status = $3, developer_id = $4, area_id = $5, lat = $6, lng = $7, data = $8, updated_at = NOW()
-		WHERE id = $9
+		SET slug = $1, name = $2, status = $3, sale = $4, developer_id = $5, area_id = $6, lat = $7, lng = $8, data = $9, updated_at = NOW()
+		WHERE id = $10
 		RETURNING updated_at
-	`, project.Slug, project.Name, project.Status, developerID, areaID, lat, lng, dataJSON, id).Scan(&project.UpdatedAt)
+	`, project.Slug, project.Name, project.Status, project.Sale, developerID, areaID, lat, lng, dataJSON, id).Scan(&project.UpdatedAt)
 
 	return err
 }
@@ -211,11 +211,11 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 	var lat, lng sql.NullFloat64
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, developer_id, area_id, lat, lng, data, created_at, updated_at
+		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at
 		FROM projects
 		WHERE id = $1
 	`, id).Scan(
-		&project.ID, &project.Slug, &project.Name, &project.Status,
+		&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
 		&developerID, &areaID, &lat, &lng, &dataJSON,
 		&project.CreatedAt, &project.UpdatedAt,
 	)
@@ -251,7 +251,7 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 
 func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, developer_id, area_id, lat, lng, data, created_at, updated_at
+		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at
 		FROM projects
 		ORDER BY name
 	`)
@@ -268,7 +268,7 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 		var lat, lng sql.NullFloat64
 
 		if err := rows.Scan(
-			&project.ID, &project.Slug, &project.Name, &project.Status,
+			&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
 			&developerID, &areaID, &lat, &lng, &dataJSON,
 			&project.CreatedAt, &project.UpdatedAt,
 		); err != nil {

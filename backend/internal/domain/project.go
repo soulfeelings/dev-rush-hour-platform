@@ -11,6 +11,7 @@ type Project struct {
 	Slug        string
 	Name        string
 	Status      ProjectStatus
+	Sale        string
 	DeveloperID *uuid.UUID
 	AreaID      *uuid.UUID
 	Lat         *float64

@@ -7,6 +7,7 @@ type ProjectResponse struct {
 	Slug        string                 `json:"slug"`
 	Name        string                 `json:"name"`
 	Status      string                 `json:"status"`
+	Sale        string                 `json:"sale"`
 	DeveloperID *string                `json:"developerId,omitempty"`
 	AreaID      *string                `json:"areaId,omitempty"`
 	Lat         *float64               `json:"lat,omitempty"`
@@ -33,6 +34,7 @@ func ProjectToResponse(project *domain.Project) *ProjectResponse {
 		Slug:      project.Slug,
 		Name:      project.Name,
 		Status:    string(project.Status),
+		Sale:      project.Sale,
 		CreatedAt: project.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt: project.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		Data: ProjectDataResponse{

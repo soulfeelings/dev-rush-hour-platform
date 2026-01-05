@@ -29,6 +29,7 @@ CREATE TABLE projects (
     slug VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'active',
+    sale VARCHAR(50),
     developer_id UUID REFERENCES developers(id) ON DELETE SET NULL,
     area_id UUID REFERENCES areas(id) ON DELETE SET NULL,
     lat DECIMAL(10, 8),
