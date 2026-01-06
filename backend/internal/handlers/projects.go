@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
 	"rush-hour-platform/backend/internal/services"
@@ -24,6 +25,7 @@ func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjec
 
 	projects, err := h.projectsService.List(areaSlug)
 	if err != nil {
+		log.Printf("ERROR [ListProjects] failed to list projects: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
 			Error: &struct {
 				Code    *string              `json:"code,omitempty"`
@@ -51,6 +53,7 @@ func (h *ProjectsHandler) GetProject(c *fiber.Ctx, slug string, params generated
 	includeLots := params.IncludeLots
 	project, lots, err := h.projectsService.GetBySlug(slug, includeLots)
 	if err != nil {
+		log.Printf("ERROR [GetProject] failed to get project by slug %s: %v", slug, err)
 		return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
 			Error: &struct {
 				Code    *string              `json:"code,omitempty"`
