@@ -1,16 +1,78 @@
 import { useParams, Link } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import type { components } from '../../api'
+import { useEffect, useRef, useState } from 'react'
+import * as L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import { createPropertyMarkerIcon } from '../../components/PropertyMap/PropertyMap'
+import { developerLogos } from '../../data/mockProperties'
 import styles from './ProjectDetail.module.scss'
 
-type Project = components['schemas']['Project']
-type Unit = components['schemas']['Unit']
+// Тип для проекта из API (актуальная структура)
+interface Project {
+  id?: string
+  slug?: string
+  name?: string
+  status?: string
+  sale?: string
+  developerId?: string
+  areaId?: string
+  lat?: number
+  lng?: number
+  data?: {
+    description?: string
+    specs?: Record<string, unknown>
+    media?: {
+      cover?: {
+        url?: string
+      }
+      gallery?: Array<{
+        url: string
+      }>
+    }
+    isRecommended?: boolean
+    isFeatured?: boolean
+    tags?: string[]
+  }
+  developer?: {
+    name?: string
+    data?: Record<string, unknown>
+  }
+  area?: {
+    name?: string
+    city?: string
+  }
+  createdAt?: string
+  updatedAt?: string
+}
 
-const API_BASE = 'http://localhost:8080/api'
+// Тип для лота из API (не включен в сгенерированные типы)
+interface Lot {
+  id?: string
+  status?: 'active' | 'hidden' | 'reserved' | 'sold'
+  projectId?: string
+  developerId?: string
+  areaId?: string
+  type?: 'apartment' | 'villa' | 'townhouse' | 'penthouse'
+  bedrooms?: number
+  bathrooms?: number
+  areaSqm?: number
+  floor?: number
+  priceCurrency?: string
+  priceAmount?: number
+}
 
-async function fetchProject(id: string): Promise<Project | null> {
+const MAP_ZOOM_DEFAULT = 13
+
+// Fix for default marker icons in Leaflet
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+})
+
+async function fetchProject(slug: string): Promise<Project | null> {
   try {
-    const response = await fetch(`${API_BASE}/projects/${id}`)
+    const response = await fetch(`/api/projects/${slug}`)
     if (response.ok) {
       return await response.json()
     }
@@ -21,44 +83,50 @@ async function fetchProject(id: string): Promise<Project | null> {
   }
 }
 
-async function fetchProjectUnits(projectId: string): Promise<Unit[]> {
+async function fetchProjectLots(projectSlug: string): Promise<Lot[]> {
   try {
-    const response = await fetch(`${API_BASE}/units?projectId=${projectId}`)
+    const response = await fetch(`/api/lots?project=${projectSlug}`)
     if (response.ok) {
       return await response.json()
     }
     return []
   } catch (error) {
-    console.error('Error fetching units:', error)
+    console.error('Error fetching lots:', error)
     return []
   }
 }
 
 export default function ProjectDetail() {
-  const { id } = useParams<{ id: string }>()
+  const { slug } = useParams<{ slug: string }>()
   const [project, setProject] = useState<Project | null>(null)
-  const [units, setUnits] = useState<Unit[]>([])
+  const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const mapRef = useRef<L.Map | null>(null)
+  const markerRef = useRef<L.Marker | null>(null)
+  const mapContainerRef = useRef<HTMLDivElement | null>(null)
+  const hasCoordinates =
+    typeof project?.lat === 'number' && typeof project?.lng === 'number'
 
   useEffect(() => {
-    if (!id) return
+    if (!slug) return
 
     const loadData = async () => {
       setLoading(true)
       setError(null)
 
       try {
-        const [projectData, unitsData] = await Promise.all([
-          fetchProject(id),
-          fetchProjectUnits(id),
+        const [projectData, lotsData] = await Promise.all([
+          fetchProject(slug),
+          fetchProjectLots(slug),
         ])
 
         if (!projectData) {
           setError('Проект не найден')
         } else {
           setProject(projectData)
-          setUnits(unitsData)
+          setLots(lotsData)
         }
       } catch {
         setError('Ошибка загрузки данных')
@@ -68,13 +136,84 @@ export default function ProjectDetail() {
     }
 
     loadData()
-  }, [id])
+  }, [slug])
+
+  useEffect(() => {
+    if (!project || !hasCoordinates || !mapContainerRef.current) return
+
+    const coordinates: [number, number] = [project.lat as number, project.lng as number]
+    const isRecommended = Boolean(project.data?.isRecommended)
+    const saleStatus = project.sale || 'unknown'
+    const logoFromApi = (project.developer?.data as { logoUrl?: string } | undefined)?.logoUrl
+    const logoFallbackKey = project.developer?.name || project.developerId || ''
+    const logoUrl = logoFromApi || developerLogos[logoFallbackKey]
+
+    if (!mapRef.current) {
+      mapRef.current = L.map(mapContainerRef.current, {
+        center: coordinates,
+        zoom: MAP_ZOOM_DEFAULT,
+        zoomControl: true,
+      })
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(mapRef.current)
+    }
+
+    const map = mapRef.current
+    map.setView(coordinates, Math.max(map.getZoom(), MAP_ZOOM_DEFAULT))
+
+    const applyMarkerIcon = () => {
+      const icon = createPropertyMarkerIcon(
+        isRecommended,
+        saleStatus,
+        logoUrl,
+        map.getZoom()
+      )
+
+      if (!markerRef.current) {
+        markerRef.current = L.marker(coordinates, { icon }).addTo(map)
+      } else {
+        markerRef.current.setLatLng(coordinates)
+        markerRef.current.setIcon(icon)
+      }
+    }
+
+    applyMarkerIcon()
+
+    const handleZoomEnd = () => {
+      if (!markerRef.current) return
+      markerRef.current.setIcon(
+        createPropertyMarkerIcon(isRecommended, saleStatus, logoUrl, map.getZoom())
+      )
+    }
+
+    map.on('zoomend', handleZoomEnd)
+
+    const resizeTimeout = setTimeout(() => {
+      map.invalidateSize()
+    }, 0)
+
+    return () => {
+      clearTimeout(resizeTimeout)
+      map.off('zoomend', handleZoomEnd)
+    }
+  }, [hasCoordinates, project])
+
+  useEffect(() => {
+    return () => {
+      mapRef.current?.remove()
+      mapRef.current = null
+      markerRef.current = null
+    }
+  }, [])
 
   if (loading) {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>
-          <h1>Загрузка...</h1>
+          <h1>Loading...</h1>
         </div>
       </div>
     )
@@ -84,109 +223,198 @@ export default function ProjectDetail() {
     return (
       <div className={styles.container}>
         <div className={styles.notFound}>
-          <h1>Объект не найден</h1>
-          <p>{error || `Объект с ID "${id}" не существует.`}</p>
+          <h1>Property Not Found</h1>
+          <p>{error || `Property "${slug}" does not exist.`}</p>
           <Link to="/catalog" className={styles.backLink}>
-            Вернуться в каталог
+            Return to Catalog
           </Link>
         </div>
       </div>
     )
   }
 
-  const getStatusText = (status: string) => {
+  const getSaleText = (sale: string) => {
+    switch (sale) {
+      case 'sale':
+        return 'On Sale'
+      case 'start of sales':
+        return 'Start of Sales'
+      case 'sales announcement':
+        return 'Sales Announcement'
+      default:
+        return sale
+    }
+  }
+
+  const getLotStatusText = (status: string) => {
     switch (status) {
-      case 'ready':
-        return 'Готов'
-      case 'construction':
-        return 'Строительство'
-      case 'planning':
-        return 'Планирование'
+      case 'active':
+        return 'Available'
+      case 'hidden':
+        return 'Hidden'
+      case 'reserved':
+        return 'Reserved'
+      case 'sold':
+        return 'Sold'
       default:
         return status
     }
   }
 
-  const getUnitStatusText = (status: string) => {
-    switch (status) {
-      case 'available':
-        return 'Доступна'
-      case 'reserved':
-        return 'Забронирована'
-      case 'sold':
-        return 'Продана'
-      default:
-        return status
-    }
+  const allImages = [
+    ...(project.data?.media?.cover?.url ? [project.data.media.cover.url] : []),
+    ...(project.data?.media?.gallery?.map(img => img.url) || []),
+  ]
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex(prev => (prev === 0 ? allImages.length - 1 : prev - 1))
+  }
+
+  const handleNextImage = () => {
+    setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <Link to="/catalog" className={styles.backLink}>
-          ← Назад к каталогу
+          ← Back to Catalog
         </Link>
-        <h1 className={styles.title}>{project.title}</h1>
+        <h1 className={styles.title}>{project.name}</h1>
       </div>
 
       <div className={styles.content}>
         <div className={styles.imageSection}>
-          <div className={styles.imagePlaceholder}>
-            <span>Фото проекта</span>
+          <div className={styles.mainImageContainer}>
+            {allImages.length > 0 ? (
+              <>
+                <img
+                  src={allImages[currentImageIndex]}
+                  alt={`${project.name} - image ${currentImageIndex + 1}`}
+                  className={styles.projectImage}
+                />
+                {allImages.length > 1 && (
+                  <>
+                    <button
+                      className={`${styles.navButton} ${styles.prevButton}`}
+                      onClick={handlePrevImage}
+                      aria-label="Previous image"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      className={`${styles.navButton} ${styles.nextButton}`}
+                      onClick={handleNextImage}
+                      aria-label="Next image"
+                    >
+                      ›
+                    </button>
+                    <div className={styles.imageCounter}>
+                      {currentImageIndex + 1} / {allImages.length}
+                    </div>
+                  </>
+                )}
+              </>
+            ) : (
+              <div className={styles.imagePlaceholder}>
+                <span>Project Image</span>
+              </div>
+            )}
           </div>
+
+          {allImages.length > 1 && (
+            <div className={styles.thumbnailCarousel}>
+              {allImages.map((url, idx) => (
+                <div
+                  key={idx}
+                  className={`${styles.thumbnailWrapper} ${
+                    idx === currentImageIndex ? styles.activeThumbnail : ''
+                  }`}
+                  onClick={() => setCurrentImageIndex(idx)}
+                >
+                  <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {hasCoordinates && (
+            <div className={styles.mapCard}>
+              <div className={styles.mapHeader}>
+                <div>
+                  <h3 className={styles.mapTitle}>Location on Map</h3>
+                  <p className={styles.mapSubtitle}>Coordinates from database</p>
+                </div>
+                <span className={styles.coordinates}>
+                  {project?.lat?.toFixed(4)}, {project?.lng?.toFixed(4)}
+                </span>
+              </div>
+              <div ref={mapContainerRef} className={styles.map} />
+            </div>
+          )}
         </div>
 
         <div className={styles.infoSection}>
           <div className={styles.infoCard}>
-            <h2>Информация об объекте</h2>
+            <h2>Property Information</h2>
             <div className={styles.infoRow}>
-              <span className={styles.label}>Расположение:</span>
-              <span className={styles.value}>{project.location}</span>
+              <span className={styles.label}>Location:</span>
+              <span className={styles.value}>{project.area?.name || 'Dubai'}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.label}>Цена от:</span>
+              <span className={styles.label}>Developer:</span>
+              <span className={styles.value}>{project.developer?.name || 'Not specified'}</span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.label}>Price from:</span>
               <span className={styles.value}>
-                {(project.priceFrom! / 1000000).toFixed(1)} млн ₽
+                {((project.data?.specs?.priceFrom as number) / 1000000).toFixed(1)}M {(project.data?.specs?.currency as string) || 'AED'}
               </span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.label}>Статус:</span>
-              <span className={styles.value}>{getStatusText(project.status!)}</span>
+              <span className={styles.label}>Sale Status:</span>
+              <span className={styles.value}>{getSaleText(project.sale || '')}</span>
             </div>
-            {project.description && (
+            {project.data?.description && (
               <div className={styles.description}>
-                <h3>Описание</h3>
-                <p>{project.description}</p>
+                <h3>Description</h3>
+                <p>{String(project.data.description)}</p>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {units.length > 0 && (
+      {lots.length > 0 && (
         <div className={styles.unitsSection}>
-          <h2>Доступные юниты</h2>
+          <h2>Available Units</h2>
           <div className={styles.unitsTable}>
             <table>
               <thead>
                 <tr>
-                  <th>Этаж</th>
-                  <th>Площадь</th>
-                  <th>Цена</th>
-                  <th>Статус</th>
+                  <th>Type</th>
+                  <th>Bedrooms</th>
+                  <th>Area</th>
+                  <th>Price</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {units.map((unit, index) => (
-                  <tr key={unit.id || index}>
-                    <td>{unit.floor}</td>
-                    <td>{unit.area} м²</td>
-                    <td>{(unit.price! / 1000000).toFixed(1)} млн ₽</td>
+                {lots.map((lot, index) => (
+                  <tr key={lot.id || index}>
+                    <td>{lot.type}</td>
+                    <td>{lot.bedrooms}</td>
+                    <td>{lot.areaSqm} sqm</td>
+                    <td>
+                      {lot.priceAmount
+                        ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
+                        : '-'}
+                    </td>
                     <td>
                       <span
-                        className={`${styles.unitStatus} ${styles[`unitStatus${unit.status}`]}`}
+                        className={`${styles.unitStatus} ${styles[`unitStatus${lot.status}`]}`}
                       >
-                        {getUnitStatusText(unit.status!)}
+                        {getLotStatusText(lot.status!)}
                       </span>
                     </td>
                   </tr>

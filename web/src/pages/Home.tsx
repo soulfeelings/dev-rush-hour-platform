@@ -154,7 +154,7 @@ export default function Home() {
       <section className={styles.hero}>
         <video className={styles.heroVideo} autoPlay loop muted playsInline>
           <source
-            src="https://videos.pexels.com/video-files/35045299/35045299-hd_1920_1080_30fps.mp4"
+            src="https://cdn.pixabay.com/video/2019/07/01/24871-346355753_large.mp4"
             type="video/mp4"
           />
         </video>

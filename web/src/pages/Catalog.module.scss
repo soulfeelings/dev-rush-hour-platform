@@ -116,6 +116,45 @@
   gap: $spacing-4;
 }
 
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-8;
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-8;
+  gap: $spacing-4;
+
+  p {
+    color: $color-error;
+    font-size: $font-size-md;
+    text-align: center;
+  }
+
+  button {
+    padding: $spacing-2 $spacing-4;
+    background: $color-primary;
+    color: $color-text-inverse;
+    border: none;
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
+    cursor: pointer;
+    transition: background $transition-fast;
+
+    &:hover {
+      background: $color-primary-hover;
+    }
+  }
+}
+
 .mapModalOverlay {
   position: fixed;
   top: 0;

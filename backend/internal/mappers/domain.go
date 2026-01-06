@@ -98,6 +98,7 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		Slug:      &project.Slug,
 		Name:      &project.Name,
 		Status:    &status,
+		Sale:      &project.Sale,
 		CreatedAt: timePtr(project.CreatedAt),
 		UpdatedAt: timePtr(project.UpdatedAt),
 	}
@@ -117,17 +118,39 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		result.Lng = float32Ptr(float32(*project.Lng))
 	}
 
-	if project.Data.Description != nil || project.Data.Specs != nil || project.Data.FeaturesAmenities != nil || project.Data.Media != nil {
-		result.Data = &generated.ProjectData{
-			Specs:            domainSpecsToGenerated(project.Data.Specs),
-			FeaturesAmenities: domainFeaturesAmenitiesToGenerated(project.Data.FeaturesAmenities),
-			Media:            domainMediaToGenerated(project.Data.Media),
+	// Include embedded developer info
+	if project.Developer != nil {
+		result.Developer = &generated.ProjectDeveloper{
+			Name: &project.Developer.Name,
 		}
-		if project.Data.Description != nil {
-			descBytes, _ := json.Marshal(project.Data.Description)
-			result.Data.Description = &generated.ProjectData_Description{}
-			result.Data.Description.UnmarshalJSON(descBytes)
+		if project.Developer.Data != nil && len(project.Developer.Data) > 0 {
+			result.Developer.Data = &project.Developer.Data
 		}
+	}
+
+	// Include embedded area info
+	if project.Area != nil {
+		result.Area = &generated.ProjectArea{
+			Name: &project.Area.Name,
+			City: &project.Area.City,
+		}
+	}
+
+	// Always include data for isRecommended, isFeatured, tags
+	result.Data = &generated.ProjectData{
+		Specs:             domainSpecsToGenerated(project.Data.Specs),
+		FeaturesAmenities: domainFeaturesAmenitiesToGenerated(project.Data.FeaturesAmenities),
+		Media:             domainMediaToGenerated(project.Data.Media),
+		IsRecommended:     &project.Data.IsRecommended,
+		IsFeatured:        &project.Data.IsFeatured,
+	}
+	if len(project.Data.Tags) > 0 {
+		result.Data.Tags = &project.Data.Tags
+	}
+	if project.Data.Description != nil {
+		descBytes, _ := json.Marshal(project.Data.Description)
+		result.Data.Description = &generated.ProjectData_Description{}
+		result.Data.Description.UnmarshalJSON(descBytes)
 	}
 
 	return result

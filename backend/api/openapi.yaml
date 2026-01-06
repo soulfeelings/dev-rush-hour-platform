@@ -702,6 +702,9 @@ components:
         status:
           type: string
           enum: [active, archived]
+        sale:
+          type: string
+          enum: [sale, start of sales, sales announcement]
         developerId:
           type: string
           format: uuid
@@ -1102,6 +1105,9 @@ components:
           type: string
           enum: [active, archived]
           default: active
+        sale:
+          type: string
+          enum: [sale, start of sales, sales announcement]
         developerId:
           type: string
           format: uuid
@@ -1125,6 +1131,9 @@ components:
         status:
           type: string
           enum: [active, archived]
+        sale:
+          type: string
+          enum: [sale, start of sales, sales announcement]
         developerId:
           type: string
           format: uuid

@@ -7,7 +7,9 @@ import styles from './DistrictDetail.module.scss'
 export default function DistrictDetail() {
   const { id } = useParams<{ id: string }>()
   const district = districts.find(d => d.id === id)
-  const districtProperties = mockProperties.filter(p => p.districtId === id)
+  const districtProperties = mockProperties.filter(
+    p => p.districtId === id && p.status === 'active'
+  )
 
   if (!district) {
     return (
@@ -159,7 +161,7 @@ export default function DistrictDetail() {
                         <span className={styles.propertyPrice}>
                           {(property.priceFrom / 1000000).toFixed(1)}M {property.currency}
                         </span>
-                        <span className={styles.propertyStatus}>{property.status}</span>
+                        <span className={styles.propertyStatus}>{property.sale}</span>
                       </div>
                     </div>
                   </Link>

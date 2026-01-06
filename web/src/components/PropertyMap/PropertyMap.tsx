@@ -5,14 +5,14 @@ import 'leaflet/dist/leaflet.css'
 import styles from './PropertyMap.module.scss'
 import { createMarkerPopupHTML } from './MarkerPopup'
 import './MarkerPopup/MarkerPopup.module.scss'
-import type { Property } from '../../data/mockProperties'
-import { developerLogos, mockProperties } from '../../data/mockProperties'
+import type { Property } from '../../types/property'
+import { developerLogos } from '../../data/mockProperties'
 import { districts, type District } from '../../data/dubai_districts_data'
 
 // ... (keep the Leaflet fix code)
 
-const createDistrictPopupHTML = (district: District) => {
-  const propertyCount = mockProperties.filter(p => p.districtId === district.id).length
+const createDistrictPopupHTML = (district: District, properties: Property[]) => {
+  const propertyCount = properties.filter(p => p.districtId === district.id).length
 
   return `
     <div class="marker-popup-content">
@@ -51,8 +51,8 @@ export interface PropertyMapRef {
  * Конфигурация порогов зума и соответствующих размеров
  */
 const ZOOM_THRESHOLDS = {
-  SMALL: 13,
-  MEDIUM: 15,
+  SMALL: 12,
+  MEDIUM: 14,
 }
 
 const getMarkerConfig = (isRecommended: boolean, zoom: number, isSelected: boolean) => {
@@ -65,49 +65,49 @@ const getMarkerConfig = (isRecommended: boolean, zoom: number, isSelected: boole
 
   if (isRecommended) {
     return {
-      size: 52,
+      size: 50,
       isSolid: false,
     }
   }
 
   if (zoom < ZOOM_THRESHOLDS.SMALL) {
-    return { size: 20, isSolid: true }
+    return { size: 24, isSolid: true }
   }
 
   if (zoom < ZOOM_THRESHOLDS.MEDIUM) {
-    return { size: 30, isSolid: false }
+    return { size: 36, isSolid: false }
   }
 
-  return { size: 45, isSolid: false }
+  return { size: 50, isSolid: false }
 }
 
-const getStatusColor = (status: Property['status'], isSelected: boolean) => {
+const getStatusColor = (sale: Property['sale'] | string, isSelected: boolean) => {
   if (isSelected) {
     return '#dc2626'
   }
 
-  switch (status) {
-    case 'в продаже':
+  switch (sale) {
+    case 'sale':
       return '#2563eb'
-    case 'старт продаж':
+    case 'start of sales':
       return '#e5a732'
-    case 'анонс продаж':
+    case 'sales announcement':
       return '#ef4444'
     default:
-      return '#2563eb'
+      return '#94a3b8'
   }
 }
 
-const createIcon = (
+export const createPropertyMarkerIcon = (
   isRecommended: boolean,
-  status: Property['status'],
+  sale: Property['sale'] | string,
   logoUrl: string | undefined,
   zoom: number,
   isSelected: boolean = false
 ) => {
   const { size, isSolid } = getMarkerConfig(isRecommended, zoom, isSelected)
   const borderRadius = isRecommended ? '50%' : '2px'
-  const color = getStatusColor(status, isSelected)
+  const color = getStatusColor(sale, isSelected)
 
   const backgroundStyle = isSolid
     ? `background: ${color};`
@@ -149,7 +149,13 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         const { size } = getMarkerConfig(isRecommended, currentZoom, isSelected)
 
         const marker = L.marker(property.coordinates, {
-          icon: createIcon(isRecommended, property.status, logoUrl, currentZoom, isSelected),
+          icon: createPropertyMarkerIcon(
+            isRecommended,
+            property.sale,
+            logoUrl,
+            currentZoom,
+            isSelected
+          ),
         }).addTo(map)
 
         const popup = L.popup({
@@ -206,7 +212,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
                 className: 'marker-popup',
                 closeButton: false,
                 autoPan: true,
-              }).setContent(createDistrictPopupHTML(district))
+              }).setContent(createDistrictPopupHTML(district, properties))
 
               polygon.on('mouseover', e => {
                 polygon.setStyle({ weight: 4 })
@@ -258,7 +264,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
             className: 'marker-popup',
             closeButton: false,
             autoPan: true,
-          }).setContent(createDistrictPopupHTML(district))
+          }).setContent(createDistrictPopupHTML(district, properties))
 
           polygon.on('mouseover', e => {
             polygon.setStyle({ weight: 4 })
@@ -296,11 +302,10 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           attribution: '© OpenStreetMap contributors',
           maxZoom: 19,
         }).addTo(mapRef.current)
-
-        mapRef.current.on('zoomend', updateMarkers)
       }
 
       const map = mapRef.current
+      map.on('zoomend', updateMarkers)
 
       updateMarkers()
 
