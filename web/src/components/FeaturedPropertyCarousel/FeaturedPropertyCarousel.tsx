@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import styles from './FeaturedPropertyCarousel.module.scss'
-import type { Property } from '../../data/mockProperties'
+import type { Property } from '../../types/property'
 
 const IconExcavator = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

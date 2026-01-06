@@ -1,24 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { Property } from '../data/mockProperties'
+import type { Property } from '../types/property'
 import { apiProjectsToProperties } from '../utils/apiAdapters'
-
-// Тип для ответа API
-interface ApiProject {
-  id?: string
-  name?: string
-  status?: 'ready' | 'construction' | 'planning'
-  lat?: number
-  lng?: number
-  data?: {
-    specs?: Record<string, any>
-    media?: {
-      cover?: {
-        url?: string
-      }
-    }
-    description?: any
-  }
-}
 
 export function useProjects() {
   const [projects, setProjects] = useState<Property[]>([])
@@ -40,7 +22,7 @@ export function useProjects() {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const apiProjects: ApiProject[] = await response.json()
+      const apiProjects = await response.json()
       const properties = apiProjectsToProperties(apiProjects)
 
       setProjects(properties)

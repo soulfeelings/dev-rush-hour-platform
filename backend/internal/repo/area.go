@@ -58,7 +58,7 @@ func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
 	}
 	defer rows.Close()
 
-	var areas []domain.Area
+	areas := []domain.Area{}
 	for rows.Next() {
 		var area domain.Area
 		var dataJSON []byte
@@ -169,7 +169,7 @@ func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 	}
 	defer rows.Close()
 
-	var areas []domain.Area
+	areas := []domain.Area{}
 	for rows.Next() {
 		var area domain.Area
 		var dataJSON []byte

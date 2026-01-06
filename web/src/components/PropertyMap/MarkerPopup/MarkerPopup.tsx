@@ -1,4 +1,4 @@
-import type { Property } from '../../../data/mockProperties'
+import type { Property } from '../../../types/property'
 import styles from './MarkerPopup.module.scss'
 
 interface MarkerPopupProps {

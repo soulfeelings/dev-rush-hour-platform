@@ -211,7 +211,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 	}
 	defer rows.Close()
 
-	var lots []domain.Lot
+	lots := []domain.Lot{}
 	for rows.Next() {
 		var lot domain.Lot
 		var dataJSON []byte
@@ -375,7 +375,7 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 	}
 	defer rows.Close()
 
-	var lots []domain.Lot
+	lots := []domain.Lot{}
 	for rows.Next() {
 		var lot domain.Lot
 		var dataJSON []byte

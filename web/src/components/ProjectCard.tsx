@@ -1,7 +1,7 @@
 import { Heart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import styles from './ProjectCard.module.scss'
-import type { Property } from '../data/mockProperties'
+import type { Property } from '../types/property'
 
 interface ProjectCardProps {
   property: Property

@@ -1,4 +1,4 @@
-import type { Property } from '../../../data/mockProperties'
+import type { Property } from '../../../types/property'
 
 export const createMarkerPopupHTML = (property: Property): string => {
   const escapeHtml = (text: string) => {

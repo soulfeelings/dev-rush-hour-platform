@@ -1,9 +1,41 @@
 import { useParams, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import type { components } from '../../api'
 import styles from './ProjectDetail.module.scss'
 
-type Project = components['schemas']['Project']
+// Тип для проекта из API (актуальная структура)
+interface Project {
+  id?: string
+  slug?: string
+  name?: string
+  status?: string
+  sale?: string
+  developerId?: string
+  areaId?: string
+  lat?: number
+  lng?: number
+  data?: {
+    description?: string
+    specs?: Record<string, unknown>
+    media?: {
+      cover?: {
+        url?: string
+      }
+    }
+    isRecommended?: boolean
+    isFeatured?: boolean
+    tags?: string[]
+  }
+  developer?: {
+    name?: string
+    data?: Record<string, unknown>
+  }
+  area?: {
+    name?: string
+    city?: string
+  }
+  createdAt?: string
+  updatedAt?: string
+}
 
 // Тип для лота из API (не включен в сгенерированные типы)
 interface Lot {
@@ -87,7 +119,7 @@ export default function ProjectDetail() {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>
-          <h1>Загрузка...</h1>
+          <h1>Loading...</h1>
         </div>
       </div>
     )
@@ -97,39 +129,39 @@ export default function ProjectDetail() {
     return (
       <div className={styles.container}>
         <div className={styles.notFound}>
-          <h1>Объект не найден</h1>
-          <p>{error || `Объект "${slug}" не существует.`}</p>
+          <h1>Property Not Found</h1>
+          <p>{error || `Property "${slug}" does not exist.`}</p>
           <Link to="/catalog" className={styles.backLink}>
-            Вернуться в каталог
+            Return to Catalog
           </Link>
         </div>
       </div>
     )
   }
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'ready':
-        return 'Готов'
-      case 'construction':
-        return 'Строительство'
-      case 'planning':
-        return 'Планирование'
+  const getSaleText = (sale: string) => {
+    switch (sale) {
+      case 'sale':
+        return 'On Sale'
+      case 'start of sales':
+        return 'Start of Sales'
+      case 'sales announcement':
+        return 'Sales Announcement'
       default:
-        return status
+        return sale
     }
   }
 
   const getLotStatusText = (status: string) => {
     switch (status) {
       case 'active':
-        return 'Доступен'
+        return 'Available'
       case 'hidden':
-        return 'Скрыт'
+        return 'Hidden'
       case 'reserved':
-        return 'Забронирован'
+        return 'Reserved'
       case 'sold':
-        return 'Продан'
+        return 'Sold'
       default:
         return status
     }
@@ -139,39 +171,51 @@ export default function ProjectDetail() {
     <div className={styles.container}>
       <div className={styles.header}>
         <Link to="/catalog" className={styles.backLink}>
-          ← Назад к каталогу
+          ← Back to Catalog
         </Link>
-        <h1 className={styles.title}>{project.title}</h1>
+        <h1 className={styles.title}>{project.name}</h1>
       </div>
 
       <div className={styles.content}>
         <div className={styles.imageSection}>
-          <div className={styles.imagePlaceholder}>
-            <span>Фото проекта</span>
-          </div>
+          {project.data?.media?.cover?.url ? (
+            <img
+              src={project.data.media.cover.url}
+              alt={project.name || 'Project Image'}
+              className={styles.projectImage}
+            />
+          ) : (
+            <div className={styles.imagePlaceholder}>
+              <span>Project Image</span>
+            </div>
+          )}
         </div>
 
         <div className={styles.infoSection}>
           <div className={styles.infoCard}>
-            <h2>Информация об объекте</h2>
+            <h2>Property Information</h2>
             <div className={styles.infoRow}>
-              <span className={styles.label}>Расположение:</span>
-              <span className={styles.value}>{project.location}</span>
+              <span className={styles.label}>Location:</span>
+              <span className={styles.value}>{project.area?.name || 'Dubai'}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.label}>Цена от:</span>
+              <span className={styles.label}>Developer:</span>
+              <span className={styles.value}>{project.developer?.name || 'Not specified'}</span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.label}>Price from:</span>
               <span className={styles.value}>
-                {(project.priceFrom! / 1000000).toFixed(1)} млн ₽
+                {((project.data?.specs?.priceFrom as number) / 1000000).toFixed(1)}M {(project.data?.specs?.currency as string) || 'AED'}
               </span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.label}>Статус:</span>
-              <span className={styles.value}>{getStatusText(project.status!)}</span>
+              <span className={styles.label}>Sale Status:</span>
+              <span className={styles.value}>{getSaleText(project.sale || '')}</span>
             </div>
-            {project.description && (
+            {project.data?.description && (
               <div className={styles.description}>
-                <h3>Описание</h3>
-                <p>{project.description}</p>
+                <h3>Description</h3>
+                <p>{String(project.data.description)}</p>
               </div>
             )}
           </div>
@@ -180,16 +224,16 @@ export default function ProjectDetail() {
 
       {lots.length > 0 && (
         <div className={styles.unitsSection}>
-          <h2>Доступные лоты</h2>
+          <h2>Available Units</h2>
           <div className={styles.unitsTable}>
             <table>
               <thead>
                 <tr>
-                  <th>Тип</th>
-                  <th>Спальни</th>
-                  <th>Площадь</th>
-                  <th>Цена</th>
-                  <th>Статус</th>
+                  <th>Type</th>
+                  <th>Bedrooms</th>
+                  <th>Area</th>
+                  <th>Price</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -197,10 +241,10 @@ export default function ProjectDetail() {
                   <tr key={lot.id || index}>
                     <td>{lot.type}</td>
                     <td>{lot.bedrooms}</td>
-                    <td>{lot.areaSqm} м²</td>
+                    <td>{lot.areaSqm} sqm</td>
                     <td>
                       {lot.priceAmount
-                        ? `${(lot.priceAmount / 1000000).toFixed(1)} млн ${lot.priceCurrency || 'AED'}`
+                        ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
                         : '-'}
                     </td>
                     <td>

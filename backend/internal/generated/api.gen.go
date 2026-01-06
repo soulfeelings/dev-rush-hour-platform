@@ -497,9 +497,11 @@ type Point struct {
 
 // Project defines model for Project.
 type Project struct {
+	Area        *ProjectArea        `json:"area,omitempty"`
 	AreaId      *openapi_types.UUID `json:"areaId,omitempty"`
 	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
 	Data        *ProjectData        `json:"data,omitempty"`
+	Developer   *ProjectDeveloper   `json:"developer,omitempty"`
 	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
 	Id          *openapi_types.UUID `json:"id,omitempty"`
 	Lat         *float32            `json:"lat,omitempty"`
@@ -508,9 +510,22 @@ type Project struct {
 	// Lots Первые N лотов проекта (если запрошено через includeLots)
 	Lots      *[]Lot         `json:"lots,omitempty"`
 	Name      *string        `json:"name,omitempty"`
+	Sale      *string        `json:"sale,omitempty"`
 	Slug      *string        `json:"slug,omitempty"`
 	Status    *ProjectStatus `json:"status,omitempty"`
 	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
+}
+
+// ProjectArea defines embedded area info in project response.
+type ProjectArea struct {
+	Name *string `json:"name,omitempty"`
+	City *string `json:"city,omitempty"`
+}
+
+// ProjectDeveloper defines embedded developer info in project response.
+type ProjectDeveloper struct {
+	Name *string                 `json:"name,omitempty"`
+	Data *map[string]interface{} `json:"data,omitempty"`
 }
 
 // ProjectStatus defines model for Project.Status.
@@ -535,8 +550,11 @@ type ProjectCreateRequestStatus string
 type ProjectData struct {
 	Description       *ProjectData_Description `json:"description,omitempty"`
 	FeaturesAmenities *[]interface{}           `json:"featuresAmenities,omitempty"`
+	IsFeatured        *bool                    `json:"isFeatured,omitempty"`
+	IsRecommended     *bool                    `json:"isRecommended,omitempty"`
 	Media             *Media                   `json:"media,omitempty"`
 	Specs             *map[string]interface{}  `json:"specs,omitempty"`
+	Tags              *[]string                `json:"tags,omitempty"`
 }
 
 // ProjectDataDescription0 defines model for .

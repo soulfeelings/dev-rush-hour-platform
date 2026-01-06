@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import styles from './PropertyMap.module.scss'
 import { createMarkerPopupHTML } from './MarkerPopup'
 import './MarkerPopup/MarkerPopup.module.scss'
-import type { Property } from '../../data/mockProperties'
+import type { Property } from '../../types/property'
 import { developerLogos } from '../../data/mockProperties'
 import { districts, type District } from '../../data/dubai_districts_data'
 
