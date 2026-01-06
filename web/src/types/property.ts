@@ -11,6 +11,7 @@ export interface Property {
   area: number
   areaUnit: string
   image: string
+  gallery?: string[]
   logo?: string
   logoUrl?: string
   tags?: string[]

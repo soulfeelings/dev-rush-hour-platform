@@ -24,6 +24,9 @@ interface Project {
       cover?: {
         url?: string
       }
+      gallery?: Array<{
+        url: string
+      }>
     }
     isRecommended?: boolean
     isFeatured?: boolean
@@ -99,6 +102,7 @@ export default function ProjectDetail() {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
@@ -257,6 +261,19 @@ export default function ProjectDetail() {
     }
   }
 
+  const allImages = [
+    ...(project.data?.media?.cover?.url ? [project.data.media.cover.url] : []),
+    ...(project.data?.media?.gallery?.map(img => img.url) || []),
+  ]
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex(prev => (prev === 0 ? allImages.length - 1 : prev - 1))
+  }
+
+  const handleNextImage = () => {
+    setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -268,15 +285,56 @@ export default function ProjectDetail() {
 
       <div className={styles.content}>
         <div className={styles.imageSection}>
-          {project.data?.media?.cover?.url ? (
-            <img
-              src={project.data.media.cover.url}
-              alt={project.name || 'Project Image'}
-              className={styles.projectImage}
-            />
-          ) : (
-            <div className={styles.imagePlaceholder}>
-              <span>Project Image</span>
+          <div className={styles.mainImageContainer}>
+            {allImages.length > 0 ? (
+              <>
+                <img
+                  src={allImages[currentImageIndex]}
+                  alt={`${project.name} - image ${currentImageIndex + 1}`}
+                  className={styles.projectImage}
+                />
+                {allImages.length > 1 && (
+                  <>
+                    <button
+                      className={`${styles.navButton} ${styles.prevButton}`}
+                      onClick={handlePrevImage}
+                      aria-label="Previous image"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      className={`${styles.navButton} ${styles.nextButton}`}
+                      onClick={handleNextImage}
+                      aria-label="Next image"
+                    >
+                      ›
+                    </button>
+                    <div className={styles.imageCounter}>
+                      {currentImageIndex + 1} / {allImages.length}
+                    </div>
+                  </>
+                )}
+              </>
+            ) : (
+              <div className={styles.imagePlaceholder}>
+                <span>Project Image</span>
+              </div>
+            )}
+          </div>
+
+          {allImages.length > 1 && (
+            <div className={styles.thumbnailCarousel}>
+              {allImages.map((url, idx) => (
+                <div
+                  key={idx}
+                  className={`${styles.thumbnailWrapper} ${
+                    idx === currentImageIndex ? styles.activeThumbnail : ''
+                  }`}
+                  onClick={() => setCurrentImageIndex(idx)}
+                >
+                  <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
+                </div>
+              ))}
             </div>
           )}
 

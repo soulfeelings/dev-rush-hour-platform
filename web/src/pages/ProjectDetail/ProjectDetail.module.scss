@@ -56,10 +56,119 @@
 
 .projectImage {
   width: 100%;
-  max-height: 500px;
-  border-radius: $radius-lg;
+  height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.mainImageContainer {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  border-radius: $radius-lg;
+  overflow: hidden;
   box-shadow: $shadow-md;
+  margin-bottom: $spacing-4;
+
+  &:hover {
+    .navButton {
+      opacity: 1;
+    }
+  }
+}
+
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all $transition-fast;
+  z-index: 10;
+  padding: 0;
+  line-height: 1;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.7);
+    scale: 1.1;
+  }
+
+  &.prevButton {
+    left: $spacing-4;
+  }
+
+  &.nextButton {
+    right: $spacing-4;
+  }
+}
+
+.imageCounter {
+  position: absolute;
+  bottom: $spacing-4;
+  right: $spacing-4;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: $spacing-1 $spacing-3;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+.thumbnailCarousel {
+  display: flex;
+  gap: $spacing-3;
+  margin-bottom: $spacing-6;
+  overflow-x: auto;
+  padding-bottom: $spacing-2;
+  scrollbar-width: thin;
+  scrollbar-color: $color-border transparent;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $color-border;
+    border-radius: $radius-full;
+  }
+}
+
+.thumbnailWrapper {
+  flex: 0 0 100px;
+  height: 70px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all $transition-fast;
+  box-shadow: $shadow-sm;
+
+  &.activeThumbnail {
+    border-color: $color-primary;
+    transform: scale(1.05);
+  }
+
+  &:hover {
+    border-color: rgba($color-primary, 0.5);
+  }
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .imagePlaceholder {
@@ -280,3 +389,4 @@
     color: $color-error;
   }
 }
+

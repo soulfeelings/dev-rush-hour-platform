@@ -19,6 +19,9 @@ interface ApiProject {
       cover?: {
         url?: string
       }
+      gallery?: Array<{
+        url: string
+      }>
     }
     // Эти поля находятся в корне data, не в specs
     isRecommended?: boolean
@@ -65,6 +68,7 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
 
   // Получаем изображение
   const image = media?.cover?.url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
+  const gallery = media?.gallery?.map(item => item.url)
 
   // Получаем координаты
   const coordinates: [number, number] = [
@@ -94,6 +98,7 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
     area: (specs?.area as number) ?? 0,
     areaUnit: (specs?.areaUnit as string) ?? 'sq. ft.',
     image,
+    gallery,
     coordinates,
     sale,
     status,
