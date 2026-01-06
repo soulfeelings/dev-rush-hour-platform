@@ -1,5 +1,5 @@
 import type { Property } from '../../../types/property'
-import styles from './MarkerPopup.module.scss'
+import './MarkerPopup.scss'
 
 interface MarkerPopupProps {
   property: Property
@@ -7,15 +7,13 @@ interface MarkerPopupProps {
 
 export default function MarkerPopup({ property }: MarkerPopupProps) {
   return (
-    <div className={styles.popup}>
-      <div className={styles.popupContent}>
-        <div className={styles.imageContainer}>
-          <img src={property.image} alt={property.title} />
-        </div>
-        <div className={styles.textContent}>
-          <p className={styles.title}>{property.title}</p>
-          <p className={styles.developer}>{property.developer}</p>
-        </div>
+    <div className="marker-popup-content">
+      <div className="marker-popup-image">
+        <img src={property.image} alt={property.title} />
+      </div>
+      <div className="marker-popup-text">
+        <p className="marker-popup-title">{property.title}</p>
+        <p className="marker-popup-price">{property.developer}</p>
       </div>
     </div>
   )
