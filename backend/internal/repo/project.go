@@ -24,6 +24,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 	var lat, lng sql.NullFloat64
 	var devName, areaName, areaCity sql.NullString
 	var devDataJSON []byte
+	var sale sql.NullString
 
 	err := r.db.QueryRow(`
 		SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng, p.data, p.created_at, p.updated_at,
@@ -34,7 +35,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		LEFT JOIN areas a ON p.area_id = a.id
 		WHERE p.slug = $1
 	`, slug).Scan(
-		&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
+		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 		&developerID, &areaID, &lat, &lng, &dataJSON,
 		&project.CreatedAt, &project.UpdatedAt,
 		&devName, &devDataJSON,
@@ -46,6 +47,10 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 			return nil, nil
 		}
 		return nil, err
+	}
+
+	if sale.Valid {
+		project.Sale = sale.String
 	}
 
 	if developerID.Valid {
@@ -129,15 +134,20 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 		var lat, lng sql.NullFloat64
 		var devName, areaName, areaCity sql.NullString
 		var devDataJSON []byte
+		var sale sql.NullString
 
 		if err := rows.Scan(
-			&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
+			&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 			&developerID, &areaID, &lat, &lng, &dataJSON,
 			&project.CreatedAt, &project.UpdatedAt,
 			&devName, &devDataJSON,
 			&areaName, &areaCity,
 		); err != nil {
 			return nil, err
+		}
+
+		if sale.Valid {
+			project.Sale = sale.String
 		}
 
 		if developerID.Valid {

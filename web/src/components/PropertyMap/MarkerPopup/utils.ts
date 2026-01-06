@@ -13,8 +13,8 @@ export const createMarkerPopupHTML = (property: Property): string => {
         <img src="${escapeHtml(property.image)}" alt="${escapeHtml(property.title)}" />
       </div>
       <div class="marker-popup-text">
-        <p class="marker-popup-title">${escapeHtml(property.title)}</p>
-        <p class="marker-popup-developer">${escapeHtml(property.developer)}</p>
+        <div class="marker-popup-title">${escapeHtml(property.title)}</div>
+        <div class="marker-popup-price">${escapeHtml(property.developer)}</div>
       </div>
     </div>
   `
