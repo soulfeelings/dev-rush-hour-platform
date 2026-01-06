@@ -84,6 +84,22 @@ make migrate-down   # откатить последнюю миграцию
 - `make migrate-down` - откатить последнюю миграцию
 - `make migrate-create name=migration_name` - создать новую миграцию
 
+## Seed данных
+
+Для заполнения БД тестовыми данными:
+
+```bash
+make seed
+```
+
+Команда запросит Database URL. Для dev используйте:
+
+```
+postgres://rushhour:rushhour_dev@localhost:5432/rushhour_db?sslmode=disable
+```
+
+Для продакшн укажите соответствующий URL при запросе
+
 ## Работа с API (OpenAPI-first)
 
 Проект использует **OpenAPI-first подход**: сначала описываем API в `api/openapi.yaml`, затем генерируем код.
