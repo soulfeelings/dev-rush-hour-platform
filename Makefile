@@ -9,6 +9,7 @@ menu:
 	@echo "  \033[33m2)\033[0m Backend"
 	@echo "  \033[33m3)\033[0m Run with Docker Compose (dev)"
 	@echo "  \033[33m4)\033[0m Run with Docker Compose (prod)"
+	@echo "  \033[33m5)\033[0m Railway"
 	@echo ""
 	@read -p "Select option: " choice; \
 	case $$choice in \
@@ -16,10 +17,11 @@ menu:
 		2) $(MAKE) -C backend ;; \
 		3) $(MAKE) up-dev ;; \
 		4) $(MAKE) up ;; \
+		5) $(MAKE) railway-menu ;; \
 		*) echo "Invalid option" ;; \
 	esac
 
-.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev
+.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev railway-menu railway-migrate railway-seed
 
 up:
 	@echo "\033[1;32mStarting services with Docker Compose (production)...\033[0m"
@@ -58,3 +60,48 @@ logs:
 
 logs-dev:
 	docker compose -f docker-compose.dev.yml logs -f
+
+railway-menu:
+	@echo "\033[1;36m═══════════════════════════════════════\033[0m"
+	@echo "\033[1;36m              Railway                  \033[0m"
+	@echo "\033[1;36m═══════════════════════════════════════\033[0m"
+	@echo ""
+	@echo "  \033[33m1)\033[0m Migrate database"
+	@echo "  \033[33m2)\033[0m Seed database"
+	@echo "  \033[33m0)\033[0m Back"
+	@echo ""
+	@read -p "Select option: " choice; \
+	case $$choice in \
+		1) $(MAKE) railway-migrate ;; \
+		2) $(MAKE) railway-seed ;; \
+		0) $(MAKE) menu ;; \
+		*) echo "Invalid option" ;; \
+	esac
+
+railway-migrate:
+	@echo "\033[1;32mRailway Database Migration\033[0m"
+	@read -p "DB_HOST (e.g., your-project.proxy.rlwy.net): " db_host; \
+	read -p "DB_PORT (e.g., 12345): " db_port; \
+	read -p "DB_USER (e.g., postgres): " db_user; \
+	read -p "DB_PASSWORD: " db_password; \
+	read -p "DB_NAME (e.g., railway): " db_name; \
+	echo "\033[1;33mRunning migrations...\033[0m"; \
+	cd backend && \
+	DB_HOST=$$db_host \
+	DB_PORT=$$db_port \
+	DB_USER=$$db_user \
+	DB_PASSWORD=$$db_password \
+	DB_NAME=$$db_name \
+	DB_SSLMODE=require \
+	go run cmd/migrate/main.go -direction=up
+
+railway-seed:
+	@echo "\033[1;32mRailway Database Seed\033[0m"
+	@read -p "DB_HOST (e.g., your-project.proxy.rlwy.net): " db_host; \
+	read -p "DB_PORT (e.g., 12345): " db_port; \
+	read -p "DB_USER (e.g., postgres): " db_user; \
+	read -p "DB_PASSWORD: " db_password; \
+	read -p "DB_NAME (e.g., railway): " db_name; \
+	echo "\033[1;33mSeeding database...\033[0m"; \
+	db_url="postgresql://$$db_user:$$db_password@$$db_host:$$db_port/$$db_name?sslmode=require"; \
+	cd backend && psql "$$db_url" -f internal/seeds/seed.sql
