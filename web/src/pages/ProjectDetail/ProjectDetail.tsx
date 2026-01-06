@@ -1,5 +1,9 @@
 import { useParams, Link } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import * as L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import { createPropertyMarkerIcon } from '../../components/PropertyMap/PropertyMap'
+import { developerLogos } from '../../data/mockProperties'
 import styles from './ProjectDetail.module.scss'
 
 // Тип для проекта из API (актуальная структура)
@@ -53,6 +57,16 @@ interface Lot {
   priceAmount?: number
 }
 
+const MAP_ZOOM_DEFAULT = 13
+
+// Fix for default marker icons in Leaflet
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+})
+
 async function fetchProject(slug: string): Promise<Project | null> {
   try {
     const response = await fetch(`/api/projects/${slug}`)
@@ -85,6 +99,11 @@ export default function ProjectDetail() {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const mapRef = useRef<L.Map | null>(null)
+  const markerRef = useRef<L.Marker | null>(null)
+  const mapContainerRef = useRef<HTMLDivElement | null>(null)
+  const hasCoordinates =
+    typeof project?.lat === 'number' && typeof project?.lng === 'number'
 
   useEffect(() => {
     if (!slug) return
@@ -114,6 +133,77 @@ export default function ProjectDetail() {
 
     loadData()
   }, [slug])
+
+  useEffect(() => {
+    if (!project || !hasCoordinates || !mapContainerRef.current) return
+
+    const coordinates: [number, number] = [project.lat as number, project.lng as number]
+    const isRecommended = Boolean(project.data?.isRecommended)
+    const saleStatus = project.sale || 'unknown'
+    const logoFromApi = (project.developer?.data as { logoUrl?: string } | undefined)?.logoUrl
+    const logoFallbackKey = project.developer?.name || project.developerId || ''
+    const logoUrl = logoFromApi || developerLogos[logoFallbackKey]
+
+    if (!mapRef.current) {
+      mapRef.current = L.map(mapContainerRef.current, {
+        center: coordinates,
+        zoom: MAP_ZOOM_DEFAULT,
+        zoomControl: true,
+      })
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(mapRef.current)
+    }
+
+    const map = mapRef.current
+    map.setView(coordinates, Math.max(map.getZoom(), MAP_ZOOM_DEFAULT))
+
+    const applyMarkerIcon = () => {
+      const icon = createPropertyMarkerIcon(
+        isRecommended,
+        saleStatus,
+        logoUrl,
+        map.getZoom()
+      )
+
+      if (!markerRef.current) {
+        markerRef.current = L.marker(coordinates, { icon }).addTo(map)
+      } else {
+        markerRef.current.setLatLng(coordinates)
+        markerRef.current.setIcon(icon)
+      }
+    }
+
+    applyMarkerIcon()
+
+    const handleZoomEnd = () => {
+      if (!markerRef.current) return
+      markerRef.current.setIcon(
+        createPropertyMarkerIcon(isRecommended, saleStatus, logoUrl, map.getZoom())
+      )
+    }
+
+    map.on('zoomend', handleZoomEnd)
+
+    const resizeTimeout = setTimeout(() => {
+      map.invalidateSize()
+    }, 0)
+
+    return () => {
+      clearTimeout(resizeTimeout)
+      map.off('zoomend', handleZoomEnd)
+    }
+  }, [hasCoordinates, project])
+
+  useEffect(() => {
+    return () => {
+      mapRef.current?.remove()
+      mapRef.current = null
+      markerRef.current = null
+    }
+  }, [])
 
   if (loading) {
     return (
@@ -187,6 +277,21 @@ export default function ProjectDetail() {
           ) : (
             <div className={styles.imagePlaceholder}>
               <span>Project Image</span>
+            </div>
+          )}
+
+          {hasCoordinates && (
+            <div className={styles.mapCard}>
+              <div className={styles.mapHeader}>
+                <div>
+                  <h3 className={styles.mapTitle}>Location on Map</h3>
+                  <p className={styles.mapSubtitle}>Coordinates from database</p>
+                </div>
+                <span className={styles.coordinates}>
+                  {project?.lat?.toFixed(4)}, {project?.lng?.toFixed(4)}
+                </span>
+              </div>
+              <div ref={mapContainerRef} className={styles.map} />
             </div>
           )}
         </div>
