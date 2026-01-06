@@ -152,12 +152,6 @@ export default function Home() {
     <div className={styles.home}>
       {/* Hero Section */}
       <section className={styles.hero}>
-        <video className={styles.heroVideo} autoPlay loop muted playsInline>
-          <source
-            src="https://cdn.pixabay.com/video/2019/07/01/24871-346355753_large.mp4"
-            type="video/mp4"
-          />
-        </video>
         <div className={styles.heroOverlay} />
         <div className={styles.heroInner}>
           <div className={styles.heroContent}>
