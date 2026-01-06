@@ -21,7 +21,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM developers WHERE slug = 'segrex-development-llc'),
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  25.0772, 55.1398,
- '{"description": "Полностью меблированная 3-комнатная квартира площадью 1,533.25 sq. ft. в Sea Legend Tower One",
+ '{"description": "Luxurious fully furnished 3-bedroom apartment spanning 1,533.25 sq. ft. in the prestigious Sea Legend Tower One at Dubai Marina, offering panoramic marina views, modern finishes, and access to world-class amenities in one of Dubai''s most sought-after waterfront districts.",
    "specs": {"priceFrom": 1200000, "currency": "AED", "types": ["Первичная"], "bedrooms": ["3К"], "completionDate": "2025-12-31", "area": 1533.25, "areaUnit": "sq. ft."},
    "media": {
      "cover": {"id": "sea-legend-cover", "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"},
@@ -38,7 +38,8 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM developers WHERE slug = 'major-developments'),
  (SELECT id FROM areas WHERE slug = 'al-jazeera-al-hamra-industrial'),
  25.3340, 55.3070,
- '{"specs": {"priceFrom": 1100000, "currency": "AED", "types": ["Первичная"], "bedrooms": ["Ст", "1К", "2К"], "completionDate": "2029-Q1"},
+ '{"description": "Modern residential complex offering flexible studio to 2-bedroom units in an emerging mixed-use community at Al Jazeera Al Hamra Industrial area, featuring contemporary design, green spaces, and community-focused amenities for comfortable urban living.",
+   "specs": {"priceFrom": 1100000, "currency": "AED", "types": ["Первичная"], "bedrooms": ["Ст", "1К", "2К"], "completionDate": "2029-Q1"},
    "media": {
      "cover": {"id": "colibri-views-cover", "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"},
      "gallery": [
@@ -52,7 +53,8 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM developers WHERE slug = 'dia-developments'),
  (SELECT id FROM areas WHERE slug = 'dubai-islands'),
  25.3216, 55.2911,
- '{"specs": {"priceFrom": 1600000, "currency": "AED", "types": ["Первичная"], "bedrooms": ["1К", "2К", "4К"], "completionDate": "2027-Q2"},
+ '{"description": "Premium waterfront residences on Dubai Islands featuring 1 to 4-bedroom apartments with modern architecture, private beach access, and luxury amenities in a serene island setting just minutes from the city center.",
+   "specs": {"priceFrom": 1600000, "currency": "AED", "types": ["Первичная"], "bedrooms": ["1К", "2К", "4К"], "completionDate": "2027-Q2"},
    "media": {
      "cover": {"id": "luz-ora-cover", "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"},
      "gallery": [
@@ -66,7 +68,8 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM developers WHERE slug = 'emaar-properties'),
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  25.1154, 55.1390,
- '{"specs": {"priceFrom": 2500000, "currency": "AED", "types": ["Первичная"], "bedrooms": ["2К", "3К", "4К"], "completionDate": "2026-Q3"},
+ '{"description": "Ultra-luxury beachfront residences on the iconic Palm Jumeirah, offering 2 to 4-bedroom apartments and villas with direct private beach access, infinity pools, and 5-star hotel amenities in Dubai''s most exclusive address.",
+   "specs": {"priceFrom": 2500000, "currency": "AED", "types": ["Первичная"], "bedrooms": ["2К", "3К", "4К"], "completionDate": "2026-Q3"},
    "media": {
      "cover": {"id": "palm-jumeirah-cover", "url": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800"},
      "gallery": [
@@ -81,7 +84,8 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM developers WHERE slug = 'emaar-properties'),
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  25.1972, 55.2744,
- '{"specs": {"priceFrom": 1800000, "currency": "AED", "types": ["Первичная"], "bedrooms": ["1К", "2К", "3К"], "completionDate": "2028-Q1"},
+ '{"description": "Premium high-rise tower in the heart of Downtown Dubai featuring 1 to 3-bedroom apartments with direct views of Burj Khalifa, immediate access to Dubai Mall, and luxury urban living at the center of the city''s cultural and commercial hub.",
+   "specs": {"priceFrom": 1800000, "currency": "AED", "types": ["Первичная"], "bedrooms": ["1К", "2К", "3К"], "completionDate": "2028-Q1"},
    "media": {
      "cover": {"id": "downtown-dubai-cover", "url": "https://edge.travelatacdn.ru/thumbs/640x480/upload/2021_41/content_hotel_616721062c3ec6.34344983.jpeg"},
      "gallery": [
