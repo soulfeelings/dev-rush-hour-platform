@@ -11,6 +11,7 @@ menu:
 	@echo "  \033[33m4)\033[0m Migrate up"
 	@echo "  \033[33m5)\033[0m Migrate down"
 	@echo "  \033[33m6)\033[0m Start Postgres only"
+	@echo "  \033[33m7)\033[0m Seed database"
 	@echo "  \033[33m0)\033[0m Back"
 	@echo ""
 	@read -p "Select option: " choice; \
@@ -21,6 +22,7 @@ menu:
 		4) $(MAKE) migrate-up ;; \
 		5) $(MAKE) migrate-down ;; \
 		6) $(MAKE) postgres-up ;; \
+		7) $(MAKE) seed ;; \
 		0) $(MAKE) -C .. ;; \
 		*) echo "Invalid option" ;; \
 	esac
@@ -71,5 +73,9 @@ migrate-create:
 	@read -p "Migration name: " name; \
 	cd .. && docker-compose -f docker-compose.dev.yml run --rm migrate sh -c "go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest && migrate create -ext sql -dir internal/migrations -seq $$name"
 
-.PHONY: generate dev swagger migrate-up migrate-down migrate-create postgres-up
+seed:
+	@read -p "Database URL: " db_url; \
+	psql "$$db_url" -f internal/seeds/seed.sql
+
+.PHONY: generate dev swagger migrate-up migrate-down migrate-create postgres-up seed
 

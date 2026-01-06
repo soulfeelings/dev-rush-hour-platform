@@ -1,4 +1,7 @@
--- Insert developers from mockProperties
+-- Seed data for Rush Hour Platform
+-- Run: make seed (local) or make seed-railway DATABASE_URL="..." (production)
+
+-- Insert developers
 INSERT INTO developers (slug, name, status, data) VALUES
 ('segrex-development-llc', 'Segrex Development L.L.C Агентство', 'active', '{"logoUrl": "https://avatars.mds.yandex.net/i?id=70d28def6aafbd8f46b5a6028a7218f0_l-5310919-images-thumbs&n=13"}'),
 ('major-developments', 'Major Developments', 'active', '{"logoUrl": "https://avatars.mds.yandex.net/i?id=c6a1772c7effeac59b29a17ea8103e7133ae2d79-9151820-images-thumbs&n=13"}'),
@@ -6,7 +9,7 @@ INSERT INTO developers (slug, name, status, data) VALUES
 ('emaar-properties', 'Emaar Properties', 'active', '{"logoUrl": "https://avatars.mds.yandex.net/i?id=6106b51626c0974294528879d7d72c1d_l-5670589-images-thumbs&n=13"}')
 ON CONFLICT (slug) DO NOTHING;
 
--- Insert areas from mockProperties
+-- Insert areas
 INSERT INTO areas (slug, name, city, lat, lng, status) VALUES
 ('dubai-marina', 'Dubai Marina', 'Dubai', 25.0772, 55.1398, 'active'),
 ('al-jazeera-al-hamra-industrial', 'Al Jazeera Al Hamra Industrial', 'Dubai', 25.3340, 55.3070, 'active'),
@@ -15,7 +18,7 @@ INSERT INTO areas (slug, name, city, lat, lng, status) VALUES
 ('downtown-dubai', 'Downtown Dubai', 'Dubai', 25.1972, 55.2744, 'active')
 ON CONFLICT (slug) DO NOTHING;
 
--- Insert projects from mockProperties
+-- Insert projects
 INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng, data) VALUES
 ('sea-legend-tower-one', 'Sea Legend Tower One: Меблированная 3-комнатная квартира', 'active', 'start of sales',
  (SELECT id FROM developers WHERE slug = 'segrex-development-llc'),
@@ -95,4 +98,6 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "isRecommended": false}'
-);
+)
+ON CONFLICT (slug) DO NOTHING;
+
