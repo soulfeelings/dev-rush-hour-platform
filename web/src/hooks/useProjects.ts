@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import type { Property } from '../types/property'
 import { apiProjectsToProperties } from '../utils/apiAdapters'
 
+const API_URL = import.meta.env.VITE_API_URL || ''
+
 export function useProjects() {
   const [projects, setProjects] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
@@ -16,7 +18,7 @@ export function useProjects() {
       setLoading(true)
       setError(null)
 
-      const response = await fetch('/api/projects')
+      const response = await fetch(`${API_URL}/api/projects`)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
