@@ -7,25 +7,9 @@ import { createMarkerPopupHTML } from './MarkerPopup'
 import './MarkerPopup/MarkerPopup.module.scss'
 import type { Property } from '../../types/property'
 import { developerLogos } from '../../data/mockProperties'
-import { districts, type District } from '../../data/dubai_districts_data'
-
-// ... (keep the Leaflet fix code)
-
-const createDistrictPopupHTML = (district: District, properties: Property[]) => {
-  const propertyCount = properties.filter(p => p.districtId === district.id).length
-
-  return `
-    <div class="marker-popup-content">
-      <div class="marker-popup-image">
-        <img src="${district.image}" alt="${district.name}" />
-      </div>
-      <div class="marker-popup-text">
-        <div class="marker-popup-title">${district.name}</div>
-        <div class="marker-popup-price">${propertyCount} объектов</div>
-      </div>
-    </div>
-  `
-}
+import { districts } from '../../data/dubai_districts_data'
+import { createPropertyMarkerIcon, getMarkerConfig } from './markerIcon'
+import { createDistrictPopupHTML } from './districtPopup'
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -45,84 +29,6 @@ interface PropertyMapProps {
 export interface PropertyMapRef {
   invalidateSize: () => void
   refreshMap: () => void
-}
-
-/**
- * Конфигурация порогов зума и соответствующих размеров
- */
-const ZOOM_THRESHOLDS = {
-  SMALL: 12,
-  MEDIUM: 14,
-}
-
-const getMarkerConfig = (isRecommended: boolean, zoom: number, isSelected: boolean) => {
-  if (isSelected) {
-    return {
-      size: 52,
-      isSolid: false,
-    }
-  }
-
-  if (isRecommended) {
-    return {
-      size: 50,
-      isSolid: false,
-    }
-  }
-
-  if (zoom < ZOOM_THRESHOLDS.SMALL) {
-    return { size: 24, isSolid: true }
-  }
-
-  if (zoom < ZOOM_THRESHOLDS.MEDIUM) {
-    return { size: 36, isSolid: false }
-  }
-
-  return { size: 50, isSolid: false }
-}
-
-const getStatusColor = (sale: Property['sale'] | string, isSelected: boolean) => {
-  if (isSelected) {
-    return '#dc2626'
-  }
-
-  switch (sale) {
-    case 'sale':
-      return '#2563eb'
-    case 'start of sales':
-      return '#e5a732'
-    case 'sales announcement':
-      return '#ef4444'
-    default:
-      return '#94a3b8'
-  }
-}
-
-export const createPropertyMarkerIcon = (
-  isRecommended: boolean,
-  sale: Property['sale'] | string,
-  logoUrl: string | undefined,
-  zoom: number,
-  isSelected: boolean = false
-) => {
-  const { size, isSolid } = getMarkerConfig(isRecommended, zoom, isSelected)
-  const borderRadius = isRecommended ? '50%' : '2px'
-  const color = getStatusColor(sale, isSelected)
-
-  const backgroundStyle = isSolid
-    ? `background: ${color};`
-    : logoUrl
-      ? `background-image: url('${logoUrl}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #ffffff;`
-      : 'background: #ffffff;'
-
-  const borderWidth = 4
-
-  return L.divIcon({
-    className: '',
-    html: `<div style="width: ${size}px; height: ${size}px; ${backgroundStyle} border: ${borderWidth}px solid ${color}; border-radius: ${borderRadius}; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); cursor: pointer; overflow: hidden;"></div>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-  })
 }
 
 const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
@@ -288,7 +194,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         })
         setShowDistricts(true)
       }
-    }, [showDistricts, navigate])
+    }, [showDistricts, properties, navigate])
 
     useEffect(() => {
       if (!mapRef.current) {

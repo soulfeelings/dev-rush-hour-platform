@@ -31,9 +31,7 @@ export function useProjects() {
       setError(err instanceof Error ? err.message : 'Failed to fetch projects')
 
       // Fallback to mock data if API fails
-      console.warn('Falling back to mock data')
-      const { mockProperties } = await import('../data/mockProperties')
-      setProjects(mockProperties.filter(p => p.status === 'active'))
+      console.warn('Falling back to mock data 1212312')
     } finally {
       setLoading(false)
     }
@@ -43,6 +41,6 @@ export function useProjects() {
     projects,
     loading,
     error,
-    refetch: fetchProjects
+    refetch: fetchProjects,
   }
 }

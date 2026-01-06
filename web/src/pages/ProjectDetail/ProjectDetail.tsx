@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { createPropertyMarkerIcon } from '../../components/PropertyMap/PropertyMap'
+import { createPropertyMarkerIcon } from '../../components/PropertyMap/markerIcon'
 import { developerLogos } from '../../data/mockProperties'
 import styles from './ProjectDetail.module.scss'
 
@@ -106,8 +106,7 @@ export default function ProjectDetail() {
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
-  const hasCoordinates =
-    typeof project?.lat === 'number' && typeof project?.lng === 'number'
+  const hasCoordinates = typeof project?.lat === 'number' && typeof project?.lng === 'number'
 
   useEffect(() => {
     if (!slug) return
@@ -165,12 +164,7 @@ export default function ProjectDetail() {
     map.setView(coordinates, Math.max(map.getZoom(), MAP_ZOOM_DEFAULT))
 
     const applyMarkerIcon = () => {
-      const icon = createPropertyMarkerIcon(
-        isRecommended,
-        saleStatus,
-        logoUrl,
-        map.getZoom()
-      )
+      const icon = createPropertyMarkerIcon(isRecommended, saleStatus, logoUrl, map.getZoom())
 
       if (!markerRef.current) {
         markerRef.current = L.marker(coordinates, { icon }).addTo(map)
@@ -368,7 +362,8 @@ export default function ProjectDetail() {
             <div className={styles.infoRow}>
               <span className={styles.label}>Price from:</span>
               <span className={styles.value}>
-                {((project.data?.specs?.priceFrom as number) / 1000000).toFixed(1)}M {(project.data?.specs?.currency as string) || 'AED'}
+                {((project.data?.specs?.priceFrom as number) / 1000000).toFixed(1)}M{' '}
+                {(project.data?.specs?.currency as string) || 'AED'}
               </span>
             </div>
             <div className={styles.infoRow}>
@@ -411,9 +406,7 @@ export default function ProjectDetail() {
                         : '-'}
                     </td>
                     <td>
-                      <span
-                        className={`${styles.unitStatus} ${styles[`unitStatus${lot.status}`]}`}
-                      >
+                      <span className={`${styles.unitStatus} ${styles[`unitStatus${lot.status}`]}`}>
                         {getLotStatusText(lot.status!)}
                       </span>
                     </td>

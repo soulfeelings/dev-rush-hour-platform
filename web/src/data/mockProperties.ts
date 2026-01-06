@@ -114,4 +114,3 @@ export const mockProperties: Property[] = [
 ]
 
 export const featuredProperties = mockProperties.filter(p => p.isFeatured && p.status === 'active')
-

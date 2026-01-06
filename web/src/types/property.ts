@@ -23,4 +23,3 @@ export interface Property {
   status: 'active' | 'inactive'
   districtId?: string
 }
-

@@ -40,11 +40,7 @@ export default function ProjectCard({ property, onFavoriteClick }: ProjectCardPr
               <img src={property.logoUrl} alt={property.developer} />
             </div>
           )}
-          <button
-            className={styles.favoriteButton}
-            onClick={handleFavoriteClick}
-            type="button"
-          >
+          <button className={styles.favoriteButton} onClick={handleFavoriteClick} type="button">
             <Heart size={20} />
           </button>
         </div>

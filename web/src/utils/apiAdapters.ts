@@ -67,13 +67,14 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
   const completionDate = (specs?.completionDate as string) ?? '2025-01-01'
 
   // Получаем изображение
-  const image = media?.cover?.url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
+  const image =
+    media?.cover?.url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
   const gallery = media?.gallery?.map(item => item.url)
 
   // Получаем координаты
   const coordinates: [number, number] = [
     apiProject.lat ? Number(apiProject.lat) : 25.1972,
-    apiProject.lng ? Number(apiProject.lng) : 55.2744
+    apiProject.lng ? Number(apiProject.lng) : 55.2744,
   ]
 
   // Получаем sale из базы данных
@@ -105,7 +106,7 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
     description: typeof description === 'string' ? description : '',
     isRecommended,
     isFeatured,
-    tags
+    tags,
   }
 }
 
