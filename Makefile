@@ -21,7 +21,7 @@ menu:
 		*) echo "Invalid option" ;; \
 	esac
 
-.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev railway-menu railway-migrate railway-seed
+.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev railway-menu railway-migrate railway-seed
 
 up:
 	@echo "\033[1;32mStarting services with Docker Compose (production)...\033[0m"
@@ -60,6 +60,10 @@ logs:
 
 logs-dev:
 	docker compose -f docker-compose.dev.yml logs -f
+
+seed-dev:
+	@echo "\033[1;32mSeeding development database...\033[0m"
+	docker exec -i rushhour-postgres-dev psql -U rushhour -d rushhour_db < backend/internal/seeds/seed.sql
 
 railway-menu:
 	@echo "\033[1;36m═══════════════════════════════════════\033[0m"

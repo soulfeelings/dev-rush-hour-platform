@@ -38,6 +38,8 @@
 
   @media (max-width: $breakpoint-md) {
     grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -45,6 +47,11 @@
   position: sticky;
   top: $spacing-6;
   height: fit-content;
+
+  @media (max-width: $breakpoint-md) {
+    position: static;
+    order: 2;
+  }
 }
 
 .mainImage {
@@ -188,6 +195,10 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    order: 1;
+  }
 }
 
 .infoCard {
@@ -245,6 +256,33 @@
     color: $color-text-secondary;
     line-height: $line-height-relaxed;
     margin: 0;
+  }
+}
+
+// Content card for Description and Features in imageSection (left column)
+.contentCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+  margin-top: $spacing-6;
+  margin-bottom: $spacing-6;
+
+  .description {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    margin-bottom: $spacing-6;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  :global(.featuresContainer) {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
   }
 }
 

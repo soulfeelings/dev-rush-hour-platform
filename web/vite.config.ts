@@ -17,11 +17,11 @@ export default defineConfig(({ mode }) => {
         usePolling: true,
       },
       host: true,
-      port: 5174,
+      port: 5173,
       // Needed for Docker
       strictPort: true,
       hmr: {
-        clientPort: 5174,
+        clientPort: 5173,
       },
       proxy: {
         '/api': {

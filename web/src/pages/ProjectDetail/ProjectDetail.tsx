@@ -4,6 +4,7 @@ import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { createPropertyMarkerIcon } from '../../components/PropertyMap/markerIcon'
 import { developerLogos } from '../../data/mockProperties'
+import ProjectFeatures from '../../components/ProjectFeatures'
 import styles from './ProjectDetail.module.scss'
 
 // Тип для проекта из API (актуальная структура)
@@ -31,6 +32,7 @@ interface Project {
     isRecommended?: boolean
     isFeatured?: boolean
     tags?: string[]
+    featuresAmenities?: string[]
   }
   developer?: {
     name?: string
@@ -332,6 +334,20 @@ export default function ProjectDetail() {
             </div>
           )}
 
+          {(project.data?.description || (project.data?.featuresAmenities && project.data.featuresAmenities.length > 0)) && (
+            <div className={styles.contentCard}>
+              {project.data?.description && (
+                <div className={styles.description}>
+                  <h3>Description</h3>
+                  <p>{String(project.data.description)}</p>
+                </div>
+              )}
+              {project.data?.featuresAmenities && project.data.featuresAmenities.length > 0 && (
+                <ProjectFeatures features={project.data.featuresAmenities as string[]} maxItems={6} />
+              )}
+            </div>
+          )}
+
           {hasCoordinates && (
             <div className={styles.mapCard}>
               <div className={styles.mapHeader}>
@@ -370,12 +386,6 @@ export default function ProjectDetail() {
               <span className={styles.label}>Sale Status:</span>
               <span className={styles.value}>{getSaleText(project.sale || '')}</span>
             </div>
-            {project.data?.description && (
-              <div className={styles.description}>
-                <h3>Description</h3>
-                <p>{String(project.data.description)}</p>
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -35,7 +35,9 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
        {"id": "sea-legend-4", "url": "https://img.prian.ru/2025_03/6/20250306070144977904250o.png"}
      ]
    },
-   "tags": ["9 декабря", "Акция для клиентов"], "isRecommended": true, "isFeatured": true}'
+   "featuresAmenities": ["Gym", "Swimming Pool", "Sea View", "Spa Center", "Children''s Playground", "Electric Vehicle Charging", "24/7 Security", "Underground Parking", "Concierge Service", "Private Beach"],
+   "tags": ["9 декабря", "Акция для клиентов"], 
+   "isRecommended": true, "isFeatured": true}'
 ),
 ('colibri-views', 'Colibri Views', 'active', 'sales announcement',
  (SELECT id FROM developers WHERE slug = 'major-developments'),
@@ -50,6 +52,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
        {"id": "colibri-views-2", "url": "https://topaddress.ae/wp-content/uploads/2025/09/1879b530c756f4888f1871387860b169.webp"}
      ]
    },
+   "featuresAmenities": ["Gym", "Children''s Playground", "Landscaped Garden", "Barbecue Area", "Retail Space", "On-site Supermarket", "Picnic Area", "Sports Court", "Bicycle Paths", "Package Room"],
    "isRecommended": false}'
 ),
 ('luz-ora-residences', 'Luz Ora Residences', 'active', 'sale',
@@ -65,6 +68,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
        {"id": "luz-ora-2", "url": "https://dda-realestate.com/storage/complex_medias/2276_76ba2232-ae0e-41ec-a058-5b44de53686d.webp"}
      ]
    },
+   "featuresAmenities": ["Gym", "Swimming Pool", "Sea View", "Private Beach", "Electric Vehicle Charging", "Yoga Studio", "Spa Center", "Kids Club", "Private Yacht Dock", "On-site Restaurant"],
    "isRecommended": true}'
 ),
 ('palm-jumeirah-residence', 'Palm Jumeirah Residence', 'active', 'sale',
@@ -81,6 +85,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
        {"id": "palm-jumeirah-3", "url": "https://maldives.ru/upload/resize_cache/iblock/cea/v5s5qyfyrww9txkqoxm7yp6p2zkzw8ge/1500_1000_2/5af3f33d71be_75209062_4K.jpeg"}
      ]
    },
+   "featuresAmenities": ["Gym", "Swimming Pool", "Sea View", "Spa Center", "Private Beach", "Infrared Saunas", "Poolside Restaurant", "Kids Club with Nanny", "Concierge Service", "Helipad"],
    "isRecommended": false}'
 ),
 ('downtown-dubai-tower', 'Downtown Dubai Tower', 'active', 'sale',
@@ -97,6 +102,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
        {"id": "downtown-dubai-3", "url": "https://avatars.mds.yandex.net/i?id=23ef5e3bfd1d152e1e3016478a10f0d1037c0196-5476568-images-thumbs&n=13"}
      ]
    },
+   "featuresAmenities": ["Gym", "Swimming Pool", "Children''s Playground", "Yoga Studio", "Electric Vehicle Charging", "Indoor Tennis Court", "Library", "Cinema", "Conference Room", "Direct Access to Dubai Mall"],
    "isRecommended": false}'
 )
 ON CONFLICT (slug) DO NOTHING;

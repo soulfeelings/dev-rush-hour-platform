@@ -1,0 +1,111 @@
+@use '../../styles' as *;
+
+.featuresContainer {
+  margin-top: $spacing-6;
+  padding-top: $spacing-6;
+  border-top: 1px solid $color-border;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0 0 $spacing-4 0;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: $spacing-2;
+  }
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  border-radius: $radius-md;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  transition: all $transition-normal;
+  cursor: default;
+
+  &:hover {
+    background: $color-primary-light;
+    border-color: $color-primary;
+    transform: translateY(-2px);
+    box-shadow: $shadow-sm;
+  }
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  background: $color-primary-light;
+  flex-shrink: 0;
+  transition: all $transition-normal;
+}
+
+.featureItem:hover .iconWrapper {
+  background: $color-primary;
+  transform: scale(1.1);
+}
+
+.icon {
+  color: $color-primary;
+  transition: color $transition-normal;
+}
+
+.featureItem:hover .icon {
+  color: $color-text-inverse;
+}
+
+.featureText {
+  font-size: $font-size-sm;
+  color: $color-text;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-normal;
+  transition: color $transition-normal;
+}
+
+.featureItem:hover .featureText {
+  color: $color-text;
+}
+
+.showMoreButton {
+  display: block;
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  margin-top: $spacing-2;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-normal;
+
+  &:hover {
+    background: $color-primary-light;
+    border-color: $color-primary;
+    color: $color-primary;
+    transform: translateY(-1px);
+    box-shadow: $shadow-sm;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
