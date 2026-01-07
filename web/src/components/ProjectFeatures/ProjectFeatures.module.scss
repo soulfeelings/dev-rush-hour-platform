@@ -33,15 +33,6 @@
   border-radius: $radius-md;
   background: $color-bg;
   border: 1px solid $color-border;
-  transition: all $transition-normal;
-  cursor: default;
-
-  &:hover {
-    background: $color-primary-light;
-    border-color: $color-primary;
-    transform: translateY(-2px);
-    box-shadow: $shadow-sm;
-  }
 }
 
 .iconWrapper {
@@ -75,11 +66,6 @@
   color: $color-text;
   font-weight: $font-weight-medium;
   line-height: $line-height-normal;
-  transition: color $transition-normal;
-}
-
-.featureItem:hover .featureText {
-  color: $color-text;
 }
 
 .showMoreButton {

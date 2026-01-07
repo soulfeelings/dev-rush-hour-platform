@@ -68,7 +68,7 @@
   display: block;
 }
 
-.mainImageContainer {
+.galleryContainer {
   position: relative;
   width: 100%;
   height: 500px;
@@ -76,6 +76,28 @@
   overflow: hidden;
   box-shadow: $shadow-md;
   margin-bottom: $spacing-4;
+
+  &:hover {
+    .navButton {
+      opacity: 1;
+    }
+
+    .thumbnailCarousel {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .imageCounter {
+      transform: translateY(-100px);
+    }
+  }
+}
+
+.mainImageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 
   &:hover {
     .navButton {
@@ -131,23 +153,32 @@
   font-weight: $font-weight-medium;
   backdrop-filter: blur(4px);
   z-index: 10;
+  transition: transform $transition-normal;
 }
 
 .thumbnailCarousel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   gap: $spacing-3;
-  margin-bottom: $spacing-6;
   overflow-x: auto;
-  padding-bottom: $spacing-2;
+  padding: $spacing-3;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 50%, transparent 100%);
+  backdrop-filter: blur(8px);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform $transition-normal, opacity $transition-normal;
   scrollbar-width: thin;
-  scrollbar-color: $color-border transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 
   &::-webkit-scrollbar {
     height: 4px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: $color-border;
+    background-color: rgba(255, 255, 255, 0.3);
     border-radius: $radius-full;
   }
 }

@@ -281,58 +281,60 @@ export default function ProjectDetail() {
 
       <div className={styles.content}>
         <div className={styles.imageSection}>
-          <div className={styles.mainImageContainer}>
-            {allImages.length > 0 ? (
-              <>
-                <img
-                  src={allImages[currentImageIndex]}
-                  alt={`${project.name} - image ${currentImageIndex + 1}`}
-                  className={styles.projectImage}
-                />
-                {allImages.length > 1 && (
-                  <>
-                    <button
-                      className={`${styles.navButton} ${styles.prevButton}`}
-                      onClick={handlePrevImage}
-                      aria-label="Previous image"
-                    >
-                      ‹
-                    </button>
-                    <button
-                      className={`${styles.navButton} ${styles.nextButton}`}
-                      onClick={handleNextImage}
-                      aria-label="Next image"
-                    >
-                      ›
-                    </button>
-                    <div className={styles.imageCounter}>
-                      {currentImageIndex + 1} / {allImages.length}
-                    </div>
-                  </>
-                )}
-              </>
-            ) : (
-              <div className={styles.imagePlaceholder}>
-                <span>Project Image</span>
+          <div className={styles.galleryContainer}>
+            <div className={styles.mainImageContainer}>
+              {allImages.length > 0 ? (
+                <>
+                  <img
+                    src={allImages[currentImageIndex]}
+                    alt={`${project.name} - image ${currentImageIndex + 1}`}
+                    className={styles.projectImage}
+                  />
+                  {allImages.length > 1 && (
+                    <>
+                      <button
+                        className={`${styles.navButton} ${styles.prevButton}`}
+                        onClick={handlePrevImage}
+                        aria-label="Previous image"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        className={`${styles.navButton} ${styles.nextButton}`}
+                        onClick={handleNextImage}
+                        aria-label="Next image"
+                      >
+                        ›
+                      </button>
+                      <div className={styles.imageCounter}>
+                        {currentImageIndex + 1} / {allImages.length}
+                      </div>
+                    </>
+                  )}
+                </>
+              ) : (
+                <div className={styles.imagePlaceholder}>
+                  <span>Project Image</span>
+                </div>
+              )}
+            </div>
+
+            {allImages.length > 1 && (
+              <div className={styles.thumbnailCarousel}>
+                {allImages.map((url, idx) => (
+                  <div
+                    key={idx}
+                    className={`${styles.thumbnailWrapper} ${
+                      idx === currentImageIndex ? styles.activeThumbnail : ''
+                    }`}
+                    onClick={() => setCurrentImageIndex(idx)}
+                  >
+                    <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
+                  </div>
+                ))}
               </div>
             )}
           </div>
-
-          {allImages.length > 1 && (
-            <div className={styles.thumbnailCarousel}>
-              {allImages.map((url, idx) => (
-                <div
-                  key={idx}
-                  className={`${styles.thumbnailWrapper} ${
-                    idx === currentImageIndex ? styles.activeThumbnail : ''
-                  }`}
-                  onClick={() => setCurrentImageIndex(idx)}
-                >
-                  <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
-                </div>
-              ))}
-            </div>
-          )}
 
           {(project.data?.description || (project.data?.featuresAmenities && project.data.featuresAmenities.length > 0)) && (
             <div className={styles.contentCard}>
