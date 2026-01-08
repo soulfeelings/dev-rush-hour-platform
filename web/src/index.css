@@ -46,3 +46,17 @@ body {
   background: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
+/* Three.js Html popup wrapper - ограничение в пределах канваса */
+.apartment-popup-wrapper {
+  max-width: min(90vw, 300px) !important;
+  max-height: 90vh !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+}
+
+.apartment-popup-wrapper > div {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  overflow: visible !important;
+}

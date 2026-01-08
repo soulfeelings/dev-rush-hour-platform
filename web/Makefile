@@ -30,7 +30,7 @@ menu:
 	esac
 
 generate:
-	pnpm dlx openapi-typescript ../backend/api/openapi.yaml -o src/api.ts
+	pnpm generate:api
 
 dev:
 	pnpm dev

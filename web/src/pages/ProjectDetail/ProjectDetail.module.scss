@@ -246,6 +246,39 @@
   }
 }
 
+.viewApartmentsButton {
+  margin-bottom: $spacing-6;
+  display: flex;
+  justify-content: center;
+
+  button {
+    box-shadow: 0 4px 12px rgba($color-primary, 0.4);
+    font-weight: $font-weight-semibold;
+    letter-spacing: 0.5px;
+    transition: all $transition-fast;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba($color-primary, 0.5);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+}
+
+.infoCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-6;
+
+  h2 {
+    margin: 0;
+  }
+}
+
 .infoRow {
   display: flex;
   justify-content: space-between;

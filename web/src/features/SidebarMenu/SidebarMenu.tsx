@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { X, ChevronDown } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import styles from './SidebarMenu.module.scss'
 
@@ -24,36 +24,15 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
           </Link>
         </div>
         <nav className={styles.nav}>
-          <a href="#" className={styles.navItem}>
-            {t('sidebar.news')}
-          </a>
-          <a href="#" className={styles.navItem}>
-            {t('sidebar.training')}
-          </a>
-          <a href="#" className={styles.navItem}>
-            {t('sidebar.developments')}
-            <button className={styles.chevronButton} type="button">
-              <ChevronDown size={16} />
-            </button>
-          </a>
-          <a href="#" className={styles.navItem}>
-            {t('sidebar.forAgents')}
-            <button className={styles.chevronButton} type="button">
-              <ChevronDown size={16} />
-            </button>
-          </a>
-          <a href="#" className={styles.navItem}>
-            {t('sidebar.areas')}
-          </a>
-          <a href="#" className={styles.navItem}>
-            {t('sidebar.priceAndFeatures')}
-          </a>
-          <a href="#" className={styles.navItem}>
-            {t('sidebar.about')}
-            <button className={styles.chevronButton} type="button">
-              <ChevronDown size={16} />
-            </button>
-          </a>
+          <Link to="/catalog" className={styles.navItem} onClick={onClose}>
+            {t('header.nav.catalog')}
+          </Link>
+          <Link to="/design-demo" className={styles.navItem} onClick={onClose}>
+            {t('header.nav.designDemo')}
+          </Link>
+          <Link to="/admin" className={styles.navItem} onClick={onClose}>
+            {t('header.nav.admin')}
+          </Link>
         </nav>
       </div>
     </>

@@ -61,6 +61,9 @@ export default function Header() {
             <Link to="/design-demo" className={styles.navLink}>
               {t('header.nav.designDemo')}
             </Link>
+            <Link to="/admin" className={styles.navLink}>
+              {t('header.nav.admin')}
+            </Link>
           </nav>
           <div className={styles.headerActions}>
             <LanguageSelector />
