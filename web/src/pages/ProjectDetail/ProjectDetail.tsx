@@ -1,5 +1,5 @@
-import { useParams, Link } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState, Fragment } from 'react'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { createPropertyMarkerIcon } from '../../components/PropertyMap/markerIcon'
@@ -10,6 +10,7 @@ import { Modal } from '../../ui/Modal'
 import { Button } from '../../ui/Button'
 import { useGetProject, useListLots } from '../../api'
 import type { Project, Lot, Developer, Area } from '../../api'
+import { IconBed, IconBath, IconFloor, IconArea } from '../../components/icons'
 import styles from './ProjectDetail.module.scss'
 
 const MAP_ZOOM_DEFAULT = 13
@@ -30,11 +31,12 @@ type ProjectWithRelations = Project & {
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
-  const mapContainerRef = useRef<HTMLDivElement | null>(null)
+  const [mapContainerEl, setMapContainerEl] = useState<HTMLDivElement | null>(null)
 
   const {
     data: projectData,
@@ -57,6 +59,19 @@ export default function ProjectDetail() {
 
   const project = (projectData as ProjectWithRelations | undefined) || null
   const lots: Lot[] = lotsData?.items || []
+  const displayLots = useMemo(() => {
+    const seen = new Map<string, Lot>()
+    lots.forEach(lot => {
+      const specKey = `${lot.projectId || 'no-project'}-${lot.type || 'unknown'}-${
+        lot.priceAmount || '0'
+      }-${lot.priceCurrency || 'AED'}-${lot.areaSqm || '0'}-${lot.floor ?? 'null'}-${
+        lot.bedrooms ?? 'null'
+      }-${lot.bathrooms ?? 'null'}`
+
+      if (!seen.has(specKey)) seen.set(specKey, lot)
+    })
+    return Array.from(seen.values())
+  }, [lots])
   const loading = projectLoading || lotsLoading
   const error =
     projectError instanceof Error
@@ -69,17 +84,36 @@ export default function ProjectDetail() {
     project.lat !== null &&
     project.lng !== null
 
+  // Инициализация карты: важно НЕ оставлять [] зависимостей,
+  // потому что контейнер карты рендерится только когда hasCoordinates === true.
   useEffect(() => {
-    if (
-      !project ||
-      !hasCoordinates ||
-      !mapContainerRef.current ||
-      project.lat === undefined ||
-      project.lng === undefined
-    )
-      return
+    if (!hasCoordinates || !mapContainerEl || mapRef.current) return
 
-    const coordinates: [number, number] = [project.lat, project.lng]
+    const defaultCoordinates: [number, number] = [25.1972, 55.2744]
+    mapRef.current = L.map(mapContainerEl, {
+      center: defaultCoordinates,
+      zoom: MAP_ZOOM_DEFAULT,
+      zoomControl: true,
+    })
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(mapRef.current)
+
+    // Инвалидируем размер карты после создания (после layout)
+    setTimeout(() => {
+      mapRef.current?.invalidateSize()
+    }, 0)
+  }, [hasCoordinates, mapContainerEl])
+
+  // Обновление карты и маркера когда данные проекта загрузились
+  // Важно: зависим от mapContainerEl, иначе маркер может не добавиться,
+  // если карта создаётся позже (когда ref-контейнер смонтировался).
+  useEffect(() => {
+    if (!mapRef.current || !project || !hasCoordinates) return
+
+    const coordinates: [number, number] = [project.lat!, project.lng!]
     const isRecommended = Boolean(
       (project.data as { isRecommended?: boolean } | undefined)?.isRecommended
     )
@@ -88,19 +122,6 @@ export default function ProjectDetail() {
     const logoFromApi = developerData?.logoUrl
     const logoFallbackKey = project.developer?.name || project.developerId || ''
     const logoUrl = logoFromApi || developerLogos[logoFallbackKey]
-
-    if (!mapRef.current) {
-      mapRef.current = L.map(mapContainerRef.current, {
-        center: coordinates,
-        zoom: MAP_ZOOM_DEFAULT,
-        zoomControl: true,
-      })
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-      }).addTo(mapRef.current)
-    }
 
     const map = mapRef.current
     map.setView(coordinates, Math.max(map.getZoom(), MAP_ZOOM_DEFAULT))
@@ -127,15 +148,35 @@ export default function ProjectDetail() {
 
     map.on('zoomend', handleZoomEnd)
 
-    const resizeTimeout = setTimeout(() => {
-      map.invalidateSize()
-    }, 0)
-
     return () => {
-      clearTimeout(resizeTimeout)
       map.off('zoomend', handleZoomEnd)
     }
-  }, [hasCoordinates, project])
+  }, [project, hasCoordinates, mapContainerEl])
+
+  // Отслеживание видимости карты для корректного обновления размеров
+  useEffect(() => {
+    if (!mapContainerEl) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && mapRef.current) {
+            // Карта стала видимой, обновляем размер
+            setTimeout(() => {
+              mapRef.current?.invalidateSize()
+            }, 100)
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(mapContainerEl)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [mapContainerEl])
 
   useEffect(() => {
     return () => {
@@ -180,22 +221,6 @@ export default function ProjectDetail() {
         return 'Sales Announcement'
       default:
         return sale
-    }
-  }
-
-  const getLotStatusText = (status: string | undefined) => {
-    if (!status) return 'Unknown'
-    switch (status) {
-      case 'active':
-        return 'Available'
-      case 'hidden':
-        return 'Hidden'
-      case 'reserved':
-        return 'Reserved'
-      case 'sold':
-        return 'Sold'
-      default:
-        return status
     }
   }
 
@@ -323,7 +348,68 @@ export default function ProjectDetail() {
                     : '-'}
                 </span>
               </div>
-              <div ref={mapContainerRef} className={styles.map} />
+              <div ref={setMapContainerEl} className={styles.map} />
+            </div>
+          )}
+
+          {displayLots.length > 0 && (
+            <div className={styles.lotsSection}>
+              <h3 className={styles.lotsTitle}>Available Units</h3>
+              <div className={styles.lotsList}>
+                {displayLots.map((lot, index) => {
+                  const priceText =
+                    lot.priceAmount !== undefined && typeof lot.priceAmount === 'number'
+                      ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
+                      : '-'
+
+                  return (
+                    <div
+                      key={lot.id || index}
+                      className={styles.lotCard}
+                      onClick={() => lot.id && navigate(`/lot/${lot.id}`)}
+                      style={{ cursor: lot.id ? 'pointer' : 'default' }}
+                    >
+                      <div className={styles.lotCardImage}>
+                        {/* Placeholder для изображения - пока его нет */}
+                        <div className={styles.lotCardImagePlaceholder}>
+                          <span>Image</span>
+                        </div>
+                      </div>
+                      <div className={styles.lotCardContent}>
+                        <div className={styles.lotCardPrice}>{priceText}</div>
+                        <div className={styles.lotCardDetails}>
+                          {(() => {
+                            const details: Array<{ icon: React.ReactElement; value: string | number }> = []
+                            if (lot.bedrooms !== undefined && lot.bedrooms !== null) {
+                              details.push({ icon: <IconBed />, value: lot.bedrooms })
+                            }
+                            if (lot.bathrooms !== undefined && lot.bathrooms !== null) {
+                              details.push({ icon: <IconBath />, value: lot.bathrooms })
+                            }
+                            if (lot.areaSqm !== undefined && lot.areaSqm !== null) {
+                              details.push({ icon: <IconArea />, value: `${lot.areaSqm} sqm` })
+                            }
+                            if (lot.floor !== undefined && lot.floor !== null) {
+                              details.push({ icon: <IconFloor />, value: lot.floor })
+                            }
+                            return details.map((detail, idx) => (
+                              <Fragment key={idx}>
+                                <span className={styles.lotCardDetail}>
+                                  {detail.icon}
+                                  {detail.value}
+                                </span>
+                                {idx < details.length - 1 && (
+                                  <span className={styles.lotCardSeparator}>/</span>
+                                )}
+                              </Fragment>
+                            ))
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -366,46 +452,6 @@ export default function ProjectDetail() {
           </div>
         </div>
       </div>
-
-      {lots.length > 0 && (
-        <div className={styles.unitsSection}>
-          <h2>Available Units</h2>
-          <div className={styles.unitsTable}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Bedrooms</th>
-                  <th>Area</th>
-                  <th>Price</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lots.map((lot, index) => (
-                  <tr key={lot.id || index}>
-                    <td>{lot.type || '-'}</td>
-                    <td>{lot.bedrooms ?? '-'}</td>
-                    <td>{lot.areaSqm !== undefined ? `${lot.areaSqm} sqm` : '-'}</td>
-                    <td>
-                      {lot.priceAmount !== undefined && typeof lot.priceAmount === 'number'
-                        ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
-                        : '-'}
-                    </td>
-                    <td>
-                      <span
-                        className={`${styles.unitStatus} ${lot.status ? styles[`unitStatus${lot.status}`] : ''}`}
-                      >
-                        {getLotStatusText(lot.status)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
       <Modal
         open={is3DModalOpen}

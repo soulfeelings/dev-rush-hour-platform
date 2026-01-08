@@ -10,6 +10,24 @@ CREATE INDEX idx_lots_bonus_keys ON lots USING GIN(bonus_keys);
 CREATE INDEX idx_lots_composite_list ON lots(status, area_id, type, bedrooms, price_amount);
 CREATE INDEX idx_lots_data_gin ON lots USING GIN(data jsonb_path_ops);
 
+-- Deduplicate lots by business key and prevent further duplicates
+WITH ranked AS (
+    SELECT
+        id,
+        ROW_NUMBER() OVER (
+            PARTITION BY project_id, type, bedrooms, bathrooms, area_sqm, floor, price_amount
+            ORDER BY created_at ASC, id ASC
+        ) AS rn
+    FROM lots
+)
+DELETE FROM lots l
+USING ranked r
+WHERE l.id = r.id
+  AND r.rn > 1;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_lots_project_spec
+ON lots (project_id, type, bedrooms, bathrooms, area_sqm, floor, price_amount);
+
 -- Indexes for projects table
 CREATE INDEX idx_projects_developer_id ON projects(developer_id);
 CREATE INDEX idx_projects_area_id ON projects(area_id);

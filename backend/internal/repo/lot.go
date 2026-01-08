@@ -47,17 +47,42 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	var bedrooms, bathrooms, floor sql.NullInt64
 	var areaSqm sql.NullFloat64
 	var bonusKeys pq.StringArray
+	
+	// Переменные для вложенных объектов
+	var projSlug, projName, projSale, projStatus sql.NullString
+	var projDataJSON []byte
+	var projLat, projLng sql.NullFloat64
+	var projCreatedAt, projUpdatedAt sql.NullTime
+	
+	var devSlug, devName, devStatus sql.NullString
+	var devDataJSON []byte
+	var devCreatedAt, devUpdatedAt sql.NullTime
+	
+	var areaSlug, areaName, areaCity, areaStatus sql.NullString
+	var areaDataJSON []byte
+	var areaLat, areaLng sql.NullFloat64
+	var areaCreatedAt, areaUpdatedAt sql.NullTime
 
 	err := r.db.QueryRow(`
-		SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
-		       area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at
-		FROM lots
-		WHERE id = $1
+		SELECT 
+			l.id, l.status, l.project_id, l.developer_id, l.area_id, l.type, l.bedrooms, l.bathrooms,
+			l.area_sqm, l.floor, l.price_currency, l.price_amount, l.bonus_keys, l.data, l.created_at, l.updated_at,
+			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.data, p.created_at, p.updated_at,
+			d.slug, d.name, d.status, d.data, d.created_at, d.updated_at,
+			a.slug, a.name, a.city, a.status, a.lat, a.lng, a.data, a.created_at, a.updated_at
+		FROM lots l
+		LEFT JOIN projects p ON l.project_id = p.id
+		LEFT JOIN developers d ON l.developer_id = d.id
+		LEFT JOIN areas a ON l.area_id = a.id
+		WHERE l.id = $1
 	`, id).Scan(
 		&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
 		&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
 		&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
 		&lot.CreatedAt, &lot.UpdatedAt,
+		&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projDataJSON, &projCreatedAt, &projUpdatedAt,
+		&devSlug, &devName, &devStatus, &devDataJSON, &devCreatedAt, &devUpdatedAt,
+		&areaSlug, &areaName, &areaCity, &areaStatus, &areaLat, &areaLng, &areaDataJSON, &areaCreatedAt, &areaUpdatedAt,
 	)
 
 	if err != nil {
@@ -98,6 +123,86 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 
 	if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
 		return nil, err
+	}
+
+	// Заполняем вложенный проект, если данные есть
+	if projSlug.Valid {
+		projID := uuid.MustParse(projectID.String)
+		var projData domain.ProjectData
+		if len(projDataJSON) > 0 {
+			if err := json.Unmarshal(projDataJSON, &projData); err == nil {
+				// ignore unmarshal errors for now
+			}
+		}
+		lot.Project = &domain.Project{
+			ID:          projID,
+			Slug:        projSlug.String,
+			Name:        projName.String,
+			Status:      domain.ProjectStatus(projStatus.String),
+			Data:        projData,
+			CreatedAt:   projCreatedAt.Time,
+			UpdatedAt:   projUpdatedAt.Time,
+		}
+		if projSale.Valid {
+			lot.Project.Sale = projSale.String
+		}
+		if developerID.Valid {
+			devID := uuid.MustParse(developerID.String)
+			lot.Project.DeveloperID = &devID
+		}
+		if areaID.Valid {
+			aID := uuid.MustParse(areaID.String)
+			lot.Project.AreaID = &aID
+		}
+		if projLat.Valid {
+			lot.Project.Lat = &projLat.Float64
+		}
+		if projLng.Valid {
+			lot.Project.Lng = &projLng.Float64
+		}
+	}
+
+	// Заполняем вложенного застройщика, если данные есть
+	if devSlug.Valid {
+		devID := uuid.MustParse(developerID.String)
+		var devData map[string]interface{}
+		if len(devDataJSON) > 0 {
+			if err := json.Unmarshal(devDataJSON, &devData); err == nil {
+				// ignore unmarshal errors for now
+			}
+		}
+		lot.Developer = &domain.Developer{
+			ID:        devID,
+			Slug:      devSlug.String,
+			Name:      devName.String,
+			Status:    domain.DeveloperStatus(devStatus.String),
+			Data:      devData,
+			CreatedAt: devCreatedAt.Time,
+			UpdatedAt: devUpdatedAt.Time,
+		}
+	}
+
+	// Заполняем вложенный район, если данные есть
+	if areaSlug.Valid {
+		aID := uuid.MustParse(areaID.String)
+		var aData domain.AreaData
+		if len(areaDataJSON) > 0 {
+			if err := json.Unmarshal(areaDataJSON, &aData); err == nil {
+				// ignore unmarshal errors for now
+			}
+		}
+		lot.Area = &domain.Area{
+			ID:        aID,
+			Slug:      areaSlug.String,
+			Name:      areaName.String,
+			City:      areaCity.String,
+			Lat:       areaLat.Float64,
+			Lng:       areaLng.Float64,
+			Status:    domain.AreaStatus(areaStatus.String),
+			Data:      aData,
+			CreatedAt: areaCreatedAt.Time,
+			UpdatedAt: areaUpdatedAt.Time,
+		}
 	}
 
 	return &lot, nil

@@ -1,14 +1,15 @@
 package handlers
 
 import (
+	"encoding/json"
 	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
 	"rush-hour-platform/backend/internal/repo"
 	"rush-hour-platform/backend/internal/services"
 
-	"github.com/google/uuid"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -120,5 +121,48 @@ func (h *LotsHandler) GetLot(c *fiber.Ctx, id openapi_types.UUID) error {
 		})
 	}
 
-	return c.JSON(mappers.DomainLotToGenerated(lot))
+	// Преобразуем lot в generated.Lot
+	genLot := mappers.DomainLotToGenerated(lot)
+	
+	// Создаем map для добавления вложенных объектов
+	response := make(map[string]interface{})
+	
+	// Конвертируем genLot в map
+	lotJSON, _ := json.Marshal(genLot)
+	json.Unmarshal(lotJSON, &response)
+	
+	// Добавляем вложенные объекты, если они есть
+	if lot.Project != nil {
+		response["project"] = mappers.DomainProjectToGenerated(lot.Project)
+	}
+	if lot.Developer != nil {
+		response["developer"] = mappers.DomainDeveloperToGenerated(lot.Developer)
+	}
+	if lot.Area != nil {
+		response["area"] = mappers.DomainAreaToGenerated(lot.Area)
+	}
+	
+	// Добавляем дополнительные поля data (view, furnishing, orientation, features)
+	if response["data"] == nil {
+		response["data"] = make(map[string]interface{})
+	}
+	dataMap, ok := response["data"].(map[string]interface{})
+	if !ok {
+		dataMap = make(map[string]interface{})
+		response["data"] = dataMap
+	}
+	if lot.Data.View != "" {
+		dataMap["view"] = lot.Data.View
+	}
+	if lot.Data.Furnishing != "" {
+		dataMap["furnishing"] = lot.Data.Furnishing
+	}
+	if lot.Data.Orientation != "" {
+		dataMap["orientation"] = lot.Data.Orientation
+	}
+	if len(lot.Data.Features) > 0 {
+		dataMap["features"] = lot.Data.Features
+	}
+
+	return c.JSON(response)
 }
