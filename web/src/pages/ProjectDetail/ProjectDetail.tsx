@@ -7,61 +7,9 @@ import { developerLogos } from '../../data/mockProperties'
 import Model3DViewer from '../../components/Model3DViewer'
 import { Modal } from '../../ui/Modal'
 import { Button } from '../../ui/Button'
+import { useGetProject, useListLots } from '../../api'
+import type { Project, Lot, Developer, Area } from '../../api'
 import styles from './ProjectDetail.module.scss'
-
-// Тип для проекта из API (актуальная структура)
-interface Project {
-  id?: string
-  slug?: string
-  name?: string
-  status?: string
-  sale?: string
-  developerId?: string
-  areaId?: string
-  lat?: number
-  lng?: number
-  data?: {
-    description?: string
-    specs?: Record<string, unknown>
-    media?: {
-      cover?: {
-        url?: string
-      }
-      gallery?: Array<{
-        url: string
-      }>
-    }
-    isRecommended?: boolean
-    isFeatured?: boolean
-    tags?: string[]
-  }
-  developer?: {
-    name?: string
-    data?: Record<string, unknown>
-  }
-  area?: {
-    name?: string
-    city?: string
-  }
-  createdAt?: string
-  updatedAt?: string
-}
-
-// Тип для лота из API (не включен в сгенерированные типы)
-interface Lot {
-  id?: string
-  status?: 'active' | 'hidden' | 'reserved' | 'sold'
-  projectId?: string
-  developerId?: string
-  areaId?: string
-  type?: 'apartment' | 'villa' | 'townhouse' | 'penthouse'
-  bedrooms?: number
-  bathrooms?: number
-  areaSqm?: number
-  floor?: number
-  priceCurrency?: string
-  priceAmount?: number
-}
 
 const MAP_ZOOM_DEFAULT = 13
 
@@ -73,81 +21,69 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 })
 
-async function fetchProject(slug: string): Promise<Project | null> {
-  try {
-    const response = await fetch(`/api/projects/${slug}`)
-    if (response.ok) {
-      return await response.json()
-    }
-    return null
-  } catch (error) {
-    console.error('Error fetching project:', error)
-    return null
-  }
-}
-
-async function fetchProjectLots(projectSlug: string): Promise<Lot[]> {
-  try {
-    const response = await fetch(`/api/lots?project=${projectSlug}`)
-    if (response.ok) {
-      return await response.json()
-    }
-    return []
-  } catch (error) {
-    console.error('Error fetching lots:', error)
-    return []
-  }
+// Расширенный тип Project с вложенными developer и area (возвращаются бэкендом, но не в типах)
+type ProjectWithRelations = Project & {
+  developer?: Developer
+  area?: Area
 }
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>()
-  const [project, setProject] = useState<Project | null>(null)
-  const [lots, setLots] = useState<Lot[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
-  const hasCoordinates = typeof project?.lat === 'number' && typeof project?.lng === 'number'
 
-  useEffect(() => {
-    if (!slug) return
+  const {
+    data: projectData,
+    isLoading: projectLoading,
+    error: projectError,
+  } = useGetProject(slug || '', undefined, {
+    query: {
+      enabled: !!slug,
+    },
+  })
 
-    const loadData = async () => {
-      setLoading(true)
-      setError(null)
-
-      try {
-        const [projectData, lotsData] = await Promise.all([
-          fetchProject(slug),
-          fetchProjectLots(slug),
-        ])
-
-        if (!projectData) {
-          setError('Проект не найден')
-        } else {
-          setProject(projectData)
-          setLots(lotsData)
-        }
-      } catch {
-        setError('Ошибка загрузки данных')
-      } finally {
-        setLoading(false)
-      }
+  const { data: lotsData, isLoading: lotsLoading } = useListLots(
+    { project: slug || '' },
+    {
+      query: {
+        enabled: !!slug,
+      },
     }
+  )
 
-    loadData()
-  }, [slug])
+  const project = (projectData as ProjectWithRelations | undefined) || null
+  const lots: Lot[] = lotsData?.items || []
+  const loading = projectLoading || lotsLoading
+  const error =
+    projectError instanceof Error
+      ? projectError.message
+      : (projectError as { error?: { message?: string } })?.error?.message || null
+  const hasCoordinates =
+    project?.lat !== undefined &&
+    project?.lng !== undefined &&
+    project.lat !== null &&
+    project.lng !== null
 
   useEffect(() => {
-    if (!project || !hasCoordinates || !mapContainerRef.current) return
+    if (
+      !project ||
+      !hasCoordinates ||
+      !mapContainerRef.current ||
+      project.lat === undefined ||
+      project.lng === undefined
+    )
+      return
 
-    const coordinates: [number, number] = [project.lat as number, project.lng as number]
-    const isRecommended = Boolean(project.data?.isRecommended)
+    const coordinates: [number, number] = [project.lat, project.lng]
+    const isRecommended = Boolean(
+      (project.data as { isRecommended?: boolean } | undefined)?.isRecommended
+    )
     const saleStatus = project.sale || 'unknown'
-    const logoFromApi = (project.developer?.data as { logoUrl?: string } | undefined)?.logoUrl
+    const developerData = project.developer?.data as { logoUrl?: string } | undefined
+    const logoFromApi = developerData?.logoUrl
     const logoFallbackKey = project.developer?.name || project.developerId || ''
     const logoUrl = logoFromApi || developerLogos[logoFallbackKey]
 
@@ -231,7 +167,8 @@ export default function ProjectDetail() {
     )
   }
 
-  const getSaleText = (sale: string) => {
+  const getSaleText = (sale: string | undefined) => {
+    if (!sale) return 'Unknown'
     switch (sale) {
       case 'sale':
         return 'On Sale'
@@ -244,7 +181,8 @@ export default function ProjectDetail() {
     }
   }
 
-  const getLotStatusText = (status: string) => {
+  const getLotStatusText = (status: string | undefined) => {
+    if (!status) return 'Unknown'
     switch (status) {
       case 'active':
         return 'Available'
@@ -261,7 +199,9 @@ export default function ProjectDetail() {
 
   const allImages = [
     ...(project.data?.media?.cover?.url ? [project.data.media.cover.url] : []),
-    ...(project.data?.media?.gallery?.map(img => img.url) || []),
+    ...(project.data?.media?.gallery
+      ?.map(img => img.url)
+      .filter((url): url is string => Boolean(url)) || []),
   ]
 
   const handlePrevImage = () => {
@@ -344,7 +284,9 @@ export default function ProjectDetail() {
                   <p className={styles.mapSubtitle}>Coordinates from database</p>
                 </div>
                 <span className={styles.coordinates}>
-                  {project?.lat?.toFixed(4)}, {project?.lng?.toFixed(4)}
+                  {project.lat !== undefined && project.lng !== undefined
+                    ? `${project.lat.toFixed(4)}, ${project.lng.toFixed(4)}`
+                    : '-'}
                 </span>
               </div>
               <div ref={mapContainerRef} className={styles.map} />
@@ -372,18 +314,31 @@ export default function ProjectDetail() {
             <div className={styles.infoRow}>
               <span className={styles.label}>Price from:</span>
               <span className={styles.value}>
-                {((project.data?.specs?.priceFrom as number) / 1000000).toFixed(1)}M{' '}
-                {(project.data?.specs?.currency as string) || 'AED'}
+                {(() => {
+                  const specs = project.data?.specs as
+                    | { priceFrom?: number; currency?: string }
+                    | undefined
+                  const priceFrom = specs?.priceFrom
+                  const currency = specs?.currency || 'AED'
+                  if (priceFrom !== undefined && typeof priceFrom === 'number') {
+                    return `${(priceFrom / 1000000).toFixed(1)}M ${currency}`
+                  }
+                  return '-'
+                })()}
               </span>
             </div>
             <div className={styles.infoRow}>
               <span className={styles.label}>Sale Status:</span>
-              <span className={styles.value}>{getSaleText(project.sale || '')}</span>
+              <span className={styles.value}>{getSaleText(project.sale)}</span>
             </div>
             {project.data?.description && (
               <div className={styles.description}>
                 <h3>Description</h3>
-                <p>{String(project.data.description)}</p>
+                <p>
+                  {typeof project.data.description === 'string'
+                    ? project.data.description
+                    : JSON.stringify(project.data.description)}
+                </p>
               </div>
             )}
           </div>
@@ -407,17 +362,19 @@ export default function ProjectDetail() {
               <tbody>
                 {lots.map((lot, index) => (
                   <tr key={lot.id || index}>
-                    <td>{lot.type}</td>
-                    <td>{lot.bedrooms}</td>
-                    <td>{lot.areaSqm} sqm</td>
+                    <td>{lot.type || '-'}</td>
+                    <td>{lot.bedrooms ?? '-'}</td>
+                    <td>{lot.areaSqm !== undefined ? `${lot.areaSqm} sqm` : '-'}</td>
                     <td>
-                      {lot.priceAmount
+                      {lot.priceAmount !== undefined && typeof lot.priceAmount === 'number'
                         ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
                         : '-'}
                     </td>
                     <td>
-                      <span className={`${styles.unitStatus} ${styles[`unitStatus${lot.status}`]}`}>
-                        {getLotStatusText(lot.status!)}
+                      <span
+                        className={`${styles.unitStatus} ${lot.status ? styles[`unitStatus${lot.status}`] : ''}`}
+                      >
+                        {getLotStatusText(lot.status)}
                       </span>
                     </td>
                   </tr>

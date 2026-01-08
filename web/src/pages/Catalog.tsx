@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Select } from '../ui/Select'
 import FiltersBar from '../components/FiltersBar'
 import ProjectCard from '../components/ProjectCard'
 import PropertyMap from '../components/PropertyMap'
 import ResizableSplitter from '../components/ResizableSplitter'
-import { useProjects } from '../hooks/useProjects'
+import { useListProjects } from '../api'
+import { apiProjectsToProperties } from '../utils/apiAdapters'
 import styles from './Catalog.module.scss'
 import type { PropertyMapRef } from '../components/PropertyMap/PropertyMap'
 
@@ -60,7 +61,12 @@ export default function Catalog() {
   const [panelWidth, setPanelWidth] = useState(loadSplitterPosition())
   const [screenWidth, setScreenWidth] = useState(window.innerWidth)
   const mapRef = useRef<PropertyMapRef | null>(null)
-  const { projects, loading, error } = useProjects()
+
+  const { data: projectsData, isLoading: loading, error } = useListProjects()
+  const projects = useMemo(() => {
+    if (!projectsData) return []
+    return apiProjectsToProperties(projectsData)
+  }, [projectsData])
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth)
@@ -135,7 +141,7 @@ export default function Catalog() {
         </div>
       ) : error ? (
         <div className={styles.error}>
-          <p>Ошибка загрузки: {error}</p>
+          <p>Ошибка загрузки: {error instanceof Error ? error.message : 'Unknown error'}</p>
           <button onClick={() => window.location.reload()}>Повторить</button>
         </div>
       ) : (

@@ -25,4 +25,10 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['**/api/generated/**/*.{ts,tsx}'],
+    rules: {
+      'react-hooks/immutability': 'off',
+    },
+  },
 ])

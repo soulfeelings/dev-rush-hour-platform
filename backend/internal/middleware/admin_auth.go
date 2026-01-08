@@ -15,21 +15,17 @@ func AdminAuth(cfg *config.Config) fiber.Handler {
 			return c.Next()
 		}
 
+		// Если API key не настроен, пропускаем проверку
+		if cfg.Admin.APIKey == "" {
+			return c.Next()
+		}
+
 		apiKey := c.Get("X-Admin-Key")
 		if apiKey == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": fiber.Map{
 					"code":    "unauthorized",
 					"message": "Missing API key",
-				},
-			})
-		}
-
-		if cfg.Admin.APIKey == "" {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": fiber.Map{
-					"code":    "internal_error",
-					"message": "Admin API key not configured",
 				},
 			})
 		}

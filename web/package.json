@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "prepare": "lefthook install",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "generate:api": "orval"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -31,6 +32,7 @@
     "react-i18next": "^16.5.0",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.10.1",
+    "@tanstack/react-query": "^5.62.11",
     "three": "^0.182.0"
   },
   "devDependencies": {
@@ -58,6 +60,7 @@
     "globals": "^16.5.0",
     "lefthook": "^2.0.12",
     "playwright": "^1.57.0",
+    "orval": "^7.5.0",
     "prettier": "^3.7.4",
     "sass-embedded": "^1.96.0",
     "storybook": "^10.1.11",

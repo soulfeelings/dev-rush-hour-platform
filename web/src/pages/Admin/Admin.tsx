@@ -2,37 +2,41 @@ import { useState, useEffect, useRef } from 'react'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { LogOut } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Button, Input, Select } from '../../ui'
-import { adminFetch, getAdminKey, setAdminKey, removeAdminKey } from '../../utils/adminApi'
+import { getAdminKey, setAdminKey, removeAdminKey } from '../../utils/adminApi'
+import { AdminApi, type DeveloperCreateRequest, type ProjectCreateRequest } from '../../api'
+
+const {
+  useAdminListDevelopers,
+  useAdminListAreas,
+  useAdminListProjects,
+  useAdminCreateDeveloper,
+  useAdminCreateProject,
+  useAdminCreateLot,
+} = AdminApi
 import styles from './Admin.module.scss'
 
-interface Developer {
-  id: string
-  name: string
-  slug: string
-}
-
-interface Area {
-  id: string
-  name: string
-  slug: string
-}
-
-interface Project {
-  id: string
-  name: string
-  slug: string
-}
-
 export default function Admin() {
+  const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<'developer' | 'project' | 'lot'>('developer')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(!!getAdminKey())
 
-  const [developers, setDevelopers] = useState<Developer[]>([])
-  const [areas, setAreas] = useState<Area[]>([])
-  const [projects, setProjects] = useState<Project[]>([])
+  const { data: developersData } = useAdminListDevelopers({
+    query: { enabled: isAuthenticated },
+  })
+  const { data: areasData } = useAdminListAreas({
+    query: { enabled: isAuthenticated },
+  })
+  const { data: projectsData } = useAdminListProjects({
+    query: { enabled: isAuthenticated },
+  })
+
+  const developers = developersData || []
+  const areas = areasData || []
+  const projects = projectsData || []
 
   const [projectForm, setProjectForm] = useState({
     slug: '',
@@ -65,19 +69,84 @@ export default function Admin() {
     priceAmount: '',
   })
 
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+
+  const createDeveloperMutation = useAdminCreateDeveloper({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/admin/developers'] })
+        setSuccess('Developer created successfully!')
+        setDeveloperForm({
+          slug: '',
+          name: '',
+          status: 'active',
+        })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to create developer')
+      },
+    },
+  })
+
+  const createProjectMutation = useAdminCreateProject({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/admin/projects'] })
+        setSuccess('Project created successfully!')
+        setProjectForm({
+          slug: '',
+          name: '',
+          status: 'active',
+          sale: 'sale',
+          developerId: '',
+          areaId: '',
+          lat: '',
+          lng: '',
+        })
+        if (markerRef.current) {
+          markerRef.current.remove()
+        }
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to create project')
+      },
+    },
+  })
+
+  const createLotMutation = useAdminCreateLot({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/admin/lots'] })
+        setSuccess('Lot created successfully!')
+        setLotForm({
+          projectId: '',
+          developerId: '',
+          areaId: '',
+          type: 'apartment',
+          status: 'active',
+          bedrooms: '',
+          bathrooms: '',
+          areaSqm: '',
+          floor: '',
+          priceCurrency: 'AED',
+          priceAmount: '',
+        })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to create lot')
+      },
+    },
+  })
+
+  const loading =
+    createDeveloperMutation.isPending ||
+    createProjectMutation.isPending ||
+    createLotMutation.isPending
 
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadData()
-    }
-  }, [isAuthenticated])
 
   useEffect(() => {
     if (activeTab !== 'project' || !mapContainerRef.current) {
@@ -216,135 +285,46 @@ export default function Admin() {
     }
     if (markerRef.current) {
       markerRef.current.remove()
-      markerRef.current = null
     }
   }
 
-  const loadData = async () => {
-    try {
-      const [devsRes, areasRes, projectsRes] = await Promise.all([
-        adminFetch('/admin/developers'),
-        adminFetch('/admin/areas'),
-        adminFetch('/admin/projects'),
-      ])
+  // Данные загружаются автоматически через react-query хуки
 
-      if (devsRes.ok) {
-        const devs = await devsRes.json()
-        setDevelopers(devs)
-      }
-      if (areasRes.ok) {
-        const areasData = await areasRes.json()
-        setAreas(areasData)
-      }
-      if (projectsRes.ok) {
-        const projs = await projectsRes.json()
-        setProjects(projs)
-      }
-    } catch (err) {
-      console.error('Failed to load data:', err)
-    }
-  }
-
-  const handleDeveloperSubmit = async (e: React.FormEvent) => {
+  const handleDeveloperSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError(null)
     setSuccess(null)
 
-    try {
-      const payload = {
-        slug: developerForm.slug,
-        name: developerForm.name,
-        status: developerForm.status,
-      }
-
-      const response = await adminFetch('/admin/developers', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error?.message || 'Failed to create developer')
-      }
-
-      setSuccess('Developer created successfully!')
-      setDeveloperForm({
-        slug: '',
-        name: '',
-        status: 'active',
-      })
-      loadData()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create developer')
-    } finally {
-      setLoading(false)
+    const payload: DeveloperCreateRequest = {
+      slug: developerForm.slug,
+      name: developerForm.name,
+      status: developerForm.status as 'active' | 'inactive',
     }
+
+    createDeveloperMutation.mutate({ data: payload })
   }
 
-  const handleProjectSubmit = async (e: React.FormEvent) => {
+  const handleProjectSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError(null)
     setSuccess(null)
 
-    try {
-      const payload: Record<string, unknown> = {
-        slug: projectForm.slug,
-        name: projectForm.name,
-        status: projectForm.status,
-        sale: projectForm.sale,
-      }
-
-      if (projectForm.developerId) {
-        payload.developerId = projectForm.developerId
-      }
-      if (projectForm.areaId) {
-        payload.areaId = projectForm.areaId
-      }
-      if (projectForm.lat) {
-        payload.lat = parseFloat(projectForm.lat)
-      }
-      if (projectForm.lng) {
-        payload.lng = parseFloat(projectForm.lng)
-      }
-
-      const response = await adminFetch('/admin/projects', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error?.message || 'Failed to create project')
-      }
-
-      setSuccess('Project created successfully!')
-      setProjectForm({
-        slug: '',
-        name: '',
-        status: 'active',
-        sale: 'sale',
-        developerId: '',
-        areaId: '',
-        lat: '',
-        lng: '',
-      })
-      if (markerRef.current) {
-        markerRef.current.remove()
-        markerRef.current = null
-      }
-      loadData()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create project')
-    } finally {
-      setLoading(false)
+    const payload: ProjectCreateRequest = {
+      slug: projectForm.slug,
+      name: projectForm.name,
+      status: projectForm.status as 'active' | 'archived',
+      sale: projectForm.sale as 'sale' | 'start of sales' | 'sales announcement',
+      ...(projectForm.developerId && { developerId: projectForm.developerId }),
+      ...(projectForm.areaId && { areaId: projectForm.areaId }),
+      ...(projectForm.lat && { lat: parseFloat(projectForm.lat) }),
+      ...(projectForm.lng && { lng: parseFloat(projectForm.lng) }),
     }
+
+    createProjectMutation.mutate({ data: payload })
   }
 
   const handleLotSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError(null)
     setSuccess(null)
 
@@ -376,16 +356,6 @@ export default function Admin() {
         payload.floor = parseInt(lotForm.floor, 10)
       }
 
-      const response = await adminFetch('/admin/lots', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error?.message || 'Failed to create lot')
-      }
-
       setSuccess('Lot created successfully!')
       setLotForm({
         projectId: '',
@@ -402,8 +372,6 @@ export default function Admin() {
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create lot')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -550,7 +518,7 @@ export default function Admin() {
               label="Developer"
               options={[
                 { value: '', label: 'None' },
-                ...developers.map(d => ({ value: d.id, label: d.name })),
+                ...developers.map(d => ({ value: d.id || '', label: d.name || '' })),
               ]}
               value={projectForm.developerId}
               onChange={value => setProjectForm({ ...projectForm, developerId: value })}
@@ -559,7 +527,7 @@ export default function Admin() {
               label="Area"
               options={[
                 { value: '', label: 'None' },
-                ...areas.map(a => ({ value: a.id, label: a.name })),
+                ...areas.map(a => ({ value: a.id || '', label: a.name || '' })),
               ]}
               value={projectForm.areaId}
               onChange={value => setProjectForm({ ...projectForm, areaId: value })}
@@ -594,7 +562,7 @@ export default function Admin() {
               label="Project"
               options={[
                 { value: '', label: 'Select Project' },
-                ...projects.map(p => ({ value: p.id, label: p.name })),
+                ...projects.map(p => ({ value: p.id || '', label: p.name || '' })),
               ]}
               value={lotForm.projectId}
               onChange={value => setLotForm({ ...lotForm, projectId: value })}
@@ -658,7 +626,7 @@ export default function Admin() {
               label="Developer"
               options={[
                 { value: '', label: 'None' },
-                ...developers.map(d => ({ value: d.id, label: d.name })),
+                ...developers.map(d => ({ value: d.id || '', label: d.name || '' })),
               ]}
               value={lotForm.developerId}
               onChange={value => setLotForm({ ...lotForm, developerId: value })}
@@ -667,7 +635,7 @@ export default function Admin() {
               label="Area"
               options={[
                 { value: '', label: 'None' },
-                ...areas.map(a => ({ value: a.id, label: a.name })),
+                ...areas.map(a => ({ value: a.id || '', label: a.name || '' })),
               ]}
               value={lotForm.areaId}
               onChange={value => setLotForm({ ...lotForm, areaId: value })}
