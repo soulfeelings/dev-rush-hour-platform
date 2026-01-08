@@ -23,6 +23,11 @@ type Lot struct {
 	Data          LotData
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+
+	// Вложенные объекты (загружаются опционально)
+	Project   *Project   `json:"project,omitempty"`
+	Developer *Developer `json:"developer,omitempty"`
+	Area      *Area      `json:"area,omitempty"`
 }
 
 type LotData struct {
@@ -31,6 +36,11 @@ type LotData struct {
 	Bonuses        []Bonus             `json:"bonuses,omitempty"`
 	FloorPosition  *FloorPosition      `json:"floorPosition,omitempty"`
 	Tags           []string            `json:"tags,omitempty"`
+	// Дополнительные поля из seed данных
+	View           string              `json:"view,omitempty"`
+	Furnishing     string              `json:"furnishing,omitempty"`
+	Orientation    string              `json:"orientation,omitempty"`
+	Features       []string            `json:"features,omitempty"`
 }
 
 type LotMedia struct {

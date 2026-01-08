@@ -24,6 +24,32 @@
   }
 }
 
+.projectLink {
+  display: block;
+  margin-bottom: $spacing-2;
+  color: $color-primary;
+  text-decoration: none;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: color.adjust($color-primary, $lightness: -10%);
+    text-decoration: underline;
+  }
+}
+
+.projectLinkInline {
+  color: $color-primary;
+  text-decoration: none;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: color.adjust($color-primary, $lightness: -10%);
+    text-decoration: underline;
+  }
+}
+
 .title {
   font-size: $font-size-3xl;
   font-weight: $font-weight-bold;
@@ -282,11 +308,23 @@
 .infoRow {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: $spacing-3 0;
   border-bottom: 1px solid $color-border;
 
   &:last-of-type {
     border-bottom: none;
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    svg {
+      flex-shrink: 0;
+      color: $color-text-secondary;
+    }
   }
 }
 
@@ -307,6 +345,12 @@
   margin-top: $spacing-6;
   padding-top: $spacing-6;
   border-top: 1px solid $color-border;
+
+  &:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
 
   h3 {
     font-size: $font-size-lg;
@@ -348,6 +392,63 @@
     padding-top: 0;
     border-top: none;
   }
+}
+
+// View section with icon (like ProjectFeatures)
+.viewSection {
+  margin-bottom: $spacing-6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.viewTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0 0 $spacing-3 0;
+}
+
+.viewItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  border-radius: $radius-md;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  transition: all $transition-normal;
+}
+
+.viewItem:hover .viewIconWrapper {
+  background: $color-primary;
+  transform: scale(1.1);
+}
+
+.viewItem:hover .viewIcon {
+  color: $color-text-inverse;
+}
+
+.viewIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-md;
+  background: rgba($color-primary, 0.15);
+  flex-shrink: 0;
+}
+
+.viewIcon {
+  color: $color-primary;
+}
+
+.viewText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text;
 }
 
 .mapCard {
@@ -422,185 +523,3 @@
   }
 }
 
-.unitsSection {
-  margin-top: $spacing-12;
-
-  h2 {
-    font-size: $font-size-2xl;
-    font-weight: $font-weight-bold;
-    color: $color-text;
-    margin: 0 0 $spacing-6 0;
-  }
-}
-
-.unitsTable {
-  background: $color-bg-card;
-  border-radius: $radius-lg;
-  padding: $spacing-6;
-  box-shadow: $shadow-card;
-  overflow-x: auto;
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-
-    th,
-    td {
-      padding: $spacing-4 $spacing-3;
-      text-align: left;
-      font-size: $font-size-sm;
-      border-bottom: 1px solid $color-border;
-    }
-
-    th {
-      font-weight: $font-weight-semibold;
-      color: $color-text;
-      background: $color-border;
-    }
-
-    td {
-      color: $color-text-secondary;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-  }
-}
-
-.unitStatus {
-  display: inline-block;
-  padding: $spacing-1 $spacing-2;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  text-transform: uppercase;
-
-  &.unitStatusavailable {
-    background: color.change($color-success, $alpha: 0.1);
-    color: $color-success;
-  }
-
-  &.unitStatusreserved {
-    background: color.change($color-warning, $alpha: 0.1);
-    color: $color-warning;
-  }
-
-  &.unitStatussold {
-    background: color.change($color-error, $alpha: 0.1);
-    color: $color-error;
-  }
-}
-
-// Секция с карточками лотов (в стиле marker-popup)
-.lotsSection {
-  margin-top: $spacing-6;
-}
-
-.lotsTitle {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
-  margin: 0 0 $spacing-4 0;
-}
-
-.lotsList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-3;
-}
-
-.lotCard {
-  display: flex;
-  gap: $spacing-2;
-  padding: 0;
-  min-width: 0;
-  background: $color-bg-card;
-  border-radius: $radius-md;
-  overflow: hidden;
-  box-shadow: $shadow-card;
-  transition: transform $transition-fast, box-shadow $transition-fast;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-lg;
-  }
-
-  &[style*='cursor: pointer'] {
-    cursor: pointer;
-  }
-}
-
-.lotCardImage {
-  flex-shrink: 0;
-  width: 120px;
-  height: 85px;
-  border-radius: $radius-md 0 0 $radius-md;
-  overflow: hidden;
-  position: relative;
-  margin: 0;
-}
-
-.lotCardImagePlaceholder {
-  width: 100%;
-  height: 100%;
-  background: $color-border;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: $color-text-secondary;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-}
-
-.lotCardContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  padding: $spacing-2;
-}
-
-.lotCardPrice {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
-  margin: 0 0 $spacing-1 0;
-  line-height: $line-height-tight;
-}
-
-.lotCardDetails {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap; // Запрещаем перенос на новую строку
-  gap: $spacing-1;
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  line-height: 1; // Убираем влияние высоты строки
-  overflow: hidden;
-}
-
-.lotCardDetail {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: $font-weight-medium;
-  white-space: nowrap; // Текст внутри (например, "160 sqm") не должен рваться
-  flex-shrink: 0;
-
-  svg {
-    display: block; // Убираем дефолтные отступы инлайновых элементов
-    flex-shrink: 0;
-    color: $color-text-secondary;
-  }
-}
-
-.lotCardSeparator {
-  color: $color-text-secondary;
-  margin: 0 2px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  height: 100%;
-}

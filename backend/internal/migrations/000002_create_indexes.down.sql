@@ -6,6 +6,7 @@ DROP INDEX IF EXISTS idx_areas_city;
 DROP INDEX IF EXISTS idx_projects_status;
 DROP INDEX IF EXISTS idx_projects_area_id;
 DROP INDEX IF EXISTS idx_projects_developer_id;
+DROP INDEX IF EXISTS uniq_lots_project_spec;
 DROP INDEX IF EXISTS idx_lots_data_gin;
 DROP INDEX IF EXISTS idx_lots_composite_list;
 DROP INDEX IF EXISTS idx_lots_bonus_keys;

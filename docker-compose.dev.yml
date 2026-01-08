@@ -79,12 +79,12 @@ services:
       context: ./web
       dockerfile: Dockerfile.dev
     ports:
-      - "5174:5174"
+      - "5173:5173"
     environment:
-      - VITE_API_URL=http://localhost:8080
       - VITE_PROXY_TARGET=http://backend:8080
     volumes:
       - ./web:/app
+      - /app/node_modules
     command: pnpm dev --host 0.0.0.0
     depends_on:
       - backend

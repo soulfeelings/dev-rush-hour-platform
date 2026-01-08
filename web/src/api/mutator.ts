@@ -21,7 +21,7 @@ export const customInstance = async <T>(
   const baseUrl = API_URL || '/api'
 
   // Объединяем baseUrl и url, убирая лишние слэши
-  let fullPath = `${baseUrl}${'/api'}${url.startsWith('/') ? url : `/${url}`}`
+  let fullPath = `${baseUrl}${url.startsWith('/') ? url : `/${url}`}`
 
   // Добавляем query параметры
   if (params) {
