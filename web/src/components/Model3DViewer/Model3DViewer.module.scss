@@ -1,0 +1,189 @@
+@use '../../styles' as *;
+
+.container {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+  margin-top: $spacing-6;
+
+  &.embedded {
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    margin-top: 0;
+  }
+}
+
+.header {
+  margin-bottom: $spacing-4;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin: $spacing-1 0 0 0;
+}
+
+.canvasWrapper {
+  width: 100%;
+  height: 500px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  background: linear-gradient(135deg, #fdf4e3 0%, #e5a732 50%, #d19526 100%);
+  position: relative;
+
+  .embedded & {
+    height: 70vh;
+    min-height: 500px;
+    max-height: 800px;
+  }
+}
+
+.loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: $font-size-md;
+}
+
+.apartmentPopup {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-4;
+  box-shadow: $shadow-lg;
+  min-width: 200px;
+  max-width: min(90vw, 300px);
+  transform: translateX(-50%);
+  pointer-events: auto;
+  border: 2px solid $color-primary;
+  animation: fadeIn 0.2s ease-in;
+  position: relative;
+  contain: layout style paint;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.popupCloseBtn {
+  position: absolute;
+  top: $spacing-2;
+  right: $spacing-2;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: all $transition-fast;
+  padding: 0;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.2);
+    transform: scale(1.1);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+    color: $color-text;
+  }
+}
+
+.popupTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0 0 $spacing-3 0;
+  text-align: center;
+}
+
+.popupInfo {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.popupRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+
+  strong {
+    color: $color-text;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.mobilePopup {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  border-top-left-radius: $radius-lg;
+  border-top-right-radius: $radius-lg;
+  padding: $spacing-4;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid $color-primary;
+  border-bottom: none;
+  z-index: 1001;
+  animation: slideUpMobile 0.3s ease-out;
+  max-height: 50vh;
+  overflow-y: auto;
+
+  @media (min-width: $breakpoint-md) {
+    display: none;
+  }
+
+  &.closing {
+    animation: slideDownMobile 0.3s ease-in forwards;
+  }
+}
+
+@keyframes slideUpMobile {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDownMobile {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}

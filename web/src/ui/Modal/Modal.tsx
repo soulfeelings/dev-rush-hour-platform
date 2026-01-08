@@ -34,6 +34,8 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
 
     if (!open) return null
 
+    const isMinimal = className?.includes('minimal')
+
     return (
       <div className={styles.overlay} onClick={onClose}>
         <div
@@ -42,17 +44,35 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
           onClick={e => e.stopPropagation()}
           {...props}
         >
-          {(title || showCloseButton) && (
-            <div className={styles.header}>
-              {title && <h3 className={styles.title}>{title}</h3>}
-              {showCloseButton && (
-                <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
-                  <X size={20} />
-                </button>
+          {isMinimal ? (
+            <>
+              {(title || showCloseButton) && (
+                <div className={styles.minimalHeader}>
+                  {title && <h3 className={styles.minimalTitle}>{title}</h3>}
+                  {showCloseButton && (
+                    <button className={styles.minimalCloseBtn} onClick={onClose} aria-label="Close">
+                      <X size={20} />
+                    </button>
+                  )}
+                </div>
               )}
-            </div>
+              {children}
+            </>
+          ) : (
+            <>
+              {(title || showCloseButton) && (
+                <div className={styles.header}>
+                  {title && <h3 className={styles.title}>{title}</h3>}
+                  {showCloseButton && (
+                    <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+                      <X size={20} />
+                    </button>
+                  )}
+                </div>
+              )}
+              {children}
+            </>
           )}
-          {children}
         </div>
       </div>
     )

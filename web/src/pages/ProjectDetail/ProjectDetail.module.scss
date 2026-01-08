@@ -45,6 +45,10 @@
   position: sticky;
   top: $spacing-6;
   height: fit-content;
+
+  @media (max-width: $breakpoint-md) {
+    position: static;
+  }
 }
 
 .mainImage {
@@ -201,6 +205,17 @@
     font-weight: $font-weight-semibold;
     color: $color-text;
     margin: 0 0 $spacing-6 0;
+  }
+}
+
+.infoCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-6;
+
+  h2 {
+    margin: 0;
   }
 }
 

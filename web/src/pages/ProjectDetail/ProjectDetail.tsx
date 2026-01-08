@@ -4,6 +4,9 @@ import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { createPropertyMarkerIcon } from '../../components/PropertyMap/markerIcon'
 import { developerLogos } from '../../data/mockProperties'
+import Model3DViewer from '../../components/Model3DViewer'
+import { Modal } from '../../ui/Modal'
+import { Button } from '../../ui/Button'
 import styles from './ProjectDetail.module.scss'
 
 // Тип для проекта из API (актуальная структура)
@@ -103,6 +106,7 @@ export default function ProjectDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
@@ -347,10 +351,14 @@ export default function ProjectDetail() {
             </div>
           )}
         </div>
-
         <div className={styles.infoSection}>
           <div className={styles.infoCard}>
-            <h2>Property Information</h2>
+            <div className={styles.infoCardHeader}>
+              <h2>Property Information</h2>
+              <Button onClick={() => setIs3DModalOpen(true)} variant="primary">
+                View Apartments
+              </Button>
+            </div>
             <div className={styles.infoRow}>
               <span className={styles.label}>Location:</span>
               <span className={styles.value}>{project.area?.name || 'Dubai'}</span>
@@ -417,6 +425,15 @@ export default function ProjectDetail() {
           </div>
         </div>
       )}
+
+      <Modal
+        open={is3DModalOpen}
+        onClose={() => setIs3DModalOpen(false)}
+        title="3D Apartment Model"
+        className="wide transparent minimal"
+      >
+        <Model3DViewer embedded />
+      </Modal>
     </div>
   )
 }
