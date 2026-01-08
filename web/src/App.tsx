@@ -6,6 +6,7 @@ import ProjectDetail from './pages/ProjectDetail'
 import ProjectArea from './pages/ProjectArea'
 import DistrictDetail from './pages/DistrictDetail'
 import DesignDemo from './design-demo/DesignDemo'
+import Admin from './pages/Admin'
 import './App.css'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/areas" element={<ProjectArea />} />
           <Route path="/area/:id" element={<DistrictDetail />} />
           <Route path="/design-demo" element={<DesignDemo />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </div>
     </BrowserRouter>
