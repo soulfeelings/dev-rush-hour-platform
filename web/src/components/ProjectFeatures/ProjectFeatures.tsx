@@ -38,7 +38,7 @@ interface ProjectFeaturesProps {
 
 // Маппинг названий features на иконки
 const featureIconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
-  'Gym': Dumbbell,
+  Gym: Dumbbell,
   'Swimming Pool': Waves,
   'Sea View': Eye,
   'Spa Center': Sparkles,
@@ -63,10 +63,10 @@ const featureIconMap: Record<string, React.ComponentType<{ size?: number; classN
   'Infrared Saunas': Flame,
   'Poolside Restaurant': UtensilsCrossed,
   'Kids Club with Nanny': Users,
-  'Helipad': Building2,
+  Helipad: Building2,
   'Indoor Tennis Court': Trophy,
-  'Library': BookOpen,
-  'Cinema': Film,
+  Library: BookOpen,
+  Cinema: Film,
   'Conference Room': Presentation,
   'Direct Access to Dubai Mall': ShoppingBag,
 }
@@ -114,4 +114,3 @@ export default function ProjectFeatures({ features, maxItems = 6 }: ProjectFeatu
     </div>
   )
 }
-

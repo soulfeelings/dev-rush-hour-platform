@@ -158,8 +158,8 @@ export default function ProjectDetail() {
     if (!mapContainerEl) return
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting && mapRef.current) {
             // Карта стала видимой, обновляем размер
             setTimeout(() => {
@@ -239,11 +239,13 @@ export default function ProjectDetail() {
     setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
   }
 
-  const projectDataFields = project.data as {
-    description?: string
-    featuresAmenities?: string[]
-    specs?: { priceFrom?: number; currency?: string }
-  } | undefined
+  const projectDataFields = project.data as
+    | {
+        description?: string
+        featuresAmenities?: string[]
+        specs?: { priceFrom?: number; currency?: string }
+      }
+    | undefined
 
   return (
     <div className={styles.container}>
@@ -379,7 +381,10 @@ export default function ProjectDetail() {
                         <div className={styles.lotCardPrice}>{priceText}</div>
                         <div className={styles.lotCardDetails}>
                           {(() => {
-                            const details: Array<{ icon: React.ReactElement; value: string | number }> = []
+                            const details: Array<{
+                              icon: React.ReactElement
+                              value: string | number
+                            }> = []
                             if (lot.bedrooms !== undefined && lot.bedrooms !== null) {
                               details.push({ icon: <IconBed />, value: lot.bedrooms })
                             }

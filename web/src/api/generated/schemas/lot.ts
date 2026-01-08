@@ -8,6 +8,9 @@
 import type { LotStatus } from './lotStatus'
 import type { LotType } from './lotType'
 import type { LotData } from './lotData'
+import type { Project } from './project'
+import type { Developer } from './developer'
+import type { Area } from './area'
 
 export interface Lot {
   id?: string
@@ -24,6 +27,12 @@ export interface Lot {
   priceAmount?: number
   bonusKeys?: string[]
   data?: LotData
+  /** Вложенный объект проекта (если загружен) */
+  project?: Project
+  /** Вложенный объект застройщика (если загружен) */
+  developer?: Developer
+  /** Вложенный объект района (если загружен) */
+  area?: Area
   createdAt?: string
   updatedAt?: string
 }
