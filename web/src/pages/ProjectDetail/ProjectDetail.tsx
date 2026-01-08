@@ -352,12 +352,14 @@ export default function ProjectDetail() {
           )}
         </div>
         <div className={styles.infoSection}>
+          <div className={styles.viewApartmentsButton}>
+            <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
+              View Apartments
+            </Button>
+          </div>
           <div className={styles.infoCard}>
             <div className={styles.infoCardHeader}>
               <h2>Property Information</h2>
-              <Button onClick={() => setIs3DModalOpen(true)} variant="primary">
-                View Apartments
-              </Button>
             </div>
             <div className={styles.infoRow}>
               <span className={styles.label}>Location:</span>

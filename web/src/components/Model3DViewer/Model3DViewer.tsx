@@ -255,7 +255,7 @@ function Scene({
       />
 
       {selectedApartment && !isMobile && (
-        <Html position={[0, selectedApartmentId + 1.5, 0]} center>
+        <Html position={[0, selectedApartment.floor + 1.5, 0]} center>
           <div className={styles.apartmentPopup}>
             <button className={styles.popupCloseBtn} onClick={onClosePopup} aria-label="Close">
               <X size={16} />

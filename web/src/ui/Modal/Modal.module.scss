@@ -33,6 +33,7 @@
     height: 100vh;
     border-radius: 0;
     margin: 0;
+    animation: fadeIn $transition-fast;
   }
 
   &.transparent {
@@ -114,6 +115,7 @@
   justify-content: space-between;
   z-index: 10;
   pointer-events: none;
+  animation: none;
 }
 
 .minimalTitle {
@@ -123,6 +125,7 @@
   color: $color-text-inverse;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   pointer-events: auto;
+  animation: none;
 }
 
 .minimalCloseBtn {
@@ -135,10 +138,11 @@
   border: none;
   cursor: pointer;
   border-radius: $radius-full;
-  transition: all $transition-fast;
+  transition: background $transition-fast;
   margin-left: auto;
   pointer-events: auto;
   box-shadow: $shadow-md;
+  animation: none;
 
   &:hover {
     background: rgba(255, 255, 255, 1);
