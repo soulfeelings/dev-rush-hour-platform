@@ -4,13 +4,66 @@ import { OrbitControls, PerspectiveCamera, Environment, Html } from '@react-thre
 import { X } from 'lucide-react'
 import styles from './Model3DViewer.module.scss'
 
+interface ApartmentData {
+  id: number
+  name: string
+  bedrooms: number
+  bathrooms: number
+  area: number
+  price: number
+  floor: number
+}
+
+const apartmentsData: Record<number, ApartmentData> = {
+  1: {
+    id: 1,
+    name: 'Apartment 1A',
+    bedrooms: 1,
+    bathrooms: 1,
+    area: 65,
+    price: 1.8,
+    floor: 1,
+  },
+  3: {
+    id: 3,
+    name: 'Apartment 2B',
+    bedrooms: 2,
+    bathrooms: 2,
+    area: 95,
+    price: 2.5,
+    floor: 2,
+  },
+  5: {
+    id: 5,
+    name: 'Apartment 3C',
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 120,
+    price: 3.2,
+    floor: 3,
+  },
+  7: {
+    id: 7,
+    name: 'Apartment 4D',
+    bedrooms: 4,
+    bathrooms: 3,
+    area: 150,
+    price: 4.5,
+    floor: 4,
+  },
+}
+
 // Простая модель здания (можно заменить на GLTF)
 function BuildingModel({
   onApartmentHover,
   onApartmentClick,
+  hoveredApartmentId,
+  selectedApartmentId,
 }: {
-  onApartmentHover: (hovered: boolean) => void
-  onApartmentClick: () => void
+  onApartmentHover: (apartmentId: number | null) => void
+  onApartmentClick: (apartmentId: number) => void
+  hoveredApartmentId: number | null
+  selectedApartmentId: number | null
 }) {
   return (
     <group>
@@ -28,9 +81,12 @@ function BuildingModel({
 
       {/* Этажи с окнами */}
       {[1, 3, 5, 7].map((y, i) => {
-        const isHighlighted = y === 5 // Выделяем квартиру на среднем этаже
-        const windowColor = isHighlighted ? '#e5a732' : '#87ceeb'
-        const emissiveIntensity = isHighlighted ? 0.8 : 0.3
+        const apartmentId = y
+        const isSelected = selectedApartmentId === apartmentId
+        const isHovered = hoveredApartmentId === apartmentId && !isSelected
+        // При выборе - очень желтый, при ховере - яркий золотой, иначе стандартный голубой
+        const windowColor = isSelected ? '#ffff00' : isHovered ? '#ffd700' : '#87ceeb'
+        const emissiveIntensity = isSelected ? 1.5 : isHovered ? 1.2 : 0.3
 
         return (
           <group key={i} position={[0, y, 0]}>
@@ -40,30 +96,18 @@ function BuildingModel({
                 key={`front-${j}`}
                 position={[x, 0, 3.51]}
                 castShadow
-                onPointerOver={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentHover(true)
-                      }
-                    : undefined
-                }
-                onPointerOut={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentHover(false)
-                      }
-                    : undefined
-                }
-                onClick={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentClick()
-                      }
-                    : undefined
-                }
+                onPointerOver={e => {
+                  e.stopPropagation()
+                  onApartmentHover(apartmentId)
+                }}
+                onPointerOut={e => {
+                  e.stopPropagation()
+                  onApartmentHover(null)
+                }}
+                onClick={e => {
+                  e.stopPropagation()
+                  onApartmentClick(apartmentId)
+                }}
               >
                 <boxGeometry args={[1.5, 1.5, 0.1]} />
                 <meshStandardMaterial
@@ -79,30 +123,18 @@ function BuildingModel({
                 key={`back-${j}`}
                 position={[x, 0, -3.51]}
                 castShadow
-                onPointerOver={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentHover(true)
-                      }
-                    : undefined
-                }
-                onPointerOut={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentHover(false)
-                      }
-                    : undefined
-                }
-                onClick={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentClick()
-                      }
-                    : undefined
-                }
+                onPointerOver={e => {
+                  e.stopPropagation()
+                  onApartmentHover(apartmentId)
+                }}
+                onPointerOut={e => {
+                  e.stopPropagation()
+                  onApartmentHover(null)
+                }}
+                onClick={e => {
+                  e.stopPropagation()
+                  onApartmentClick(apartmentId)
+                }}
               >
                 <boxGeometry args={[1.5, 1.5, 0.1]} />
                 <meshStandardMaterial
@@ -118,30 +150,18 @@ function BuildingModel({
                 key={`left-${j}`}
                 position={[-3.51, 0, z]}
                 castShadow
-                onPointerOver={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentHover(true)
-                      }
-                    : undefined
-                }
-                onPointerOut={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentHover(false)
-                      }
-                    : undefined
-                }
-                onClick={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentClick()
-                      }
-                    : undefined
-                }
+                onPointerOver={e => {
+                  e.stopPropagation()
+                  onApartmentHover(apartmentId)
+                }}
+                onPointerOut={e => {
+                  e.stopPropagation()
+                  onApartmentHover(null)
+                }}
+                onClick={e => {
+                  e.stopPropagation()
+                  onApartmentClick(apartmentId)
+                }}
               >
                 <boxGeometry args={[0.1, 1.5, 1.5]} />
                 <meshStandardMaterial
@@ -157,30 +177,18 @@ function BuildingModel({
                 key={`right-${j}`}
                 position={[3.51, 0, z]}
                 castShadow
-                onPointerOver={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentHover(true)
-                      }
-                    : undefined
-                }
-                onPointerOut={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentHover(false)
-                      }
-                    : undefined
-                }
-                onClick={
-                  isHighlighted
-                    ? e => {
-                        e.stopPropagation()
-                        onApartmentClick()
-                      }
-                    : undefined
-                }
+                onPointerOver={e => {
+                  e.stopPropagation()
+                  onApartmentHover(apartmentId)
+                }}
+                onPointerOut={e => {
+                  e.stopPropagation()
+                  onApartmentHover(null)
+                }}
+                onClick={e => {
+                  e.stopPropagation()
+                  onApartmentClick(apartmentId)
+                }}
               >
                 <boxGeometry args={[0.1, 1.5, 1.5]} />
                 <meshStandardMaterial
@@ -216,18 +224,22 @@ function BuildingModel({
 }
 
 function Scene({
-  showPopup,
+  selectedApartmentId,
   onApartmentHover,
   onApartmentClick,
   onClosePopup,
   isMobile,
+  hoveredApartmentId,
 }: {
-  showPopup: boolean
-  onApartmentHover: (hovered: boolean) => void
-  onApartmentClick: () => void
+  selectedApartmentId: number | null
+  onApartmentHover: (apartmentId: number | null) => void
+  onApartmentClick: (apartmentId: number) => void
   onClosePopup: () => void
   isMobile: boolean
+  hoveredApartmentId: number | null
 }) {
+  const selectedApartment = selectedApartmentId ? apartmentsData[selectedApartmentId] : null
+
   return (
     <>
       <ambientLight intensity={0.5} />
@@ -235,31 +247,40 @@ function Scene({
       <directionalLight position={[-10, 5, -5]} intensity={0.3} />
       <pointLight position={[0, 10, 0]} intensity={0.5} />
 
-      <BuildingModel onApartmentHover={onApartmentHover} onApartmentClick={onApartmentClick} />
+      <BuildingModel
+        onApartmentHover={onApartmentHover}
+        onApartmentClick={onApartmentClick}
+        hoveredApartmentId={hoveredApartmentId}
+        selectedApartmentId={selectedApartmentId}
+      />
 
-      {showPopup && !isMobile && (
-        <Html position={[0, 6.5, 0]} center>
+      {selectedApartment && !isMobile && (
+        <Html position={[0, selectedApartmentId + 1.5, 0]} center>
           <div className={styles.apartmentPopup}>
             <button className={styles.popupCloseBtn} onClick={onClosePopup} aria-label="Close">
               <X size={16} />
             </button>
-            <h4 className={styles.popupTitle}>Apartment 3B</h4>
+            <h4 className={styles.popupTitle}>{selectedApartment.name}</h4>
             <div className={styles.popupInfo}>
               <div className={styles.popupRow}>
+                <span>Floor:</span>
+                <strong>{selectedApartment.floor}</strong>
+              </div>
+              <div className={styles.popupRow}>
                 <span>Bedrooms:</span>
-                <strong>2</strong>
+                <strong>{selectedApartment.bedrooms}</strong>
               </div>
               <div className={styles.popupRow}>
                 <span>Bathrooms:</span>
-                <strong>2</strong>
+                <strong>{selectedApartment.bathrooms}</strong>
               </div>
               <div className={styles.popupRow}>
                 <span>Area:</span>
-                <strong>85 sqm</strong>
+                <strong>{selectedApartment.area} sqm</strong>
               </div>
               <div className={styles.popupRow}>
                 <span>Price:</span>
-                <strong>2.5M AED</strong>
+                <strong>{selectedApartment.price}M AED</strong>
               </div>
             </div>
           </div>
@@ -285,8 +306,8 @@ interface Model3DViewerProps {
 }
 
 export default function Model3DViewer({ embedded = false }: Model3DViewerProps) {
-  const [showPopup, setShowPopup] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
+  const [selectedApartmentId, setSelectedApartmentId] = useState<number | null>(null)
+  const [hoveredApartmentId, setHoveredApartmentId] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
 
@@ -299,21 +320,21 @@ export default function Model3DViewer({ embedded = false }: Model3DViewerProps) 
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const handleApartmentHover = (hovered: boolean) => {
-    setIsHovered(hovered)
+  const handleApartmentHover = (apartmentId: number | null) => {
+    setHoveredApartmentId(apartmentId)
     // Меняем курсор через CSS
     const canvas = document.querySelector('canvas')
     if (canvas) {
-      canvas.style.cursor = hovered ? 'pointer' : 'default'
+      canvas.style.cursor = apartmentId !== null ? 'pointer' : 'default'
     }
   }
 
-  const handleApartmentClick = () => {
-    if (showPopup) {
+  const handleApartmentClick = (apartmentId: number) => {
+    if (selectedApartmentId === apartmentId) {
       handleClosePopup()
     } else {
       setIsClosing(false)
-      setShowPopup(true)
+      setSelectedApartmentId(apartmentId)
     }
   }
 
@@ -321,13 +342,15 @@ export default function Model3DViewer({ embedded = false }: Model3DViewerProps) 
     if (isMobile) {
       setIsClosing(true)
       setTimeout(() => {
-        setShowPopup(false)
+        setSelectedApartmentId(null)
         setIsClosing(false)
       }, 300) // Длительность анимации закрытия
     } else {
-      setShowPopup(false)
+      setSelectedApartmentId(null)
     }
   }
+
+  const selectedApartment = selectedApartmentId ? apartmentsData[selectedApartmentId] : null
 
   return (
     <div className={`${styles.container} ${embedded ? styles.embedded : ''}`}>
@@ -341,38 +364,43 @@ export default function Model3DViewer({ embedded = false }: Model3DViewerProps) 
         <Suspense fallback={<div className={styles.loading}>Loading 3D model...</div>}>
           <Canvas shadows gl={{ antialias: true, alpha: true }}>
             <Scene
-              showPopup={showPopup || isHovered}
+              selectedApartmentId={selectedApartmentId}
               onApartmentHover={handleApartmentHover}
               onApartmentClick={handleApartmentClick}
               onClosePopup={handleClosePopup}
               isMobile={isMobile}
+              hoveredApartmentId={hoveredApartmentId}
             />
           </Canvas>
         </Suspense>
       </div>
 
-      {showPopup && isMobile && (
+      {selectedApartment && isMobile && (
         <div className={`${styles.mobilePopup} ${isClosing ? styles.closing : ''}`}>
           <button className={styles.popupCloseBtn} onClick={handleClosePopup} aria-label="Close">
             <X size={16} />
           </button>
-          <h4 className={styles.popupTitle}>Apartment 3B</h4>
+          <h4 className={styles.popupTitle}>{selectedApartment.name}</h4>
           <div className={styles.popupInfo}>
             <div className={styles.popupRow}>
+              <span>Floor:</span>
+              <strong>{selectedApartment.floor}</strong>
+            </div>
+            <div className={styles.popupRow}>
               <span>Bedrooms:</span>
-              <strong>2</strong>
+              <strong>{selectedApartment.bedrooms}</strong>
             </div>
             <div className={styles.popupRow}>
               <span>Bathrooms:</span>
-              <strong>2</strong>
+              <strong>{selectedApartment.bathrooms}</strong>
             </div>
             <div className={styles.popupRow}>
               <span>Area:</span>
-              <strong>85 sqm</strong>
+              <strong>{selectedApartment.area} sqm</strong>
             </div>
             <div className={styles.popupRow}>
               <span>Price:</span>
-              <strong>2.5M AED</strong>
+              <strong>{selectedApartment.price}M AED</strong>
             </div>
           </div>
         </div>
