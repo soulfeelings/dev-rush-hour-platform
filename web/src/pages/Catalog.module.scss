@@ -51,34 +51,39 @@
 
 .viewModeToggle {
   display: flex;
-  background: rgba($color-primary, 0.08);
+  gap: $spacing-2;
+  margin-bottom: $spacing-4;
+  padding: $spacing-2;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
   border-radius: $radius-md;
-  padding: 3px;
-  gap: 2px;
-  flex-shrink: 0;
-  margin-right: $spacing-2;
 }
 
 .toggleButton {
-  padding: $spacing-1 $spacing-4;
-  border: none;
+  flex: 1;
+  padding: $spacing-2 $spacing-4;
   background: transparent;
+  border: none;
   border-radius: $radius-sm;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
   color: $color-text-secondary;
   cursor: pointer;
   transition: all $transition-fast;
-  white-space: nowrap;
 
   &:hover {
-    color: $color-primary;
+    background: rgba($color-primary, 0.05);
+    color: $color-text;
   }
 
   &.active {
-    background: $color-bg-card;
-    color: $color-primary;
-    box-shadow: $shadow-sm;
+    background: $color-primary;
+    color: $color-text-inverse;
+    font-weight: $font-weight-semibold;
+    
+    &:hover {
+      background: $color-primary-hover;
+    }
   }
 }
 
