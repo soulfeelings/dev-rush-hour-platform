@@ -4,9 +4,15 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
 import { Tag } from '../../ui/Tag'
+import type { CatalogViewMode } from '../../utils/catalogViewMode'
 import styles from './FiltersBar.module.scss'
 
-export default function FiltersBar() {
+interface FiltersBarProps {
+  viewMode?: CatalogViewMode
+  onViewModeChange?: (mode: CatalogViewMode) => void
+}
+
+export default function FiltersBar({ viewMode, onViewModeChange }: FiltersBarProps) {
   const { t } = useTranslation()
   const [activeFilters, setActiveFilters] = useState<string[]>(['advancement'])
 
@@ -50,6 +56,25 @@ export default function FiltersBar() {
 
   return (
     <div className={styles.filtersBar}>
+      {viewMode && onViewModeChange && (
+        <div className={styles.viewModeToggle}>
+          <button
+            type="button"
+            className={`${styles.toggleButton} ${viewMode === 'projects' ? styles.active : ''}`}
+            onClick={() => onViewModeChange('projects')}
+          >
+            Projects
+          </button>
+          <button
+            type="button"
+            className={`${styles.toggleButton} ${viewMode === 'lots' ? styles.active : ''}`}
+            onClick={() => onViewModeChange('lots')}
+          >
+            Lots
+          </button>
+        </div>
+      )}
+
       <Button variant="primary" size="sm">
         <Plane size={16} />
         {t('filters.location.dubai')}

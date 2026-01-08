@@ -12,6 +12,7 @@ import { useGetLot, useGetProject } from '../../api'
 import type { Project, Developer, Area } from '../../api'
 import { IconBed, IconBath, IconFloor, IconArea, getViewIcon } from '../../components/icons'
 import styles from './LotDetail.module.scss'
+import { saveCatalogViewMode } from '../../utils/catalogViewMode'
 
 const MAP_ZOOM_DEFAULT = 13
 
@@ -53,6 +54,10 @@ export default function LotDetail() {
       console.log('Lot.area:', lot.area)
     }
   }, [lot])
+
+  useEffect(() => {
+    saveCatalogViewMode('lots')
+  }, [])
 
   // Используем вложенный project, если он есть, иначе пытаемся загрузить по ID
   const project = lot?.project || null
