@@ -67,36 +67,3 @@
     opacity: 0.7;
   }
 }
-
-.viewModeToggle {
-  display: flex;
-  background: rgba($color-primary, 0.08);
-  border-radius: $radius-md;
-  padding: 3px;
-  gap: 2px;
-  flex-shrink: 0;
-  margin-right: $spacing-2;
-}
-
-.toggleButton {
-  padding: $spacing-1 $spacing-4;
-  border: none;
-  background: transparent;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
-  color: $color-text-secondary;
-  cursor: pointer;
-  transition: all $transition-fast;
-  white-space: nowrap;
-
-  &:hover {
-    color: $color-primary;
-  }
-
-  &.active {
-    background: $color-bg-card;
-    color: $color-primary;
-    box-shadow: $shadow-sm;
-  }
-}
