@@ -412,11 +412,13 @@ export default function LotDetail() {
         </div>
 
         <div className={styles.infoSection}>
-          <div className={styles.viewApartmentsButton}>
-            <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
-              View 3D Model
-            </Button>
-          </div>
+          {false && (
+            <div className={styles.viewApartmentsButton}>
+              <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
+                View 3D Model
+              </Button>
+            </div>
+          )}
           <div className={styles.infoCard}>
             <div className={styles.infoCardHeader}>
               <h2>Unit Information</h2>
