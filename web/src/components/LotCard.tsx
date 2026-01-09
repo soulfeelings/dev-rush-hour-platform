@@ -57,11 +57,14 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   const developerName = lot.project?.developer?.name || lot.developer?.name || 'Developer'
   const location = lot.project?.area?.name || lot.area?.name || 'Dubai'
   const logoUrl = lot.project?.developer?.data?.logoUrl || lot.developer?.data?.logoUrl
-  const image =
-    lot.data?.media?.cover?.url ||
-    lot.data?.media?.photos?.[0]?.url ||
-    lot.project?.image ||
-    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
+  // Используем изображения лота (как в LotDetail)
+  const lotImages = [
+    ...(lot.data?.media?.cover?.url ? [lot.data.media.cover.url] : []),
+    ...(lot.data?.media?.photos?.map((img: any) => img.url).filter((url: any) => Boolean(url)) || []),
+    ...((lot.data as any)?.media?.gallery?.map((img: any) => img.url).filter((url: any) => Boolean(url)) || []),
+  ]
+
+  const image = lotImages[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
 
   const typeLabel = lot.type ? lot.type.charAt(0).toUpperCase() + lot.type.slice(1) : ''
   const bedroomsLabel = lot.bedrooms ? `${lot.bedrooms} BR` : ''

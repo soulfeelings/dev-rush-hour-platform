@@ -142,7 +142,7 @@ func (h *LotsHandler) GetLot(c *fiber.Ctx, id openapi_types.UUID) error {
 		response["area"] = mappers.DomainAreaToGenerated(lot.Area)
 	}
 	
-	// Добавляем дополнительные поля data (view, furnishing, orientation, features)
+	// Добавляем дополнительные поля data (view, furnishing, orientation, features, media)
 	if response["data"] == nil {
 		response["data"] = make(map[string]interface{})
 	}
@@ -151,6 +151,16 @@ func (h *LotsHandler) GetLot(c *fiber.Ctx, id openapi_types.UUID) error {
 		dataMap = make(map[string]interface{})
 		response["data"] = dataMap
 	}
+
+	// Preserve original media data including gallery
+	if lot.Data.Media != nil {
+		// Convert domain media to map to preserve all fields including gallery
+		mediaJSON, _ := json.Marshal(lot.Data.Media)
+		var mediaMap map[string]interface{}
+		json.Unmarshal(mediaJSON, &mediaMap)
+		dataMap["media"] = mediaMap
+	}
+
 	if lot.Data.View != "" {
 		dataMap["view"] = lot.Data.View
 	}
