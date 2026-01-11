@@ -73,7 +73,11 @@ export default function Catalog() {
     return apiProjectsToProperties(projectsData)
   }, [projectsData])
 
-  const { data: lotsData, isLoading: lotsLoading, error: lotsError } = useListLots(
+  const {
+    data: lotsData,
+    isLoading: lotsLoading,
+    error: lotsError,
+  } = useListLots(
     {},
     {
       query: {
@@ -90,9 +94,9 @@ export default function Catalog() {
   // Преобразуем лоты в Property для карты (используя координаты проектов)
   const lotPropertiesForMap = useMemo(() => {
     if (viewMode !== 'lots' || !lotsData?.items || !projects.length) return []
-    
+
     // Группируем лоты по projectId для отображения одного маркера на проект
-    const lotsByProjectId = new Map<string, typeof lots[0][]>()
+    const lotsByProjectId = new Map<string, (typeof lots)[0][]>()
     lots.forEach(lot => {
       if (lot.projectId) {
         const existing = lotsByProjectId.get(lot.projectId) || []
@@ -101,14 +105,14 @@ export default function Catalog() {
     })
 
     // Преобразуем лоты, добавляя данные проектов из уже загруженных проектов
-    const lotsWithProjects: Array<typeof lots[0] & { project?: unknown }> = []
-    
+    const lotsWithProjects: Array<(typeof lots)[0] & { project?: unknown }> = []
+
     lotsByProjectId.forEach((projectLots, projectId) => {
       // Ищем проект в уже загруженных проектах
       // projectId может быть UUID, а id проекта может быть slug
       // Пока используем простую проверку по id
       const project = projects.find(p => p.id === projectId)
-      
+
       if (!project) {
         // Если проект не найден, пропускаем эти лоты для карты
         return
@@ -124,21 +128,7 @@ export default function Catalog() {
             lat: project.coordinates[0],
             lng: project.coordinates[1],
             sale: project.sale,
-            status: project.status,
-            developer: project.developer
-              ? {
-                  name: project.developer,
-                  data: {
-                    logoUrl: project.logoUrl,
-                  },
-                }
-              : undefined,
-            area: project.location
-              ? {
-                  name: project.location,
-                }
-              : undefined,
-            image: project.image,
+            status: project.status === 'active' ? 'active' : 'archived',
           },
         })
       })
@@ -216,22 +206,22 @@ export default function Catalog() {
   const catalogContent = (
     <div className={styles.catalogContent}>
       {/* <FeaturedPropertyCarousel properties={featuredProperties} /> */}
-        <div className={styles.viewModeToggle}>
-          <button
-            className={`${styles.toggleButton} ${viewMode === 'projects' ? styles.active : ''}`}
-            onClick={() => handleViewModeChange('projects')}
-            type="button"
-          >
-            Projects
-          </button>
-          <button
-            className={`${styles.toggleButton} ${viewMode === 'lots' ? styles.active : ''}`}
-            onClick={() => handleViewModeChange('lots')}
-            type="button"
-          >
-            Lots
-          </button>
-        </div>
+      <div className={styles.viewModeToggle}>
+        <button
+          className={`${styles.toggleButton} ${viewMode === 'projects' ? styles.active : ''}`}
+          onClick={() => handleViewModeChange('projects')}
+          type="button"
+        >
+          Projects
+        </button>
+        <button
+          className={`${styles.toggleButton} ${viewMode === 'lots' ? styles.active : ''}`}
+          onClick={() => handleViewModeChange('lots')}
+          type="button"
+        >
+          Lots
+        </button>
+      </div>
       <div className={styles.resultsHeader}>
         <span className={styles.resultsCount}>
           {displayedResults} из {totalResults} результатов
@@ -263,19 +253,17 @@ export default function Catalog() {
             gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
           }}
         >
-          {viewMode === 'projects' ? (
-            regularProperties.map(property => (
-              <ProjectCard
-                key={property.id}
-                property={property}
-                onFavoriteClick={handleFavoriteClick}
-              />
-            ))
-          ) : (
-            activeLots.map(lot => (
-              <LotCard key={lot.id} lot={lot} onFavoriteClick={handleLotFavoriteClick} />
-            ))
-          )}
+          {viewMode === 'projects'
+            ? regularProperties.map(property => (
+                <ProjectCard
+                  key={property.id}
+                  property={property}
+                  onFavoriteClick={handleFavoriteClick}
+                />
+              ))
+            : activeLots.map(lot => (
+                <LotCard key={lot.id} lot={lot} onFavoriteClick={handleLotFavoriteClick} />
+              ))}
         </div>
       )}
     </div>

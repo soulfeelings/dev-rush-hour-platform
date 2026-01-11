@@ -60,8 +60,8 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   // Используем изображения лота (как в LotDetail)
   const lotImages = [
     ...(lot.data?.media?.cover?.url ? [lot.data.media.cover.url] : []),
-    ...(lot.data?.media?.photos?.map((img: any) => img.url).filter((url: any) => Boolean(url)) || []),
-    ...((lot.data as any)?.media?.gallery?.map((img: any) => img.url).filter((url: any) => Boolean(url)) || []),
+    ...(lot.data?.media?.photos?.map(img => img.url).filter((url): url is string => Boolean(url)) ||
+      []),
   ]
 
   const image = lotImages[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
@@ -92,12 +92,9 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
           <p className={styles.priceInfo}>
             {typeLabel} {bedroomsLabel} {t('projectCard.from')} {formatPrice(price, currency)}
           </p>
-          {lot.areaSqm && (
-            <p className={styles.completionDate}>{lot.areaSqm} sqm</p>
-          )}
+          {lot.areaSqm && <p className={styles.completionDate}>{lot.areaSqm} sqm</p>}
         </div>
       </div>
     </Link>
   )
 }
-

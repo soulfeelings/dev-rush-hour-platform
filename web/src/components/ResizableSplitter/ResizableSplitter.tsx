@@ -24,6 +24,16 @@ export default function ResizableSplitter({
   const [isResizing, setIsResizing] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const currentWidthRef = useRef(initialLeftWidth)
+  const onWidthChangeRef = useRef(onWidthChange)
+  const onFinishResizingRef = useRef(onFinishResizing)
+
+  useEffect(() => {
+    onWidthChangeRef.current = onWidthChange
+  }, [onWidthChange])
+
+  useEffect(() => {
+    onFinishResizingRef.current = onFinishResizing
+  }, [onFinishResizing])
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -34,8 +44,8 @@ export default function ResizableSplitter({
   }, [initialLeftWidth, leftWidth])
 
   useEffect(() => {
-    onWidthChange?.(leftWidth)
-  }, [onWidthChange, leftWidth])
+    onWidthChangeRef.current?.(leftWidth)
+  }, [leftWidth])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -50,13 +60,13 @@ export default function ResizableSplitter({
       if (newLeftWidth >= minLeft && newLeftWidth <= maxLeft) {
         setLeftWidth(newLeftWidth)
         currentWidthRef.current = newLeftWidth
-        onWidthChange?.(newLeftWidth)
+        onWidthChangeRef.current?.(newLeftWidth)
       }
     }
 
     const handleMouseUp = () => {
       setIsResizing(false)
-      onFinishResizing?.(currentWidthRef.current)
+      onFinishResizingRef.current?.(currentWidthRef.current)
     }
 
     if (isResizing) {

@@ -58,8 +58,8 @@ export default function ProjectDetail() {
   )
 
   const project = (projectData as ProjectWithRelations | undefined) || null
-  const lots: Lot[] = lotsData?.items || []
   const displayLots = useMemo(() => {
+    const lots: Lot[] = lotsData?.items || []
     const seen = new Map<string, Lot>()
     lots.forEach(lot => {
       const specKey = `${lot.projectId || 'no-project'}-${lot.type || 'unknown'}-${
@@ -71,7 +71,7 @@ export default function ProjectDetail() {
       if (!seen.has(specKey)) seen.set(specKey, lot)
     })
     return Array.from(seen.values())
-  }, [lots])
+  }, [lotsData?.items])
   const loading = projectLoading || lotsLoading
   const error =
     projectError instanceof Error
@@ -364,7 +364,9 @@ export default function ProjectDetail() {
                       ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
                       : '-'
 
-                  const lotCoverImage = (lot.data as { media?: { cover?: { url?: string } } } | undefined)?.media?.cover?.url
+                  const lotCoverImage = (
+                    lot.data as { media?: { cover?: { url?: string } } } | undefined
+                  )?.media?.cover?.url
 
                   return (
                     <div

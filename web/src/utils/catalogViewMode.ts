@@ -27,4 +27,3 @@ export const saveCatalogViewMode = (mode: CatalogViewMode) => {
     console.warn('Failed to save catalog view mode:', error)
   }
 }
-

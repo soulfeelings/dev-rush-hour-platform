@@ -38,12 +38,6 @@ export function PriceSelect({
   const generatedId = useId()
   const buttonId = `price-${generatedId}`
 
-  const handleCancel = () => {
-    setLocalMinPrice(minPrice)
-    setLocalMaxPrice(maxPrice)
-    setIsOpen(false)
-  }
-
   const handleReset = () => {
     setLocalMinPrice('')
     setLocalMaxPrice('')
@@ -79,6 +73,12 @@ export function PriceSelect({
   }
 
   useEffect(() => {
+    const handleCancel = () => {
+      setLocalMinPrice(minPrice)
+      setLocalMaxPrice(maxPrice)
+      setIsOpen(false)
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
       const isOutsideTrigger =
         selectRef.current && !selectRef.current.contains(event.target as Node)
@@ -92,7 +92,7 @@ export function PriceSelect({
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [minPrice, maxPrice])
 
   useEffect(() => {
     if (isOpen && triggerRef.current) {
