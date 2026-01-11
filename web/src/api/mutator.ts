@@ -1,6 +1,5 @@
 import { apiClient } from './client'
-
-const API_URL = import.meta.env.VITE_API_URL || ''
+import { API_URL, BASE_PATH } from './constants'
 
 type RequestConfig = {
   url: string
@@ -18,10 +17,10 @@ export const customInstance = async <T>(
   const { url, method, params, data, signal, headers: configHeaders } = config
 
   // Формируем базовый URL: если VITE_API_URL не задан, используем '/api' для работы через vite proxy
-  const baseUrl = API_URL || '/api'
+  const baseUrl = API_URL
 
   // Объединяем baseUrl и url, убирая лишние слэши
-  let fullPath = `${baseUrl}${url.startsWith('/') ? url : `/${url}`}`
+  let fullPath = `${baseUrl}${BASE_PATH}${url.startsWith('/') ? url : `/${url}`}`
 
   // Добавляем query параметры
   if (params) {

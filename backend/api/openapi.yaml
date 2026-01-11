@@ -805,6 +805,15 @@ components:
             type: string
         data:
           $ref: "#/components/schemas/LotData"
+        project:
+          $ref: "#/components/schemas/Project"
+          description: Вложенный объект проекта (если загружен)
+        developer:
+          $ref: "#/components/schemas/Developer"
+          description: Вложенный объект застройщика (если загружен)
+        area:
+          $ref: "#/components/schemas/Area"
+          description: Вложенный объект района (если загружен)
         createdAt:
           type: string
           format: date-time
