@@ -45,6 +45,7 @@ type LotData struct {
 
 type LotMedia struct {
 	Photos          []MediaItem `json:"photos,omitempty"`
+	Gallery         []MediaItem `json:"gallery,omitempty"`
 	FloorPlanImages []MediaItem `json:"floorPlanImages,omitempty"`
 	Cover           *MediaItem  `json:"cover,omitempty"`
 }

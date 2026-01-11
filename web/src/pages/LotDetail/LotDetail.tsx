@@ -13,6 +13,7 @@ import type { Project, Developer, Area } from '../../api'
 import { IconBed, IconBath, IconFloor, IconArea } from '../../components/icons'
 import { getViewIcon } from '../../components/icons/viewIconMap'
 import styles from './LotDetail.module.scss'
+import { saveCatalogViewMode } from '../../utils/catalogViewMode'
 
 const MAP_ZOOM_DEFAULT = 13
 
@@ -54,6 +55,10 @@ export default function LotDetail() {
       console.log('Lot.area:', lot.area)
     }
   }, [lot])
+
+  useEffect(() => {
+    saveCatalogViewMode('lots')
+  }, [])
 
   // Используем вложенный project, если он есть, иначе пытаемся загрузить по ID
   const project = lot?.project || null
@@ -235,33 +240,34 @@ export default function LotDetail() {
     }
   }
 
-  const lotDataFields = lot.data as
-    | {
-        view?: string
-        furnishing?: string
-        orientation?: string
-        features?: string[]
-      }
-    | undefined
+  // Используем изображения лота - seed data использует gallery (как и для проектов)
+  const lotMedia = lot.data?.media as {
+    cover?: { url?: string }
+    gallery?: Array<{ url?: string }>
+    photos?: Array<{ url?: string }>
+  } | undefined
 
-  const projectDataFields = finalProject?.data as
-    | {
-        description?: string
-        featuresAmenities?: string[]
-        media?: {
-          cover?: { url?: string }
-          gallery?: Array<{ url?: string }>
-        }
-      }
-    | undefined
-
-  // Используем изображения проекта, если есть
   const allImages = [
-    ...(projectDataFields?.media?.cover?.url ? [projectDataFields.media.cover.url] : []),
-    ...(projectDataFields?.media?.gallery
+    ...(lotMedia?.cover?.url ? [lotMedia.cover.url] : []),
+    // Поддерживаем оба варианта: gallery (из seed) и photos (из OpenAPI schema)
+    ...(lotMedia?.gallery
+      ?.map(img => img.url)
+      .filter((url): url is string => Boolean(url)) || []),
+    ...(lotMedia?.photos
       ?.map(img => img.url)
       .filter((url): url is string => Boolean(url)) || []),
   ]
+
+  const lotDataFields = lot.data as {
+    view?: string
+    furnishing?: string
+    orientation?: string
+    features?: string[]
+    media?: {
+      cover?: { url?: string }
+      gallery?: Array<{ url?: string }>
+    }
+  } | undefined
 
   const handlePrevImage = () => {
     setCurrentImageIndex(prev => (prev === 0 ? allImages.length - 1 : prev - 1))
@@ -411,11 +417,13 @@ export default function LotDetail() {
         </div>
 
         <div className={styles.infoSection}>
-          <div className={styles.viewApartmentsButton}>
-            <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
-              View 3D Model
-            </Button>
-          </div>
+          {false && (
+            <div className={styles.viewApartmentsButton}>
+              <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
+                View 3D Model
+              </Button>
+            </div>
+          )}
           <div className={styles.infoCard}>
             <div className={styles.infoCardHeader}>
               <h2>Unit Information</h2>

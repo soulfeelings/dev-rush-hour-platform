@@ -354,6 +354,13 @@ func domainLotMediaToGenerated(media *domain.LotMedia) *generated.LotMedia {
 		}
 		result.Photos = &photos
 	}
+	if len(media.Gallery) > 0 {
+		gallery := make([]generated.MediaItem, len(media.Gallery))
+		for i := range media.Gallery {
+			gallery[i] = *domainMediaItemToGenerated(&media.Gallery[i])
+		}
+		result.Photos = &gallery // Map gallery to photos for backward compatibility with generated API
+	}
 	if len(media.FloorPlanImages) > 0 {
 		images := make([]generated.MediaItem, len(media.FloorPlanImages))
 		for i := range media.FloorPlanImages {

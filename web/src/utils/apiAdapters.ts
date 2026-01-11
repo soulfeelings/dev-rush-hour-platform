@@ -128,3 +128,115 @@ function getSaleFromStatus(sale?: string): Property['sale'] {
 export function apiProjectsToProperties(apiProjects: unknown[]): Property[] {
   return (apiProjects as ApiProject[]).map(apiProjectToProperty)
 }
+
+// Тип для API лота с вложенными данными
+interface ApiLot {
+  id?: string
+  projectId?: string
+  type?: string
+  bedrooms?: number
+  bathrooms?: number
+  areaSqm?: number
+  floor?: number
+  priceCurrency?: string
+  priceAmount?: number
+  data?: {
+    media?: {
+      cover?: {
+        url?: string
+      }
+      photos?: Array<{
+        url?: string
+      }>
+    }
+  }
+  project?: {
+    id?: string
+    slug?: string
+    name?: string
+    lat?: number
+    lng?: number
+    sale?: string
+    status?: string
+    developer?: {
+      name?: string
+      data?: {
+        logoUrl?: string
+      }
+    }
+    area?: {
+      name?: string
+    }
+  }
+  developer?: {
+    name?: string
+    data?: {
+      logoUrl?: string
+    }
+  }
+  area?: {
+    name?: string
+  }
+}
+
+// Функция для преобразования лота в Property для карты (использует координаты проекта)
+export function apiLotToPropertyForMap(apiLot: ApiLot): Property | null {
+  // Для карты нужны координаты проекта
+  const project = apiLot.project
+  if (!project || project.lat === undefined || project.lng === undefined) {
+    return null
+  }
+
+  const projectName = project.name || 'Project'
+  const developerName = project.developer?.name || apiLot.developer?.name || 'Developer'
+  const location = project.area?.name || apiLot.area?.name || 'Dubai'
+  const logoUrl = project.developer?.data?.logoUrl || apiLot.developer?.data?.logoUrl
+
+  const typeLabel = apiLot.type ? apiLot.type.charAt(0).toUpperCase() + apiLot.type.slice(1) : ''
+  const bedroomsLabel = apiLot.bedrooms ? `${apiLot.bedrooms} BR` : ''
+  const price = apiLot.priceAmount || 0
+  const currency = apiLot.priceCurrency || 'AED'
+
+  const image =
+    apiLot.data?.media?.cover?.url ||
+    apiLot.data?.media?.photos?.[0]?.url ||
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
+
+  const coordinates: [number, number] = [
+    project.lat ? Number(project.lat) : 25.1972,
+    project.lng ? Number(project.lng) : 55.2744,
+  ]
+
+  const sale = getSaleFromStatus(project.sale)
+  const status = project.status === 'active' ? 'active' : 'inactive'
+
+  return {
+    id: apiLot.id || '',
+    title: `${projectName} - ${typeLabel} ${bedroomsLabel}`.trim(),
+    location,
+    developer: developerName,
+    logoUrl,
+    priceFrom: price,
+    currency,
+    types: [typeLabel],
+    bedrooms: bedroomsLabel ? [bedroomsLabel] : [],
+    completionDate: '',
+    area: apiLot.areaSqm || 0,
+    areaUnit: 'sqm',
+    image,
+    coordinates,
+    sale,
+    status,
+    description: '',
+    isRecommended: false,
+    isFeatured: false,
+    tags: [],
+  }
+}
+
+// Функция для преобразования массива лотов в Property для карты
+export function apiLotsToPropertiesForMap(apiLots: unknown[]): Property[] {
+  return (apiLots as ApiLot[])
+    .map(apiLotToPropertyForMap)
+    .filter((property): property is Property => property !== null)
+}

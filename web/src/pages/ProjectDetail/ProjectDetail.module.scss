@@ -562,6 +562,13 @@
   font-weight: $font-weight-medium;
 }
 
+.lotCardImageImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .lotCardContent {
   flex: 1;
   display: flex;

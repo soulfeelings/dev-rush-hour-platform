@@ -364,6 +364,8 @@ export default function ProjectDetail() {
                       ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
                       : '-'
 
+                  const lotCoverImage = (lot.data as { media?: { cover?: { url?: string } } } | undefined)?.media?.cover?.url
+
                   return (
                     <div
                       key={lot.id || index}
@@ -372,10 +374,17 @@ export default function ProjectDetail() {
                       style={{ cursor: lot.id ? 'pointer' : 'default' }}
                     >
                       <div className={styles.lotCardImage}>
-                        {/* Placeholder для изображения - пока его нет */}
-                        <div className={styles.lotCardImagePlaceholder}>
-                          <span>Image</span>
-                        </div>
+                        {lotCoverImage ? (
+                          <img
+                            src={lotCoverImage}
+                            alt={`${lot.type || 'Unit'} - ${priceText}`}
+                            className={styles.lotCardImageImg}
+                          />
+                        ) : (
+                          <div className={styles.lotCardImagePlaceholder}>
+                            <span>Image</span>
+                          </div>
+                        )}
                       </div>
                       <div className={styles.lotCardContent}>
                         <div className={styles.lotCardPrice}>{priceText}</div>
