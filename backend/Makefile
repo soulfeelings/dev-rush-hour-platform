@@ -8,10 +8,12 @@ menu:
 	@echo "  \033[33m1)\033[0m Generate API from OpenAPI"
 	@echo "  \033[33m2)\033[0m Run server (local)"
 	@echo "  \033[33m3)\033[0m Open Swagger UI"
-	@echo "  \033[33m4)\033[0m Migrate up"
-	@echo "  \033[33m5)\033[0m Migrate down"
-	@echo "  \033[33m6)\033[0m Start Postgres only"
-	@echo "  \033[33m7)\033[0m Seed database"
+	@echo "  \033[33m4)\033[0m Open Adminer"
+	@echo "  \033[33m5)\033[0m Migrate up"
+	@echo "  \033[33m6)\033[0m Migrate down"
+	@echo "  \033[33m7)\033[0m Start Postgres only"
+	@echo "  \033[33m8)\033[0m Seed database"
+	@echo "  \033[33m9)\033[0m Docker Dev Seed database"
 	@echo "  \033[33m0)\033[0m Back"
 	@echo ""
 	@read -p "Select option: " choice; \
@@ -19,10 +21,12 @@ menu:
 		1) $(MAKE) generate ;; \
 		2) $(MAKE) dev ;; \
 		3) $(MAKE) swagger ;; \
-		4) $(MAKE) migrate-up ;; \
-		5) $(MAKE) migrate-down ;; \
-		6) $(MAKE) postgres-up ;; \
-		7) $(MAKE) seed ;; \
+		4) $(MAKE) adminer ;; \
+		5) $(MAKE) migrate-up ;; \
+		6) $(MAKE) migrate-down ;; \
+		7) $(MAKE) postgres-up ;; \
+		8) $(MAKE) seed ;; \
+		9) $(MAKE) seed-dev ;; \
 		0) $(MAKE) -C .. ;; \
 		*) echo "Invalid option" ;; \
 	esac
@@ -61,6 +65,18 @@ swagger:
 		echo "Please open http://localhost:8080/swagger in your browser"; \
 	fi
 
+adminer:
+	@echo "\033[1;32mOpening Adminer in browser...\033[0m"
+	@if command -v open >/dev/null 2>&1; then \
+		open http://localhost:8081; \
+	elif command -v xdg-open >/dev/null 2>&1; then \
+		xdg-open http://localhost:8081; \
+	elif command -v start >/dev/null 2>&1; then \
+		start http://localhost:8081; \
+	else \
+		echo "Please open http://localhost:8081 in your browser"; \
+	fi
+
 migrate-up:
 	@echo "\033[1;32mRunning migrations up via docker-compose...\033[0m"
 	@cd .. && docker-compose -f docker-compose.dev.yml run --rm migrate
@@ -77,5 +93,9 @@ seed:
 	@read -p "Database URL: " db_url; \
 	psql "$$db_url" -f internal/seeds/seed.sql
 
-.PHONY: generate dev swagger migrate-up migrate-down migrate-create postgres-up seed
+seed-dev:
+	@echo "\033[1;32mSeeding development database...\033[0m"
+	@cd .. && docker exec -i rushhour-postgres-dev psql -U rushhour -d rushhour_db < backend/internal/seeds/seed.sql
+
+.PHONY: generate dev swagger adminer migrate-up migrate-down migrate-create postgres-up seed seed-dev
 
