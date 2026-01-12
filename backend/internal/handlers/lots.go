@@ -89,19 +89,38 @@ func (h *LotsHandler) ListLots(c *fiber.Ctx, params generated.ListLotsParams) er
 		})
 	}
 
-	result := make([]generated.Lot, len(lots))
+	// generated.Lot (из oapi-codegen) не содержит вложенных project/developer/area,
+	// но фронт ожидает эти поля (они приходят в GetLot). Поэтому здесь тоже
+	// добавляем вложенные объекты в каждый элемент списка.
+	items := make([]map[string]interface{}, 0, len(lots))
 	for i := range lots {
-		gen := mappers.DomainLotToGenerated(&lots[i])
-		if gen != nil {
-			result[i] = *gen
+		genLot := mappers.DomainLotToGenerated(&lots[i])
+		if genLot == nil {
+			continue
 		}
+
+		lotMap := make(map[string]interface{})
+		lotJSON, _ := json.Marshal(genLot)
+		_ = json.Unmarshal(lotJSON, &lotMap)
+
+		if lots[i].Project != nil {
+			lotMap["project"] = mappers.DomainProjectToGenerated(lots[i].Project)
+		}
+		if lots[i].Developer != nil {
+			lotMap["developer"] = mappers.DomainDeveloperToGenerated(lots[i].Developer)
+		}
+		if lots[i].Area != nil {
+			lotMap["area"] = mappers.DomainAreaToGenerated(lots[i].Area)
+		}
+
+		items = append(items, lotMap)
 	}
 
-	return c.JSON(generated.LotsListResponse{
-		Items: &result,
-		Total: intPtr(total),
-		Page:  intPtr(page),
-		Limit: intPtr(limit),
+	return c.JSON(fiber.Map{
+		"items": items,
+		"total": total,
+		"page":  page,
+		"limit": limit,
 	})
 }
 

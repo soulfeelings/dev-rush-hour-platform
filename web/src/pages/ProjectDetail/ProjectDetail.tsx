@@ -421,6 +421,14 @@ export default function ProjectDetail() {
                             ))
                           })()}
                         </div>
+                        <div className={styles.lotCardInfo}>
+                          <div className={styles.lotCardDeveloper}>
+                            {lot.developer?.name || project.developer?.name || 'Not specified'}
+                          </div>
+                          <div className={styles.lotCardLocation}>
+                            {lot.area?.name || project.area?.name || 'Dubai'}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )

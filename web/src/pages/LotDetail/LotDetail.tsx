@@ -13,6 +13,7 @@ import { IconBed, IconBath, IconFloor, IconArea } from '../../components/icons'
 import { getViewIcon } from '../../components/icons/viewIconMap'
 import styles from './LotDetail.module.scss'
 import { saveCatalogViewMode } from '../../utils/catalogViewMode'
+import { translateBonusKeys } from '../../utils/bonusTranslations';
 
 const MAP_ZOOM_DEFAULT = 13
 
@@ -468,40 +469,34 @@ export default function LotDetail() {
                 <span className={styles.value}>{lot.floor}</span>
               </div>
             )}
-            {finalProject && (
-              <>
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Project:</span>
-                  <span className={styles.value}>
-                    <Link to={`/project/${finalProject.slug}`} className={styles.projectLinkInline}>
-                      {finalProject.name}
-                    </Link>
-                  </span>
-                </div>
-                {/* @ts-expect-error TODO: fix this */}
-                {finalProject.area && (
-                  <div className={styles.infoRow}>
-                    <span className={styles.label}>Location:</span>
-                    {/* @ts-expect-error TODO: fix this */}
-                    <span className={styles.value}>{finalProject.area.name || 'Dubai'}</span>
-                  </div>
-                )}
-                {/* @ts-expect-error TODO: fix this */}
-                {finalProject.developer && (
-                  <div className={styles.infoRow}>
-                    <span className={styles.label}>Developer:</span>
-                    <span className={styles.value}>
-                      {/* @ts-expect-error TODO: fix this */}
-                      {finalProject.developer.name || 'Not specified'}
-                    </span>
-                  </div>
-                )}
-              </>
+            {lot.project && (
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Project:</span>
+                <span className={styles.value}>
+                  <Link to={`/project/${lot.project.slug}`} className={styles.projectLinkInline}>
+                    {lot.project.name}
+                  </Link>
+                </span>
+              </div>
+            )}
+            {lot.developer && (
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Developer:</span>
+                <span className={styles.value}>{lot.developer.name}</span>
+              </div>
+            )}
+            {lot.area && (
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Location:</span>
+                <span className={styles.value}>{lot.area.name}</span>
+              </div>
             )}
             {lot.bonusKeys && lot.bonusKeys.length > 0 && (
               <div className={styles.infoRow}>
-                <span className={styles.label}>Bonuses:</span>
-                <span className={styles.value}>{lot.bonusKeys.join(', ')}</span>
+                <span className={styles.label}>Special Conditions:</span>
+                <span className={styles.value}>
+                  {translateBonusKeys(lot.bonusKeys).join(', ')}
+                </span>
               </div>
             )}
           </div>
