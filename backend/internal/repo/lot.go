@@ -209,21 +209,29 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 }
 
 func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]domain.Lot, int, error) {
-	query := `SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
-	                area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at
-	          FROM lots WHERE 1=1`
-	countQuery := `SELECT COUNT(*) FROM lots WHERE 1=1`
+	query := `SELECT
+			l.id, l.status, l.project_id, l.developer_id, l.area_id, l.type, l.bedrooms, l.bathrooms,
+			l.area_sqm, l.floor, l.price_currency, l.price_amount, l.bonus_keys, l.data, l.created_at, l.updated_at,
+			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.data, p.created_at, p.updated_at,
+			d.slug, d.name, d.status, d.data, d.created_at, d.updated_at,
+			a.slug, a.name, a.city, a.status, a.lat, a.lng, a.data, a.created_at, a.updated_at
+		FROM lots l
+		LEFT JOIN projects p ON l.project_id = p.id
+		LEFT JOIN developers d ON l.developer_id = d.id
+		LEFT JOIN areas a ON l.area_id = a.id
+		WHERE 1=1`
+	countQuery := `SELECT COUNT(*) FROM lots l WHERE 1=1`
 	args := []interface{}{}
 	argPos := 1
 
 	if filters.Status != "" {
-		query += fmt.Sprintf(` AND status = $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND status = $%d`, argPos)
+		query += fmt.Sprintf(` AND l.status = $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.status = $%d`, argPos)
 		args = append(args, filters.Status)
 		argPos++
 	} else {
-		query += ` AND status = 'active'`
-		countQuery += ` AND status = 'active'`
+		query += ` AND l.status = 'active'`
+		countQuery += ` AND l.status = 'active'`
 	}
 
 	if filters.AreaSlug != nil {
@@ -291,15 +299,15 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 	switch sort {
 	case LotSortPriceAsc:
-		query += ` ORDER BY price_amount ASC`
+		query += ` ORDER BY l.price_amount ASC`
 	case LotSortPriceDesc:
-		query += ` ORDER BY price_amount DESC`
+		query += ` ORDER BY l.price_amount DESC`
 	case LotSortAreaDesc:
-		query += ` ORDER BY area_sqm DESC NULLS LAST`
+		query += ` ORDER BY l.area_sqm DESC NULLS LAST`
 	case LotSortNewest:
-		query += ` ORDER BY created_at DESC`
+		query += ` ORDER BY l.created_at DESC`
 	default:
-		query += ` ORDER BY created_at DESC`
+		query += ` ORDER BY l.created_at DESC`
 	}
 
 	query += fmt.Sprintf(` LIMIT $%d OFFSET $%d`, argPos, argPos+1)
@@ -325,11 +333,29 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		var areaSqm sql.NullFloat64
 		var bonusKeys pq.StringArray
 
+		// Переменные для вложенных объектов
+		var projSlug, projName, projSale, projStatus sql.NullString
+		var projDataJSON []byte
+		var projLat, projLng sql.NullFloat64
+		var projCreatedAt, projUpdatedAt sql.NullTime
+
+		var devSlug, devName, devStatus sql.NullString
+		var devDataJSON []byte
+		var devCreatedAt, devUpdatedAt sql.NullTime
+
+		var areaSlug, areaName, areaCity, areaStatus sql.NullString
+		var areaDataJSON []byte
+		var areaLat, areaLng sql.NullFloat64
+		var areaCreatedAt, areaUpdatedAt sql.NullTime
+
 		if err := rows.Scan(
 			&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
 			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
 			&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
 			&lot.CreatedAt, &lot.UpdatedAt,
+			&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projDataJSON, &projCreatedAt, &projUpdatedAt,
+			&devSlug, &devName, &devStatus, &devDataJSON, &devCreatedAt, &devUpdatedAt,
+			&areaSlug, &areaName, &areaCity, &areaStatus, &areaLat, &areaLng, &areaDataJSON, &areaCreatedAt, &areaUpdatedAt,
 		); err != nil {
 			return nil, 0, err
 		}
@@ -365,6 +391,90 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
 			return nil, 0, err
+		}
+
+		// Заполняем вложенный проект, если данные есть
+		if projSlug.Valid {
+			projID := uuid.MustParse(projectID.String)
+			var projData domain.ProjectData
+			if len(projDataJSON) > 0 {
+				if err := json.Unmarshal(projDataJSON, &projData); err == nil {
+					// ignore unmarshal errors for now
+				}
+			}
+			lot.Project = &domain.Project{
+				ID:          projID,
+				Slug:        projSlug.String,
+				Name:        projName.String,
+				Status:      domain.ProjectStatus(projStatus.String),
+				Data:        projData,
+				CreatedAt:   projCreatedAt.Time,
+				UpdatedAt:   projUpdatedAt.Time,
+			}
+			if projSale.Valid {
+				lot.Project.Sale = projSale.String
+			}
+			if developerID.Valid {
+				devID := uuid.MustParse(developerID.String)
+				lot.Project.DeveloperID = &devID
+			}
+			if areaID.Valid {
+				areaIDParsed := uuid.MustParse(areaID.String)
+				lot.Project.AreaID = &areaIDParsed
+			}
+			if projLat.Valid {
+				lot.Project.Lat = &projLat.Float64
+			}
+			if projLng.Valid {
+				lot.Project.Lng = &projLng.Float64
+			}
+		}
+
+		// Заполняем вложенного разработчика, если данные есть
+		if devSlug.Valid {
+			devID := uuid.MustParse(developerID.String)
+			var devData map[string]interface{}
+			if len(devDataJSON) > 0 {
+				if err := json.Unmarshal(devDataJSON, &devData); err == nil {
+					// ignore unmarshal errors for now
+				}
+			}
+			lot.Developer = &domain.Developer{
+				ID:          devID,
+				Slug:        devSlug.String,
+				Name:        devName.String,
+				Status:      domain.DeveloperStatus(devStatus.String),
+				Data:        devData,
+				CreatedAt:   devCreatedAt.Time,
+				UpdatedAt:   devUpdatedAt.Time,
+			}
+		}
+
+		// Заполняем вложенный район, если данные есть
+		if areaSlug.Valid {
+			areaIDParsed := uuid.MustParse(areaID.String)
+			var aData domain.AreaData
+			if len(areaDataJSON) > 0 {
+				if err := json.Unmarshal(areaDataJSON, &aData); err == nil {
+					// ignore unmarshal errors for now
+				}
+			}
+			lot.Area = &domain.Area{
+				ID:          areaIDParsed,
+				Slug:        areaSlug.String,
+				Name:        areaName.String,
+				City:        areaCity.String,
+				Status:      domain.AreaStatus(areaStatus.String),
+				Data:        aData,
+				CreatedAt:   areaCreatedAt.Time,
+				UpdatedAt:   areaUpdatedAt.Time,
+			}
+			if areaLat.Valid {
+				lot.Area.Lat = areaLat.Float64
+			}
+			if areaLng.Valid {
+				lot.Area.Lng = areaLng.Float64
+			}
 		}
 
 		lots = append(lots, lot)

@@ -388,6 +388,29 @@ type Lot struct {
 	UpdatedAt     *time.Time          `json:"updatedAt,omitempty"`
 }
 
+// LotListItem defines model for LotListItem.
+type LotListItem struct {
+	Area         *Area               `json:"area,omitempty"`
+	AreaId       *openapi_types.UUID `json:"areaId,omitempty"`
+	AreaSqm      *float32            `json:"areaSqm,omitempty"`
+	Bathrooms    *int                `json:"bathrooms,omitempty"`
+	Bedrooms     *int                `json:"bedrooms,omitempty"`
+	BonusKeys    *[]string           `json:"bonusKeys,omitempty"`
+	CreatedAt    *time.Time          `json:"createdAt,omitempty"`
+	Data         *LotData            `json:"data,omitempty"`
+	Developer    *Developer          `json:"developer,omitempty"`
+	DeveloperId  *openapi_types.UUID `json:"developerId,omitempty"`
+	Floor        *int                `json:"floor,omitempty"`
+	Id           *openapi_types.UUID `json:"id,omitempty"`
+	PriceAmount  *float32            `json:"priceAmount,omitempty"`
+	PriceCurrency *string             `json:"priceCurrency,omitempty"`
+	Project      *Project            `json:"project,omitempty"`
+	ProjectId    *openapi_types.UUID `json:"projectId,omitempty"`
+	Status       *LotStatus          `json:"status,omitempty"`
+	Type         *LotType            `json:"type,omitempty"`
+	UpdatedAt    *time.Time          `json:"updatedAt,omitempty"`
+}
+
 // LotStatus defines model for Lot.Status.
 type LotStatus string
 
@@ -458,10 +481,10 @@ type LotUpdateRequestType string
 
 // LotsListResponse defines model for LotsListResponse.
 type LotsListResponse struct {
-	Items *[]Lot `json:"items,omitempty"`
-	Limit *int   `json:"limit,omitempty"`
-	Page  *int   `json:"page,omitempty"`
-	Total *int   `json:"total,omitempty"`
+	Items *[]LotListItem `json:"items,omitempty"`
+	Limit *int           `json:"limit,omitempty"`
+	Page  *int           `json:"page,omitempty"`
+	Total *int           `json:"total,omitempty"`
 }
 
 // Media defines model for Media.

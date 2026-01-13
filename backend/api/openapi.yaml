@@ -893,13 +893,69 @@ components:
         y:
           type: number
 
+    LotListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [active, hidden, reserved, sold]
+        projectId:
+          type: string
+          format: uuid
+        developerId:
+          type: string
+          format: uuid
+        areaId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [apartment, villa, townhouse, penthouse]
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        areaSqm:
+          type: number
+        floor:
+          type: integer
+        priceCurrency:
+          type: string
+          default: AED
+        priceAmount:
+          type: number
+        bonusKeys:
+          type: array
+          items:
+            type: string
+        data:
+          $ref: "#/components/schemas/LotData"
+        project:
+          $ref: "#/components/schemas/Project"
+          description: Вложенный объект проекта
+        developer:
+          $ref: "#/components/schemas/Developer"
+          description: Вложенный объект застройщика
+        area:
+          $ref: "#/components/schemas/Area"
+          description: Вложенный объект района
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
     LotsListResponse:
       type: object
       properties:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/Lot"
+            $ref: "#/components/schemas/LotListItem"
         total:
           type: integer
         page:

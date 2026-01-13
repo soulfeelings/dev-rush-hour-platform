@@ -29,6 +29,7 @@ interface LotWithProject extends Lot {
   }
   area?: {
     name?: string
+    city?: string
   }
 }
 
@@ -54,8 +55,11 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   }
 
   const projectName = lot.project?.name || 'Project'
-  const developerName = lot.project?.developer?.name || lot.developer?.name || 'Developer'
-  const location = lot.project?.area?.name || lot.area?.name || 'Dubai'
+  const developerName = lot.developer?.name || lot.project?.developer?.name || 'Developer'
+  const areaName = lot.area?.name || lot.project?.area?.name
+  const cityName = lot.area?.city
+  const locationParts = [areaName, cityName].filter((part): part is string => Boolean(part))
+  const location = locationParts.length ? locationParts.join(', ') : 'Dubai'
   const logoUrl = lot.project?.developer?.data?.logoUrl || lot.developer?.data?.logoUrl
   // Используем изображения лота (как в LotDetail)
   const lotImages = [

@@ -10,6 +10,7 @@ menu:
 	@echo "  \033[33m3)\033[0m Run with Docker Compose (dev)"
 	@echo "  \033[33m4)\033[0m Run with Docker Compose (prod)"
 	@echo "  \033[33m5)\033[0m Railway"
+	@echo "  \033[33m6)\033[0m Reset Dev Environment (with seed)"
 	@echo ""
 	@read -p "Select option: " choice; \
 	case $$choice in \
@@ -18,10 +19,11 @@ menu:
 		3) $(MAKE) up-dev ;; \
 		4) $(MAKE) up ;; \
 		5) $(MAKE) railway-menu ;; \
+		6) $(MAKE) reset-dev ;; \
 		*) echo "Invalid option" ;; \
 	esac
 
-.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev railway-menu railway-migrate railway-seed
+.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-migrate railway-seed
 
 up:
 	@echo "\033[1;32mStarting services with Docker Compose (production)...\033[0m"
@@ -64,6 +66,22 @@ logs-dev:
 seed-dev:
 	@echo "\033[1;32mSeeding development database...\033[0m"
 	docker exec -i rushhour-postgres-dev psql -U rushhour -d rushhour_db < backend/internal/seeds/seed.sql
+
+reset-dev:
+	@echo "\033[1;31m🔄 Resetting dev environment (removes DB data)...\033[0m"
+	@echo "\033[1;33mThis will delete the database and reload seed data\033[0m"
+	@read -p "Are you sure? (y/N): " confirm; \
+	if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+		docker compose -f docker-compose.dev.yml down -v; \
+		echo "\033[1;32mStarting fresh environment...\033[0m"; \
+		docker compose -f docker-compose.dev.yml up -d --build; \
+		echo "\033[1;32m✅ Done! Services:\033[0m"; \
+		echo "  Frontend: http://localhost:5173"; \
+		echo "  Backend API: http://localhost:8080"; \
+		echo "  Adminer (DB): http://localhost:8081"; \
+	else \
+		echo "\033[1;33mReset cancelled\033[0m"; \
+	fi
 
 railway-menu:
 	@echo "\033[1;36m═══════════════════════════════════════\033[0m"

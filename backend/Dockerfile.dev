@@ -3,7 +3,7 @@ FROM golang:1.24-alpine
 WORKDIR /app
 
 # Устанавливаем необходимые инструменты
-RUN apk add --no-cache git make
+RUN apk add --no-cache git make postgresql-client
 
 # Устанавливаем air для hot reload и копируем в системный PATH
 RUN go install github.com/air-verse/air@v1.52.3 && \
