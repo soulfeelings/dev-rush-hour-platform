@@ -223,3 +223,10 @@ go build ./cmd/server
 - `DB_NAME` - имя БД (по умолчанию: rushhour_db)
 - `DB_SSLMODE` - SSL режим (по умолчанию: disable)
 - `PORT` - порт сервера (по умолчанию: 8080)
+
+## Важно!
+
+После обновления кода с изменениями в seed:
+- Остановите контейнеры: `docker-compose -f docker-compose.dev.yml down -v`
+- Запустите заново: `docker-compose -f docker-compose.dev.yml up -d`
+- Без `-v` новые seed данные не загрузятся

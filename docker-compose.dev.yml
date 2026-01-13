@@ -49,6 +49,24 @@ services:
         condition: service_healthy
     restart: "no"
 
+  seed:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=rushhour
+      - DB_PASSWORD=rushhour_dev
+      - DB_NAME=rushhour_db
+      - DB_SSLMODE=disable
+    volumes:
+      - ./backend:/app
+    command: sh -c "psql 'postgres://rushhour:rushhour_dev@postgres:5432/rushhour_db?sslmode=disable' -f internal/seeds/seed.sql"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
   backend:
     build:
       context: ./backend
@@ -71,6 +89,8 @@ services:
       postgres:
         condition: service_healthy
       migrate:
+        condition: service_completed_successfully
+      seed:
         condition: service_completed_successfully
     restart: unless-stopped
 
