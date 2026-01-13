@@ -89,39 +89,23 @@ func (h *LotsHandler) ListLots(c *fiber.Ctx, params generated.ListLotsParams) er
 		})
 	}
 
-	// generated.Lot (из oapi-codegen) не содержит вложенных project/developer/area,
-	// но фронт ожидает эти поля (они приходят в GetLot). Поэтому здесь тоже
-	// добавляем вложенные объекты в каждый элемент списка.
-	items := make([]map[string]interface{}, 0, len(lots))
+	// Use the new LotListItem type that includes nested objects
+	items := make([]generated.LotListItem, 0, len(lots))
 	for i := range lots {
-		genLot := mappers.DomainLotToGenerated(&lots[i])
-		if genLot == nil {
-			continue
+		lotListItem := mappers.DomainLotToGeneratedLotListItem(&lots[i])
+		if lotListItem != nil {
+			items = append(items, *lotListItem)
 		}
-
-		lotMap := make(map[string]interface{})
-		lotJSON, _ := json.Marshal(genLot)
-		_ = json.Unmarshal(lotJSON, &lotMap)
-
-		if lots[i].Project != nil {
-			lotMap["project"] = mappers.DomainProjectToGenerated(lots[i].Project)
-		}
-		if lots[i].Developer != nil {
-			lotMap["developer"] = mappers.DomainDeveloperToGenerated(lots[i].Developer)
-		}
-		if lots[i].Area != nil {
-			lotMap["area"] = mappers.DomainAreaToGenerated(lots[i].Area)
-		}
-
-		items = append(items, lotMap)
 	}
 
-	return c.JSON(fiber.Map{
-		"items": items,
-		"total": total,
-		"page":  page,
-		"limit": limit,
-	})
+	response := generated.LotsListResponse{
+		Items: &items,
+		Total: &total,
+		Page:  &page,
+		Limit: &limit,
+	}
+
+	return c.JSON(response)
 }
 
 func (h *LotsHandler) GetLot(c *fiber.Ctx, id openapi_types.UUID) error {
@@ -140,28 +124,17 @@ func (h *LotsHandler) GetLot(c *fiber.Ctx, id openapi_types.UUID) error {
 		})
 	}
 
-	// Преобразуем lot в generated.Lot
-	genLot := mappers.DomainLotToGenerated(lot)
-	
-	// Создаем map для добавления вложенных объектов
+	// Use the new LotListItem type that includes nested objects for single lot response
+	lotResponse := mappers.DomainLotToGeneratedLotListItem(lot)
+
+	// Convert to map to add additional data fields that aren't in the schema
 	response := make(map[string]interface{})
-	
-	// Конвертируем genLot в map
-	lotJSON, _ := json.Marshal(genLot)
+
+	// Marshal and unmarshal to get base structure
+	lotJSON, _ := json.Marshal(lotResponse)
 	json.Unmarshal(lotJSON, &response)
-	
-	// Добавляем вложенные объекты, если они есть
-	if lot.Project != nil {
-		response["project"] = mappers.DomainProjectToGenerated(lot.Project)
-	}
-	if lot.Developer != nil {
-		response["developer"] = mappers.DomainDeveloperToGenerated(lot.Developer)
-	}
-	if lot.Area != nil {
-		response["area"] = mappers.DomainAreaToGenerated(lot.Area)
-	}
-	
-	// Добавляем дополнительные поля data (view, furnishing, orientation, features, media)
+
+	// Add additional data fields that aren't in the generated schema
 	if response["data"] == nil {
 		response["data"] = make(map[string]interface{})
 	}

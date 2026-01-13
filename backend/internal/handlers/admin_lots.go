@@ -27,7 +27,7 @@ func NewAdminLotsHandler(lotsService *services.LotsService) *AdminLotsHandler {
 func (h *AdminLotsHandler) ListLots(c *fiber.Ctx) error {
 	filters := repo.LotFilters{}
 	sort := repo.LotSortNewest
-	lots, _, err := h.lotsService.List(filters, sort, 1, 1000)
+	lots, total, err := h.lotsService.List(filters, sort, 1, 1000)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
 			Error: &struct {
@@ -41,12 +41,24 @@ func (h *AdminLotsHandler) ListLots(c *fiber.Ctx) error {
 		})
 	}
 
-	result := make([]generated.Lot, len(lots))
+	items := make([]generated.LotListItem, 0, len(lots))
 	for i := range lots {
-		result[i] = *mappers.DomainLotToGenerated(&lots[i])
+		lotListItem := mappers.DomainLotToGeneratedLotListItem(&lots[i])
+		if lotListItem != nil {
+			items = append(items, *lotListItem)
+		}
 	}
 
-	return c.JSON(result)
+	page := 1
+	limit := 1000
+	response := generated.LotsListResponse{
+		Items: &items,
+		Total: &total,
+		Page:  &page,
+		Limit: &limit,
+	}
+
+	return c.JSON(response)
 }
 
 func (h *AdminLotsHandler) CreateLot(c *fiber.Ctx) error {

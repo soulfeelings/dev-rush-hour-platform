@@ -214,6 +214,75 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 	return result
 }
 
+func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
+	if lot == nil {
+		return nil
+	}
+	id := openapi_types.UUID(lot.ID)
+	status := generated.LotStatus(lot.Status)
+	lotType := generated.LotType(lot.Type)
+	result := &generated.LotListItem{
+		Id:            &id,
+		Status:        &status,
+		Type:          &lotType,
+		PriceCurrency: &lot.PriceCurrency,
+		PriceAmount:   float32Ptr(float32(lot.PriceAmount)),
+		CreatedAt:     timePtr(lot.CreatedAt),
+		UpdatedAt:     timePtr(lot.UpdatedAt),
+	}
+
+	if len(lot.BonusKeys) > 0 {
+		result.BonusKeys = &lot.BonusKeys
+	}
+	if lot.ProjectID != nil {
+		projectID := openapi_types.UUID(*lot.ProjectID)
+		result.ProjectId = &projectID
+	}
+	if lot.DeveloperID != nil {
+		devID := openapi_types.UUID(*lot.DeveloperID)
+		result.DeveloperId = &devID
+	}
+	if lot.AreaID != nil {
+		areaID := openapi_types.UUID(*lot.AreaID)
+		result.AreaId = &areaID
+	}
+	if lot.Bedrooms != nil {
+		result.Bedrooms = lot.Bedrooms
+	}
+	if lot.Bathrooms != nil {
+		result.Bathrooms = lot.Bathrooms
+	}
+	if lot.AreaSqm != nil {
+		result.AreaSqm = float32Ptr(float32(*lot.AreaSqm))
+	}
+	if lot.Floor != nil {
+		result.Floor = lot.Floor
+	}
+
+	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil {
+		result.Data = &generated.LotData{
+			Media:         domainLotMediaToGenerated(lot.Data.Media),
+			PaymentPlan:   domainPaymentPlanToGenerated(lot.Data.PaymentPlan),
+			Bonuses:       domainBonusesToGenerated(lot.Data.Bonuses),
+			FloorPosition: domainFloorPositionToGenerated(lot.Data.FloorPosition),
+			Tags:          domainTagsToGenerated(lot.Data.Tags),
+		}
+	}
+
+	// Add nested objects
+	if lot.Project != nil {
+		result.Project = DomainProjectToGenerated(lot.Project)
+	}
+	if lot.Developer != nil {
+		result.Developer = DomainDeveloperToGenerated(lot.Developer)
+	}
+	if lot.Area != nil {
+		result.Area = DomainAreaToGenerated(lot.Area)
+	}
+
+	return result
+}
+
 func DomainLeadToGenerated(lead *domain.Lead) *generated.Lead {
 	if lead == nil {
 		return nil
