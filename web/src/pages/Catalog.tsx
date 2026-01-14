@@ -250,7 +250,7 @@ export default function Catalog() {
         <div
           className={styles.grid}
           style={{
-            gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
+            gridTemplateColumns: `repeat(${viewMode === 'lots' ? 1 : getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
           }}
         >
           {viewMode === 'projects'

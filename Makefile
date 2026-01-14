@@ -23,7 +23,7 @@ menu:
 		*) echo "Invalid option" ;; \
 	esac
 
-.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-migrate railway-seed
+.PHONY: up up-dev down down-dev rebuild rebuild-dev rebuild-web-no-cache logs logs-dev seed-dev reset-dev railway-menu railway-migrate railway-seed
 
 up:
 	@echo "\033[1;32mStarting services with Docker Compose (production)...\033[0m"
@@ -56,6 +56,14 @@ rebuild-dev:
 	@echo "\033[1;33mBackend: http://localhost:8080\033[0m"
 	@echo "\033[1;33mWeb: http://localhost:5173\033[0m"
 	docker compose -f docker-compose.dev.yml up -d --build
+
+rebuild-web-no-cache:
+	@echo "\033[1;33mRebuilding web service without cache...\033[0m"
+	docker compose -f docker-compose.dev.yml build --no-cache web
+	@echo "\033[1;33mRecreating web container to update node_modules...\033[0m"
+	docker compose -f docker-compose.dev.yml stop web
+	docker compose -f docker-compose.dev.yml rm -f web
+	docker compose -f docker-compose.dev.yml up -d web
 
 logs:
 	docker compose logs -f

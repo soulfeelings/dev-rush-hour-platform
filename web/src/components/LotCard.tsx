@@ -1,7 +1,7 @@
 import { Heart } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import styles from './ProjectCard.module.scss'
+import styles from './LotCard.module.scss'
+import LotCardCarousel from './LotCardCarousel'
 import type { Lot } from '../api'
 
 interface LotWithProject extends Lot {
@@ -39,8 +39,6 @@ interface LotCardProps {
 }
 
 export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
-  const { t } = useTranslation()
-
   const formatPrice = (price: number, currency: string) => {
     const formatted = (price / 1000000).toFixed(1)
     return `${formatted}M ${currency}`
@@ -68,18 +66,28 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
       []),
   ]
 
-  const image = lotImages[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
+  // Пока используем одну картинку несколько раз для тестирования карусели
+  const firstImage =
+    lotImages.length > 0
+      ? lotImages[0]
+      : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
+  const images = [firstImage, firstImage, firstImage, firstImage]
 
   const typeLabel = lot.type ? lot.type.charAt(0).toUpperCase() + lot.type.slice(1) : ''
   const bedroomsLabel = lot.bedrooms ? `${lot.bedrooms} BR` : ''
   const price = lot.priceAmount || 0
   const currency = lot.priceCurrency || 'AED'
+  const priceText = formatPrice(price, currency)
+  const roomsAndArea = [bedroomsLabel, lot.areaSqm ? `${lot.areaSqm} sqm` : '']
+    .filter(Boolean)
+    .join(' • ')
+  const projectInfo = [projectName, developerName, location].filter(Boolean).join(' • ')
 
   return (
     <Link to={`/lot/${lot.id}`} className={styles.cardLink}>
       <div className={styles.card}>
         <div className={styles.imageContainer}>
-          <img src={image} alt={projectName} />
+          <LotCardCarousel images={images} alt={projectName} />
           {logoUrl && (
             <div className={styles.logo}>
               <img src={logoUrl} alt={developerName} />
@@ -90,13 +98,9 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
           </button>
         </div>
         <div className={styles.content}>
-          <p className={styles.title}>{projectName}</p>
-          <p className={styles.developer}>{developerName}</p>
-          <p className={styles.location}>{location}</p>
-          <p className={styles.priceInfo}>
-            {typeLabel} {bedroomsLabel} {t('projectCard.from')} {formatPrice(price, currency)}
-          </p>
-          {lot.areaSqm && <p className={styles.completionDate}>{lot.areaSqm} sqm</p>}
+          <h1 className={styles.price}>{priceText}</h1>
+          <h2 className={styles.details}>{roomsAndArea || typeLabel}</h2>
+          <h3 className={styles.info}>{projectInfo}</h3>
         </div>
       </div>
     </Link>
