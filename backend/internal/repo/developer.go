@@ -109,3 +109,13 @@ func (r *DeveloperRepo) List() ([]domain.Developer, error) {
 	return developers, rows.Err()
 }
 
+func (r *DeveloperRepo) Delete(id uuid.UUID) error {
+	_, err := r.db.Exec(`DELETE FROM developers WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	
+	// Не проверяем rowsAffected - DELETE идемпотентен
+	// Если записи нет, это не ошибка
+	return nil
+}

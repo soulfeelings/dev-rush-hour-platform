@@ -765,6 +765,12 @@ components:
           type: number
         data:
           $ref: "#/components/schemas/ProjectData"
+        developer:
+          $ref: "#/components/schemas/Developer"
+          description: Вложенный объект застройщика
+        area:
+          $ref: "#/components/schemas/Area"
+          description: Вложенный объект района
         createdAt:
           type: string
           format: date-time
@@ -794,6 +800,17 @@ components:
           items: {}
         media:
           $ref: "#/components/schemas/Media"
+        isRecommended:
+          type: boolean
+          description: Рекомендуемый проект
+        isFeatured:
+          type: boolean
+          description: Избранный проект
+        tags:
+          type: array
+          items:
+            type: string
+          description: Теги проекта
 
     Media:
       type: object

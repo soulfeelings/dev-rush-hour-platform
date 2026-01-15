@@ -79,7 +79,7 @@ func DomainAreaToGenerated(area *domain.Area) *generated.Area {
 			Zoom:     area.Data.Zoom,
 			Bbox:     domainBBoxToGenerated(area.Data.BBox),
 		}
-		if area.Data.SEO != nil && len(area.Data.SEO) > 0 {
+		if len(area.Data.SEO) > 0 {
 			result.Data.Seo = &area.Data.SEO
 		}
 	}
@@ -98,7 +98,13 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		Slug:      &project.Slug,
 		Name:      &project.Name,
 		Status:    &status,
-		Sale:      &project.Sale,
+		Sale: func() *generated.ProjectSale {
+			if project.Sale == "" {
+				return nil
+			}
+			sale := generated.ProjectSale(project.Sale)
+			return &sale
+		}(),
 		CreatedAt: timePtr(project.CreatedAt),
 		UpdatedAt: timePtr(project.UpdatedAt),
 	}
@@ -120,19 +126,25 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 
 	// Include embedded developer info
 	if project.Developer != nil {
-		result.Developer = &generated.ProjectDeveloper{
-			Name: &project.Developer.Name,
+		result.Developer = &generated.Developer{
+			Id:     &project.Developer.ID,
+			Slug:   &project.Developer.Slug,
+			Name:   &project.Developer.Name,
+			Status: (*generated.DeveloperStatus)(&project.Developer.Status),
 		}
-		if project.Developer.Data != nil && len(project.Developer.Data) > 0 {
+		if project.Developer.Data != nil {
 			result.Developer.Data = &project.Developer.Data
 		}
 	}
 
 	// Include embedded area info
 	if project.Area != nil {
-		result.Area = &generated.ProjectArea{
-			Name: &project.Area.Name,
-			City: &project.Area.City,
+		result.Area = &generated.Area{
+			Id:     &project.Area.ID,
+			Slug:   &project.Area.Slug,
+			Name:   &project.Area.Name,
+			City:   &project.Area.City,
+			Status: (*generated.AreaStatus)(&project.Area.Status),
 		}
 	}
 
@@ -223,8 +235,8 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 	lotType := generated.LotType(lot.Type)
 	result := &generated.LotListItem{
 		Id:            &id,
-		Status:        &status,
-		Type:          &lotType,
+		Status:        (*generated.LotListItemStatus)(&status),
+		Type:          (*generated.LotListItemType)(&lotType),
 		PriceCurrency: &lot.PriceCurrency,
 		PriceAmount:   float32Ptr(float32(lot.PriceAmount)),
 		CreatedAt:     timePtr(lot.CreatedAt),
@@ -370,7 +382,7 @@ func domainBBoxToGenerated(bbox *domain.BoundingBox) *generated.BoundingBox {
 }
 
 func domainSpecsToGenerated(specs map[string]interface{}) *map[string]interface{} {
-	if specs == nil || len(specs) == 0 {
+	if len(specs) == 0 {
 		return nil
 	}
 	return &specs
@@ -565,7 +577,7 @@ func DomainDeveloperToGenerated(dev *domain.Developer) *generated.Developer {
 		CreatedAt: timePtr(dev.CreatedAt),
 		UpdatedAt: timePtr(dev.UpdatedAt),
 	}
-	if dev.Data != nil && len(dev.Data) > 0 {
+	if len(dev.Data) > 0 {
 		result.Data = &dev.Data
 	}
 	return result

@@ -105,6 +105,14 @@ func (s *Server) AdminUpdateDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
 	return s.adminDevelopersHandler.UpdateDeveloper(c, id)
 }
 
+func (s *Server) AdminGetDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminDevelopersHandler.GetDeveloper(c, id)
+}
+
+func (s *Server) AdminDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminDevelopersHandler.DeleteDeveloper(c, id)
+}
+
 func (s *Server) AdminListAreas(c *fiber.Ctx) error {
 	return s.adminAreasHandler.ListAreas(c)
 }
@@ -136,6 +144,7 @@ func (s *Server) AdminListLots(c *fiber.Ctx) error {
 func (s *Server) AdminCreateLot(c *fiber.Ctx) error {
 	return s.adminLotsHandler.CreateLot(c)
 }
+
 
 func (s *Server) AdminUpdateLot(c *fiber.Ctx, id openapi_types.UUID) error {
 	return s.adminLotsHandler.UpdateLot(c, id)

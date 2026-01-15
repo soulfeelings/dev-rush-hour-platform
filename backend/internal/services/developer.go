@@ -47,3 +47,14 @@ func (s *DevelopersService) List() ([]domain.Developer, error) {
 	return s.developerRepo.List()
 }
 
+func (s *DevelopersService) Delete(id uuid.UUID) error {
+	existing, err := s.developerRepo.GetByID(id)
+	if err != nil {
+		return fmt.Errorf("failed to get developer: %w", err)
+	}
+	if existing == nil {
+		return fmt.Errorf("developer not found")
+	}
+
+	return s.developerRepo.Delete(id)
+}

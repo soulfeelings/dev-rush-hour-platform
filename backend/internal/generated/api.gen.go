@@ -113,6 +113,22 @@ const (
 	LotCreateRequestTypeVilla     LotCreateRequestType = "villa"
 )
 
+// Defines values for LotListItemStatus.
+const (
+	LotListItemStatusActive   LotListItemStatus = "active"
+	LotListItemStatusHidden   LotListItemStatus = "hidden"
+	LotListItemStatusReserved LotListItemStatus = "reserved"
+	LotListItemStatusSold     LotListItemStatus = "sold"
+)
+
+// Defines values for LotListItemType.
+const (
+	LotListItemTypeApartment LotListItemType = "apartment"
+	LotListItemTypePenthouse LotListItemType = "penthouse"
+	LotListItemTypeTownhouse LotListItemType = "townhouse"
+	LotListItemTypeVilla     LotListItemType = "villa"
+)
+
 // Defines values for LotUpdateRequestStatus.
 const (
 	LotUpdateRequestStatusActive   LotUpdateRequestStatus = "active"
@@ -129,10 +145,24 @@ const (
 	LotUpdateRequestTypeVilla     LotUpdateRequestType = "villa"
 )
 
+// Defines values for ProjectSale.
+const (
+	ProjectSaleSale              ProjectSale = "sale"
+	ProjectSaleSalesAnnouncement ProjectSale = "sales announcement"
+	ProjectSaleStartOfSales      ProjectSale = "start of sales"
+)
+
 // Defines values for ProjectStatus.
 const (
 	ProjectStatusActive   ProjectStatus = "active"
 	ProjectStatusArchived ProjectStatus = "archived"
+)
+
+// Defines values for ProjectCreateRequestSale.
+const (
+	ProjectCreateRequestSaleSale              ProjectCreateRequestSale = "sale"
+	ProjectCreateRequestSaleSalesAnnouncement ProjectCreateRequestSale = "sales announcement"
+	ProjectCreateRequestSaleStartOfSales      ProjectCreateRequestSale = "start of sales"
 )
 
 // Defines values for ProjectCreateRequestStatus.
@@ -141,10 +171,17 @@ const (
 	ProjectCreateRequestStatusArchived ProjectCreateRequestStatus = "archived"
 )
 
+// Defines values for ProjectUpdateRequestSale.
+const (
+	Sale              ProjectUpdateRequestSale = "sale"
+	SalesAnnouncement ProjectUpdateRequestSale = "sales announcement"
+	StartOfSales      ProjectUpdateRequestSale = "start of sales"
+)
+
 // Defines values for ProjectUpdateRequestStatus.
 const (
-	ProjectUpdateRequestStatusActive   ProjectUpdateRequestStatus = "active"
-	ProjectUpdateRequestStatusArchived ProjectUpdateRequestStatus = "archived"
+	Active   ProjectUpdateRequestStatus = "active"
+	Archived ProjectUpdateRequestStatus = "archived"
 )
 
 // Defines values for AdminListLeadsParamsStatus.
@@ -162,10 +199,10 @@ const (
 
 // Defines values for ListLotsParamsType.
 const (
-	ListLotsParamsTypeApartment ListLotsParamsType = "apartment"
-	ListLotsParamsTypePenthouse ListLotsParamsType = "penthouse"
-	ListLotsParamsTypeTownhouse ListLotsParamsType = "townhouse"
-	ListLotsParamsTypeVilla     ListLotsParamsType = "villa"
+	Apartment ListLotsParamsType = "apartment"
+	Penthouse ListLotsParamsType = "penthouse"
+	Townhouse ListLotsParamsType = "townhouse"
+	Villa     ListLotsParamsType = "villa"
 )
 
 // Defines values for ListLotsParamsSort.
@@ -370,6 +407,7 @@ type LeadDataRequest struct {
 
 // Lot defines model for Lot.
 type Lot struct {
+	Area          *Area               `json:"area,omitempty"`
 	AreaId        *openapi_types.UUID `json:"areaId,omitempty"`
 	AreaSqm       *float32            `json:"areaSqm,omitempty"`
 	Bathrooms     *int                `json:"bathrooms,omitempty"`
@@ -377,38 +415,17 @@ type Lot struct {
 	BonusKeys     *[]string           `json:"bonusKeys,omitempty"`
 	CreatedAt     *time.Time          `json:"createdAt,omitempty"`
 	Data          *LotData            `json:"data,omitempty"`
+	Developer     *Developer          `json:"developer,omitempty"`
 	DeveloperId   *openapi_types.UUID `json:"developerId,omitempty"`
 	Floor         *int                `json:"floor,omitempty"`
 	Id            *openapi_types.UUID `json:"id,omitempty"`
 	PriceAmount   *float32            `json:"priceAmount,omitempty"`
 	PriceCurrency *string             `json:"priceCurrency,omitempty"`
+	Project       *Project            `json:"project,omitempty"`
 	ProjectId     *openapi_types.UUID `json:"projectId,omitempty"`
 	Status        *LotStatus          `json:"status,omitempty"`
 	Type          *LotType            `json:"type,omitempty"`
 	UpdatedAt     *time.Time          `json:"updatedAt,omitempty"`
-}
-
-// LotListItem defines model for LotListItem.
-type LotListItem struct {
-	Area         *Area               `json:"area,omitempty"`
-	AreaId       *openapi_types.UUID `json:"areaId,omitempty"`
-	AreaSqm      *float32            `json:"areaSqm,omitempty"`
-	Bathrooms    *int                `json:"bathrooms,omitempty"`
-	Bedrooms     *int                `json:"bedrooms,omitempty"`
-	BonusKeys    *[]string           `json:"bonusKeys,omitempty"`
-	CreatedAt    *time.Time          `json:"createdAt,omitempty"`
-	Data         *LotData            `json:"data,omitempty"`
-	Developer    *Developer          `json:"developer,omitempty"`
-	DeveloperId  *openapi_types.UUID `json:"developerId,omitempty"`
-	Floor        *int                `json:"floor,omitempty"`
-	Id           *openapi_types.UUID `json:"id,omitempty"`
-	PriceAmount  *float32            `json:"priceAmount,omitempty"`
-	PriceCurrency *string             `json:"priceCurrency,omitempty"`
-	Project      *Project            `json:"project,omitempty"`
-	ProjectId    *openapi_types.UUID `json:"projectId,omitempty"`
-	Status       *LotStatus          `json:"status,omitempty"`
-	Type         *LotType            `json:"type,omitempty"`
-	UpdatedAt    *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // LotStatus defines model for Lot.Status.
@@ -448,6 +465,35 @@ type LotData struct {
 	PaymentPlan   *PaymentPlan   `json:"paymentPlan,omitempty"`
 	Tags          *[]string      `json:"tags,omitempty"`
 }
+
+// LotListItem defines model for LotListItem.
+type LotListItem struct {
+	Area          *Area               `json:"area,omitempty"`
+	AreaId        *openapi_types.UUID `json:"areaId,omitempty"`
+	AreaSqm       *float32            `json:"areaSqm,omitempty"`
+	Bathrooms     *int                `json:"bathrooms,omitempty"`
+	Bedrooms      *int                `json:"bedrooms,omitempty"`
+	BonusKeys     *[]string           `json:"bonusKeys,omitempty"`
+	CreatedAt     *time.Time          `json:"createdAt,omitempty"`
+	Data          *LotData            `json:"data,omitempty"`
+	Developer     *Developer          `json:"developer,omitempty"`
+	DeveloperId   *openapi_types.UUID `json:"developerId,omitempty"`
+	Floor         *int                `json:"floor,omitempty"`
+	Id            *openapi_types.UUID `json:"id,omitempty"`
+	PriceAmount   *float32            `json:"priceAmount,omitempty"`
+	PriceCurrency *string             `json:"priceCurrency,omitempty"`
+	Project       *Project            `json:"project,omitempty"`
+	ProjectId     *openapi_types.UUID `json:"projectId,omitempty"`
+	Status        *LotListItemStatus  `json:"status,omitempty"`
+	Type          *LotListItemType    `json:"type,omitempty"`
+	UpdatedAt     *time.Time          `json:"updatedAt,omitempty"`
+}
+
+// LotListItemStatus defines model for LotListItem.Status.
+type LotListItemStatus string
+
+// LotListItemType defines model for LotListItem.Type.
+type LotListItemType string
 
 // LotMedia defines model for LotMedia.
 type LotMedia struct {
@@ -520,11 +566,9 @@ type Point struct {
 
 // Project defines model for Project.
 type Project struct {
-	Area        *ProjectArea        `json:"area,omitempty"`
 	AreaId      *openapi_types.UUID `json:"areaId,omitempty"`
 	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
 	Data        *ProjectData        `json:"data,omitempty"`
-	Developer   *ProjectDeveloper   `json:"developer,omitempty"`
 	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
 	Id          *openapi_types.UUID `json:"id,omitempty"`
 	Lat         *float32            `json:"lat,omitempty"`
@@ -533,23 +577,16 @@ type Project struct {
 	// Lots Первые N лотов проекта (если запрошено через includeLots)
 	Lots      *[]Lot         `json:"lots,omitempty"`
 	Name      *string        `json:"name,omitempty"`
-	Sale      *string        `json:"sale,omitempty"`
+	Sale      *ProjectSale   `json:"sale,omitempty"`
 	Slug      *string        `json:"slug,omitempty"`
 	Status    *ProjectStatus `json:"status,omitempty"`
 	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
+	Developer *Developer     `json:"developer,omitempty"`
+	Area      *Area          `json:"area,omitempty"`
 }
 
-// ProjectArea defines embedded area info in project response.
-type ProjectArea struct {
-	Name *string `json:"name,omitempty"`
-	City *string `json:"city,omitempty"`
-}
-
-// ProjectDeveloper defines embedded developer info in project response.
-type ProjectDeveloper struct {
-	Name *string                 `json:"name,omitempty"`
-	Data *map[string]interface{} `json:"data,omitempty"`
-}
+// ProjectSale defines model for Project.Sale.
+type ProjectSale string
 
 // ProjectStatus defines model for Project.Status.
 type ProjectStatus string
@@ -562,9 +599,13 @@ type ProjectCreateRequest struct {
 	Lat         *float32                    `json:"lat,omitempty"`
 	Lng         *float32                    `json:"lng,omitempty"`
 	Name        string                      `json:"name"`
+	Sale        *ProjectCreateRequestSale   `json:"sale,omitempty"`
 	Slug        string                      `json:"slug"`
 	Status      *ProjectCreateRequestStatus `json:"status,omitempty"`
 }
+
+// ProjectCreateRequestSale defines model for ProjectCreateRequest.Sale.
+type ProjectCreateRequestSale string
 
 // ProjectCreateRequestStatus defines model for ProjectCreateRequest.Status.
 type ProjectCreateRequestStatus string
@@ -573,10 +614,10 @@ type ProjectCreateRequestStatus string
 type ProjectData struct {
 	Description       *ProjectData_Description `json:"description,omitempty"`
 	FeaturesAmenities *[]interface{}           `json:"featuresAmenities,omitempty"`
-	IsFeatured        *bool                    `json:"isFeatured,omitempty"`
-	IsRecommended     *bool                    `json:"isRecommended,omitempty"`
 	Media             *Media                   `json:"media,omitempty"`
 	Specs             *map[string]interface{}  `json:"specs,omitempty"`
+	IsRecommended     *bool                    `json:"isRecommended,omitempty"`
+	IsFeatured        *bool                    `json:"isFeatured,omitempty"`
 	Tags              *[]string                `json:"tags,omitempty"`
 }
 
@@ -599,9 +640,13 @@ type ProjectUpdateRequest struct {
 	Lat         *float32                    `json:"lat,omitempty"`
 	Lng         *float32                    `json:"lng,omitempty"`
 	Name        *string                     `json:"name,omitempty"`
+	Sale        *ProjectUpdateRequestSale   `json:"sale,omitempty"`
 	Slug        *string                     `json:"slug,omitempty"`
 	Status      *ProjectUpdateRequestStatus `json:"status,omitempty"`
 }
+
+// ProjectUpdateRequestSale defines model for ProjectUpdateRequest.Sale.
+type ProjectUpdateRequestSale string
 
 // ProjectUpdateRequestStatus defines model for ProjectUpdateRequest.Status.
 type ProjectUpdateRequestStatus string
@@ -861,6 +906,12 @@ type ServerInterface interface {
 	// Создать застройщика (админ)
 	// (POST /admin/developers)
 	AdminCreateDeveloper(c *fiber.Ctx) error
+	// Удалить застройщика (админ)
+	// (DELETE /admin/developers/{id})
+	AdminDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить застройщика по ID (админ)
+	// (GET /admin/developers/{id})
+	AdminGetDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
 	// Обновить застройщика (админ)
 	// (PATCH /admin/developers/{id})
 	AdminUpdateDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
@@ -963,6 +1014,42 @@ func (siw *ServerInterfaceWrapper) AdminCreateDeveloper(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateDeveloper(c)
+}
+
+// AdminDeleteDeveloper operation middleware
+func (siw *ServerInterfaceWrapper) AdminDeleteDeveloper(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminDeleteDeveloper(c, id)
+}
+
+// AdminGetDeveloper operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetDeveloper(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetDeveloper(c, id)
 }
 
 // AdminUpdateDeveloper operation middleware
@@ -1326,6 +1413,10 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	router.Get(options.BaseURL+"/admin/developers", wrapper.AdminListDevelopers)
 
 	router.Post(options.BaseURL+"/admin/developers", wrapper.AdminCreateDeveloper)
+
+	router.Delete(options.BaseURL+"/admin/developers/:id", wrapper.AdminDeleteDeveloper)
+
+	router.Get(options.BaseURL+"/admin/developers/:id", wrapper.AdminGetDeveloper)
 
 	router.Patch(options.BaseURL+"/admin/developers/:id", wrapper.AdminUpdateDeveloper)
 
