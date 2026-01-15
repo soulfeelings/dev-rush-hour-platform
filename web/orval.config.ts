@@ -18,9 +18,6 @@ export default defineConfig({
           useInfinite: false,
           useInfiniteQueryParam: 'page',
         },
-        mutations: {
-          methods: ['post', 'patch', 'put', 'delete'],
-        },
       },
     },
     hooks: {
@@ -46,9 +43,6 @@ export default defineConfig({
           useQuery: true,
           useInfinite: false,
           useInfiniteQueryParam: 'page',
-        },
-        mutations: {
-          methods: ['post', 'patch', 'put', 'delete'],
         },
       },
     },
