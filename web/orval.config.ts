@@ -2,7 +2,7 @@ import { defineConfig } from 'orval'
 
 export default defineConfig({
   api: {
-    input: '../../backend/api/openapi.yaml',
+    input: '../backend/api/openapi.yaml',
     output: {
       mode: 'split',
       target: 'src/api/generated',
@@ -28,7 +28,7 @@ export default defineConfig({
     },
   },
   adminApi: {
-    input: '../../backend/api/openapi.yaml',
+    input: '../backend/api/openapi.yaml',
     output: {
       mode: 'split',
       target: 'src/api/generated/admin',

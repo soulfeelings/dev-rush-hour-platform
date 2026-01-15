@@ -1036,6 +1036,214 @@ export const useAdminCreateDeveloper = <
 }
 
 /**
+ * @summary Получить застройщика по ID (админ)
+ */
+export const adminGetDeveloper = (
+  id: string,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal
+) => {
+  return customInstance<Developer>(
+    { url: `/admin/developers/${id}`, method: 'GET', signal },
+    options
+  )
+}
+
+export const getAdminGetDeveloperQueryKey = (id?: string) => {
+  return [`/admin/developers/${id}`] as const
+}
+
+export const getAdminGetDeveloperQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminGetDeveloper>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetDeveloper>>, TError, TData>>
+    request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminGetDeveloperQueryKey(id)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetDeveloper>>> = ({ signal }) =>
+    adminGetDeveloper(id, requestOptions, signal)
+
+  return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetDeveloper>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminGetDeveloperQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminGetDeveloper>>
+>
+export type AdminGetDeveloperQueryError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+export function useAdminGetDeveloper<
+  TData = Awaited<ReturnType<typeof adminGetDeveloper>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetDeveloper>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetDeveloper>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetDeveloper>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetDeveloper<
+  TData = Awaited<ReturnType<typeof adminGetDeveloper>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetDeveloper>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetDeveloper>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetDeveloper>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetDeveloper<
+  TData = Awaited<ReturnType<typeof adminGetDeveloper>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetDeveloper>>, TError, TData>>
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить застройщика по ID (админ)
+ */
+
+export function useAdminGetDeveloper<
+  TData = Awaited<ReturnType<typeof adminGetDeveloper>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetDeveloper>>, TError, TData>>
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminGetDeveloperQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Удалить застройщика (админ)
+ */
+export const adminDeleteDeveloper = (
+  id: string,
+  options?: SecondParameter<typeof customInstance>
+) => {
+  return customInstance<void>({ url: `/admin/developers/${id}`, method: 'DELETE' }, options)
+}
+
+export const getAdminDeleteDeveloperMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof customInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminDeleteDeveloper']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminDeleteDeveloper(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminDeleteDeveloperMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminDeleteDeveloper>>
+>
+
+export type AdminDeleteDeveloperMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Удалить застройщика (админ)
+ */
+export const useAdminDeleteDeveloper = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminDeleteDeveloperMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
  * @summary Обновить застройщика (админ)
  */
 export const adminUpdateDeveloper = (
