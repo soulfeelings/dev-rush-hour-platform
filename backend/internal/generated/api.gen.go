@@ -566,9 +566,11 @@ type Point struct {
 
 // Project defines model for Project.
 type Project struct {
+	Area        *Area               `json:"area,omitempty"`
 	AreaId      *openapi_types.UUID `json:"areaId,omitempty"`
 	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
 	Data        *ProjectData        `json:"data,omitempty"`
+	Developer   *Developer          `json:"developer,omitempty"`
 	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
 	Id          *openapi_types.UUID `json:"id,omitempty"`
 	Lat         *float32            `json:"lat,omitempty"`
@@ -581,8 +583,6 @@ type Project struct {
 	Slug      *string        `json:"slug,omitempty"`
 	Status    *ProjectStatus `json:"status,omitempty"`
 	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
-	Developer *Developer     `json:"developer,omitempty"`
-	Area      *Area          `json:"area,omitempty"`
 }
 
 // ProjectSale defines model for Project.Sale.
@@ -614,11 +614,17 @@ type ProjectCreateRequestStatus string
 type ProjectData struct {
 	Description       *ProjectData_Description `json:"description,omitempty"`
 	FeaturesAmenities *[]interface{}           `json:"featuresAmenities,omitempty"`
-	Media             *Media                   `json:"media,omitempty"`
-	Specs             *map[string]interface{}  `json:"specs,omitempty"`
-	IsRecommended     *bool                    `json:"isRecommended,omitempty"`
-	IsFeatured        *bool                    `json:"isFeatured,omitempty"`
-	Tags              *[]string                `json:"tags,omitempty"`
+
+	// IsFeatured Избранный проект
+	IsFeatured *bool `json:"isFeatured,omitempty"`
+
+	// IsRecommended Рекомендуемый проект
+	IsRecommended *bool                   `json:"isRecommended,omitempty"`
+	Media         *Media                  `json:"media,omitempty"`
+	Specs         *map[string]interface{} `json:"specs,omitempty"`
+
+	// Tags Теги проекта
+	Tags *[]string `json:"tags,omitempty"`
 }
 
 // ProjectDataDescription0 defines model for .
@@ -906,9 +912,9 @@ type ServerInterface interface {
 	// Создать застройщика (админ)
 	// (POST /admin/developers)
 	AdminCreateDeveloper(c *fiber.Ctx) error
-	// Удалить застройщика (админ)
+	// Мягкое удаление застройщика (установка deleted_at)
 	// (DELETE /admin/developers/{id})
-	AdminDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
+	AdminSoftDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить застройщика по ID (админ)
 	// (GET /admin/developers/{id})
 	AdminGetDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
@@ -1016,8 +1022,8 @@ func (siw *ServerInterfaceWrapper) AdminCreateDeveloper(c *fiber.Ctx) error {
 	return siw.Handler.AdminCreateDeveloper(c)
 }
 
-// AdminDeleteDeveloper operation middleware
-func (siw *ServerInterfaceWrapper) AdminDeleteDeveloper(c *fiber.Ctx) error {
+// AdminSoftDeleteDeveloper operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteDeveloper(c *fiber.Ctx) error {
 
 	var err error
 
@@ -1031,7 +1037,7 @@ func (siw *ServerInterfaceWrapper) AdminDeleteDeveloper(c *fiber.Ctx) error {
 
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
-	return siw.Handler.AdminDeleteDeveloper(c, id)
+	return siw.Handler.AdminSoftDeleteDeveloper(c, id)
 }
 
 // AdminGetDeveloper operation middleware
@@ -1414,7 +1420,7 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 
 	router.Post(options.BaseURL+"/admin/developers", wrapper.AdminCreateDeveloper)
 
-	router.Delete(options.BaseURL+"/admin/developers/:id", wrapper.AdminDeleteDeveloper)
+	router.Delete(options.BaseURL+"/admin/developers/:id", wrapper.AdminSoftDeleteDeveloper)
 
 	router.Get(options.BaseURL+"/admin/developers/:id", wrapper.AdminGetDeveloper)
 

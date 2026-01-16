@@ -306,12 +306,8 @@ paths:
             type: string
             format: uuid
       responses:
-        "200":
+        "204":
           description: Застройщик найден
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Developer"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -319,8 +315,8 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
     delete:
-      operationId: adminDeleteDeveloper
-      summary: Удалить застройщика (админ)
+      operationId: adminSoftDeleteDeveloper
+      summary: Мягкое удаление застройщика (установка deleted_at)
       tags:
         - Admin
       security:
@@ -333,8 +329,12 @@ paths:
             type: string
             format: uuid
       responses:
-        "204":
-          description: Застройщик удален
+        "200":
+          description: Застройщик помечен как удаленный
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Developer"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":

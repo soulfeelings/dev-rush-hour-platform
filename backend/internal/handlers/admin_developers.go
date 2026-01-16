@@ -205,7 +205,7 @@ func (h *AdminDevelopersHandler) GetDeveloper(c *fiber.Ctx, id openapi_types.UUI
 	return c.JSON(mappers.DomainDeveloperToGenerated(dev))
 }
 
-func (h *AdminDevelopersHandler) DeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
+func (h *AdminDevelopersHandler) SoftDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
 	err := h.developersService.Delete(uuid.UUID(id))
 	if err != nil {
 		if err.Error() == "developer not found" {

@@ -109,8 +109,8 @@ func (s *Server) AdminGetDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
 	return s.adminDevelopersHandler.GetDeveloper(c, id)
 }
 
-func (s *Server) AdminDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
-	return s.adminDevelopersHandler.DeleteDeveloper(c, id)
+func (s *Server) AdminSoftDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
+    return s.adminDevelopersHandler.SoftDeleteDeveloper(c, id)
 }
 
 func (s *Server) AdminListAreas(c *fiber.Ctx) error {
