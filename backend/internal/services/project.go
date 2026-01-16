@@ -125,11 +125,23 @@ func (s *ProjectsService) GetByID(id uuid.UUID) (*domain.Project, error) {
 		return nil, fmt.Errorf("failed to get project: %w", err)
 	}
 	if project == nil {
-		return nil, fmt.Errorf("project not found")
+		return nil, ErrProjectNotFound
 	}
 	return project, nil
 }
 
 func (s *ProjectsService) ListAll() ([]domain.Project, error) {
 	return s.projectRepo.ListAll()
+}
+
+func (s *ProjectsService) Delete(id uuid.UUID) error {
+	existing, err := s.projectRepo.GetByID(id)
+	if err != nil {
+		return fmt.Errorf("failed to get project: %w", err)
+	}
+	if existing == nil {
+		return ErrProjectNotFound
+	}
+
+	return s.projectRepo.Delete(id)
 }

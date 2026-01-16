@@ -1161,33 +1161,33 @@ export function useAdminGetDeveloper<
 }
 
 /**
- * @summary Удалить застройщика (админ)
+ * @summary Мягкое удаление застройщика (установка deleted_at)
  */
-export const adminDeleteDeveloper = (
+export const adminSoftDeleteDeveloper = (
   id: string,
   options?: SecondParameter<typeof adminInstance>
 ) => {
-  return adminInstance<void>({ url: `/admin/developers/${id}`, method: 'DELETE' }, options)
+  return adminInstance<Developer>({ url: `/admin/developers/${id}`, method: 'DELETE' }, options)
 }
 
-export const getAdminDeleteDeveloperMutationOptions = <
+export const getAdminSoftDeleteDeveloperMutationOptions = <
   TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+    Awaited<ReturnType<typeof adminSoftDeleteDeveloper>>,
     TError,
     { id: string },
     TContext
   >
   request?: SecondParameter<typeof adminInstance>
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+  Awaited<ReturnType<typeof adminSoftDeleteDeveloper>>,
   TError,
   { id: string },
   TContext
 > => {
-  const mutationKey = ['adminDeleteDeveloper']
+  const mutationKey = ['adminSoftDeleteDeveloper']
   const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
@@ -1195,36 +1195,36 @@ export const getAdminDeleteDeveloperMutationOptions = <
     : { mutation: { mutationKey }, request: undefined }
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+    Awaited<ReturnType<typeof adminSoftDeleteDeveloper>>,
     { id: string }
   > = props => {
     const { id } = props ?? {}
 
-    return adminDeleteDeveloper(id, requestOptions)
+    return adminSoftDeleteDeveloper(id, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
 }
 
-export type AdminDeleteDeveloperMutationResult = NonNullable<
-  Awaited<ReturnType<typeof adminDeleteDeveloper>>
+export type AdminSoftDeleteDeveloperMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminSoftDeleteDeveloper>>
 >
 
-export type AdminDeleteDeveloperMutationError =
+export type AdminSoftDeleteDeveloperMutationError =
   | UnauthorizedResponse
   | NotFoundResponse
   | InternalErrorResponse
 
 /**
- * @summary Удалить застройщика (админ)
+ * @summary Мягкое удаление застройщика (установка deleted_at)
  */
-export const useAdminDeleteDeveloper = <
+export const useAdminSoftDeleteDeveloper = <
   TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
   TContext = unknown,
 >(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+      Awaited<ReturnType<typeof adminSoftDeleteDeveloper>>,
       TError,
       { id: string },
       TContext
@@ -1233,12 +1233,12 @@ export const useAdminDeleteDeveloper = <
   },
   queryClient?: QueryClient
 ): UseMutationResult<
-  Awaited<ReturnType<typeof adminDeleteDeveloper>>,
+  Awaited<ReturnType<typeof adminSoftDeleteDeveloper>>,
   TError,
   { id: string },
   TContext
 > => {
-  const mutationOptions = getAdminDeleteDeveloperMutationOptions(options)
+  const mutationOptions = getAdminSoftDeleteDeveloperMutationOptions(options)
 
   return useMutation(mutationOptions, queryClient)
 }
@@ -1843,6 +1843,209 @@ export const useAdminCreateProject = <
   TContext
 > => {
   const mutationOptions = getAdminCreateProjectMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Получить проект по ID (админ)
+ */
+export const adminGetProject = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Project>({ url: `/admin/projects/${id}`, method: 'GET', signal }, options)
+}
+
+export const getAdminGetProjectQueryKey = (id?: string) => {
+  return [`/admin/projects/${id}`] as const
+}
+
+export const getAdminGetProjectQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminGetProject>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetProject>>, TError, TData>>
+    request?: SecondParameter<typeof adminInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminGetProjectQueryKey(id)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetProject>>> = ({ signal }) =>
+    adminGetProject(id, requestOptions, signal)
+
+  return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetProject>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminGetProjectQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetProject>>>
+export type AdminGetProjectQueryError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+export function useAdminGetProject<
+  TData = Awaited<ReturnType<typeof adminGetProject>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetProject>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetProject>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetProject>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetProject<
+  TData = Awaited<ReturnType<typeof adminGetProject>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetProject>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetProject>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetProject>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetProject<
+  TData = Awaited<ReturnType<typeof adminGetProject>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetProject>>, TError, TData>>
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить проект по ID (админ)
+ */
+
+export function useAdminGetProject<
+  TData = Awaited<ReturnType<typeof adminGetProject>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetProject>>, TError, TData>>
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminGetProjectQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Мягкое удаление проекта (установка deleted_at)
+ */
+export const adminSoftDeleteProject = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<void>({ url: `/admin/projects/${id}`, method: 'DELETE' }, options)
+}
+
+export const getAdminSoftDeleteProjectMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminSoftDeleteProject>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminSoftDeleteProject>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminSoftDeleteProject']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminSoftDeleteProject>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminSoftDeleteProject(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminSoftDeleteProjectMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminSoftDeleteProject>>
+>
+
+export type AdminSoftDeleteProjectMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Мягкое удаление проекта (установка deleted_at)
+ */
+export const useAdminSoftDeleteProject = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminSoftDeleteProject>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminSoftDeleteProject>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminSoftDeleteProjectMutationOptions(options)
 
   return useMutation(mutationOptions, queryClient)
 }

@@ -137,6 +137,14 @@ func (s *Server) AdminUpdateProject(c *fiber.Ctx, id openapi_types.UUID) error {
 	return s.adminProjectsHandler.UpdateProject(c, id)
 }
 
+func (s *Server) AdminGetProject(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminProjectsHandler.GetProject(c, id)
+}
+
+func (s *Server) AdminSoftDeleteProject(c *fiber.Ctx, id openapi_types.UUID) error {
+    return s.adminProjectsHandler.SoftDeleteProject(c, id)
+}
+
 func (s *Server) AdminListLots(c *fiber.Ctx) error {
 	return s.adminLotsHandler.ListLots(c)
 }

@@ -306,8 +306,12 @@ paths:
             type: string
             format: uuid
       responses:
-        "204":
+        "200":
           description: Застройщик найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Developer"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -511,6 +515,56 @@ paths:
           $ref: "#/components/responses/InternalError"
 
   /admin/projects/{id}:
+    get:
+      operationId: adminGetProject
+      summary: Получить проект по ID (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Проект найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      operationId: adminSoftDeleteProject
+      summary: Мягкое удаление проекта (установка deleted_at)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Проект помечен как удаленный
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
     patch:
       operationId: adminUpdateProject
       summary: Обновить проект (админ)

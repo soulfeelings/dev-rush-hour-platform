@@ -939,6 +939,12 @@ type ServerInterface interface {
 	// Создать проект (админ)
 	// (POST /admin/projects)
 	AdminCreateProject(c *fiber.Ctx) error
+	// Мягкое удаление проекта (установка deleted_at)
+	// (DELETE /admin/projects/{id})
+	AdminSoftDeleteProject(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить проект по ID (админ)
+	// (GET /admin/projects/{id})
+	AdminGetProject(c *fiber.Ctx, id openapi_types.UUID) error
 	// Обновить проект (админ)
 	// (PATCH /admin/projects/{id})
 	AdminUpdateProject(c *fiber.Ctx, id openapi_types.UUID) error
@@ -1150,6 +1156,42 @@ func (siw *ServerInterfaceWrapper) AdminCreateProject(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateProject(c)
+}
+
+// AdminSoftDeleteProject operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteProject(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteProject(c, id)
+}
+
+// AdminGetProject operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetProject(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetProject(c, id)
 }
 
 // AdminUpdateProject operation middleware
@@ -1437,6 +1479,10 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	router.Get(options.BaseURL+"/admin/projects", wrapper.AdminListProjects)
 
 	router.Post(options.BaseURL+"/admin/projects", wrapper.AdminCreateProject)
+
+	router.Delete(options.BaseURL+"/admin/projects/:id", wrapper.AdminSoftDeleteProject)
+
+	router.Get(options.BaseURL+"/admin/projects/:id", wrapper.AdminGetProject)
 
 	router.Patch(options.BaseURL+"/admin/projects/:id", wrapper.AdminUpdateProject)
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
 	"rush-hour-platform/backend/internal/services"
@@ -178,7 +179,7 @@ func (h *AdminDevelopersHandler) UpdateDeveloper(c *fiber.Ctx, id openapi_types.
 func (h *AdminDevelopersHandler) GetDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
 	dev, err := h.developersService.GetByID(uuid.UUID(id))
 	if err != nil {
-		if err.Error() == "developer not found" {
+		if errors.Is(err, services.ErrDeveloperNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
 				Error: &struct {
 					Code    *string                        `json:"code,omitempty"`
@@ -208,7 +209,7 @@ func (h *AdminDevelopersHandler) GetDeveloper(c *fiber.Ctx, id openapi_types.UUI
 func (h *AdminDevelopersHandler) SoftDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
 	err := h.developersService.Delete(uuid.UUID(id))
 	if err != nil {
-		if err.Error() == "developer not found" {
+		if errors.Is(err, services.ErrDeveloperNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
 				Error: &struct {
 					Code    *string                        `json:"code,omitempty"`

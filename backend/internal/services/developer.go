@@ -38,7 +38,7 @@ func (s *DevelopersService) GetByID(id uuid.UUID) (*domain.Developer, error) {
 		return nil, fmt.Errorf("failed to get developer: %w", err)
 	}
 	if dev == nil {
-		return nil, fmt.Errorf("developer not found")
+		return nil, ErrDeveloperNotFound
 	}
 	return dev, nil
 }
@@ -53,7 +53,7 @@ func (s *DevelopersService) Delete(id uuid.UUID) error {
 		return fmt.Errorf("failed to get developer: %w", err)
 	}
 	if existing == nil {
-		return fmt.Errorf("developer not found")
+		return ErrDeveloperNotFound
 	}
 
 	return s.developerRepo.Delete(id)
