@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Button, Input, Select } from '../../../../ui'
-import { type ProjectCreateRequest } from '../../../../api'
+import { type ProjectCreateRequest, type Project } from '../../../../api'
 import { MapPicker } from '../MapPicker'
 import styles from './ProjectForm.module.scss'
 
@@ -19,19 +19,81 @@ type ProjectFormProps = {
   areas: Area[]
   onSubmit: (data: ProjectCreateRequest) => void
   loading: boolean
+  initialData?: Project | null
+  isEditMode?: boolean
 }
 
-export function ProjectForm({ developers, areas, onSubmit, loading }: ProjectFormProps) {
-  const [form, setForm] = useState({
-    slug: '',
-    name: '',
-    status: 'active',
-    sale: 'sale',
-    developerId: '',
-    areaId: '',
-    lat: '',
-    lng: '',
-  })
+export function ProjectForm({
+  developers,
+  areas,
+  onSubmit,
+  loading,
+  initialData,
+  isEditMode = false,
+}: ProjectFormProps) {
+  const defaultForm = useMemo(
+    () => ({
+      slug: '',
+      name: '',
+      status: 'active',
+      sale: 'sale',
+      developerId: '',
+      areaId: '',
+      lat: '',
+      lng: '',
+    }),
+    []
+  )
+
+  const initialForm = useMemo(() => {
+    if (initialData) {
+      return {
+        slug: initialData.slug || '',
+        name: initialData.name || '',
+        status: (initialData.status as string) || 'active',
+        sale: (initialData.sale as string) || 'sale',
+        developerId: initialData.developerId || '',
+        areaId: initialData.areaId || '',
+        lat: initialData.lat?.toString() || '',
+        lng: initialData.lng?.toString() || '',
+      }
+    }
+    return defaultForm
+  }, [initialData, defaultForm])
+
+  const [form, setForm] = useState(initialForm)
+
+  useEffect(() => {
+    setForm(initialForm)
+  }, [initialForm])
+
+  const initialFormData = useMemo(() => {
+    if (!initialData) return null
+    return {
+      slug: initialData.slug || '',
+      name: initialData.name || '',
+      status: (initialData.status as string) || 'active',
+      sale: (initialData.sale as string) || 'sale',
+      developerId: initialData.developerId || '',
+      areaId: initialData.areaId || '',
+      lat: initialData.lat?.toString() || '',
+      lng: initialData.lng?.toString() || '',
+    }
+  }, [initialData])
+
+  const hasChanges = useMemo(() => {
+    if (!isEditMode || !initialFormData) return false
+    return (
+      form.slug !== initialFormData.slug ||
+      form.name !== initialFormData.name ||
+      form.status !== initialFormData.status ||
+      form.sale !== initialFormData.sale ||
+      form.developerId !== initialFormData.developerId ||
+      form.areaId !== initialFormData.areaId ||
+      form.lat !== initialFormData.lat ||
+      form.lng !== initialFormData.lng
+    )
+  }, [form, initialFormData, isEditMode])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -118,8 +180,19 @@ export function ProjectForm({ developers, areas, onSubmit, loading }: ProjectFor
         value={form.lng}
         onChange={e => setForm({ ...form, lng: e.target.value })}
       />
-      <Button type="submit" disabled={loading} fullWidth>
-        {loading ? 'Creating...' : 'Create Project'}
+      <Button
+        type="submit"
+        disabled={loading || (isEditMode && !hasChanges)}
+        fullWidth
+        className={isEditMode && hasChanges ? styles.saveButton : ''}
+      >
+        {loading
+          ? isEditMode
+            ? 'Saving...'
+            : 'Creating...'
+          : isEditMode
+            ? 'Save'
+            : 'Create Project'}
       </Button>
     </form>
   )

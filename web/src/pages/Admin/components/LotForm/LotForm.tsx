@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Button, Input, Select } from '../../../../ui'
+import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import styles from './LotForm.module.scss'
 
 type Project = {
@@ -37,22 +38,94 @@ type LotFormProps = {
   areas: Area[]
   onSubmit: (data: Record<string, unknown>) => void
   loading: boolean
+  initialData?: LotListItem | null
+  isEditMode?: boolean
 }
 
-export function LotForm({ projects, developers, areas, onSubmit, loading }: LotFormProps) {
-  const [form, setForm] = useState<LotFormData>({
-    projectId: '',
-    developerId: '',
-    areaId: '',
-    type: 'apartment',
-    status: 'active',
-    bedrooms: '',
-    bathrooms: '',
-    areaSqm: '',
-    floor: '',
-    priceCurrency: 'AED',
-    priceAmount: '',
-  })
+export function LotForm({
+  projects,
+  developers,
+  areas,
+  onSubmit,
+  loading,
+  initialData,
+  isEditMode = false,
+}: LotFormProps) {
+  const defaultForm = useMemo<LotFormData>(
+    () => ({
+      projectId: '',
+      developerId: '',
+      areaId: '',
+      type: 'apartment',
+      status: 'active',
+      bedrooms: '',
+      bathrooms: '',
+      areaSqm: '',
+      floor: '',
+      priceCurrency: 'AED',
+      priceAmount: '',
+    }),
+    []
+  )
+
+  const initialForm = useMemo<LotFormData>(() => {
+    if (initialData) {
+      return {
+        projectId: initialData.projectId || '',
+        developerId: initialData.developerId || '',
+        areaId: initialData.areaId || '',
+        type: (initialData.type as string) || 'apartment',
+        status: (initialData.status as string) || 'active',
+        bedrooms: initialData.bedrooms?.toString() || '',
+        bathrooms: initialData.bathrooms?.toString() || '',
+        areaSqm: initialData.areaSqm?.toString() || '',
+        floor: initialData.floor?.toString() || '',
+        priceCurrency: initialData.priceCurrency || 'AED',
+        priceAmount: initialData.priceAmount?.toString() || '',
+      }
+    }
+    return defaultForm
+  }, [initialData, defaultForm])
+
+  const [form, setForm] = useState<LotFormData>(initialForm)
+
+  useEffect(() => {
+    setForm(initialForm)
+  }, [initialForm])
+
+  const initialFormData = useMemo(() => {
+    if (!initialData) return null
+    return {
+      projectId: initialData.projectId || '',
+      developerId: initialData.developerId || '',
+      areaId: initialData.areaId || '',
+      type: (initialData.type as string) || 'apartment',
+      status: (initialData.status as string) || 'active',
+      bedrooms: initialData.bedrooms?.toString() || '',
+      bathrooms: initialData.bathrooms?.toString() || '',
+      areaSqm: initialData.areaSqm?.toString() || '',
+      floor: initialData.floor?.toString() || '',
+      priceCurrency: initialData.priceCurrency || 'AED',
+      priceAmount: initialData.priceAmount?.toString() || '',
+    }
+  }, [initialData])
+
+  const hasChanges = useMemo(() => {
+    if (!isEditMode || !initialFormData) return false
+    return (
+      form.projectId !== initialFormData.projectId ||
+      form.developerId !== initialFormData.developerId ||
+      form.areaId !== initialFormData.areaId ||
+      form.type !== initialFormData.type ||
+      form.status !== initialFormData.status ||
+      form.bedrooms !== initialFormData.bedrooms ||
+      form.bathrooms !== initialFormData.bathrooms ||
+      form.areaSqm !== initialFormData.areaSqm ||
+      form.floor !== initialFormData.floor ||
+      form.priceCurrency !== initialFormData.priceCurrency ||
+      form.priceAmount !== initialFormData.priceAmount
+    )
+  }, [form, initialFormData, isEditMode])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -170,8 +243,13 @@ export function LotForm({ projects, developers, areas, onSubmit, loading }: LotF
         value={form.areaId}
         onChange={value => setForm({ ...form, areaId: value })}
       />
-      <Button type="submit" disabled={loading} fullWidth>
-        {loading ? 'Creating...' : 'Create Lot'}
+      <Button
+        type="submit"
+        disabled={loading || (isEditMode && !hasChanges)}
+        fullWidth
+        className={isEditMode && hasChanges ? styles.saveButton : ''}
+      >
+        {loading ? (isEditMode ? 'Saving...' : 'Creating...') : isEditMode ? 'Save' : 'Create Lot'}
       </Button>
     </form>
   )

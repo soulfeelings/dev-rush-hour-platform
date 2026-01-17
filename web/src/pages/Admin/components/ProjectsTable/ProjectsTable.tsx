@@ -1,14 +1,19 @@
+import { useState } from 'react'
+import { Pencil } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button } from '../../../../ui'
+import type { Project } from '../../../../api/generated/schemas/project'
 import styles from './ProjectsTable.module.scss'
 
 const { useAdminListProjects } = AdminApi
 
 type ProjectsTableProps = {
   onNewClick: () => void
+  onEditClick: (project: Project) => void
 }
 
-export function ProjectsTable({ onNewClick }: ProjectsTableProps) {
+export function ProjectsTable({ onNewClick, onEditClick }: ProjectsTableProps) {
+  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const {
     data: projects,
     isLoading,
@@ -39,6 +44,7 @@ export function ProjectsTable({ onNewClick }: ProjectsTableProps) {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th></th>
               <th>ID</th>
               <th>Name</th>
               <th>Slug</th>
@@ -49,7 +55,23 @@ export function ProjectsTable({ onNewClick }: ProjectsTableProps) {
           </thead>
           <tbody>
             {projectsList.map(project => (
-              <tr key={project.id}>
+              <tr
+                key={project.id}
+                onMouseEnter={() => setHoveredRowId(project.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+              >
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === project.id && (
+                    <button
+                      type="button"
+                      className={styles.editButton}
+                      onClick={() => onEditClick(project)}
+                      aria-label="Edit project"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  )}
+                </td>
                 <td>{project.id}</td>
                 <td>{project.name || '-'}</td>
                 <td>{project.slug || '-'}</td>

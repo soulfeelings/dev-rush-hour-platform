@@ -1,14 +1,19 @@
+import { useState } from 'react'
+import { Pencil } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button } from '../../../../ui'
+import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import styles from './LotsTable.module.scss'
 
 const { useAdminListLots } = AdminApi
 
 type LotsTableProps = {
   onNewClick: () => void
+  onEditClick: (lot: LotListItem) => void
 }
 
-export function LotsTable({ onNewClick }: LotsTableProps) {
+export function LotsTable({ onNewClick, onEditClick }: LotsTableProps) {
+  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const {
     data: lotsResponse,
     isLoading,
@@ -45,6 +50,7 @@ export function LotsTable({ onNewClick }: LotsTableProps) {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th></th>
               <th>ID</th>
               <th>Type</th>
               <th>Bedrooms</th>
@@ -58,7 +64,23 @@ export function LotsTable({ onNewClick }: LotsTableProps) {
           </thead>
           <tbody>
             {lotsList.map(lot => (
-              <tr key={lot.id}>
+              <tr
+                key={lot.id}
+                onMouseEnter={() => setHoveredRowId(lot.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+              >
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === lot.id && (
+                    <button
+                      type="button"
+                      className={styles.editButton}
+                      onClick={() => onEditClick(lot)}
+                      aria-label="Edit lot"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  )}
+                </td>
                 <td>{lot.id}</td>
                 <td>{lot.type || '-'}</td>
                 <td>{lot.bedrooms ?? '-'}</td>

@@ -293,7 +293,7 @@ export default function LotDetail() {
         >
           ← Back
         </button>
-        {finalProject && (
+        {finalProject && finalProject.slug && (
           <Link to={getProjectDetailRoute(finalProject.slug)} className={styles.projectLink}>
             {finalProject.name}
           </Link>
@@ -470,7 +470,7 @@ export default function LotDetail() {
                 <span className={styles.value}>{lot.floor}</span>
               </div>
             )}
-            {lot.project && (
+            {lot.project && lot.project.slug && (
               <div className={styles.infoRow}>
                 <span className={styles.label}>Project:</span>
                 <span className={styles.value}>

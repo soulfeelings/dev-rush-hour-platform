@@ -1,19 +1,64 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Button, Input, Select } from '../../../../ui'
-import { type DeveloperCreateRequest } from '../../../../api'
+import { type DeveloperCreateRequest, type Developer } from '../../../../api'
 import styles from './DeveloperForm.module.scss'
 
 type DeveloperFormProps = {
   onSubmit: (data: DeveloperCreateRequest) => void
   loading: boolean
+  initialData?: Developer | null
+  isEditMode?: boolean
 }
 
-export function DeveloperForm({ onSubmit, loading }: DeveloperFormProps) {
-  const [form, setForm] = useState({
-    slug: '',
-    name: '',
-    status: 'active',
-  })
+export function DeveloperForm({
+  onSubmit,
+  loading,
+  initialData,
+  isEditMode = false,
+}: DeveloperFormProps) {
+  const defaultForm = useMemo(
+    () => ({
+      slug: '',
+      name: '',
+      status: 'active',
+    }),
+    []
+  )
+
+  const initialForm = useMemo(() => {
+    if (initialData) {
+      return {
+        slug: initialData.slug || '',
+        name: initialData.name || '',
+        status: (initialData.status as string) || 'active',
+      }
+    }
+    return defaultForm
+  }, [initialData, defaultForm])
+
+  const [form, setForm] = useState(initialForm)
+
+  useEffect(() => {
+    setForm(initialForm)
+  }, [initialForm])
+
+  const initialFormData = useMemo(() => {
+    if (!initialData) return null
+    return {
+      slug: initialData.slug || '',
+      name: initialData.name || '',
+      status: (initialData.status as string) || 'active',
+    }
+  }, [initialData])
+
+  const hasChanges = useMemo(() => {
+    if (!isEditMode || !initialFormData) return false
+    return (
+      form.slug !== initialFormData.slug ||
+      form.name !== initialFormData.name ||
+      form.status !== initialFormData.status
+    )
+  }, [form, initialFormData, isEditMode])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,8 +93,19 @@ export function DeveloperForm({ onSubmit, loading }: DeveloperFormProps) {
         value={form.status}
         onChange={value => setForm({ ...form, status: value })}
       />
-      <Button type="submit" disabled={loading} fullWidth>
-        {loading ? 'Creating...' : 'Create Developer'}
+      <Button
+        type="submit"
+        disabled={loading || (isEditMode && !hasChanges)}
+        fullWidth
+        className={isEditMode && hasChanges ? styles.saveButton : ''}
+      >
+        {loading
+          ? isEditMode
+            ? 'Saving...'
+            : 'Creating...'
+          : isEditMode
+            ? 'Save'
+            : 'Create Developer'}
       </Button>
     </form>
   )

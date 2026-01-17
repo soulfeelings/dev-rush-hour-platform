@@ -76,6 +76,10 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   const price = lot.priceAmount || 0
   const currency = lot.priceCurrency || 'AED'
 
+  if (!lot.id) {
+    return null
+  }
+
   return (
     <Link to={getLotDetailRoute(lot.id)} className={styles.cardLink}>
       <div className={styles.card}>

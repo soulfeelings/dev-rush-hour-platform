@@ -2,7 +2,16 @@ import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams, useNavigate, Routes, Route, Navigate } from 'react-router-dom'
 import { getAdminKey, setAdminKey, removeAdminKey } from '../../utils/adminApi'
-import { AdminApi, type DeveloperCreateRequest, type ProjectCreateRequest } from '../../api'
+import {
+  AdminApi,
+  type DeveloperCreateRequest,
+  type ProjectCreateRequest,
+  type Project,
+  type LotListItem,
+  type Developer,
+  type Area,
+} from '../../api'
+import { Toast } from '../../ui'
 import { AuthForm } from './components/AuthForm'
 import { Sidebar } from './components/Sidebar'
 import { RightSidebar } from './components/RightSidebar'
@@ -21,6 +30,9 @@ const {
   useAdminCreateDeveloper,
   useAdminCreateProject,
   useAdminCreateLot,
+  useAdminUpdateDeveloper,
+  useAdminUpdateProject,
+  useAdminUpdateLot,
 } = AdminApi
 import styles from './Admin.module.scss'
 
@@ -36,6 +48,9 @@ export default function Admin() {
   const [rightSidebarForm, setRightSidebarForm] = useState<'developer' | 'project' | 'lot' | null>(
     null
   )
+  const [editingEntity, setEditingEntity] = useState<
+    Project | LotListItem | Developer | Area | null
+  >(null)
 
   const { data: developersData } = useAdminListDevelopers({
     query: { enabled: isAuthenticated },
@@ -57,7 +72,9 @@ export default function Admin() {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.DEVELOPERS] })
         setSuccess('Developer created successfully!')
         setFormKey((prev: number) => prev + 1)
-        handleCloseRightSidebar()
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to create developer')
@@ -71,7 +88,9 @@ export default function Admin() {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.PROJECTS] })
         setSuccess('Project created successfully!')
         setFormKey((prev: number) => prev + 1)
-        handleCloseRightSidebar()
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to create project')
@@ -85,7 +104,9 @@ export default function Admin() {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.LOTS] })
         setSuccess('Lot created successfully!')
         setFormKey((prev: number) => prev + 1)
-        handleCloseRightSidebar()
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to create lot')
@@ -93,10 +114,61 @@ export default function Admin() {
     },
   })
 
+  const updateDeveloperMutation = useAdminUpdateDeveloper({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.DEVELOPERS] })
+        setSuccess('Developer updated successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to update developer')
+      },
+    },
+  })
+
+  const updateProjectMutation = useAdminUpdateProject({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.PROJECTS] })
+        setSuccess('Project updated successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to update project')
+      },
+    },
+  })
+
+  const updateLotMutation = useAdminUpdateLot({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.LOTS] })
+        setSuccess('Lot updated successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to update lot')
+      },
+    },
+  })
+
   const loading =
     createDeveloperMutation.isPending ||
     createProjectMutation.isPending ||
-    createLotMutation.isPending
+    createLotMutation.isPending ||
+    updateDeveloperMutation.isPending ||
+    updateProjectMutation.isPending ||
+    updateLotMutation.isPending
 
   const handleAuth = (username: string, password: string) => {
     setError(null)
@@ -141,6 +213,18 @@ export default function Admin() {
   }
 
   const handleNewClick = (formType: 'developer' | 'project' | 'lot') => {
+    setEditingEntity(null)
+    setRightSidebarForm(formType)
+    setRightSidebarOpen(true)
+    setError(null)
+    setSuccess(null)
+  }
+
+  const handleEditClick = (
+    entity: Project | LotListItem | Developer | Area,
+    formType: 'developer' | 'project' | 'lot'
+  ) => {
+    setEditingEntity(entity)
     setRightSidebarForm(formType)
     setRightSidebarOpen(true)
     setError(null)
@@ -150,25 +234,38 @@ export default function Admin() {
   const handleCloseRightSidebar = () => {
     setRightSidebarOpen(false)
     setRightSidebarForm(null)
+    setEditingEntity(null)
     setFormKey((prev: number) => prev + 1)
   }
 
   const handleDeveloperSubmit = (payload: DeveloperCreateRequest) => {
     setError(null)
     setSuccess(null)
-    createDeveloperMutation.mutate({ data: payload })
+    if (editingEntity && 'id' in editingEntity && editingEntity.id) {
+      updateDeveloperMutation.mutate({ id: editingEntity.id, data: payload })
+    } else {
+      createDeveloperMutation.mutate({ data: payload })
+    }
   }
 
   const handleProjectSubmit = (payload: ProjectCreateRequest) => {
     setError(null)
     setSuccess(null)
-    createProjectMutation.mutate({ data: payload })
+    if (editingEntity && 'id' in editingEntity && editingEntity.id) {
+      updateProjectMutation.mutate({ id: editingEntity.id, data: payload })
+    } else {
+      createProjectMutation.mutate({ data: payload })
+    }
   }
 
   const handleLotSubmit = (payload: Record<string, unknown>) => {
     setError(null)
     setSuccess(null)
-    createLotMutation.mutate({ data: payload as never })
+    if (editingEntity && 'id' in editingEntity && editingEntity.id) {
+      updateLotMutation.mutate({ id: editingEntity.id, data: payload as never })
+    } else {
+      createLotMutation.mutate({ data: payload as never })
+    }
   }
 
   if (!isAuthenticated) {
@@ -182,31 +279,46 @@ export default function Admin() {
   }
 
   const getRightSidebarTitle = () => {
-    if (rightSidebarForm === 'developer') return 'Create Developer'
-    if (rightSidebarForm === 'project') return 'Create Project'
-    if (rightSidebarForm === 'lot') return 'Create Lot'
+    const isEditMode = !!editingEntity
+    if (rightSidebarForm === 'developer') return isEditMode ? 'Edit Developer' : 'Create Developer'
+    if (rightSidebarForm === 'project') return isEditMode ? 'Edit Project' : 'Create Project'
+    if (rightSidebarForm === 'lot') return isEditMode ? 'Edit Lot' : 'Create Lot'
     return ''
   }
+
+  const isEditMode = !!editingEntity
 
   return (
     <div className={styles.admin}>
       <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onLogout={handleLogout} />
       <div className={styles.content}>
-        {error && <div className={styles.error}>{error}</div>}
-        {success && <div className={styles.success}>{success}</div>}
-
         <Routes>
           <Route
             path={ADMIN_ROUTE_SEGMENTS.PROJECTS}
-            element={<ProjectsTable onNewClick={() => handleNewClick('project')} />}
+            element={
+              <ProjectsTable
+                onNewClick={() => handleNewClick('project')}
+                onEditClick={project => handleEditClick(project, 'project')}
+              />
+            }
           />
           <Route
             path={ADMIN_ROUTE_SEGMENTS.LOTS}
-            element={<LotsTable onNewClick={() => handleNewClick('lot')} />}
+            element={
+              <LotsTable
+                onNewClick={() => handleNewClick('lot')}
+                onEditClick={lot => handleEditClick(lot, 'lot')}
+              />
+            }
           />
           <Route
             path={ADMIN_ROUTE_SEGMENTS.AREAS}
-            element={<AreasTable onNewClick={() => handleNewClick('developer')} />}
+            element={
+              <AreasTable
+                onNewClick={() => handleNewClick('developer')}
+                onEditClick={area => handleEditClick(area, 'developer')}
+              />
+            }
           />
           <Route path="*" element={<Navigate to={ADMIN_ROUTES.PROJECTS} replace />} />
         </Routes>
@@ -218,7 +330,15 @@ export default function Admin() {
         title={getRightSidebarTitle()}
       >
         {rightSidebarForm === 'developer' && (
-          <DeveloperForm key={formKey} onSubmit={handleDeveloperSubmit} loading={loading} />
+          <DeveloperForm
+            key={formKey}
+            onSubmit={handleDeveloperSubmit}
+            loading={loading}
+            initialData={
+              isEditMode && 'slug' in editingEntity ? (editingEntity as Developer) : null
+            }
+            isEditMode={isEditMode}
+          />
         )}
         {rightSidebarForm === 'project' && (
           <ProjectForm
@@ -227,6 +347,8 @@ export default function Admin() {
             areas={areas}
             onSubmit={handleProjectSubmit}
             loading={loading}
+            initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as Project) : null}
+            isEditMode={isEditMode}
           />
         )}
         {rightSidebarForm === 'lot' && (
@@ -237,9 +359,21 @@ export default function Admin() {
             areas={areas}
             onSubmit={handleLotSubmit}
             loading={loading}
+            initialData={
+              isEditMode && 'projectId' in editingEntity ? (editingEntity as LotListItem) : null
+            }
+            isEditMode={isEditMode}
           />
         )}
       </RightSidebar>
+
+      <Toast open={!!success} onClose={() => setSuccess(null)} variant="success" duration={3000}>
+        {success}
+      </Toast>
+
+      <Toast open={!!error} onClose={() => setError(null)} variant="error" duration={5000}>
+        {error}
+      </Toast>
     </div>
   )
 }

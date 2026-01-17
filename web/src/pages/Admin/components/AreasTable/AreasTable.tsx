@@ -1,14 +1,19 @@
+import { useState } from 'react'
+import { Pencil } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button } from '../../../../ui'
+import type { Area } from '../../../../api/generated/schemas/area'
 import styles from './AreasTable.module.scss'
 
 const { useAdminListAreas } = AdminApi
 
 type AreasTableProps = {
   onNewClick: () => void
+  onEditClick: (area: Area) => void
 }
 
-export function AreasTable({ onNewClick }: AreasTableProps) {
+export function AreasTable({ onNewClick, onEditClick }: AreasTableProps) {
+  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const {
     data: areas,
     isLoading,
@@ -39,6 +44,7 @@ export function AreasTable({ onNewClick }: AreasTableProps) {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th></th>
               <th>ID</th>
               <th>Name</th>
               <th>Slug</th>
@@ -50,7 +56,23 @@ export function AreasTable({ onNewClick }: AreasTableProps) {
           </thead>
           <tbody>
             {areasList.map(area => (
-              <tr key={area.id}>
+              <tr
+                key={area.id}
+                onMouseEnter={() => setHoveredRowId(area.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+              >
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === area.id && (
+                    <button
+                      type="button"
+                      className={styles.editButton}
+                      onClick={() => onEditClick(area)}
+                      aria-label="Edit area"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  )}
+                </td>
                 <td>{area.id}</td>
                 <td>{area.name || '-'}</td>
                 <td>{area.slug || '-'}</td>
