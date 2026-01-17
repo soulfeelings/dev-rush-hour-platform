@@ -14,12 +14,15 @@ interface FloorPlanTableProps {
   lots: Lot[]
 }
 
+// Флаг для использования моковых данных (только для разработки)
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_LOTS === 'true'
+
 export default function FloorPlanTable({ lots }: FloorPlanTableProps) {
   const navigate = useNavigate()
   const [hoveredApartmentId, setHoveredApartmentId] = useState<string | null>(null)
 
-  // Используем моковые данные для тестирования (временно всегда используем моки)
-  const displayLots = mockLots ?? lots
+  // Используем реальные данные или моки (если включен флаг для разработки)
+  const displayLots = USE_MOCK_DATA ? mockLots : lots
 
   const floorsData = useFloorsData(displayLots)
 
