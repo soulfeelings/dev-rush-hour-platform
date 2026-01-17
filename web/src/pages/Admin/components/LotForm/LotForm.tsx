@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Button, Input, Select } from '../../../../ui'
+import { Plus, X } from 'lucide-react'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import styles from './LotForm.module.scss'
 
@@ -30,6 +31,9 @@ type LotFormData = {
   floor: string
   priceCurrency: string
   priceAmount: string
+  coverUrl: string
+  photos: string[]
+  floorPlanImages: string[]
 }
 
 type LotFormProps = {
@@ -64,6 +68,9 @@ export function LotForm({
       floor: '',
       priceCurrency: 'AED',
       priceAmount: '',
+      coverUrl: '',
+      photos: [],
+      floorPlanImages: [],
     }),
     []
   )
@@ -82,6 +89,10 @@ export function LotForm({
         floor: initialData.floor?.toString() || '',
         priceCurrency: initialData.priceCurrency || 'AED',
         priceAmount: initialData.priceAmount?.toString() || '',
+        coverUrl: initialData.data?.media?.cover?.url || '',
+        photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
+        floorPlanImages:
+          initialData.data?.media?.floorPlanImages?.map(p => p.url || '').filter(Boolean) || [],
       }
     }
     return defaultForm
@@ -107,11 +118,21 @@ export function LotForm({
       floor: initialData.floor?.toString() || '',
       priceCurrency: initialData.priceCurrency || 'AED',
       priceAmount: initialData.priceAmount?.toString() || '',
+      coverUrl: initialData.data?.media?.cover?.url || '',
+      photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
+      floorPlanImages:
+        initialData.data?.media?.floorPlanImages?.map(p => p.url || '').filter(Boolean) || [],
     }
   }, [initialData])
 
   const hasChanges = useMemo(() => {
     if (!isEditMode || !initialFormData) return false
+    const photosChanged =
+      form.photos.length !== initialFormData.photos.length ||
+      form.photos.some((url, idx) => url !== initialFormData.photos[idx])
+    const floorPlanImagesChanged =
+      form.floorPlanImages.length !== initialFormData.floorPlanImages.length ||
+      form.floorPlanImages.some((url, idx) => url !== initialFormData.floorPlanImages[idx])
     return (
       form.projectId !== initialFormData.projectId ||
       form.developerId !== initialFormData.developerId ||
@@ -123,7 +144,10 @@ export function LotForm({
       form.areaSqm !== initialFormData.areaSqm ||
       form.floor !== initialFormData.floor ||
       form.priceCurrency !== initialFormData.priceCurrency ||
-      form.priceAmount !== initialFormData.priceAmount
+      form.priceAmount !== initialFormData.priceAmount ||
+      form.coverUrl !== initialFormData.coverUrl ||
+      photosChanged ||
+      floorPlanImagesChanged
     )
   }, [form, initialFormData, isEditMode])
 
@@ -156,7 +180,50 @@ export function LotForm({
       payload.floor = parseInt(form.floor, 10)
     }
 
+    const mediaData: Record<string, unknown> = {}
+    if (form.coverUrl) {
+      mediaData.cover = { url: form.coverUrl }
+    }
+    if (form.photos.length > 0) {
+      mediaData.photos = form.photos.filter(Boolean).map(url => ({ url }))
+    }
+    if (form.floorPlanImages.length > 0) {
+      mediaData.floorPlanImages = form.floorPlanImages.filter(Boolean).map(url => ({ url }))
+    }
+
+    if (Object.keys(mediaData).length > 0) {
+      payload.data = { media: mediaData }
+    }
+
     onSubmit(payload)
+  }
+
+  const addPhoto = () => {
+    setForm({ ...form, photos: [...form.photos, ''] })
+  }
+
+  const removePhoto = (index: number) => {
+    setForm({ ...form, photos: form.photos.filter((_, i) => i !== index) })
+  }
+
+  const updatePhoto = (index: number, url: string) => {
+    const newPhotos = [...form.photos]
+    newPhotos[index] = url
+    setForm({ ...form, photos: newPhotos })
+  }
+
+  const addFloorPlanImage = () => {
+    setForm({ ...form, floorPlanImages: [...form.floorPlanImages, ''] })
+  }
+
+  const removeFloorPlanImage = (index: number) => {
+    setForm({ ...form, floorPlanImages: form.floorPlanImages.filter((_, i) => i !== index) })
+  }
+
+  const updateFloorPlanImage = (index: number, url: string) => {
+    const newFloorPlanImages = [...form.floorPlanImages]
+    newFloorPlanImages[index] = url
+    setForm({ ...form, floorPlanImages: newFloorPlanImages })
   }
 
   return (
@@ -243,6 +310,111 @@ export function LotForm({
         value={form.areaId}
         onChange={value => setForm({ ...form, areaId: value })}
       />
+      <div className={styles.mediaSection}>
+        <h3 className={styles.sectionTitle}>Media</h3>
+        <div className={styles.coverImageWrapper}>
+          <Input
+            label="Cover Image URL"
+            type="url"
+            value={form.coverUrl}
+            onChange={e => setForm({ ...form, coverUrl: e.target.value })}
+            placeholder="https://example.com/image.jpg"
+          />
+          {form.coverUrl && (
+            <div className={styles.imagePreview}>
+              <img
+                src={form.coverUrl}
+                alt="Cover preview"
+                onError={e => {
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
+            </div>
+          )}
+        </div>
+        <div className={styles.mediaList}>
+          <div className={styles.mediaListHeader}>
+            <label className={styles.mediaListLabel}>Photos</label>
+            <Button type="button" onClick={addPhoto} variant="secondary" size="sm">
+              <Plus size={16} />
+              Add Photo
+            </Button>
+          </div>
+          {form.photos.map((url, index) => (
+            <div key={index} className={styles.mediaItem}>
+              <div className={styles.mediaItemContent}>
+                <Input
+                  type="url"
+                  value={url}
+                  onChange={e => updatePhoto(index, e.target.value)}
+                  placeholder="https://example.com/photo.jpg"
+                />
+                {url && (
+                  <div className={styles.imagePreview}>
+                    <img
+                      src={url}
+                      alt={`Photo ${index + 1} preview`}
+                      onError={e => {
+                        e.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <Button
+                type="button"
+                onClick={() => removePhoto(index)}
+                variant="secondary"
+                size="sm"
+                className={styles.removeButton}
+              >
+                <X size={16} />
+              </Button>
+            </div>
+          ))}
+        </div>
+        <div className={styles.mediaList}>
+          <div className={styles.mediaListHeader}>
+            <label className={styles.mediaListLabel}>Floor Plan Images</label>
+            <Button type="button" onClick={addFloorPlanImage} variant="secondary" size="sm">
+              <Plus size={16} />
+              Add Floor Plan
+            </Button>
+          </div>
+          {form.floorPlanImages.map((url, index) => (
+            <div key={index} className={styles.mediaItem}>
+              <div className={styles.mediaItemContent}>
+                <Input
+                  type="url"
+                  value={url}
+                  onChange={e => updateFloorPlanImage(index, e.target.value)}
+                  placeholder="https://example.com/floor-plan.jpg"
+                />
+                {url && (
+                  <div className={styles.imagePreview}>
+                    <img
+                      src={url}
+                      alt={`Floor plan ${index + 1} preview`}
+                      onError={e => {
+                        e.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <Button
+                type="button"
+                onClick={() => removeFloorPlanImage(index)}
+                variant="secondary"
+                size="sm"
+                className={styles.removeButton}
+              >
+                <X size={16} />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
       <Button
         type="submit"
         disabled={loading || (isEditMode && !hasChanges)}

@@ -61,6 +61,61 @@ func (s *ProjectsService) Update(id uuid.UUID, project *domain.Project) error {
 		return fmt.Errorf("project not found")
 	}
 
+	// Merge with existing data
+	if project.Slug == "" {
+		project.Slug = existing.Slug
+	}
+	if project.Name == "" {
+		project.Name = existing.Name
+	}
+	if project.Status == "" {
+		project.Status = existing.Status
+	}
+	if project.Sale == "" {
+		project.Sale = existing.Sale
+	}
+	if project.DeveloperID == nil {
+		project.DeveloperID = existing.DeveloperID
+	}
+	if project.AreaID == nil {
+		project.AreaID = existing.AreaID
+	}
+	if project.Lat == nil {
+		project.Lat = existing.Lat
+	}
+	if project.Lng == nil {
+		project.Lng = existing.Lng
+	}
+
+	// Merge Data fields
+	if project.Data.Description == nil {
+		project.Data.Description = existing.Data.Description
+	}
+	if project.Data.Specs == nil {
+		project.Data.Specs = existing.Data.Specs
+	}
+	if project.Data.FeaturesAmenities == nil {
+		project.Data.FeaturesAmenities = existing.Data.FeaturesAmenities
+	}
+	// Merge Media fields if Media was provided
+	if project.Data.Media != nil && existing.Data.Media != nil {
+		if project.Data.Media.Cover == nil {
+			project.Data.Media.Cover = existing.Data.Media.Cover
+		}
+		if project.Data.Media.Gallery == nil || len(project.Data.Media.Gallery) == 0 {
+			project.Data.Media.Gallery = existing.Data.Media.Gallery
+		}
+	} else if project.Data.Media == nil {
+		project.Data.Media = existing.Data.Media
+	}
+	if project.Data.Tags == nil {
+		project.Data.Tags = existing.Data.Tags
+	}
+	if !project.Data.IsRecommended && !project.Data.IsFeatured {
+		project.Data.IsRecommended = existing.Data.IsRecommended
+		project.Data.IsFeatured = existing.Data.IsFeatured
+	}
+
 	return s.projectRepo.Update(id, project)
 }
 
@@ -78,4 +133,3 @@ func (s *ProjectsService) GetByID(id uuid.UUID) (*domain.Project, error) {
 func (s *ProjectsService) ListAll() ([]domain.Project, error) {
 	return s.projectRepo.ListAll()
 }
-

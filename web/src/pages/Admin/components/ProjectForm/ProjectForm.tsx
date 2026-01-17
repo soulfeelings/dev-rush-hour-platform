@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Button, Input, Select } from '../../../../ui'
+import { Plus, X } from 'lucide-react'
 import { type ProjectCreateRequest, type Project } from '../../../../api'
 import { MapPicker } from '../MapPicker'
 import styles from './ProjectForm.module.scss'
@@ -41,6 +42,8 @@ export function ProjectForm({
       areaId: '',
       lat: '',
       lng: '',
+      coverUrl: '',
+      gallery: [] as string[],
     }),
     []
   )
@@ -56,6 +59,9 @@ export function ProjectForm({
         areaId: initialData.areaId || '',
         lat: initialData.lat?.toString() || '',
         lng: initialData.lng?.toString() || '',
+        coverUrl: initialData.data?.media?.cover?.url || '',
+        gallery:
+          initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
       }
     }
     return defaultForm
@@ -78,11 +84,16 @@ export function ProjectForm({
       areaId: initialData.areaId || '',
       lat: initialData.lat?.toString() || '',
       lng: initialData.lng?.toString() || '',
+      coverUrl: initialData.data?.media?.cover?.url || '',
+      gallery: initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
     }
   }, [initialData])
 
   const hasChanges = useMemo(() => {
     if (!isEditMode || !initialFormData) return false
+    const galleryChanged =
+      form.gallery.length !== initialFormData.gallery.length ||
+      form.gallery.some((url, idx) => url !== initialFormData.gallery[idx])
     return (
       form.slug !== initialFormData.slug ||
       form.name !== initialFormData.name ||
@@ -91,7 +102,9 @@ export function ProjectForm({
       form.developerId !== initialFormData.developerId ||
       form.areaId !== initialFormData.areaId ||
       form.lat !== initialFormData.lat ||
-      form.lng !== initialFormData.lng
+      form.lng !== initialFormData.lng ||
+      form.coverUrl !== initialFormData.coverUrl ||
+      galleryChanged
     )
   }, [form, initialFormData, isEditMode])
 
@@ -107,7 +120,34 @@ export function ProjectForm({
       ...(form.lat && { lat: parseFloat(form.lat) }),
       ...(form.lng && { lng: parseFloat(form.lng) }),
     }
+
+    const mediaData: Record<string, unknown> = {}
+    if (form.coverUrl) {
+      mediaData.cover = { url: form.coverUrl }
+    }
+    if (form.gallery.length > 0) {
+      mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
+    }
+
+    if (Object.keys(mediaData).length > 0) {
+      payload.data = { media: mediaData }
+    }
+
     onSubmit(payload)
+  }
+
+  const addGalleryItem = () => {
+    setForm({ ...form, gallery: [...form.gallery, ''] })
+  }
+
+  const removeGalleryItem = (index: number) => {
+    setForm({ ...form, gallery: form.gallery.filter((_, i) => i !== index) })
+  }
+
+  const updateGalleryItem = (index: number, url: string) => {
+    const newGallery = [...form.gallery]
+    newGallery[index] = url
+    setForm({ ...form, gallery: newGallery })
   }
 
   return (
@@ -180,6 +220,70 @@ export function ProjectForm({
         value={form.lng}
         onChange={e => setForm({ ...form, lng: e.target.value })}
       />
+      <div className={styles.mediaSection}>
+        <h3 className={styles.sectionTitle}>Media</h3>
+        <div className={styles.coverImageWrapper}>
+          <Input
+            label="Cover Image URL"
+            type="url"
+            value={form.coverUrl}
+            onChange={e => setForm({ ...form, coverUrl: e.target.value })}
+            placeholder="https://example.com/image.jpg"
+          />
+          {form.coverUrl && (
+            <div className={styles.imagePreview}>
+              <img
+                src={form.coverUrl}
+                alt="Cover preview"
+                onError={e => {
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
+            </div>
+          )}
+        </div>
+        <div className={styles.mediaList}>
+          <div className={styles.mediaListHeader}>
+            <label className={styles.mediaListLabel}>Gallery</label>
+            <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm">
+              <Plus size={16} />
+              Add Image
+            </Button>
+          </div>
+          {form.gallery.map((url, index) => (
+            <div key={index} className={styles.mediaItem}>
+              <div className={styles.mediaItemContent}>
+                <Input
+                  type="url"
+                  value={url}
+                  onChange={e => updateGalleryItem(index, e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                />
+                {url && (
+                  <div className={styles.imagePreview}>
+                    <img
+                      src={url}
+                      alt={`Gallery ${index + 1} preview`}
+                      onError={e => {
+                        e.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <Button
+                type="button"
+                onClick={() => removeGalleryItem(index)}
+                variant="secondary"
+                size="sm"
+                className={styles.removeButton}
+              >
+                <X size={16} />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
       <Button
         type="submit"
         disabled={loading || (isEditMode && !hasChanges)}
