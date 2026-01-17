@@ -5,7 +5,7 @@ interface MarkerPopupProps {
   property: Property
 }
 
-export default function MarkerPopup({ property }: MarkerPopupProps) {
+export const MarkerPopup = ({ property }: MarkerPopupProps) => {
   return (
     <div className="marker-popup-content">
       <div className="marker-popup-image">

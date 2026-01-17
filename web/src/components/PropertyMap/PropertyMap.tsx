@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import styles from './PropertyMap.module.scss'
-import { createMarkerPopupHTML } from './MarkerPopup'
-import './MarkerPopup/MarkerPopup.scss'
+import { createMarkerPopupElement } from './MarkerPopup'
 import type { Property } from '../../types/property'
 import { developerLogos } from '../../data/mockProperties'
 import { districts } from '../../data/dubai_districts_data'
@@ -55,22 +54,22 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         const { size } = getMarkerConfig(isRecommended, currentZoom, isSelected)
 
         const marker = L.marker(property.coordinates, {
-          icon: createPropertyMarkerIcon(
-            isRecommended,
-            property.sale,
-            logoUrl,
-            currentZoom,
-            isSelected
-          ),
+          icon: createPropertyMarkerIcon(false, 'sale', logoUrl, currentZoom, false),
         }).addTo(map)
 
+        const popupElement = createMarkerPopupElement(property)
         const popup = L.popup({
           offset: [0, -(size / 2 + 10)],
           className: 'marker-popup',
           closeButton: false,
           autoPan: true,
           autoPanPadding: [20, 20],
-        }).setContent(createMarkerPopupHTML(property))
+        }).setContent(popupElement)
+
+        // Очистка React root при удалении popup
+        // popup.on('remove', () => {
+        //   cleanupMarkerPopupElement(popupElement)
+        // })
 
         marker.on('click', () => {
           onPropertyClick?.(property.id)
