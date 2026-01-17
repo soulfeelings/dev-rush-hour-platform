@@ -23,7 +23,7 @@ func (r *AreaRepo) GetBySlug(slug string) (*domain.Area, error) {
 	err := r.db.QueryRow(`
 		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
 		FROM areas
-		WHERE slug = $1
+		WHERE slug = $1 AND p.deleted_at IS NULL
 	`, slug).Scan(
 		&area.ID, &area.Slug, &area.Name, &area.City,
 		&area.Lat, &area.Lng, &area.Status, &dataJSON,
@@ -87,7 +87,7 @@ func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
 
 func (r *AreaRepo) GetIDBySlug(slug string) (*uuid.UUID, error) {
 	var id uuid.UUID
-	err := r.db.QueryRow(`SELECT id FROM areas WHERE slug = $1`, slug).Scan(&id)
+	err := r.db.QueryRow(`SELECT id FROM areas WHERE slug = $1 AND deleted_at IS NULL`, slug).Scan(&id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -123,7 +123,7 @@ func (r *AreaRepo) Update(id uuid.UUID, area *domain.Area) error {
 	err = r.db.QueryRow(`
 		UPDATE areas
 		SET slug = $1, name = $2, city = $3, lat = $4, lng = $5, status = $6, data = $7, updated_at = NOW()
-		WHERE id = $8
+		WHERE id = $8 AND deleted_at IS NULL
 		RETURNING updated_at
 	`, area.Slug, area.Name, area.City, area.Lat, area.Lng, area.Status, dataJSON, id).Scan(&area.UpdatedAt)
 
@@ -135,13 +135,13 @@ func (r *AreaRepo) GetByID(id uuid.UUID) (*domain.Area, error) {
 	var dataJSON []byte
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
+		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
 		FROM areas
-		WHERE id = $1
+		WHERE id = $1 AND deleted_at IS NULL
 	`, id).Scan(
 		&area.ID, &area.Slug, &area.Name, &area.City,
 		&area.Lat, &area.Lng, &area.Status, &dataJSON,
-		&area.CreatedAt, &area.UpdatedAt,
+		&area.CreatedAt, &area.UpdatedAt, &area.DeletedAt,
 	)
 
 	if err != nil {
@@ -160,8 +160,9 @@ func (r *AreaRepo) GetByID(id uuid.UUID) (*domain.Area, error) {
 
 func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
+		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
 		FROM areas
+		WHERE deleted_at IS NULL
 		ORDER BY name
 	`)
 	if err != nil {
@@ -177,7 +178,7 @@ func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 		if err := rows.Scan(
 			&area.ID, &area.Slug, &area.Name, &area.City,
 			&area.Lat, &area.Lng, &area.Status, &dataJSON,
-			&area.CreatedAt, &area.UpdatedAt,
+			&area.CreatedAt, &area.UpdatedAt, &area.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -190,5 +191,15 @@ func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 	}
 
 	return areas, rows.Err()
+}
+
+func (r *AreaRepo) Delete(id uuid.UUID) error {
+	_, err := r.db.Exec(`
+		UPDATE projects 
+		SET deleted_at = NOW()
+		WHERE id = $1 AND deleted_at IS NULL
+	`, id)
+	
+	return err
 }
 

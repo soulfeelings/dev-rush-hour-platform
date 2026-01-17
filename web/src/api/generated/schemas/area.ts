@@ -13,6 +13,7 @@ export interface Area {
   slug?: string
   name?: string
   city?: string
+  description?: string
   lat?: number
   lng?: number
   status?: AreaStatus

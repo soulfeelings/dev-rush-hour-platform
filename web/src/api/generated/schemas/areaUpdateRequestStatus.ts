@@ -6,8 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
+/**
+ * @nullable
+ */
 export type AreaUpdateRequestStatus =
-  (typeof AreaUpdateRequestStatus)[keyof typeof AreaUpdateRequestStatus]
+  | (typeof AreaUpdateRequestStatus)[keyof typeof AreaUpdateRequestStatus]
+  | null
 
 export const AreaUpdateRequestStatus = {
   active: 'active',

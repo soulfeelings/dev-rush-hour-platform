@@ -30,7 +30,7 @@ func (s *ProjectsService) GetBySlug(slug string, includeLots *int) (*domain.Proj
 		return nil, nil, fmt.Errorf("failed to get project: %w", err)
 	}
 	if project == nil {
-		return nil, nil, fmt.Errorf("project not found")
+		return nil, nil, ErrProjectNotFound
 	}
 
 	var lots []domain.Lot
@@ -58,7 +58,7 @@ func (s *ProjectsService) Update(id uuid.UUID, project *domain.Project) error {
 		return fmt.Errorf("failed to get project: %w", err)
 	}
 	if existing == nil {
-		return fmt.Errorf("project not found")
+		return ErrProjectNotFound
 	}
 
 	// Merge with existing data

@@ -125,6 +125,14 @@ func (s *Server) AdminUpdateArea(c *fiber.Ctx, id openapi_types.UUID) error {
 	return s.adminAreasHandler.UpdateArea(c, id)
 }
 
+func (s *Server) AdminGetArea(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminAreasHandler.GetArea(c, id)
+}
+
+func (s *Server) AdminSoftDeleteArea(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminAreasHandler.SoftDeleteArea(c, id)
+}
+
 func (s *Server) AdminListProjects(c *fiber.Ctx) error {
 	return s.adminProjectsHandler.ListProjects(c)
 }

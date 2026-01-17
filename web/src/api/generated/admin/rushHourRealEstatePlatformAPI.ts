@@ -1167,7 +1167,7 @@ export const adminSoftDeleteDeveloper = (
   id: string,
   options?: SecondParameter<typeof adminInstance>
 ) => {
-  return adminInstance<Developer>({ url: `/admin/developers/${id}`, method: 'DELETE' }, options)
+  return adminInstance<void>({ url: `/admin/developers/${id}`, method: 'DELETE' }, options)
 }
 
 export const getAdminSoftDeleteDeveloperMutationOptions = <
@@ -1540,6 +1540,206 @@ export const useAdminCreateArea = <
   TContext
 > => {
   const mutationOptions = getAdminCreateAreaMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Получить район по ID (админ)
+ */
+export const adminGetArea = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Area>({ url: `/admin/areas/${id}`, method: 'GET', signal }, options)
+}
+
+export const getAdminGetAreaQueryKey = (id?: string) => {
+  return [`/admin/areas/${id}`] as const
+}
+
+export const getAdminGetAreaQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminGetArea>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetArea>>, TError, TData>>
+    request?: SecondParameter<typeof adminInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminGetAreaQueryKey(id)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetArea>>> = ({ signal }) =>
+    adminGetArea(id, requestOptions, signal)
+
+  return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetArea>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminGetAreaQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetArea>>>
+export type AdminGetAreaQueryError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse
+
+export function useAdminGetArea<
+  TData = Awaited<ReturnType<typeof adminGetArea>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetArea>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetArea>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetArea>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetArea<
+  TData = Awaited<ReturnType<typeof adminGetArea>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetArea>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetArea>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetArea>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetArea<
+  TData = Awaited<ReturnType<typeof adminGetArea>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetArea>>, TError, TData>>
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить район по ID (админ)
+ */
+
+export function useAdminGetArea<
+  TData = Awaited<ReturnType<typeof adminGetArea>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetArea>>, TError, TData>>
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminGetAreaQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Мягкое удаление района (установка deleted_at)
+ */
+export const adminSoftDeleteArea = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<void>({ url: `/admin/areas/${id}`, method: 'DELETE' }, options)
+}
+
+export const getAdminSoftDeleteAreaMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminSoftDeleteArea>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminSoftDeleteArea>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminSoftDeleteArea']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminSoftDeleteArea>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminSoftDeleteArea(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminSoftDeleteAreaMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminSoftDeleteArea>>
+>
+
+export type AdminSoftDeleteAreaMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Мягкое удаление района (установка deleted_at)
+ */
+export const useAdminSoftDeleteArea = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminSoftDeleteArea>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminSoftDeleteArea>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminSoftDeleteAreaMutationOptions(options)
 
   return useMutation(mutationOptions, queryClient)
 }

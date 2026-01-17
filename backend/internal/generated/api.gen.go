@@ -215,16 +215,17 @@ const (
 
 // Area defines model for Area.
 type Area struct {
-	City      *string             `json:"city,omitempty"`
-	CreatedAt *time.Time          `json:"createdAt,omitempty"`
-	Data      *AreaData           `json:"data,omitempty"`
-	Id        *openapi_types.UUID `json:"id,omitempty"`
-	Lat       *float32            `json:"lat,omitempty"`
-	Lng       *float32            `json:"lng,omitempty"`
-	Name      *string             `json:"name,omitempty"`
-	Slug      *string             `json:"slug,omitempty"`
-	Status    *AreaStatus         `json:"status,omitempty"`
-	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
+	City        *string             `json:"city,omitempty"`
+	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
+	Data        *AreaData           `json:"data,omitempty"`
+	Description *string             `json:"description,omitempty"`
+	Id          *openapi_types.UUID `json:"id,omitempty"`
+	Lat         *float32            `json:"lat,omitempty"`
+	Lng         *float32            `json:"lng,omitempty"`
+	Name        *string             `json:"name,omitempty"`
+	Slug        *string             `json:"slug,omitempty"`
+	Status      *AreaStatus         `json:"status,omitempty"`
+	UpdatedAt   *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // AreaStatus defines model for Area.Status.
@@ -255,13 +256,14 @@ type AreaData struct {
 
 // AreaUpdateRequest defines model for AreaUpdateRequest.
 type AreaUpdateRequest struct {
-	City   *string                  `json:"city,omitempty"`
-	Data   *AreaData                `json:"data,omitempty"`
-	Lat    *float32                 `json:"lat,omitempty"`
-	Lng    *float32                 `json:"lng,omitempty"`
-	Name   *string                  `json:"name,omitempty"`
-	Slug   *string                  `json:"slug,omitempty"`
-	Status *AreaUpdateRequestStatus `json:"status,omitempty"`
+	City        *string                  `json:"city"`
+	Data        *AreaData                `json:"data,omitempty"`
+	Description *string                  `json:"description"`
+	Lat         *float32                 `json:"lat"`
+	Lng         *float32                 `json:"lng"`
+	Name        *string                  `json:"name"`
+	Slug        *string                  `json:"slug"`
+	Status      *AreaUpdateRequestStatus `json:"status"`
 }
 
 // AreaUpdateRequestStatus defines model for AreaUpdateRequest.Status.
@@ -903,6 +905,12 @@ type ServerInterface interface {
 	// Создать район (админ)
 	// (POST /admin/areas)
 	AdminCreateArea(c *fiber.Ctx) error
+	// Мягкое удаление района (установка deleted_at)
+	// (DELETE /admin/areas/{id})
+	AdminSoftDeleteArea(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить район по ID (админ)
+	// (GET /admin/areas/{id})
+	AdminGetArea(c *fiber.Ctx, id openapi_types.UUID) error
 	// Обновить район (админ)
 	// (PATCH /admin/areas/{id})
 	AdminUpdateArea(c *fiber.Ctx, id openapi_types.UUID) error
@@ -992,6 +1000,42 @@ func (siw *ServerInterfaceWrapper) AdminCreateArea(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateArea(c)
+}
+
+// AdminSoftDeleteArea operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteArea(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteArea(c, id)
+}
+
+// AdminGetArea operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetArea(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetArea(c, id)
 }
 
 // AdminUpdateArea operation middleware
@@ -1455,6 +1499,10 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	router.Get(options.BaseURL+"/admin/areas", wrapper.AdminListAreas)
 
 	router.Post(options.BaseURL+"/admin/areas", wrapper.AdminCreateArea)
+
+	router.Delete(options.BaseURL+"/admin/areas/:id", wrapper.AdminSoftDeleteArea)
+
+	router.Get(options.BaseURL+"/admin/areas/:id", wrapper.AdminGetArea)
 
 	router.Patch(options.BaseURL+"/admin/areas/:id", wrapper.AdminUpdateArea)
 

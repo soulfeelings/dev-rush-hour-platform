@@ -333,12 +333,8 @@ paths:
             type: string
             format: uuid
       responses:
-        "200":
+        "204":
           description: Застройщик помечен как удаленный
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Developer"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -430,6 +426,56 @@ paths:
           $ref: "#/components/responses/InternalError"
 
   /admin/areas/{id}:
+    get:
+      operationId: adminGetArea
+      summary: Получить район по ID (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Район найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Area"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      operationId: adminSoftDeleteArea
+      summary: Мягкое удаление района (установка deleted_at)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Район помечен как удаленный
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
     patch:
       operationId: adminUpdateArea
       summary: Обновить район (админ)
@@ -726,6 +772,8 @@ components:
         name:
           type: string
         city:
+          type: string
+        description:
           type: string
         lat:
           type: number
@@ -1261,19 +1309,31 @@ components:
       properties:
         slug:
           type: string
+          nullable: true
         name:
           type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
         city:
           type: string
+          nullable: true
         lat:
           type: number
+          format: float
+          nullable: true
         lng:
           type: number
+          format: float
+          nullable: true
         status:
           type: string
           enum: [active, inactive]
+          nullable: true
         data:
           $ref: "#/components/schemas/AreaData"
+          nullable: true
 
     ProjectCreateRequest:
       type: object

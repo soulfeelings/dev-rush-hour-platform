@@ -9,11 +9,20 @@ import type { AreaUpdateRequestStatus } from './areaUpdateRequestStatus'
 import type { AreaData } from './areaData'
 
 export interface AreaUpdateRequest {
-  slug?: string
-  name?: string
-  city?: string
-  lat?: number
-  lng?: number
+  /** @nullable */
+  slug?: string | null
+  /** @nullable */
+  name?: string | null
+  /** @nullable */
+  description?: string | null
+  /** @nullable */
+  city?: string | null
+  /** @nullable */
+  lat?: number | null
+  /** @nullable */
+  lng?: number | null
+  /** @nullable */
   status?: AreaUpdateRequestStatus
+  /** @nullable */
   data?: AreaData
 }

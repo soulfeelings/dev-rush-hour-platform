@@ -26,7 +26,7 @@ func (s *DevelopersService) Update(id uuid.UUID, dev *domain.Developer) error {
 		return fmt.Errorf("failed to get developer: %w", err)
 	}
 	if existing == nil {
-		return fmt.Errorf("developer not found")
+		return ErrDeveloperNotFound
 	}
 
 	return s.developerRepo.Update(id, dev)

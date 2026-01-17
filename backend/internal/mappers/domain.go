@@ -94,10 +94,10 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 	id := openapi_types.UUID(project.ID)
 	status := generated.ProjectStatus(project.Status)
 	result := &generated.Project{
-		Id:        &id,
-		Slug:      &project.Slug,
-		Name:      &project.Name,
-		Status:    &status,
+		Id:     &id,
+		Slug:   &project.Slug,
+		Name:   &project.Name,
+		Status: &status,
 		Sale: func() *generated.ProjectSale {
 			if project.Sale == "" {
 				return nil
@@ -597,41 +597,44 @@ func GeneratedAreaCreateToDomain(req *generated.AreaCreateRequest) (*domain.Area
 		area.Status = domain.AreaStatus(*req.Status)
 	}
 	if req.Data != nil {
-		area.Data = domainAreaDataFromGenerated(req.Data)
+		area.Data = AreaDataFromGenerated(req.Data)
 	}
 
 	return area, nil
 }
 
-func GeneratedAreaUpdateToDomain(req *generated.AreaUpdateRequest) (*domain.Area, error) {
-	area := &domain.Area{}
+func ApplyAreaUpdateRequest(existing *domain.Area, req *generated.AreaUpdateRequest) *domain.Area {
+	if existing == nil || req == nil {
+		return nil
+	}
+	updated := *existing
 
 	if req.Slug != nil {
-		area.Slug = *req.Slug
+		updated.Slug = *req.Slug
 	}
 	if req.Name != nil {
-		area.Name = *req.Name
+		updated.Name = *req.Name
 	}
 	if req.City != nil {
-		area.City = *req.City
+		updated.City = *req.City
 	}
 	if req.Lat != nil {
-		area.Lat = float64(*req.Lat)
+		updated.Lat = float64(*req.Lat)
 	}
 	if req.Lng != nil {
-		area.Lng = float64(*req.Lng)
+		updated.Lng = float64(*req.Lng)
 	}
 	if req.Status != nil {
-		area.Status = domain.AreaStatus(*req.Status)
+		updated.Status = domain.AreaStatus(*req.Status)
 	}
 	if req.Data != nil {
-		area.Data = domainAreaDataFromGenerated(req.Data)
+		updated.Data = AreaDataFromGenerated(req.Data)
 	}
 
-	return area, nil
+	return &updated
 }
 
-func domainAreaDataFromGenerated(data *generated.AreaData) domain.AreaData {
+func AreaDataFromGenerated(data *generated.AreaData) domain.AreaData {
 	result := domain.AreaData{}
 	if data.Boundary != nil {
 		result.Boundary = generatedGeoJSONToDomain(data.Boundary)
@@ -978,10 +981,10 @@ func generatedPaymentPlanToDomain(plan *generated.PaymentPlan) *domain.PaymentPl
 			dueDate = *item.DueDate
 		}
 		result.Schedule[i] = domain.PaymentScheduleItem{
-			Stage:    stage,
-			Percent:  float64(*item.Percent),
-			Amount:   float64(*item.Amount),
-			DueDate:  dueDate,
+			Stage:   stage,
+			Percent: float64(*item.Percent),
+			Amount:  float64(*item.Amount),
+			DueDate: dueDate,
 		}
 	}
 	return result
@@ -1021,4 +1024,3 @@ func generatedFloorPositionToDomain(fp *generated.FloorPosition) *domain.FloorPo
 		Y:     float64(*fp.Y),
 	}
 }
-
