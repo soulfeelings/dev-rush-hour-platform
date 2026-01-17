@@ -3,6 +3,7 @@ import { Pencil } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button } from '../../../../ui'
 import type { Area } from '../../../../api/generated/schemas/area'
+import { TableSkeleton } from '../TableSkeleton'
 import styles from './AreasTable.module.scss'
 
 const { useAdminListAreas } = AdminApi
@@ -23,7 +24,19 @@ export function AreasTable({ onNewClick, onEditClick }: AreasTableProps) {
   })
 
   if (isLoading) {
-    return <div className={styles.loading}>Loading...</div>
+    return (
+      <div className={styles.tableWrapper}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Areas</h2>
+          <Button onClick={onNewClick}>New</Button>
+        </div>
+        <TableSkeleton
+          headers={['', 'ID', 'Name', 'Slug', 'City', 'Coordinates', 'Status', 'Created At']}
+          columns={[{ isActions: true, width: '50px' }, {}, {}, {}, {}, {}, {}, {}]}
+          minWidth="900px"
+        />
+      </div>
+    )
   }
 
   if (error) {

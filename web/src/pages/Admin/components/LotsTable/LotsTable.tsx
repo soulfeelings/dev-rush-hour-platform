@@ -3,6 +3,7 @@ import { Pencil } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button } from '../../../../ui'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
+import { TableSkeleton } from '../TableSkeleton'
 import styles from './LotsTable.module.scss'
 
 const { useAdminListLots } = AdminApi
@@ -23,7 +24,43 @@ export function LotsTable({ onNewClick, onEditClick }: LotsTableProps) {
   })
 
   if (isLoading) {
-    return <div className={styles.loading}>Loading...</div>
+    return (
+      <div className={styles.tableWrapper}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Lots</h2>
+          <Button onClick={onNewClick}>New</Button>
+        </div>
+        <TableSkeleton
+          headers={[
+            '',
+            'Image',
+            'ID',
+            'Type',
+            'Bedrooms',
+            'Bathrooms',
+            'Area (m²)',
+            'Floor',
+            'Price',
+            'Status',
+            'Created At',
+          ]}
+          columns={[
+            { isActions: true, width: '50px' },
+            { isImage: true, width: '80px' },
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+          ]}
+          minWidth="1000px"
+        />
+      </div>
+    )
   }
 
   if (error) {

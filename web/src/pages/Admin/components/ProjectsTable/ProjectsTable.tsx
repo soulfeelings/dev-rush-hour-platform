@@ -3,6 +3,7 @@ import { Pencil } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button } from '../../../../ui'
 import type { Project } from '../../../../api/generated/schemas/project'
+import { TableSkeleton } from '../TableSkeleton'
 import styles from './ProjectsTable.module.scss'
 
 const { useAdminListProjects } = AdminApi
@@ -23,7 +24,28 @@ export function ProjectsTable({ onNewClick, onEditClick }: ProjectsTableProps) {
   })
 
   if (isLoading) {
-    return <div className={styles.loading}>Loading...</div>
+    return (
+      <div className={styles.tableWrapper}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Projects</h2>
+          <Button onClick={onNewClick}>New</Button>
+        </div>
+        <TableSkeleton
+          headers={['', 'Image', 'ID', 'Name', 'Slug', 'Status', 'Sale', 'Created At']}
+          columns={[
+            { isActions: true, width: '50px' },
+            { isImage: true, width: '80px' },
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+          ]}
+          minWidth="800px"
+        />
+      </div>
+    )
   }
 
   if (error) {
