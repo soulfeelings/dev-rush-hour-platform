@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams, useNavigate, Routes, Route, Navigate } from 'react-router-dom'
+import { Menu, X } from 'lucide-react'
 import { getAdminKey, setAdminKey, removeAdminKey } from '../../utils/adminApi'
 import {
   AdminApi,
@@ -51,6 +52,7 @@ export default function Admin() {
   const [editingEntity, setEditingEntity] = useState<
     Project | LotListItem | Developer | Area | null
   >(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const { data: developersData } = useAdminListDevelopers({
     query: { enabled: isAuthenticated },
@@ -189,6 +191,7 @@ export default function Admin() {
     setFormKey((prev: number) => prev + 1)
     setRightSidebarOpen(false)
     setRightSidebarForm(null)
+    setSidebarOpen(false)
     navigate(ADMIN_ROUTES.PROJECTS)
   }
 
@@ -290,7 +293,19 @@ export default function Admin() {
 
   return (
     <div className={styles.admin}>
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onLogout={handleLogout} />
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={tab => {
+          handleTabChange(tab)
+          setSidebarOpen(false)
+        }}
+        onLogout={handleLogout}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      {sidebarOpen && (
+        <div className={styles.sidebarOverlay} onClick={() => setSidebarOpen(false)} />
+      )}
       <div className={styles.content}>
         <Routes>
           <Route
@@ -374,6 +389,15 @@ export default function Admin() {
       <Toast open={!!error} onClose={() => setError(null)} variant="error" duration={5000}>
         {error}
       </Toast>
+
+      <button
+        type="button"
+        className={styles.mobileMenuButton}
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label="Toggle menu"
+      >
+        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
     </div>
   )
 }

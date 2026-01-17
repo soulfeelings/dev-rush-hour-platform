@@ -1,3 +1,5 @@
+@use '../../../../styles/mixins' as *;
+
 .sidebar {
   width: 250px;
   background: white;
@@ -6,6 +8,21 @@
   flex-direction: column;
   flex-shrink: 0;
   overflow: hidden;
+  transition: transform 0.3s ease;
+
+  @media (max-width: 767px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 99;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+
+    &.open {
+      transform: translateX(0);
+    }
+  }
 }
 
 .header {

@@ -8,11 +8,13 @@ type SidebarProps = {
   activeTab: Tab
   onTabChange: (tab: Tab) => void
   onLogout: () => void
+  isOpen?: boolean
+  onClose?: () => void
 }
 
-export function Sidebar({ activeTab, onTabChange, onLogout }: SidebarProps) {
+export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: SidebarProps) {
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
       <div className={styles.header}>
         <h1 className={styles.title}>Admin Panel</h1>
       </div>
@@ -45,7 +47,10 @@ export function Sidebar({ activeTab, onTabChange, onLogout }: SidebarProps) {
         <Button
           variant="secondary"
           size="sm"
-          onClick={onLogout}
+          onClick={() => {
+            onLogout()
+            onClose?.()
+          }}
           className={styles.logoutButton}
           fullWidth
         >
