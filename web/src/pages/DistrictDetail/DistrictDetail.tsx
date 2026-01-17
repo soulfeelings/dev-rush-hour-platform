@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { districts } from '../../data/dubai_districts_data'
 import { mockProperties } from '../../data/mockProperties'
 import PropertyMap from '../../components/PropertyMap/PropertyMap'
+import { ROUTES, getProjectDetailRoute } from '../../constants/routes'
 import styles from './DistrictDetail.module.scss'
 
 export default function DistrictDetail() {
@@ -17,7 +18,7 @@ export default function DistrictDetail() {
         <div className={styles.notFound}>
           <h1>Район не найден</h1>
           <p>Район с ID "{id}" не существует.</p>
-          <Link to="/areas" className={styles.backLink}>
+          <Link to={ROUTES.AREAS} className={styles.backLink}>
             Вернуться к списку районов
           </Link>
         </div>
@@ -28,7 +29,7 @@ export default function DistrictDetail() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <Link to="/areas" className={styles.backLink}>
+        <Link to={ROUTES.AREAS} className={styles.backLink}>
           ← Назад к районам
         </Link>
         <div className={styles.titleSection}>
@@ -146,7 +147,7 @@ export default function DistrictDetail() {
                 {districtProperties.map(property => (
                   <Link
                     key={property.id}
-                    to={`/project/${property.id}`}
+                    to={getProjectDetailRoute(property.id)}
                     className={styles.propertyCard}
                   >
                     <img
@@ -173,7 +174,7 @@ export default function DistrictDetail() {
           {districtProperties.length === 0 && (
             <div className={styles.noProperties}>
               <p>В данном районе пока нет доступных объектов на нашем сайте.</p>
-              <Link to="/catalog" className={styles.catalogLink}>
+              <Link to={ROUTES.CATALOG} className={styles.catalogLink}>
                 Посмотреть все объекты
               </Link>
             </div>

@@ -1,6 +1,7 @@
 import { Heart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { getLotDetailRoute } from '../constants/routes'
 import styles from './ProjectCard.module.scss'
 import type { Lot } from '../api'
 
@@ -76,7 +77,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   const currency = lot.priceCurrency || 'AED'
 
   return (
-    <Link to={`/lot/${lot.id}`} className={styles.cardLink}>
+    <Link to={getLotDetailRoute(lot.id)} className={styles.cardLink}>
       <div className={styles.card}>
         <div className={styles.imageContainer}>
           <img src={image} alt={projectName} />

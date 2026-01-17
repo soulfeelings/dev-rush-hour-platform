@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import SidebarMenu from '../SidebarMenu'
 import { Select } from '../../ui'
+import { ROUTES } from '../../constants/routes'
 import styles from './Header.module.scss'
 
 const IconMenu = () => (
@@ -55,10 +56,10 @@ export default function Header() {
             Rush<span>Hour</span>
           </Link>
           <nav className={styles.nav}>
-            <Link to="/catalog" className={styles.navLink}>
+            <Link to={ROUTES.CATALOG} className={styles.navLink}>
               {t('header.nav.catalog')}
             </Link>
-            <Link to="/design-demo" className={styles.navLink}>
+            <Link to={ROUTES.DESIGN_DEMO} className={styles.navLink}>
               {t('header.nav.designDemo')}
             </Link>
             <Link to="/admin" className={styles.navLink}>

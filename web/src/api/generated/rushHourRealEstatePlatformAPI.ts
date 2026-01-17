@@ -1747,7 +1747,7 @@ export const adminListLots = (
   options?: SecondParameter<typeof customInstance>,
   signal?: AbortSignal
 ) => {
-  return customInstance<Lot[]>({ url: `/admin/lots`, method: 'GET', signal }, options)
+  return customInstance<LotsListResponse>({ url: `/admin/lots`, method: 'GET', signal }, options)
 }
 
 export const getAdminListLotsQueryKey = () => {

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Header from './features/Header'
 import Catalog from './pages/Catalog'
 import Home from './pages/Home'
@@ -8,6 +8,8 @@ import ProjectArea from './pages/ProjectArea'
 import DistrictDetail from './pages/DistrictDetail'
 import DesignDemo from './design-demo/DesignDemo'
 import Admin from './pages/Admin'
+import { ADMIN_ROUTES } from './pages/Admin/constants'
+import { ROUTES } from './constants/routes'
 import './App.css'
 
 function App() {
@@ -17,13 +19,17 @@ function App() {
       <div style={{ flex: 1, overflow: 'auto' }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/catalog" element={<Catalog />} />
-          <Route path="/project/:slug" element={<ProjectDetail />} />
-          <Route path="/lot/:id" element={<LotDetail />} />
-          <Route path="/areas" element={<ProjectArea />} />
-          <Route path="/area/:id" element={<DistrictDetail />} />
-          <Route path="/design-demo" element={<DesignDemo />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path={ROUTES.CATALOG} element={<Catalog />} />
+          <Route path={ROUTES.PROJECT_DETAIL} element={<ProjectDetail />} />
+          <Route path={ROUTES.LOT_DETAIL} element={<LotDetail />} />
+          <Route path={ROUTES.AREAS} element={<ProjectArea />} />
+          <Route path={ROUTES.AREA_DETAIL} element={<DistrictDetail />} />
+          <Route path={ROUTES.DESIGN_DEMO} element={<DesignDemo />} />
+          <Route
+            path={ADMIN_ROUTES.BASE}
+            element={<Navigate to={ADMIN_ROUTES.PROJECTS} replace />}
+          />
+          <Route path={`${ADMIN_ROUTES.BASE}/*`} element={<Admin />} />
         </Routes>
       </div>
     </BrowserRouter>

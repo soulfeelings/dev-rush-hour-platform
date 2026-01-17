@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import PropertyMap from '../../components/PropertyMap/PropertyMap'
 import { mockProperties } from '../../data/mockProperties'
 import { districts } from '../../data/dubai_districts_data'
+import { getAreaDetailRoute } from '../../constants/routes'
 import styles from './ProjectArea.module.scss'
 
 export default function ProjectArea() {
@@ -32,7 +33,7 @@ export default function ProjectArea() {
               return (
                 <Link
                   key={district.id}
-                  to={`/area/${district.id}`}
+                  to={getAreaDetailRoute(district.id)}
                   className={styles.districtCard}
                   style={{ borderLeftColor: district.color }}
                 >

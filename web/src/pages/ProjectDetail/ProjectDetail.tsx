@@ -12,6 +12,7 @@ import { Button } from '../../ui/Button'
 import { useGetProject, useListLots } from '../../api'
 import type { Project, Lot, Developer, Area } from '../../api'
 import { IconBed, IconBath, IconFloor, IconArea } from '../../components/icons'
+import { ROUTES, getLotDetailRoute } from '../../constants/routes'
 import styles from './ProjectDetail.module.scss'
 
 const MAP_ZOOM_DEFAULT = 13
@@ -204,7 +205,7 @@ export default function ProjectDetail() {
         <div className={styles.notFound}>
           <h1>Property Not Found</h1>
           <p>{error || `Property "${slug}" does not exist.`}</p>
-          <Link to="/catalog" className={styles.backLink}>
+          <Link to={ROUTES.CATALOG} className={styles.backLink}>
             Return to Catalog
           </Link>
         </div>
@@ -252,7 +253,7 @@ export default function ProjectDetail() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <Link to="/catalog" className={styles.backLink}>
+        <Link to={ROUTES.CATALOG} className={styles.backLink}>
           ← Back to Catalog
         </Link>
         <h1 className={styles.title}>{project.name}</h1>
@@ -374,7 +375,7 @@ export default function ProjectDetail() {
                     <div
                       key={lot.id || index}
                       className={styles.lotCard}
-                      onClick={() => lot.id && navigate(`/lot/${lot.id}`)}
+                      onClick={() => lot.id && navigate(getLotDetailRoute(lot.id))}
                       style={{ cursor: lot.id ? 'pointer' : 'default' }}
                     >
                       <div className={styles.lotCardImage}>

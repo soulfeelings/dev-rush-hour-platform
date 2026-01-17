@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { ROUTES } from '../../../constants/routes'
 import { Button } from '../../../ui/Button'
 import styles from './Quiz.module.scss'
 
@@ -165,7 +166,7 @@ export default function Quiz() {
     if (quizAnswers.status) params.set('status', quizAnswers.status)
     if (quizAnswers.purpose) params.set('purpose', quizAnswers.purpose)
 
-    navigate(`/catalog?${params.toString()}`)
+    navigate(`${ROUTES.CATALOG}?${params.toString()}`)
   }
 
   const currentQuestion = quizQuestions[quizStep]

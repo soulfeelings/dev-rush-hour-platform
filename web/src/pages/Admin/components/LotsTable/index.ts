@@ -1,0 +1,1 @@
+export { LotsTable } from './LotsTable'

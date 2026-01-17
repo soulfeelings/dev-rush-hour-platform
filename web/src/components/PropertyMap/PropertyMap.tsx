@@ -9,6 +9,7 @@ import { developerLogos } from '../../data/mockProperties'
 import { districts } from '../../data/dubai_districts_data'
 import { createPropertyMarkerIcon, getMarkerConfig } from './markerIcon'
 import { createDistrictPopupHTML } from './districtPopup'
+import { getProjectDetailRoute, getAreaDetailRoute } from '../../constants/routes'
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -73,7 +74,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
         marker.on('click', () => {
           onPropertyClick?.(property.id)
-          navigate(`/project/${property.id}`)
+          navigate(getProjectDetailRoute(property.id))
         })
 
         marker.on('mouseover', () => {
@@ -134,7 +135,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
               })
 
               polygon.on('click', () => {
-                navigate(`/area/${district.id}`)
+                navigate(getAreaDetailRoute(district.id))
               })
 
               districtLayersRef.current.push(polygon)
@@ -186,7 +187,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           })
 
           polygon.on('click', () => {
-            navigate(`/area/${district.id}`)
+            navigate(getAreaDetailRoute(district.id))
           })
 
           districtLayersRef.current.push(polygon)

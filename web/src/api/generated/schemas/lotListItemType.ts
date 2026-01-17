@@ -5,11 +5,12 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
-import type { LotListItem } from './lotListItem'
 
-export interface LotsListResponse {
-  items?: LotListItem[]
-  total?: number
-  page?: number
-  limit?: number
-}
+export type LotListItemType = (typeof LotListItemType)[keyof typeof LotListItemType]
+
+export const LotListItemType = {
+  apartment: 'apartment',
+  villa: 'villa',
+  townhouse: 'townhouse',
+  penthouse: 'penthouse',
+} as const

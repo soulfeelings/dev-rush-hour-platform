@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import styles from './Home.module.scss'
 import { Button, Input, Select, Modal, ModalBody, ModalFooter, Toast } from '../ui'
 import HeroFilters from '../components/HeroFilters'
+import { ROUTES } from '../constants/routes'
 
 const IconHeart = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -186,7 +187,7 @@ export default function Home() {
             variant="secondary"
             size="sm"
             style={{ marginTop: '16px' }}
-            onClick={() => navigate('/catalog')}
+            onClick={() => navigate(ROUTES.CATALOG)}
           >
             {t('home.properties.viewAll')}
           </Button>
@@ -330,7 +331,7 @@ export default function Home() {
           <h2 className={styles.ctaTitle}>{t('home.cta.title')}</h2>
           <p className={styles.ctaDesc}>{t('home.cta.description')}</p>
           <div className={styles.ctaActions}>
-            <Button size="lg" onClick={() => navigate('/catalog')}>
+            <Button size="lg" onClick={() => navigate(ROUTES.CATALOG)}>
               {t('home.cta.getStarted')}
             </Button>
             <Button

@@ -1,6 +1,7 @@
 import { Heart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { getProjectDetailRoute } from '../constants/routes'
 import styles from './ProjectCard.module.scss'
 import type { Property } from '../types/property'
 
@@ -28,7 +29,7 @@ export default function ProjectCard({ property, onFavoriteClick }: ProjectCardPr
   }
 
   return (
-    <Link to={`/project/${property.id}`} className={styles.cardLink}>
+    <Link to={getProjectDetailRoute(property.id)} className={styles.cardLink}>
       <div className={styles.card}>
         <div className={styles.imageContainer}>
           <img src={property.image} alt={property.title} />

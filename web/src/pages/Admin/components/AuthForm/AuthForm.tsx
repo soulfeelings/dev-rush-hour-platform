@@ -20,30 +20,43 @@ export function AuthForm({ onAuth, error }: AuthFormProps) {
 
   return (
     <div className={styles.authForm}>
-      <h1>Admin Access</h1>
-      <form onSubmit={handleSubmit}>
-        <Input
-          type="text"
-          label="Username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          placeholder="Enter username"
-          required
-          autoComplete="username"
-        />
-        <Input
-          type="password"
-          label="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="Enter password"
-          required
-          autoComplete="current-password"
-        />
-        {error && <div className={styles.error}>{error}</div>}
-        <Button type="submit" fullWidth>
-          Login
-        </Button>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Admin Access</h1>
+        <p className={styles.subtitle}>Enter your credentials to continue</p>
+      </div>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <div className={styles.inputGroup}>
+          <Input
+            type="text"
+            label="Username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            placeholder="Enter username"
+            required
+            autoComplete="username"
+          />
+        </div>
+        <div className={styles.inputGroup}>
+          <Input
+            type="password"
+            label="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Enter password"
+            required
+            autoComplete="current-password"
+          />
+        </div>
+        {error && (
+          <div className={styles.error} role="alert">
+            {error}
+          </div>
+        )}
+        <div className={styles.buttonGroup}>
+          <Button type="submit" fullWidth>
+            Login
+          </Button>
+        </div>
       </form>
     </div>
   )

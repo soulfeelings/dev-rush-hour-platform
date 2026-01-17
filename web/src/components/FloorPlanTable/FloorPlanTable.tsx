@@ -1,5 +1,6 @@
 import { useMemo, useState, Fragment } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getLotDetailRoute } from '../../constants/routes'
 import type { Lot } from '../../api'
 import styles from './FloorPlanTable.module.scss'
 
@@ -788,7 +789,7 @@ export default function FloorPlanTable({ lots }: FloorPlanTableProps) {
 
   const handleApartmentClick = (lotId: string | undefined) => {
     if (lotId) {
-      navigate(`/lot/${lotId}`)
+      navigate(getLotDetailRoute(lotId))
     }
   }
 

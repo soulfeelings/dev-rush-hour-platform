@@ -1,21 +1,63 @@
+@use 'sass:color';
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
 .authForm {
   max-width: 400px;
+  width: 100%;
   margin: 4rem auto;
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: $color-bg-card;
+  padding: $spacing-8;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
 
-  h1 {
-    text-align: center;
-    margin-bottom: 2rem;
+  @include sm {
+    max-width: 450px;
+    padding: $spacing-10;
   }
 }
 
+.header {
+  text-align: center;
+  margin-bottom: $spacing-8;
+}
+
+.title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $color-text;
+  margin: 0 0 $spacing-2 0;
+  line-height: $line-height-tight;
+}
+
+.subtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-normal;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+}
+
 .error {
-  padding: 1rem;
-  background: #fee;
-  color: #c33;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  padding: $spacing-4;
+  background: color.adjust($color-error, $lightness: 95%);
+  color: $color-error;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  border: 1px solid color.adjust($color-error, $lightness: 80%);
+}
+
+.buttonGroup {
+  margin-top: $spacing-2;
 }

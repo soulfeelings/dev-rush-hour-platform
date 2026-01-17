@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { ROUTES } from '../../constants/routes'
 import styles from './SidebarMenu.module.scss'
 
 interface SidebarMenuProps {
@@ -24,10 +25,10 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
           </Link>
         </div>
         <nav className={styles.nav}>
-          <Link to="/catalog" className={styles.navItem} onClick={onClose}>
+          <Link to={ROUTES.CATALOG} className={styles.navItem} onClick={onClose}>
             {t('header.nav.catalog')}
           </Link>
-          <Link to="/design-demo" className={styles.navItem} onClick={onClose}>
+          <Link to={ROUTES.DESIGN_DEMO} className={styles.navItem} onClick={onClose}>
             {t('header.nav.designDemo')}
           </Link>
           <Link to="/admin" className={styles.navItem} onClick={onClose}>

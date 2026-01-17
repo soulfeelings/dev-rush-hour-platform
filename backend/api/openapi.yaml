@@ -511,9 +511,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Lot"
+                $ref: "#/components/schemas/LotsListResponse"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "500":

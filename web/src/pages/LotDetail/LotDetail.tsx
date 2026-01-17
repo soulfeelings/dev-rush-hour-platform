@@ -11,6 +11,7 @@ import { useGetLot, useGetProject } from '../../api'
 import type { Project, Developer, Area } from '../../api'
 import { IconBed, IconBath, IconFloor, IconArea } from '../../components/icons'
 import { getViewIcon } from '../../components/icons/viewIconMap'
+import { ROUTES, getProjectDetailRoute } from '../../constants/routes'
 import styles from './LotDetail.module.scss'
 import { saveCatalogViewMode } from '../../utils/catalogViewMode'
 import { translateBonusKeys } from '../../utils/bonusTranslations'
@@ -216,7 +217,7 @@ export default function LotDetail() {
         <div className={styles.notFound}>
           <h1>Unit Not Found</h1>
           <p>{error || `Unit "${id}" does not exist.`}</p>
-          <Link to="/catalog" className={styles.backLink}>
+          <Link to={ROUTES.CATALOG} className={styles.backLink}>
             Return to Catalog
           </Link>
         </div>
@@ -293,7 +294,7 @@ export default function LotDetail() {
           ← Back
         </button>
         {finalProject && (
-          <Link to={`/project/${finalProject.slug}`} className={styles.projectLink}>
+          <Link to={getProjectDetailRoute(finalProject.slug)} className={styles.projectLink}>
             {finalProject.name}
           </Link>
         )}
@@ -473,7 +474,10 @@ export default function LotDetail() {
               <div className={styles.infoRow}>
                 <span className={styles.label}>Project:</span>
                 <span className={styles.value}>
-                  <Link to={`/project/${lot.project.slug}`} className={styles.projectLinkInline}>
+                  <Link
+                    to={getProjectDetailRoute(lot.project.slug)}
+                    className={styles.projectLinkInline}
+                  >
                     {lot.project.name}
                   </Link>
                 </span>

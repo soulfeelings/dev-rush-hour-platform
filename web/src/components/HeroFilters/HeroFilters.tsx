@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { MessageCircle, Search, MapPin, Building2, Home, Bed, DollarSign } from 'lucide-react'
+import { ROUTES } from '../../constants/routes'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
 import { BedsBathsSelect } from './BedsBathsSelect'
@@ -59,7 +60,7 @@ export default function HeroFilters() {
     if (baths !== 'all') params.set('bathrooms', baths)
     if (minPrice) params.set('minPrice', minPrice)
     if (maxPrice) params.set('maxPrice', maxPrice)
-    navigate(`/catalog?${params.toString()}`)
+    navigate(`${ROUTES.CATALOG}?${params.toString()}`)
   }
 
   const handleContactAgent = () => {
