@@ -7,10 +7,23 @@ export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   onClose: () => void
   title?: string
   showCloseButton?: boolean
+  size?: 'compact' | 'large'
 }
 
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(
-  ({ open, onClose, title, showCloseButton = true, className, children, ...props }, ref) => {
+  (
+    {
+      open,
+      onClose,
+      title,
+      showCloseButton = true,
+      className,
+      size = 'compact',
+      children,
+      ...props
+    },
+    ref
+  ) => {
     useEffect(() => {
       if (open) {
         document.body.style.overflow = 'hidden'
@@ -35,12 +48,16 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     if (!open) return null
 
     const isMinimal = className?.includes('minimal')
+    const sizeClass = size === 'large' ? styles.large : ''
 
     return (
-      <div className={styles.overlay} onClick={onClose}>
+      <div
+        className={`${styles.overlay} ${size === 'large' ? styles.largeOverlay : ''}`}
+        onClick={onClose}
+      >
         <div
           ref={ref}
-          className={`${styles.modal} ${className || ''}`}
+          className={`${styles.modal} ${sizeClass} ${className || ''}`}
           onClick={e => e.stopPropagation()}
           {...props}
         >

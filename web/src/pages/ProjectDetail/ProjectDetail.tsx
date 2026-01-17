@@ -6,6 +6,7 @@ import { createPropertyMarkerIcon } from '../../components/PropertyMap/markerIco
 import { developerLogos } from '../../data/mockProperties'
 import ProjectFeatures from '../../components/ProjectFeatures'
 import Model3DViewer from '../../components/Model3DViewer'
+import FloorPlanTable from '../../components/FloorPlanTable'
 import { Modal } from '../../ui/Modal'
 import { Button } from '../../ui/Button'
 import { useGetProject, useListLots } from '../../api'
@@ -34,6 +35,7 @@ export default function ProjectDetail() {
   const navigate = useNavigate()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
+  const [isFloorPlanModalOpen, setIsFloorPlanModalOpen] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const [mapContainerEl, setMapContainerEl] = useState<HTMLDivElement | null>(null)
@@ -441,7 +443,10 @@ export default function ProjectDetail() {
         <div className={styles.infoSection}>
           <div className={styles.viewApartmentsButton}>
             <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
-              View Apartments
+              View Apartments in 3D
+            </Button>
+            <Button onClick={() => setIsFloorPlanModalOpen(true)} variant="secondary" size="lg">
+              View Building Plan
             </Button>
           </div>
           <div className={styles.infoCard}>
@@ -484,6 +489,23 @@ export default function ProjectDetail() {
         className="wide transparent minimal"
       >
         <Model3DViewer embedded />
+      </Modal>
+
+      <Modal
+        open={isFloorPlanModalOpen}
+        onClose={() => setIsFloorPlanModalOpen(false)}
+        title="Building Plan"
+        size="large"
+      >
+        {displayLots.length > 0 ? (
+          <FloorPlanTable lots={displayLots} />
+        ) : (
+          <div
+            style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}
+          >
+            No apartments available
+          </div>
+        )}
       </Modal>
     </div>
   )

@@ -1,0 +1,191 @@
+@use '../../styles' as *;
+
+.floorPlanTable {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow-x: auto;
+  overflow-y: auto;
+  box-shadow: $shadow-card;
+  display: grid;
+  gap: 0;
+  padding: $spacing-2;
+}
+
+.floorColumnHeader {
+  padding: $spacing-4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  color: $color-text;
+  background: $color-border;
+  border-right: 2px solid $color-border;
+  border-bottom: 2px solid $color-border;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 20;
+}
+
+.apartmentHeader {
+  padding: $spacing-4;
+  text-align: center;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-xs;
+  color: $color-text;
+  background: $color-border;
+  border-bottom: 2px solid $color-border;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.floorLabel {
+  padding: $spacing-4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  color: $color-text;
+  background: rgba($color-border, 0.3);
+  border-right: 2px solid $color-border;
+  border-bottom: 1px solid $color-border;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+
+.apartmentCell {
+  padding: $spacing-5;
+  min-height: 160px;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-normal;
+  background: $color-bg-card;
+  position: relative;
+  border-radius: 16px;
+  margin: $spacing-2;
+  border: 1px solid rgba($color-border, 0.4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+
+  &:focus {
+    outline: 2px solid rgba($color-primary, 0.4);
+    outline-offset: 2px;
+  }
+
+  &:hover,
+  &.hovered {
+    background: $color-bg-card;
+    border-color: rgba($color-border, 0.6);
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+    z-index: 10;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &.selected {
+    background: rgba($color-primary, 0.04);
+    border-color: rgba($color-primary, 0.5);
+    box-shadow:
+      0 2px 8px rgba($color-primary, 0.12),
+      0 0 0 1px rgba($color-primary, 0.2);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.emptyCell {
+  padding: $spacing-3;
+  min-height: 160px;
+  min-width: 140px;
+  background: rgba($color-border, 0.08);
+  border-radius: $radius-md;
+  margin: $spacing-1;
+  border: 1px solid rgba($color-border, 0.2);
+  border-bottom: 1px solid $color-border;
+}
+
+.apartmentInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: $spacing-4;
+  text-align: center;
+}
+
+.apartmentType {
+  font-weight: $font-weight-bold;
+  font-size: $font-size-xl;
+  color: $color-text;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.apartmentArea {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+
+.areaValue {
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-md;
+  color: $color-text;
+  line-height: 1.2;
+}
+
+.areaUnit {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.apartmentPrice {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  padding-top: $spacing-4;
+  margin-top: $spacing-2;
+  border-top: 1px solid rgba($color-border, 0.5);
+  width: 100%;
+}
+
+.priceValue {
+  font-weight: $font-weight-bold;
+  font-size: $font-size-lg;
+  color: $color-primary;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.priceCurrency {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

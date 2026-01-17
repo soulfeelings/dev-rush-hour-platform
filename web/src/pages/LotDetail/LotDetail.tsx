@@ -13,7 +13,7 @@ import { IconBed, IconBath, IconFloor, IconArea } from '../../components/icons'
 import { getViewIcon } from '../../components/icons/viewIconMap'
 import styles from './LotDetail.module.scss'
 import { saveCatalogViewMode } from '../../utils/catalogViewMode'
-import { translateBonusKeys } from '../../utils/bonusTranslations';
+import { translateBonusKeys } from '../../utils/bonusTranslations'
 
 const MAP_ZOOM_DEFAULT = 13
 
@@ -494,9 +494,7 @@ export default function LotDetail() {
             {lot.bonusKeys && lot.bonusKeys.length > 0 && (
               <div className={styles.infoRow}>
                 <span className={styles.label}>Special Conditions:</span>
-                <span className={styles.value}>
-                  {translateBonusKeys(lot.bonusKeys).join(', ')}
-                </span>
+                <span className={styles.value}>{translateBonusKeys(lot.bonusKeys).join(', ')}</span>
               </div>
             )}
           </div>

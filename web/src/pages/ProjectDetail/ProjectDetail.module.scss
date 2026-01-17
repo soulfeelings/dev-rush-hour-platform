@@ -257,6 +257,7 @@
   margin-bottom: $spacing-6;
   display: flex;
   justify-content: center;
+  gap: $spacing-3;
 
   button {
     box-shadow: 0 4px 12px rgba($color-primary, 0.4);
@@ -525,7 +526,7 @@
   background: $color-bg-card;
   border-radius: $radius-md;
   overflow: hidden;
-  height: 240px; 
+  height: 240px;
   box-shadow: $shadow-card;
   transition:
     transform $transition-fast,
