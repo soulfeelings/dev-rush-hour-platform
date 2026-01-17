@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Button, Input, Select } from '../../../../ui'
+import { Button, Input, Select, ImagePreview } from '../../../../ui'
 import { Plus, X } from 'lucide-react'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import styles from './LotForm.module.scss'
@@ -320,17 +320,7 @@ export function LotForm({
             onChange={e => setForm({ ...form, coverUrl: e.target.value })}
             placeholder="https://example.com/image.jpg"
           />
-          {form.coverUrl && (
-            <div className={styles.imagePreview}>
-              <img
-                src={form.coverUrl}
-                alt="Cover preview"
-                onError={e => {
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
-            </div>
-          )}
+          {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
         </div>
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
@@ -349,17 +339,7 @@ export function LotForm({
                   onChange={e => updatePhoto(index, e.target.value)}
                   placeholder="https://example.com/photo.jpg"
                 />
-                {url && (
-                  <div className={styles.imagePreview}>
-                    <img
-                      src={url}
-                      alt={`Photo ${index + 1} preview`}
-                      onError={e => {
-                        e.currentTarget.style.display = 'none'
-                      }}
-                    />
-                  </div>
-                )}
+                {url && <ImagePreview src={url} alt={`Photo ${index + 1} preview`} />}
               </div>
               <Button
                 type="button"
@@ -390,17 +370,7 @@ export function LotForm({
                   onChange={e => updateFloorPlanImage(index, e.target.value)}
                   placeholder="https://example.com/floor-plan.jpg"
                 />
-                {url && (
-                  <div className={styles.imagePreview}>
-                    <img
-                      src={url}
-                      alt={`Floor plan ${index + 1} preview`}
-                      onError={e => {
-                        e.currentTarget.style.display = 'none'
-                      }}
-                    />
-                  </div>
-                )}
+                {url && <ImagePreview src={url} alt={`Floor plan ${index + 1} preview`} />}
               </div>
               <Button
                 type="button"

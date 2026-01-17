@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Button, Input, Select } from '../../../../ui'
+import { Button, Input, Select, ImagePreview } from '../../../../ui'
 import { Plus, X } from 'lucide-react'
 import { type ProjectCreateRequest, type Project } from '../../../../api'
 import { MapPicker } from '../MapPicker'
@@ -230,17 +230,7 @@ export function ProjectForm({
             onChange={e => setForm({ ...form, coverUrl: e.target.value })}
             placeholder="https://example.com/image.jpg"
           />
-          {form.coverUrl && (
-            <div className={styles.imagePreview}>
-              <img
-                src={form.coverUrl}
-                alt="Cover preview"
-                onError={e => {
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
-            </div>
-          )}
+          {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
         </div>
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
@@ -259,17 +249,7 @@ export function ProjectForm({
                   onChange={e => updateGalleryItem(index, e.target.value)}
                   placeholder="https://example.com/image.jpg"
                 />
-                {url && (
-                  <div className={styles.imagePreview}>
-                    <img
-                      src={url}
-                      alt={`Gallery ${index + 1} preview`}
-                      onError={e => {
-                        e.currentTarget.style.display = 'none'
-                      }}
-                    />
-                  </div>
-                )}
+                {url && <ImagePreview src={url} alt={`Gallery ${index + 1} preview`} />}
               </div>
               <Button
                 type="button"

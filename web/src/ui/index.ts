@@ -14,6 +14,7 @@ export * from './Tag'
 // Layout
 export * from './Card'
 export * from './Modal'
+export * from './ImagePreview'
 
 // Feedback
 export * from './Toast'
