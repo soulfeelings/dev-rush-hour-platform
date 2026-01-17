@@ -68,7 +68,11 @@ export default function Catalog() {
   const mapRef = useRef<PropertyMapRef | null>(null)
 
   // Загружаем проекты только если открыта вкладка проектов
-  const { data: projectsData } = useListProjects(
+  const {
+    data: projectsData,
+    isLoading: projectsLoading,
+    error: projectsError,
+  } = useListProjects(
     {},
     {
       query: {
@@ -82,7 +86,11 @@ export default function Catalog() {
   }, [projectsData])
 
   // Загружаем лоты только если открыта вкладка лотов
-  const { data: lotsData } = useListLots(
+  const {
+    data: lotsData,
+    isLoading: lotsLoading,
+    error: lotsError,
+  } = useListLots(
     {},
     {
       query: {
@@ -259,7 +267,9 @@ export default function Catalog() {
           screenWidth={screenWidth}
           onFavoriteClick={handleFavoriteClick}
           getGridColumns={getGridColumns}
-          enabled={viewMode === 'projects'}
+          properties={projects}
+          isLoading={projectsLoading}
+          error={projectsError}
         />
       ) : (
         <LotsView
@@ -267,7 +277,9 @@ export default function Catalog() {
           screenWidth={screenWidth}
           onFavoriteClick={handleLotFavoriteClick}
           getGridColumns={getGridColumns}
-          enabled={viewMode === 'lots'}
+          lots={lots}
+          isLoading={lotsLoading}
+          error={lotsError}
         />
       )}
     </div>

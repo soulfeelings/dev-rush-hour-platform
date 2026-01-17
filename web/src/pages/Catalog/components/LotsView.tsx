@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-import { useListLots } from '../../../api'
 import LotCard from '../../../components/LotCard'
 import { SkeletonCard } from '../../../ui/Skeleton'
 import styles from '../Catalog.module.scss'
@@ -10,7 +8,9 @@ interface LotsViewProps {
   screenWidth: number
   onFavoriteClick: (lotId: string) => void
   getGridColumns: (catalogWidth: number, screenWidth: number) => number
-  enabled?: boolean
+  lots: Lot[]
+  isLoading: boolean
+  error: unknown
 }
 
 export default function LotsView({
@@ -18,26 +18,10 @@ export default function LotsView({
   screenWidth,
   onFavoriteClick,
   getGridColumns,
-  enabled = true,
+  lots,
+  isLoading,
+  error,
 }: LotsViewProps) {
-  const {
-    data: lotsData,
-    isLoading,
-    error,
-  } = useListLots(
-    {},
-    {
-      query: {
-        enabled,
-      },
-    }
-  )
-
-  const lots = useMemo(() => {
-    if (!lotsData?.items) return []
-    return lotsData.items as Lot[]
-  }, [lotsData])
-
   const activeLots = lots.filter(lot => lot.status === 'active')
 
   if (isLoading) {
@@ -58,8 +42,8 @@ export default function LotsView({
   if (error) {
     return (
       <div className={styles.error}>
-        <p>Ошибка загрузки: {error instanceof Error ? error.message : 'Unknown error'}</p>
-        <button onClick={() => window.location.reload()}>Повторить</button>
+        <p>Loading error: {error instanceof Error ? error.message : 'Unknown error'}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
       </div>
     )
   }

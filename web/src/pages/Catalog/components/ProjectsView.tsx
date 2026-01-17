@@ -1,16 +1,16 @@
-import { useMemo } from 'react'
-import { useListProjects } from '../../../api'
-import { apiProjectsToProperties } from '../../../utils/apiAdapters'
 import ProjectCard from '../../../components/ProjectCard'
 import { SkeletonCard } from '../../../ui/Skeleton'
 import styles from '../Catalog.module.scss'
+import type { Property } from '../../../types/property'
 
 interface ProjectsViewProps {
   panelWidth: number
   screenWidth: number
   onFavoriteClick: (propertyId: string) => void
   getGridColumns: (catalogWidth: number, screenWidth: number) => number
-  enabled?: boolean
+  properties: Property[]
+  isLoading: boolean
+  error: unknown
 }
 
 export default function ProjectsView({
@@ -18,27 +18,11 @@ export default function ProjectsView({
   screenWidth,
   onFavoriteClick,
   getGridColumns,
-  enabled = true,
+  properties,
+  isLoading,
+  error,
 }: ProjectsViewProps) {
-  const {
-    data: projectsData,
-    isLoading,
-    error,
-  } = useListProjects(
-    {},
-    {
-      query: {
-        enabled,
-      },
-    }
-  )
-
-  const projects = useMemo(() => {
-    if (!projectsData) return []
-    return apiProjectsToProperties(projectsData)
-  }, [projectsData])
-
-  const activeProperties = projects.filter(p => p.status === 'active')
+  const activeProperties = properties.filter(p => p.status === 'active')
   const regularProperties = activeProperties.filter(p => !p.isFeatured)
 
   if (isLoading) {
@@ -59,8 +43,8 @@ export default function ProjectsView({
   if (error) {
     return (
       <div className={styles.error}>
-        <p>Ошибка загрузки: {error instanceof Error ? error.message : 'Unknown error'}</p>
-        <button onClick={() => window.location.reload()}>Повторить</button>
+        <p>Loading error: {error instanceof Error ? error.message : 'Unknown error'}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
       </div>
     )
   }
