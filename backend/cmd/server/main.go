@@ -166,6 +166,14 @@ func (s *Server) AdminUpdateLot(c *fiber.Ctx, id openapi_types.UUID) error {
 	return s.adminLotsHandler.UpdateLot(c, id)
 }
 
+func (s *Server) AdminGetLot(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminLotsHandler.GetLot(c, id)
+}
+
+func (s *Server) AdminSoftDeleteLot(c *fiber.Ctx, id openapi_types.UUID) error {
+    return s.adminLotsHandler.SoftDeleteLot(c, id)
+}
+
 func (s *Server) AdminListLeads(c *fiber.Ctx, params generated.AdminListLeadsParams) error {
 	return s.adminLeadsHandler.ListLeads(c, params)
 }

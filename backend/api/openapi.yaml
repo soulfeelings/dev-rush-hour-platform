@@ -694,6 +694,56 @@ paths:
           $ref: "#/components/responses/InternalError"
 
   /admin/lots/{id}:
+    get:
+      operationId: adminGetLot
+      summary: Получить лот по ID (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Лот найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lot"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      operationId: adminSoftDeleteLot
+      summary: Мягкое удаление лота (установка deleted_at)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Лот помечен как удаленный
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
     patch:
       operationId: adminUpdateLot
       summary: Обновить лот (админ)

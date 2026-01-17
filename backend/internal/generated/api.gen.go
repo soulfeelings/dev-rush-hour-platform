@@ -87,6 +87,7 @@ const (
 	LotStatusHidden   LotStatus = "hidden"
 	LotStatusReserved LotStatus = "reserved"
 	LotStatusSold     LotStatus = "sold"
+	LotStatusDeleted  LotStatus = "deleted"
 )
 
 // Defines values for LotType.
@@ -938,6 +939,12 @@ type ServerInterface interface {
 	// Создать лот (админ)
 	// (POST /admin/lots)
 	AdminCreateLot(c *fiber.Ctx) error
+	// Мягкое удаление лота (установка deleted_at)
+	// (DELETE /admin/lots/{id})
+	AdminSoftDeleteLot(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить лот по ID (админ)
+	// (GET /admin/lots/{id})
+	AdminGetLot(c *fiber.Ctx, id openapi_types.UUID) error
 	// Обновить лот (админ)
 	// (PATCH /admin/lots/{id})
 	AdminUpdateLot(c *fiber.Ctx, id openapi_types.UUID) error
@@ -1166,6 +1173,42 @@ func (siw *ServerInterfaceWrapper) AdminCreateLot(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateLot(c)
+}
+
+// AdminSoftDeleteLot operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteLot(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteLot(c, id)
+}
+
+// AdminGetLot operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetLot(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetLot(c, id)
 }
 
 // AdminUpdateLot operation middleware
@@ -1521,6 +1564,10 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	router.Get(options.BaseURL+"/admin/lots", wrapper.AdminListLots)
 
 	router.Post(options.BaseURL+"/admin/lots", wrapper.AdminCreateLot)
+
+	router.Delete(options.BaseURL+"/admin/lots/:id", wrapper.AdminSoftDeleteLot)
+
+	router.Get(options.BaseURL+"/admin/lots/:id", wrapper.AdminGetLot)
 
 	router.Patch(options.BaseURL+"/admin/lots/:id", wrapper.AdminUpdateLot)
 

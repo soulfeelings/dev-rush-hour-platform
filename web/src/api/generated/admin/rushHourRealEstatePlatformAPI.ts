@@ -2552,6 +2552,203 @@ export const useAdminCreateLot = <
 }
 
 /**
+ * @summary Получить лот по ID (админ)
+ */
+export const adminGetLot = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Lot>({ url: `/admin/lots/${id}`, method: 'GET', signal }, options)
+}
+
+export const getAdminGetLotQueryKey = (id?: string) => {
+  return [`/admin/lots/${id}`] as const
+}
+
+export const getAdminGetLotQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminGetLot>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLot>>, TError, TData>>
+    request?: SecondParameter<typeof adminInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminGetLotQueryKey(id)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetLot>>> = ({ signal }) =>
+    adminGetLot(id, requestOptions, signal)
+
+  return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetLot>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminGetLotQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetLot>>>
+export type AdminGetLotQueryError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse
+
+export function useAdminGetLot<
+  TData = Awaited<ReturnType<typeof adminGetLot>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLot>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetLot>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetLot>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetLot<
+  TData = Awaited<ReturnType<typeof adminGetLot>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLot>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetLot>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetLot>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetLot<
+  TData = Awaited<ReturnType<typeof adminGetLot>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLot>>, TError, TData>>
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить лот по ID (админ)
+ */
+
+export function useAdminGetLot<
+  TData = Awaited<ReturnType<typeof adminGetLot>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLot>>, TError, TData>>
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminGetLotQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Мягкое удаление лота (установка deleted_at)
+ */
+export const adminSoftDeleteLot = (id: string, options?: SecondParameter<typeof adminInstance>) => {
+  return adminInstance<void>({ url: `/admin/lots/${id}`, method: 'DELETE' }, options)
+}
+
+export const getAdminSoftDeleteLotMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminSoftDeleteLot>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminSoftDeleteLot>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminSoftDeleteLot']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminSoftDeleteLot>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminSoftDeleteLot(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminSoftDeleteLotMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminSoftDeleteLot>>
+>
+
+export type AdminSoftDeleteLotMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Мягкое удаление лота (установка deleted_at)
+ */
+export const useAdminSoftDeleteLot = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminSoftDeleteLot>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminSoftDeleteLot>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminSoftDeleteLotMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
  * @summary Обновить лот (админ)
  */
 export const adminUpdateLot = (

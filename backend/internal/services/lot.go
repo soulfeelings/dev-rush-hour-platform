@@ -36,7 +36,7 @@ func (s *LotsService) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		return nil, fmt.Errorf("failed to get lot: %w", err)
 	}
 	if lot == nil {
-		return nil, fmt.Errorf("lot not found")
+		return nil, ErrLotNotFound
 	}
 	return lot, nil
 }
@@ -51,7 +51,7 @@ func (s *LotsService) Update(id uuid.UUID, lot *domain.Lot) error {
 		return fmt.Errorf("failed to get lot: %w", err)
 	}
 	if existing == nil {
-		return fmt.Errorf("lot not found")
+		return ErrLotNotFound
 	}
 
 	// Merge with existing data
@@ -136,4 +136,16 @@ func (s *LotsService) Update(id uuid.UUID, lot *domain.Lot) error {
 	}
 
 	return s.lotRepo.Update(id, lot)
+}
+
+func (s *LotsService) Delete(id uuid.UUID) error {
+	existing, err := s.lotRepo.GetByID(id)
+	if err != nil {
+		return fmt.Errorf("failed to get lot: %w", err)
+	}
+	if existing == nil {
+		return ErrLotNotFound
+	}
+
+	return s.lotRepo.Delete(id)
 }

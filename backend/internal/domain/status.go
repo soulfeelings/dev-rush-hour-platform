@@ -25,6 +25,7 @@ const (
 	LotStatusHidden   LotStatus = "hidden"
 	LotStatusReserved LotStatus = "reserved"
 	LotStatusSold     LotStatus = "sold"
+	LotStatusDeleted  LotStatus = "deleted"
 )
 
 type DeveloperStatus string
