@@ -38,6 +38,16 @@ export function LotsTable({ onNewClick, onEditClick }: LotsTableProps) {
     return currency ? `${formatted} ${currency}` : formatted
   }
 
+  const getLotImageUrl = (lot: (typeof lotsList)[0]) => {
+    if (lot.data?.media?.cover?.url) {
+      return lot.data.media.cover.url
+    }
+    if (lot.data?.media?.photos && lot.data.media.photos.length > 0) {
+      return lot.data.media.photos[0]?.url
+    }
+    return null
+  }
+
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.header}>
@@ -51,6 +61,7 @@ export function LotsTable({ onNewClick, onEditClick }: LotsTableProps) {
           <thead>
             <tr>
               <th></th>
+              <th>Image</th>
               <th>ID</th>
               <th>Type</th>
               <th>Bedrooms</th>
@@ -79,6 +90,17 @@ export function LotsTable({ onNewClick, onEditClick }: LotsTableProps) {
                     >
                       <Pencil size={16} />
                     </button>
+                  )}
+                </td>
+                <td className={styles.imageCell}>
+                  {getLotImageUrl(lot) ? (
+                    <img
+                      src={getLotImageUrl(lot) || ''}
+                      alt={`Lot ${lot.id}`}
+                      className={styles.image}
+                    />
+                  ) : (
+                    <div className={styles.noImage}>-</div>
                   )}
                 </td>
                 <td>{lot.id}</td>

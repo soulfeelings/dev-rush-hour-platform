@@ -32,6 +32,16 @@ export function ProjectsTable({ onNewClick, onEditClick }: ProjectsTableProps) {
 
   const projectsList = projects || []
 
+  const getProjectImageUrl = (project: (typeof projectsList)[0]) => {
+    if (project.data?.media?.cover?.url) {
+      return project.data.media.cover.url
+    }
+    if (project.data?.media?.gallery && project.data.media.gallery.length > 0) {
+      return project.data.media.gallery[0]?.url
+    }
+    return null
+  }
+
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.header}>
@@ -45,6 +55,7 @@ export function ProjectsTable({ onNewClick, onEditClick }: ProjectsTableProps) {
           <thead>
             <tr>
               <th></th>
+              <th>Image</th>
               <th>ID</th>
               <th>Name</th>
               <th>Slug</th>
@@ -70,6 +81,17 @@ export function ProjectsTable({ onNewClick, onEditClick }: ProjectsTableProps) {
                     >
                       <Pencil size={16} />
                     </button>
+                  )}
+                </td>
+                <td className={styles.imageCell}>
+                  {getProjectImageUrl(project) ? (
+                    <img
+                      src={getProjectImageUrl(project) || ''}
+                      alt={project.name || 'Project'}
+                      className={styles.image}
+                    />
+                  ) : (
+                    <div className={styles.noImage}>-</div>
                   )}
                 </td>
                 <td>{project.id}</td>
