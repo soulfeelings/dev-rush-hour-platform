@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { Select } from '../ui/Select'
-import FiltersBar from '../components/FiltersBar'
-import ProjectCard from '../components/ProjectCard'
-import LotCard from '../components/LotCard'
-import PropertyMap from '../components/PropertyMap'
-import ResizableSplitter from '../components/ResizableSplitter'
-import { useListProjects, useListLots } from '../api'
-import { apiProjectsToProperties, apiLotsToPropertiesForMap } from '../utils/apiAdapters'
-import { loadCatalogViewMode, saveCatalogViewMode } from '../utils/catalogViewMode'
-import type { CatalogViewMode } from '../utils/catalogViewMode'
+import { Select } from '../../ui/Select'
+import FiltersBar from '../../components/FiltersBar'
+import PropertyMap from '../../components/PropertyMap'
+import ResizableSplitter from '../../components/ResizableSplitter'
+import { useListProjects, useListLots } from '../../api'
+import { apiProjectsToProperties, apiLotsToPropertiesForMap } from '../../utils/apiAdapters'
+import { loadCatalogViewMode, saveCatalogViewMode } from '../../utils/catalogViewMode'
+import type { CatalogViewMode } from '../../utils/catalogViewMode'
 import styles from './Catalog.module.scss'
-import type { PropertyMapRef } from '../components/PropertyMap/PropertyMap'
-import type { Lot } from '../api'
+import type { PropertyMapRef } from '../../components/PropertyMap/PropertyMap'
+import type { Lot } from '../../api'
+import ProjectsView from './components/ProjectsView'
+import LotsView from './components/LotsView'
 
 // Константы для размеров и брейкпоинтов
 const GRID_CONSTANTS = {
@@ -67,17 +67,22 @@ export default function Catalog() {
   const [viewMode, setViewMode] = useState<CatalogViewMode>(loadCatalogViewMode)
   const mapRef = useRef<PropertyMapRef | null>(null)
 
-  const { data: projectsData, isLoading: projectsLoading, error: projectsError } = useListProjects()
+  // Загружаем проекты только если открыта вкладка проектов
+  const { data: projectsData } = useListProjects(
+    {},
+    {
+      query: {
+        enabled: viewMode === 'projects',
+      },
+    }
+  )
   const projects = useMemo(() => {
     if (!projectsData) return []
     return apiProjectsToProperties(projectsData)
   }, [projectsData])
 
-  const {
-    data: lotsData,
-    isLoading: lotsLoading,
-    error: lotsError,
-  } = useListLots(
+  // Загружаем лоты только если открыта вкладка лотов
+  const { data: lotsData } = useListLots(
     {},
     {
       query: {
@@ -92,8 +97,22 @@ export default function Catalog() {
   }, [lotsData])
 
   // Преобразуем лоты в Property для карты (используя координаты проектов)
+  // Для карты нужно загружать проекты даже если открыта вкладка лотов
+  const { data: projectsDataForMap } = useListProjects(
+    {},
+    {
+      query: {
+        enabled: viewMode === 'lots',
+      },
+    }
+  )
+  const projectsForMap = useMemo(() => {
+    if (!projectsDataForMap) return []
+    return apiProjectsToProperties(projectsDataForMap)
+  }, [projectsDataForMap])
+
   const lotPropertiesForMap = useMemo(() => {
-    if (viewMode !== 'lots' || !lotsData?.items || !projects.length) return []
+    if (viewMode !== 'lots' || !lotsData?.items || !projectsForMap.length) return []
 
     // Группируем лоты по projectId для отображения одного маркера на проект
     const lotsByProjectId = new Map<string, (typeof lots)[0][]>()
@@ -111,7 +130,7 @@ export default function Catalog() {
       // Ищем проект в уже загруженных проектах
       // projectId может быть UUID, а id проекта может быть slug
       // Пока используем простую проверку по id
-      const project = projects.find(p => p.id === projectId)
+      const project = projectsForMap.find(p => p.id === projectId)
 
       if (!project) {
         // Если проект не найден, пропускаем эти лоты для карты
@@ -135,10 +154,7 @@ export default function Catalog() {
     })
 
     return apiLotsToPropertiesForMap(lotsWithProjects)
-  }, [lotsData, viewMode, lots, projects])
-
-  const loading = viewMode === 'projects' ? projectsLoading : lotsLoading
-  const error = viewMode === 'projects' ? projectsError : lotsError
+  }, [lotsData, viewMode, lots, projectsForMap])
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth)
@@ -237,34 +253,22 @@ export default function Catalog() {
           </div>
         </div>
       </div>
-      {loading ? (
-        <div className={styles.loading}>
-          <p>{viewMode === 'projects' ? 'Загрузка проектов...' : 'Загрузка лотов...'}</p>
-        </div>
-      ) : error ? (
-        <div className={styles.error}>
-          <p>Ошибка загрузки: {error instanceof Error ? error.message : 'Unknown error'}</p>
-          <button onClick={() => window.location.reload()}>Повторить</button>
-        </div>
+      {viewMode === 'projects' ? (
+        <ProjectsView
+          panelWidth={panelWidth}
+          screenWidth={screenWidth}
+          onFavoriteClick={handleFavoriteClick}
+          getGridColumns={getGridColumns}
+          enabled={viewMode === 'projects'}
+        />
       ) : (
-        <div
-          className={styles.grid}
-          style={{
-            gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
-          }}
-        >
-          {viewMode === 'projects'
-            ? regularProperties.map(property => (
-                <ProjectCard
-                  key={property.id}
-                  property={property}
-                  onFavoriteClick={handleFavoriteClick}
-                />
-              ))
-            : activeLots.map(lot => (
-                <LotCard key={lot.id} lot={lot} onFavoriteClick={handleLotFavoriteClick} />
-              ))}
-        </div>
+        <LotsView
+          panelWidth={panelWidth}
+          screenWidth={screenWidth}
+          onFavoriteClick={handleLotFavoriteClick}
+          getGridColumns={getGridColumns}
+          enabled={viewMode === 'lots'}
+        />
       )}
     </div>
   )

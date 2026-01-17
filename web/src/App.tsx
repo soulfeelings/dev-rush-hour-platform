@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Header from './features/Header'
-import Catalog from './pages/Catalog'
+import Catalog from './pages/Catalog/Catalog'
 import Home from './pages/Home'
 import ProjectDetail from './pages/ProjectDetail'
 import LotDetail from './pages/LotDetail'
