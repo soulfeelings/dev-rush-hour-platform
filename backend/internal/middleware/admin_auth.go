@@ -8,6 +8,9 @@ import (
 
 func AdminAuth(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		// Временно отключена проверка adminKey
+		return c.Next()
+
 		// Проверяем, является ли путь админским
 		path := c.Path()
 		if len(path) < 10 || path[:10] != "/api/admin" {
