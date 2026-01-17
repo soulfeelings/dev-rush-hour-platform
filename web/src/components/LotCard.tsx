@@ -1,4 +1,4 @@
-import { Heart } from 'lucide-react'
+import { Heart, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { getLotDetailRoute } from '../constants/routes'
@@ -69,7 +69,8 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
       []),
   ]
 
-  const image = lotImages[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
+  const image = lotImages[0]
+  const hasImage = Boolean(image)
 
   const typeLabel = lot.type ? lot.type.charAt(0).toUpperCase() + lot.type.slice(1) : ''
   const bedroomsLabel = lot.bedrooms ? `${lot.bedrooms} BR` : ''
@@ -84,7 +85,13 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
     <Link to={getLotDetailRoute(lot.id)} className={styles.cardLink}>
       <div className={styles.card}>
         <div className={styles.imageContainer}>
-          <img src={image} alt={projectName} />
+          {hasImage ? (
+            <img src={image} alt={projectName} />
+          ) : (
+            <div className={styles.imagePlaceholder}>
+              <Building2 size={48} />
+            </div>
+          )}
           {logoUrl && (
             <div className={styles.logo}>
               <img src={logoUrl} alt={developerName} />

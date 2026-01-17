@@ -1,4 +1,4 @@
-@use '../styles' as *;
+@use '@styles/variables' as *;
 
 .cardLink {
   text-decoration: none;
@@ -25,11 +25,29 @@
   width: 100%;
   aspect-ratio: 16 / 10;
   overflow: hidden;
+  background: $color-bg;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+}
+
+.imagePlaceholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg;
+  color: $color-text-muted;
+
+  svg {
+    display: block;
   }
 }
 
