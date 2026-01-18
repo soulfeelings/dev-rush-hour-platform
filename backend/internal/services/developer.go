@@ -20,7 +20,7 @@ func (s *DevelopersService) Create(dev *domain.Developer) error {
 	return s.developerRepo.Create(dev)
 }
 
-func (s *DevelopersService) Update(id uuid.UUID, dev *domain.Developer) error {
+func (s *DevelopersService) Update(id uuid.UUID, updates *domain.Developer) error {
 	existing, err := s.developerRepo.GetByID(id)
 	if err != nil {
 		return fmt.Errorf("failed to get developer: %w", err)
@@ -29,7 +29,21 @@ func (s *DevelopersService) Update(id uuid.UUID, dev *domain.Developer) error {
 		return ErrDeveloperNotFound
 	}
 
-	return s.developerRepo.Update(id, dev)
+	// Merge updates with existing data
+	if updates.Slug != "" {
+		existing.Slug = updates.Slug
+	}
+	if updates.Name != "" {
+		existing.Name = updates.Name
+	}
+	if updates.Status != "" {
+		existing.Status = updates.Status
+	}
+	if len(updates.Data) > 0 {
+		existing.Data = updates.Data
+	}
+
+	return s.developerRepo.Update(id, existing)
 }
 
 func (s *DevelopersService) GetByID(id uuid.UUID) (*domain.Developer, error) {

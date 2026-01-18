@@ -809,8 +809,98 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
 
+  /admin/leads/{id}:
+    get:
+      operationId: adminGetLead
+      summary: Получить заявку по ID (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Заявка найдена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    
+    delete:
+      operationId: adminSoftDeleteLead
+      summary: Мягкое удаление заявки
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Заявка помечена как удаленная
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    
+    patch:
+      operationId: adminUpdateLead
+      summary: Обновить заявку (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadUpdateRequest"
+      responses:
+        "200":
+          description: Заявка обновлена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
 components:
   schemas:
+
     Area:
       type: object
       properties:
@@ -840,6 +930,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
 
     AreaData:
       type: object
@@ -929,6 +1024,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
         lots:
           type: array
           items:
@@ -1037,6 +1137,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
 
     LotData:
       type: object
@@ -1259,6 +1364,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
 
     LeadData:
       type: object
@@ -1272,6 +1382,33 @@ components:
         utm:
           type: object
           additionalProperties: true
+
+    LeadUpdateRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [new, in_progress, done, spam]
+        type:
+          type: string
+          enum: [callback, viewing, details]
+        source:
+          type: string
+        projectId:
+          type: string
+          format: uuid
+        lotId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        data:
+          $ref: "#/components/schemas/LeadData"
 
     Developer:
       type: object
@@ -1295,6 +1432,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
 
     DeveloperCreateRequest:
       type: object

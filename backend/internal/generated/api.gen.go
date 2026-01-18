@@ -81,13 +81,27 @@ const (
 	LeadCreateRequestTypeViewing  LeadCreateRequestType = "viewing"
 )
 
+// Defines values for LeadUpdateRequestStatus.
+const (
+	LeadUpdateRequestStatusDone       LeadUpdateRequestStatus = "done"
+	LeadUpdateRequestStatusInProgress LeadUpdateRequestStatus = "in_progress"
+	LeadUpdateRequestStatusNew        LeadUpdateRequestStatus = "new"
+	LeadUpdateRequestStatusSpam       LeadUpdateRequestStatus = "spam"
+)
+
+// Defines values for LeadUpdateRequestType.
+const (
+	Callback LeadUpdateRequestType = "callback"
+	Details  LeadUpdateRequestType = "details"
+	Viewing  LeadUpdateRequestType = "viewing"
+)
+
 // Defines values for LotStatus.
 const (
 	LotStatusActive   LotStatus = "active"
 	LotStatusHidden   LotStatus = "hidden"
 	LotStatusReserved LotStatus = "reserved"
 	LotStatusSold     LotStatus = "sold"
-	LotStatusDeleted  LotStatus = "deleted"
 )
 
 // Defines values for LotType.
@@ -187,10 +201,10 @@ const (
 
 // Defines values for AdminListLeadsParamsStatus.
 const (
-	AdminListLeadsParamsStatusDone       AdminListLeadsParamsStatus = "done"
-	AdminListLeadsParamsStatusInProgress AdminListLeadsParamsStatus = "in_progress"
-	AdminListLeadsParamsStatusNew        AdminListLeadsParamsStatus = "new"
-	AdminListLeadsParamsStatusSpam       AdminListLeadsParamsStatus = "spam"
+	Done       AdminListLeadsParamsStatus = "done"
+	InProgress AdminListLeadsParamsStatus = "in_progress"
+	New        AdminListLeadsParamsStatus = "new"
+	Spam       AdminListLeadsParamsStatus = "spam"
 )
 
 // Defines values for ListAreasParamsInclude.
@@ -216,9 +230,12 @@ const (
 
 // Area defines model for Area.
 type Area struct {
-	City        *string             `json:"city,omitempty"`
-	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
-	Data        *AreaData           `json:"data,omitempty"`
+	City      *string    `json:"city,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	Data      *AreaData  `json:"data,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt   *time.Time          `json:"deletedAt"`
 	Description *string             `json:"description,omitempty"`
 	Id          *openapi_types.UUID `json:"id,omitempty"`
 	Lat         *float32            `json:"lat,omitempty"`
@@ -287,11 +304,14 @@ type BoundingBox struct {
 type Developer struct {
 	CreatedAt *time.Time              `json:"createdAt,omitempty"`
 	Data      *map[string]interface{} `json:"data,omitempty"`
-	Id        *openapi_types.UUID     `json:"id,omitempty"`
-	Name      *string                 `json:"name,omitempty"`
-	Slug      *string                 `json:"slug,omitempty"`
-	Status    *DeveloperStatus        `json:"status,omitempty"`
-	UpdatedAt *time.Time              `json:"updatedAt,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt *time.Time          `json:"deletedAt"`
+	Id        *openapi_types.UUID `json:"id,omitempty"`
+	Name      *string             `json:"name,omitempty"`
+	Slug      *string             `json:"slug,omitempty"`
+	Status    *DeveloperStatus    `json:"status,omitempty"`
+	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // DeveloperStatus defines model for Developer.Status.
@@ -357,8 +377,11 @@ type GeoJSONPolygonType string
 
 // Lead defines model for Lead.
 type Lead struct {
-	CreatedAt *time.Time          `json:"createdAt,omitempty"`
-	Data      *LeadData           `json:"data,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	Data      *LeadData  `json:"data,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt *time.Time          `json:"deletedAt"`
 	Email     *string             `json:"email,omitempty"`
 	Id        *openapi_types.UUID `json:"id,omitempty"`
 	LotId     *openapi_types.UUID `json:"lotId,omitempty"`
@@ -408,16 +431,38 @@ type LeadDataRequest struct {
 	Utm       *map[string]interface{} `json:"utm,omitempty"`
 }
 
+// LeadUpdateRequest defines model for LeadUpdateRequest.
+type LeadUpdateRequest struct {
+	Data      *LeadData                `json:"data,omitempty"`
+	Email     *openapi_types.Email     `json:"email,omitempty"`
+	LotId     *openapi_types.UUID      `json:"lotId,omitempty"`
+	Name      *string                  `json:"name,omitempty"`
+	Phone     *string                  `json:"phone,omitempty"`
+	ProjectId *openapi_types.UUID      `json:"projectId,omitempty"`
+	Source    *string                  `json:"source,omitempty"`
+	Status    *LeadUpdateRequestStatus `json:"status,omitempty"`
+	Type      *LeadUpdateRequestType   `json:"type,omitempty"`
+}
+
+// LeadUpdateRequestStatus defines model for LeadUpdateRequest.Status.
+type LeadUpdateRequestStatus string
+
+// LeadUpdateRequestType defines model for LeadUpdateRequest.Type.
+type LeadUpdateRequestType string
+
 // Lot defines model for Lot.
 type Lot struct {
-	Area          *Area               `json:"area,omitempty"`
-	AreaId        *openapi_types.UUID `json:"areaId,omitempty"`
-	AreaSqm       *float32            `json:"areaSqm,omitempty"`
-	Bathrooms     *int                `json:"bathrooms,omitempty"`
-	Bedrooms      *int                `json:"bedrooms,omitempty"`
-	BonusKeys     *[]string           `json:"bonusKeys,omitempty"`
-	CreatedAt     *time.Time          `json:"createdAt,omitempty"`
-	Data          *LotData            `json:"data,omitempty"`
+	Area      *Area               `json:"area,omitempty"`
+	AreaId    *openapi_types.UUID `json:"areaId,omitempty"`
+	AreaSqm   *float32            `json:"areaSqm,omitempty"`
+	Bathrooms *int                `json:"bathrooms,omitempty"`
+	Bedrooms  *int                `json:"bedrooms,omitempty"`
+	BonusKeys *[]string           `json:"bonusKeys,omitempty"`
+	CreatedAt *time.Time          `json:"createdAt,omitempty"`
+	Data      *LotData            `json:"data,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt     *time.Time          `json:"deletedAt"`
 	Developer     *Developer          `json:"developer,omitempty"`
 	DeveloperId   *openapi_types.UUID `json:"developerId,omitempty"`
 	Floor         *int                `json:"floor,omitempty"`
@@ -569,10 +614,13 @@ type Point struct {
 
 // Project defines model for Project.
 type Project struct {
-	Area        *Area               `json:"area,omitempty"`
-	AreaId      *openapi_types.UUID `json:"areaId,omitempty"`
-	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
-	Data        *ProjectData        `json:"data,omitempty"`
+	Area      *Area               `json:"area,omitempty"`
+	AreaId    *openapi_types.UUID `json:"areaId,omitempty"`
+	CreatedAt *time.Time          `json:"createdAt,omitempty"`
+	Data      *ProjectData        `json:"data,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt   *time.Time          `json:"deletedAt"`
 	Developer   *Developer          `json:"developer,omitempty"`
 	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
 	Id          *openapi_types.UUID `json:"id,omitempty"`
@@ -759,6 +807,9 @@ type AdminCreateDeveloperJSONRequestBody = DeveloperCreateRequest
 // AdminUpdateDeveloperJSONRequestBody defines body for AdminUpdateDeveloper for application/json ContentType.
 type AdminUpdateDeveloperJSONRequestBody = DeveloperUpdateRequest
 
+// AdminUpdateLeadJSONRequestBody defines body for AdminUpdateLead for application/json ContentType.
+type AdminUpdateLeadJSONRequestBody = LeadUpdateRequest
+
 // AdminCreateLotJSONRequestBody defines body for AdminCreateLot for application/json ContentType.
 type AdminCreateLotJSONRequestBody = LotCreateRequest
 
@@ -933,6 +984,15 @@ type ServerInterface interface {
 	// Получить список заявок (админ)
 	// (GET /admin/leads)
 	AdminListLeads(c *fiber.Ctx, params AdminListLeadsParams) error
+	// Мягкое удаление заявки
+	// (DELETE /admin/leads/{id})
+	AdminSoftDeleteLead(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить заявку по ID (админ)
+	// (GET /admin/leads/{id})
+	AdminGetLead(c *fiber.Ctx, id openapi_types.UUID) error
+	// Обновить заявку (админ)
+	// (PATCH /admin/leads/{id})
+	AdminUpdateLead(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список лотов (админ)
 	// (GET /admin/lots)
 	AdminListLots(c *fiber.Ctx) error
@@ -1157,6 +1217,60 @@ func (siw *ServerInterfaceWrapper) AdminListLeads(c *fiber.Ctx) error {
 	}
 
 	return siw.Handler.AdminListLeads(c, params)
+}
+
+// AdminSoftDeleteLead operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteLead(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteLead(c, id)
+}
+
+// AdminGetLead operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetLead(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetLead(c, id)
+}
+
+// AdminUpdateLead operation middleware
+func (siw *ServerInterfaceWrapper) AdminUpdateLead(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminUpdateLead(c, id)
 }
 
 // AdminListLots operation middleware
@@ -1560,6 +1674,12 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	router.Patch(options.BaseURL+"/admin/developers/:id", wrapper.AdminUpdateDeveloper)
 
 	router.Get(options.BaseURL+"/admin/leads", wrapper.AdminListLeads)
+
+	router.Delete(options.BaseURL+"/admin/leads/:id", wrapper.AdminSoftDeleteLead)
+
+	router.Get(options.BaseURL+"/admin/leads/:id", wrapper.AdminGetLead)
+
+	router.Patch(options.BaseURL+"/admin/leads/:id", wrapper.AdminUpdateLead)
 
 	router.Get(options.BaseURL+"/admin/lots", wrapper.AdminListLots)
 

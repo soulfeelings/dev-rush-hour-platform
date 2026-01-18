@@ -33,6 +33,7 @@ import type {
   InternalErrorResponse,
   Lead,
   LeadCreateRequest,
+  LeadUpdateRequest,
   ListAreasParams,
   ListLotsParams,
   ListProjectsParams,
@@ -2965,4 +2966,303 @@ export function useAdminListLeads<
   query.queryKey = queryOptions.queryKey
 
   return query
+}
+
+/**
+ * @summary Получить заявку по ID (админ)
+ */
+export const adminGetLead = (
+  id: string,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal
+) => {
+  return customInstance<Lead>({ url: `/admin/leads/${id}`, method: 'GET', signal }, options)
+}
+
+export const getAdminGetLeadQueryKey = (id?: string) => {
+  return [`/admin/leads/${id}`] as const
+}
+
+export const getAdminGetLeadQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminGetLead>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLead>>, TError, TData>>
+    request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminGetLeadQueryKey(id)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetLead>>> = ({ signal }) =>
+    adminGetLead(id, requestOptions, signal)
+
+  return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetLead>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminGetLeadQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetLead>>>
+export type AdminGetLeadQueryError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse
+
+export function useAdminGetLead<
+  TData = Awaited<ReturnType<typeof adminGetLead>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLead>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetLead>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetLead>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetLead<
+  TData = Awaited<ReturnType<typeof adminGetLead>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLead>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetLead>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetLead>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetLead<
+  TData = Awaited<ReturnType<typeof adminGetLead>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLead>>, TError, TData>>
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить заявку по ID (админ)
+ */
+
+export function useAdminGetLead<
+  TData = Awaited<ReturnType<typeof adminGetLead>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminGetLead>>, TError, TData>>
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminGetLeadQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Мягкое удаление заявки
+ */
+export const adminSoftDeleteLead = (
+  id: string,
+  options?: SecondParameter<typeof customInstance>
+) => {
+  return customInstance<void>({ url: `/admin/leads/${id}`, method: 'DELETE' }, options)
+}
+
+export const getAdminSoftDeleteLeadMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminSoftDeleteLead>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof customInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminSoftDeleteLead>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminSoftDeleteLead']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminSoftDeleteLead>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminSoftDeleteLead(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminSoftDeleteLeadMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminSoftDeleteLead>>
+>
+
+export type AdminSoftDeleteLeadMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Мягкое удаление заявки
+ */
+export const useAdminSoftDeleteLead = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminSoftDeleteLead>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminSoftDeleteLead>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminSoftDeleteLeadMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Обновить заявку (админ)
+ */
+export const adminUpdateLead = (
+  id: string,
+  leadUpdateRequest: LeadUpdateRequest,
+  options?: SecondParameter<typeof customInstance>
+) => {
+  return customInstance<Lead>(
+    {
+      url: `/admin/leads/${id}`,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      data: leadUpdateRequest,
+    },
+    options
+  )
+}
+
+export const getAdminUpdateLeadMutationOptions = <
+  TError =
+    | ValidationErrorResponse
+    | UnauthorizedResponse
+    | NotFoundResponse
+    | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminUpdateLead>>,
+    TError,
+    { id: string; data: LeadUpdateRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof customInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminUpdateLead>>,
+  TError,
+  { id: string; data: LeadUpdateRequest },
+  TContext
+> => {
+  const mutationKey = ['adminUpdateLead']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminUpdateLead>>,
+    { id: string; data: LeadUpdateRequest }
+  > = props => {
+    const { id, data } = props ?? {}
+
+    return adminUpdateLead(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminUpdateLeadMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdateLead>>>
+export type AdminUpdateLeadMutationBody = LeadUpdateRequest
+export type AdminUpdateLeadMutationError =
+  | ValidationErrorResponse
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Обновить заявку (админ)
+ */
+export const useAdminUpdateLead = <
+  TError =
+    | ValidationErrorResponse
+    | UnauthorizedResponse
+    | NotFoundResponse
+    | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminUpdateLead>>,
+      TError,
+      { id: string; data: LeadUpdateRequest },
+      TContext
+    >
+    request?: SecondParameter<typeof customInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminUpdateLead>>,
+  TError,
+  { id: string; data: LeadUpdateRequest },
+  TContext
+> => {
+  const mutationOptions = getAdminUpdateLeadMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
 }

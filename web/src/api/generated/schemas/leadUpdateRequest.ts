@@ -5,14 +5,13 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
-import type { LeadStatus } from './leadStatus'
-import type { LeadType } from './leadType'
+import type { LeadUpdateRequestStatus } from './leadUpdateRequestStatus'
+import type { LeadUpdateRequestType } from './leadUpdateRequestType'
 import type { LeadData } from './leadData'
 
-export interface Lead {
-  id?: string
-  status?: LeadStatus
-  type?: LeadType
+export interface LeadUpdateRequest {
+  status?: LeadUpdateRequestStatus
+  type?: LeadUpdateRequestType
   source?: string
   projectId?: string
   lotId?: string
@@ -20,11 +19,4 @@ export interface Lead {
   phone?: string
   email?: string
   data?: LeadData
-  createdAt?: string
-  updatedAt?: string
-  /**
-   * Время мягкого удаления (если null - не удален)
-   * @nullable
-   */
-  deletedAt?: string | null
 }

@@ -48,7 +48,7 @@ func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
 	query := `
 		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
 		FROM areas
-		WHERE status = 'active'
+		WHERE status = 'active' AND deleted_at IS NULL
 		ORDER BY name
 	`
 
@@ -195,11 +195,11 @@ func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 
 func (r *AreaRepo) Delete(id uuid.UUID) error {
 	_, err := r.db.Exec(`
-		UPDATE projects 
+		UPDATE areas
 		SET deleted_at = NOW()
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id)
-	
+
 	return err
 }
 

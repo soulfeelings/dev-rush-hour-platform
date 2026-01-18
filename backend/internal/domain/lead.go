@@ -19,6 +19,7 @@ type Lead struct {
 	Data      LeadData
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt     *time.Time
 }
 
 type LeadData struct {

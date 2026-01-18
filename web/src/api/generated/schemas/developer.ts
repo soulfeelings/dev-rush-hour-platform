@@ -16,4 +16,9 @@ export interface Developer {
   data?: DeveloperData
   createdAt?: string
   updatedAt?: string
+  /**
+   * Время мягкого удаления (если null - не удален)
+   * @nullable
+   */
+  deletedAt?: string | null
 }

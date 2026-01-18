@@ -29,6 +29,11 @@ export interface Project {
   area?: Area
   createdAt?: string
   updatedAt?: string
+  /**
+   * Время мягкого удаления (если null - не удален)
+   * @nullable
+   */
+  deletedAt?: string | null
   /** Первые N лотов проекта (если запрошено через includeLots) */
   lots?: Lot[]
 }

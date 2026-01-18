@@ -733,7 +733,7 @@ func GeneratedProjectUpdateToDomain(req *generated.ProjectUpdateRequest) (*domai
 	if req.Slug != nil {
 		project.Slug = *req.Slug
 	}
-	if req.Name != nil {
+	if req.Name != nil && *req.Name != "" {
 		project.Name = *req.Name
 	}
 	if req.Status != nil {
@@ -962,6 +962,50 @@ func generatedLotMediaToDomain(media *generated.LotMedia) *domain.LotMedia {
 		result.Cover = generatedMediaItemToDomain(media.Cover)
 	}
 	return result
+}
+
+func GeneratedLeadUpdateToDomain(req *generated.LeadUpdateRequest) (*domain.Lead, error) {
+	lead := &domain.Lead{}
+
+	if req.Status != nil {
+		lead.Status = domain.LeadStatus(*req.Status)
+	}
+	if req.Type != nil {
+		lead.Type = domain.LeadType(*req.Type)
+	}
+	if req.Source != nil {
+		lead.Source = req.Source
+	}
+	if req.ProjectId != nil {
+		id := uuid.UUID(*req.ProjectId)
+		lead.ProjectID = &id
+	}
+	if req.LotId != nil {
+		id := uuid.UUID(*req.LotId)
+		lead.LotID = &id
+	}
+	if req.Name != nil && *req.Name != "" {
+		lead.Name = *req.Name
+	}
+	if req.Phone != nil {
+		lead.Phone = *req.Phone
+	}
+	if req.Email != nil {
+		emailStr := string(*req.Email)
+		lead.Email = &emailStr
+	}
+	if req.Data != nil {
+		lead.Data = domain.LeadData{
+			Preferred: req.Data.Preferred,
+			Comment:   req.Data.Comment,
+			PageURL:   req.Data.PageUrl,
+		}
+		if req.Data.Utm != nil {
+			lead.Data.UTM = *req.Data.Utm
+		}
+	}
+
+	return lead, nil
 }
 
 func generatedPaymentPlanToDomain(plan *generated.PaymentPlan) *domain.PaymentPlan {

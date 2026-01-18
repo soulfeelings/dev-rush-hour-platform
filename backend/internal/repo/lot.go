@@ -649,10 +649,10 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 
 func (r *LotRepo) Delete(id uuid.UUID) error {
 	_, err := r.db.Exec(`
-		UPDATE lots 
-		SET deleted_at = NOW(), updated_at = NOW(), status = 'hidden'
+		UPDATE lots
+		SET deleted_at = NOW()
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id)
-	
+
 	return err
 }

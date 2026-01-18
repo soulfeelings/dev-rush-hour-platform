@@ -2,9 +2,11 @@ package services
 
 import (
 	"fmt"
-	"github.com/google/uuid"
+
 	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/repo"
+
+	"github.com/google/uuid"
 )
 
 type LotsService struct {
@@ -45,7 +47,7 @@ func (s *LotsService) Create(lot *domain.Lot) error {
 	return s.lotRepo.Create(lot)
 }
 
-func (s *LotsService) Update(id uuid.UUID, lot *domain.Lot) error {
+func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 	existing, err := s.lotRepo.GetByID(id)
 	if err != nil {
 		return fmt.Errorf("failed to get lot: %w", err)
@@ -54,88 +56,71 @@ func (s *LotsService) Update(id uuid.UUID, lot *domain.Lot) error {
 		return ErrLotNotFound
 	}
 
-	// Merge with existing data
-	if lot.ProjectID == nil {
-		lot.ProjectID = existing.ProjectID
+	// Merge updates with existing data (используем подход из вашей версии)
+	if updates.Status != "" {
+		existing.Status = updates.Status
 	}
-	if lot.DeveloperID == nil {
-		lot.DeveloperID = existing.DeveloperID
+	if updates.ProjectID != nil {
+		existing.ProjectID = updates.ProjectID
 	}
-	if lot.AreaID == nil {
-		lot.AreaID = existing.AreaID
+	if updates.DeveloperID != nil {
+		existing.DeveloperID = updates.DeveloperID
 	}
-	if lot.Type == "" {
-		lot.Type = existing.Type
+	if updates.AreaID != nil {
+		existing.AreaID = updates.AreaID
 	}
-	if lot.Status == "" {
-		lot.Status = existing.Status
+	if updates.Type != "" {
+		existing.Type = updates.Type
 	}
-	if lot.Bedrooms == nil {
-		lot.Bedrooms = existing.Bedrooms
+	if updates.Bedrooms != nil {
+		existing.Bedrooms = updates.Bedrooms
 	}
-	if lot.Bathrooms == nil {
-		lot.Bathrooms = existing.Bathrooms
+	if updates.Bathrooms != nil {
+		existing.Bathrooms = updates.Bathrooms
 	}
-	if lot.AreaSqm == nil {
-		lot.AreaSqm = existing.AreaSqm
+	if updates.AreaSqm != nil {
+		existing.AreaSqm = updates.AreaSqm
 	}
-	if lot.Floor == nil {
-		lot.Floor = existing.Floor
+	if updates.Floor != nil {
+		existing.Floor = updates.Floor
 	}
-	if lot.PriceCurrency == "" {
-		lot.PriceCurrency = existing.PriceCurrency
+	if updates.PriceCurrency != "" {
+		existing.PriceCurrency = updates.PriceCurrency
 	}
-	if lot.PriceAmount == 0 {
-		lot.PriceAmount = existing.PriceAmount
+	if updates.PriceAmount != 0 {
+		existing.PriceAmount = updates.PriceAmount
 	}
-	if lot.BonusKeys == nil {
-		lot.BonusKeys = existing.BonusKeys
+	if len(updates.BonusKeys) > 0 {
+		existing.BonusKeys = updates.BonusKeys
 	}
-
-	// Merge Data fields
-	// Merge Media fields if Media was provided
-	if lot.Data.Media != nil && existing.Data.Media != nil {
-		if lot.Data.Media.Cover == nil {
-			lot.Data.Media.Cover = existing.Data.Media.Cover
-		}
-		if lot.Data.Media.Photos == nil || len(lot.Data.Media.Photos) == 0 {
-			lot.Data.Media.Photos = existing.Data.Media.Photos
-		}
-		if lot.Data.Media.Gallery == nil || len(lot.Data.Media.Gallery) == 0 {
-			lot.Data.Media.Gallery = existing.Data.Media.Gallery
-		}
-		if lot.Data.Media.FloorPlanImages == nil || len(lot.Data.Media.FloorPlanImages) == 0 {
-			lot.Data.Media.FloorPlanImages = existing.Data.Media.FloorPlanImages
-		}
-	} else if lot.Data.Media == nil {
-		lot.Data.Media = existing.Data.Media
+	
+	// Safe check for Data field updates (ваша версия более безопасная)
+	hasDataUpdates := false
+	if updates.Data.Media != nil && 
+		(len(updates.Data.Media.Photos) > 0 || len(updates.Data.Media.Gallery) > 0 ||
+		 len(updates.Data.Media.FloorPlanImages) > 0 || updates.Data.Media.Cover != nil) {
+		hasDataUpdates = true
 	}
-	if lot.Data.PaymentPlan == nil {
-		lot.Data.PaymentPlan = existing.Data.PaymentPlan
+	if updates.Data.PaymentPlan != nil && len(updates.Data.PaymentPlan.Schedule) > 0 {
+		hasDataUpdates = true
 	}
-	if lot.Data.Bonuses == nil {
-		lot.Data.Bonuses = existing.Data.Bonuses
+	if len(updates.Data.Bonuses) > 0 {
+		hasDataUpdates = true
 	}
-	if lot.Data.FloorPosition == nil {
-		lot.Data.FloorPosition = existing.Data.FloorPosition
+	if updates.Data.FloorPosition != nil {
+		hasDataUpdates = true
 	}
-	if lot.Data.Tags == nil {
-		lot.Data.Tags = existing.Data.Tags
+	if len(updates.Data.Tags) > 0 || updates.Data.View != "" || 
+		updates.Data.Furnishing != "" || updates.Data.Orientation != "" || 
+		len(updates.Data.Features) > 0 {
+		hasDataUpdates = true
 	}
-	if lot.Data.View == "" {
-		lot.Data.View = existing.Data.View
-	}
-	if lot.Data.Furnishing == "" {
-		lot.Data.Furnishing = existing.Data.Furnishing
-	}
-	if lot.Data.Orientation == "" {
-		lot.Data.Orientation = existing.Data.Orientation
-	}
-	if lot.Data.Features == nil {
-		lot.Data.Features = existing.Data.Features
+	
+	if hasDataUpdates {
+		existing.Data = updates.Data
 	}
 
-	return s.lotRepo.Update(id, lot)
+	return s.lotRepo.Update(id, existing)
 }
 
 func (s *LotsService) Delete(id uuid.UUID) error {

@@ -52,7 +52,7 @@ func (s *ProjectsService) Create(project *domain.Project) error {
 	return s.projectRepo.Create(project)
 }
 
-func (s *ProjectsService) Update(id uuid.UUID, project *domain.Project) error {
+func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 	existing, err := s.projectRepo.GetByID(id)
 	if err != nil {
 		return fmt.Errorf("failed to get project: %w", err)
@@ -61,62 +61,36 @@ func (s *ProjectsService) Update(id uuid.UUID, project *domain.Project) error {
 		return ErrProjectNotFound
 	}
 
-	// Merge with existing data
-	if project.Slug == "" {
-		project.Slug = existing.Slug
+	// Merge updates with existing data
+	if updates.Slug != "" {
+		existing.Slug = updates.Slug
 	}
-	if project.Name == "" {
-		project.Name = existing.Name
+	if updates.Name != "" {
+		existing.Name = updates.Name
 	}
-	if project.Status == "" {
-		project.Status = existing.Status
+	if updates.Status != "" {
+		existing.Status = updates.Status
 	}
-	if project.Sale == "" {
-		project.Sale = existing.Sale
+	if updates.Sale != "" {
+		existing.Sale = updates.Sale
 	}
-	if project.DeveloperID == nil {
-		project.DeveloperID = existing.DeveloperID
+	if updates.DeveloperID != nil {
+		existing.DeveloperID = updates.DeveloperID
 	}
-	if project.AreaID == nil {
-		project.AreaID = existing.AreaID
+	if updates.AreaID != nil {
+		existing.AreaID = updates.AreaID
 	}
-	if project.Lat == nil {
-		project.Lat = existing.Lat
+	if updates.Lat != nil {
+		existing.Lat = updates.Lat
 	}
-	if project.Lng == nil {
-		project.Lng = existing.Lng
+	if updates.Lng != nil {
+		existing.Lng = updates.Lng
 	}
+	// For Data struct, we'll assume it's always updated if present
+	// (can be improved by checking individual fields if needed)
+	existing.Data = updates.Data
 
-	// Merge Data fields
-	if project.Data.Description == nil {
-		project.Data.Description = existing.Data.Description
-	}
-	if project.Data.Specs == nil {
-		project.Data.Specs = existing.Data.Specs
-	}
-	if project.Data.FeaturesAmenities == nil {
-		project.Data.FeaturesAmenities = existing.Data.FeaturesAmenities
-	}
-	// Merge Media fields if Media was provided
-	if project.Data.Media != nil && existing.Data.Media != nil {
-		if project.Data.Media.Cover == nil {
-			project.Data.Media.Cover = existing.Data.Media.Cover
-		}
-		if project.Data.Media.Gallery == nil || len(project.Data.Media.Gallery) == 0 {
-			project.Data.Media.Gallery = existing.Data.Media.Gallery
-		}
-	} else if project.Data.Media == nil {
-		project.Data.Media = existing.Data.Media
-	}
-	if project.Data.Tags == nil {
-		project.Data.Tags = existing.Data.Tags
-	}
-	if !project.Data.IsRecommended && !project.Data.IsFeatured {
-		project.Data.IsRecommended = existing.Data.IsRecommended
-		project.Data.IsFeatured = existing.Data.IsFeatured
-	}
-
-	return s.projectRepo.Update(id, project)
+	return s.projectRepo.Update(id, existing)
 }
 
 func (s *ProjectsService) GetByID(id uuid.UUID) (*domain.Project, error) {

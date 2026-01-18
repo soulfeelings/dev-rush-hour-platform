@@ -178,6 +178,18 @@ func (s *Server) AdminListLeads(c *fiber.Ctx, params generated.AdminListLeadsPar
 	return s.adminLeadsHandler.ListLeads(c, params)
 }
 
+func (s *Server) AdminUpdateLead(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminLeadsHandler.UpdateLead(c, id)
+}
+
+func (s *Server) AdminGetLead(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminLeadsHandler.GetLead(c, id)
+}
+
+func (s *Server) AdminSoftDeleteLead(c *fiber.Ctx, id openapi_types.UUID) error {
+    return s.adminLeadsHandler.SoftDeleteLead(c, id)
+}
+
 func main() {
 	cfg := config.Load()
 

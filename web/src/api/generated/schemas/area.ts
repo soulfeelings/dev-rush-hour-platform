@@ -20,4 +20,9 @@ export interface Area {
   data?: AreaData
   createdAt?: string
   updatedAt?: string
+  /**
+   * Время мягкого удаления (если null - не удален)
+   * @nullable
+   */
+  deletedAt?: string | null
 }
