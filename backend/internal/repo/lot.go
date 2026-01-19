@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"rush-hour-platform/backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -11,11 +12,15 @@ import (
 )
 
 type LotRepo struct {
-	db *sql.DB
+	db     *sql.DB
+	logger *slog.Logger
 }
 
 func NewLotRepo(db *sql.DB) *LotRepo {
-	return &LotRepo{db: db}
+	return &LotRepo{
+		db:     db,
+		logger: slog.Default(),
+	}
 }
 
 type LotFilters struct {
@@ -41,6 +46,10 @@ const (
 )
 
 func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
+	r.logger.Info("lot_repo_get_by_id_started",
+		"lot_id", id,
+	)
+
 	var lot domain.Lot
 	var dataJSON []byte
 	var projectID, developerID, areaID sql.NullString
@@ -87,8 +96,15 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			r.logger.Info("lot_repo_get_by_id_not_found",
+				"lot_id", id,
+			)
 			return nil, nil
 		}
+		r.logger.Error("lot_repo_get_by_id_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 
@@ -123,6 +139,10 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 
 	if len(dataJSON) > 0 {
 		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+			r.logger.Error("lot_repo_get_by_id_unmarshal_failed",
+				"lot_id", id,
+				"error", err.Error(),
+			)
 			return nil, err
 		}
 	} else {
@@ -209,10 +229,20 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		}
 	}
 
+	r.logger.Info("lot_repo_get_by_id_completed",
+		"lot_id", id,
+	)
+
 	return &lot, nil
 }
 
 func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]domain.Lot, int, error) {
+	r.logger.Info("lot_repo_list_started",
+		"limit", limit,
+		"offset", offset,
+		"sort", sort,
+	)
+
 	query := `SELECT
 			l.id, l.status, l.project_id, l.developer_id, l.area_id, l.type, l.bedrooms, l.bathrooms,
 			l.area_sqm, l.floor, l.price_currency, l.price_amount, l.bonus_keys, l.data, l.created_at, l.updated_at,
@@ -319,11 +349,17 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 	var total int
 	if err := r.db.QueryRow(countQuery, args[:len(args)-2]...).Scan(&total); err != nil {
+		r.logger.Error("lot_repo_list_count_query_failed",
+			"error", err.Error(),
+		)
 		return nil, 0, err
 	}
 
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
+		r.logger.Error("lot_repo_list_query_failed",
+			"error", err.Error(),
+		)
 		return nil, 0, err
 	}
 	defer rows.Close()
@@ -395,6 +431,10 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 		if len(dataJSON) > 0 {
 			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+				r.logger.Error("lot_repo_list_unmarshal_failed",
+					"lot_id", lot.ID,
+					"error", err.Error(),
+				)
 				return nil, 0, err
 			}
 		} else {
@@ -488,12 +528,33 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		lots = append(lots, lot)
 	}
 
-	return lots, total, rows.Err()
+	err = rows.Err()
+	if err != nil {
+		r.logger.Error("lot_repo_list_rows_error",
+			"error", err.Error(),
+		)
+		return nil, 0, err
+	}
+
+	r.logger.Info("lot_repo_list_completed",
+		"count", len(lots),
+		"total", total,
+	)
+
+	return lots, total, nil
 }
 
 func (r *LotRepo) Create(lot *domain.Lot) error {
+	r.logger.Info("lot_repo_create_started",
+		"lot_type", lot.Type,
+	)
+
 	dataJSON, err := json.Marshal(lot.Data)
 	if err != nil {
+		r.logger.Error("lot_repo_create_marshal_failed",
+			"lot_type", lot.Type,
+			"error", err.Error(),
+		)
 		return err
 	}
 
@@ -532,12 +593,33 @@ func (r *LotRepo) Create(lot *domain.Lot) error {
 		&lot.ID, &lot.CreatedAt, &lot.UpdatedAt,
 	)
 
-	return err
+	if err != nil {
+		r.logger.Error("lot_repo_create_failed",
+			"lot_type", lot.Type,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("lot_repo_create_completed",
+		"lot_id", lot.ID,
+		"lot_type", lot.Type,
+	)
+
+	return nil
 }
 
 func (r *LotRepo) Update(id uuid.UUID, lot *domain.Lot) error {
+	r.logger.Info("lot_repo_update_started",
+		"lot_id", id,
+	)
+
 	dataJSON, err := json.Marshal(lot.Data)
 	if err != nil {
+		r.logger.Error("lot_repo_update_marshal_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
 		return err
 	}
 
@@ -575,11 +657,32 @@ func (r *LotRepo) Update(id uuid.UUID, lot *domain.Lot) error {
 		RETURNING updated_at
 	`, lot.Status, projectID, developerID, areaID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceCurrency, lot.PriceAmount, pq.Array(lot.BonusKeys), dataJSON, id).Scan(&lot.UpdatedAt)
 
-	return err
+	if err != nil {
+		r.logger.Error("lot_repo_update_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("lot_repo_update_completed",
+		"lot_id", id,
+	)
+
+	return nil
 }
 
 func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, error) {
+	r.logger.Info("lot_repo_get_by_project_id_started",
+		"project_id", projectID,
+		"limit", limit,
+	)
+
 	if limit <= 0 {
+		r.logger.Info("lot_repo_get_by_project_id_invalid_limit",
+			"project_id", projectID,
+			"limit", limit,
+		)
 		return []domain.Lot{}, nil
 	}
 
@@ -594,6 +697,11 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 
 	rows, err := r.db.Query(query, projectID, limit)
 	if err != nil {
+		r.logger.Error("lot_repo_get_by_project_id_query_failed",
+			"project_id", projectID,
+			"limit", limit,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 	defer rows.Close()
@@ -647,6 +755,10 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 
 		if len(dataJSON) > 0 {
 			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+				r.logger.Error("lot_repo_get_by_project_id_unmarshal_failed",
+					"lot_id", lot.ID,
+					"error", err.Error(),
+				)
 				return nil, err
 			}
 		} else {
@@ -656,15 +768,45 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 		lots = append(lots, lot)
 	}
 
-	return lots, rows.Err()
+	err = rows.Err()
+	if err != nil {
+		r.logger.Error("lot_repo_get_by_project_id_rows_error",
+			"project_id", projectID,
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	r.logger.Info("lot_repo_get_by_project_id_completed",
+		"project_id", projectID,
+		"count", len(lots),
+	)
+
+	return lots, nil
 }
 
 func (r *LotRepo) Delete(id uuid.UUID) error {
+	r.logger.Info("lot_repo_delete_started",
+		"lot_id", id,
+	)
+
 	_, err := r.db.Exec(`
 		UPDATE lots
 		SET deleted_at = NOW()
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id)
 
-	return err
+	if err != nil {
+		r.logger.Error("lot_repo_delete_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("lot_repo_delete_completed",
+		"lot_id", id,
+	)
+
+	return nil
 }

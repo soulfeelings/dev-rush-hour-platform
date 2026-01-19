@@ -16,7 +16,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+
+	//"github.com/gofiber/fiber/v2/middleware/logger"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -204,7 +205,10 @@ func main() {
 	app := fiber.New()
 
 	// Logger middleware
-	app.Use(logger.New())
+	// app.Use(logger.New())
+
+	// На эту:
+	app.Use(middleware.RequestLogger())
 
 	// Настраиваем CORS для разработки
 	app.Use(cors.New(cors.Config{

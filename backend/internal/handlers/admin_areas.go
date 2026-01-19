@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
 	"rush-hour-platform/backend/internal/services"
@@ -17,12 +18,14 @@ import (
 type AdminAreasHandler struct {
 	areasService *services.AreasService
 	validator    *validator.Validate
+	logger       *slog.Logger
 }
 
 func NewAdminAreasHandler(areasService *services.AreasService) *AdminAreasHandler {
 	return &AdminAreasHandler{
 		areasService: areasService,
 		validator:    validator.New(),
+		logger:       slog.Default(),
 	}
 }
 
