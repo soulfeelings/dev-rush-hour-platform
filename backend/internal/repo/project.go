@@ -4,20 +4,29 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"rush-hour-platform/backend/internal/domain"
 
 	"github.com/google/uuid"
 )
 
 type ProjectRepo struct {
-	db *sql.DB
+	db     *sql.DB
+	logger *slog.Logger
 }
 
 func NewProjectRepo(db *sql.DB) *ProjectRepo {
-	return &ProjectRepo{db: db}
+	return &ProjectRepo{
+		db:     db,
+		logger: slog.Default(),
+	}
 }
 
 func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
+	r.logger.Info("project_repo_get_by_slug_started",
+		"project_slug", slug,
+	)
+
 	var project domain.Project
 	var dataJSON []byte
 	var developerID, areaID sql.NullString
@@ -44,8 +53,15 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			r.logger.Info("project_repo_get_by_slug_not_found",
+				"project_slug", slug,
+			)
 			return nil, nil
 		}
+		r.logger.Error("project_repo_get_by_slug_failed",
+			"project_slug", slug,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 
@@ -70,6 +86,10 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 
 	if len(dataJSON) > 0 {
 		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+			r.logger.Error("project_repo_get_by_slug_unmarshal_failed",
+				"project_slug", slug,
+				"error", err.Error(),
+			)
 			return nil, err
 		}
 	} else {
@@ -102,10 +122,19 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		}
 	}
 
+	r.logger.Info("project_repo_get_by_slug_completed",
+		"project_slug", slug,
+		"project_id", project.ID,
+	)
+
 	return &project, nil
 }
 
 func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
+	r.logger.Info("project_repo_list_started",
+		"area_slug", areaSlug,
+	)
+
 	query := `
 		SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng, p.data, p.created_at, p.updated_at,
 		       d.name as dev_name, d.data as dev_data,
@@ -130,6 +159,10 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
+		r.logger.Error("project_repo_list_query_failed",
+			"area_slug", areaSlug,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 	defer rows.Close()
@@ -175,6 +208,10 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 
 		if len(dataJSON) > 0 {
 			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+				r.logger.Error("project_repo_list_unmarshal_failed",
+					"project_id", project.ID,
+					"error", err.Error(),
+				)
 				return nil, err
 			}
 		} else {
@@ -206,24 +243,64 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 		projects = append(projects, project)
 	}
 
-	return projects, rows.Err()
+	err = rows.Err()
+	if err != nil {
+		r.logger.Error("project_repo_list_rows_error",
+			"area_slug", areaSlug,
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	r.logger.Info("project_repo_list_completed",
+		"area_slug", areaSlug,
+		"count", len(projects),
+	)
+
+	return projects, nil
 }
 
 func (r *ProjectRepo) GetIDBySlug(slug string) (*uuid.UUID, error) {
+	r.logger.Info("project_repo_get_id_by_slug_started",
+		"project_slug", slug,
+	)
+
 	var id uuid.UUID
 	err := r.db.QueryRow(`SELECT id FROM projects WHERE slug = $1 AND deleted_at IS NULL`, slug).Scan(&id)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			r.logger.Info("project_repo_get_id_by_slug_not_found",
+				"project_slug", slug,
+			)
 			return nil, nil
 		}
+		r.logger.Error("project_repo_get_id_by_slug_failed",
+			"project_slug", slug,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
+
+	r.logger.Info("project_repo_get_id_by_slug_completed",
+		"project_slug", slug,
+		"project_id", id,
+	)
+
 	return &id, nil
 }
 
 func (r *ProjectRepo) Create(project *domain.Project) error {
+	r.logger.Info("project_repo_create_started",
+		"project_slug", project.Slug,
+		"project_name", project.Name,
+	)
+
 	dataJSON, err := json.Marshal(project.Data)
 	if err != nil {
+		r.logger.Error("project_repo_create_marshal_failed",
+			"project_slug", project.Slug,
+			"error", err.Error(),
+		)
 		return err
 	}
 
@@ -251,12 +328,33 @@ func (r *ProjectRepo) Create(project *domain.Project) error {
 		&project.ID, &project.CreatedAt, &project.UpdatedAt,
 	)
 
-	return err
+	if err != nil {
+		r.logger.Error("project_repo_create_failed",
+			"project_slug", project.Slug,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("project_repo_create_completed",
+		"project_id", project.ID,
+		"project_slug", project.Slug,
+	)
+
+	return nil
 }
 
 func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
+	r.logger.Info("project_repo_update_started",
+		"project_id", id,
+	)
+
 	dataJSON, err := json.Marshal(project.Data)
 	if err != nil {
+		r.logger.Error("project_repo_update_marshal_failed",
+			"project_id", id,
+			"error", err.Error(),
+		)
 		return err
 	}
 
@@ -283,10 +381,27 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 		RETURNING updated_at
 	`, project.Slug, project.Name, project.Status, project.Sale, developerID, areaID, lat, lng, dataJSON, id).Scan(&project.UpdatedAt)
 
-	return err
+	if err != nil {
+		r.logger.Error("project_repo_update_failed",
+			"project_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("project_repo_update_completed",
+		"project_id", id,
+		"project_slug", project.Slug,
+	)
+
+	return nil
 }
 
 func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
+	r.logger.Info("project_repo_get_by_id_started",
+		"project_id", id,
+	)
+
 	var project domain.Project
 	var dataJSON []byte
 	var developerID, areaID sql.NullString
@@ -304,8 +419,15 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			r.logger.Info("project_repo_get_by_id_not_found",
+				"project_id", id,
+			)
 			return nil, nil
 		}
+		r.logger.Error("project_repo_get_by_id_failed",
+			"project_id", id,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 
@@ -326,6 +448,10 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 
 	if len(dataJSON) > 0 {
 		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+			r.logger.Error("project_repo_get_by_id_unmarshal_failed",
+				"project_id", id,
+				"error", err.Error(),
+			)
 			return nil, err
 		}
 	} else {
@@ -336,17 +462,27 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		}
 	}
 
+	r.logger.Info("project_repo_get_by_id_completed",
+		"project_id", id,
+		"project_slug", project.Slug,
+	)
+
 	return &project, nil
 }
 
 func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
+	r.logger.Info("project_repo_list_all_started")
+
 	rows, err := r.db.Query(`
 		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
 		FROM projects
-		WHERE deleted_at IS NULL 
+		WHERE deleted_at IS NULL
 		ORDER BY name
 	`)
 	if err != nil {
+		r.logger.Error("project_repo_list_all_query_failed",
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 	defer rows.Close()
@@ -384,6 +520,10 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 
 		if len(dataJSON) > 0 {
 			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+				r.logger.Error("project_repo_list_all_unmarshal_failed",
+					"project_id", project.ID,
+					"error", err.Error(),
+				)
 				return nil, err
 			}
 		} else {
@@ -393,15 +533,43 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 		projects = append(projects, project)
 	}
 
-	return projects, rows.Err()
+	err = rows.Err()
+	if err != nil {
+		r.logger.Error("project_repo_list_all_rows_error",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	r.logger.Info("project_repo_list_all_completed",
+		"count", len(projects),
+	)
+
+	return projects, nil
 }
 
 func (r *ProjectRepo) Delete(id uuid.UUID) error {
+	r.logger.Info("project_repo_delete_started",
+		"project_id", id,
+	)
+
 	_, err := r.db.Exec(`
-		UPDATE projects 
+		UPDATE projects
 		SET deleted_at = NOW()
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id)
-	
-	return err
+
+	if err != nil {
+		r.logger.Error("project_repo_delete_failed",
+			"project_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("project_repo_delete_completed",
+		"project_id", id,
+	)
+
+	return nil
 }

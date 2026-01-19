@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"log/slog"
 
 	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/repo"
@@ -11,10 +12,14 @@ import (
 
 type LotsService struct {
 	lotRepo *repo.LotRepo
+	logger  *slog.Logger
 }
 
 func NewLotsService(lotRepo *repo.LotRepo) *LotsService {
-	return &LotsService{lotRepo: lotRepo}
+	return &LotsService{
+		lotRepo: lotRepo,
+		logger:  slog.Default(),
+	}
 }
 
 func (s *LotsService) List(filters repo.LotFilters, sort repo.LotSort, page, limit int) ([]domain.Lot, int, error) {
@@ -29,30 +34,102 @@ func (s *LotsService) List(filters repo.LotFilters, sort repo.LotSort, page, lim
 	}
 	offset := (page - 1) * limit
 
-	return s.lotRepo.List(filters, sort, limit, offset)
+	s.logger.Info("lot_service_list_started",
+		"page", page,
+		"limit", limit,
+		"offset", offset,
+		"sort", sort,
+	)
+
+	lots, total, err := s.lotRepo.List(filters, sort, limit, offset)
+	if err != nil {
+		s.logger.Error("lot_service_list_failed",
+			"error", err.Error(),
+			"filters", filters,
+			"sort", sort,
+			"page", page,
+			"limit", limit,
+		)
+		return nil, 0, err
+	}
+
+	s.logger.Info("lot_service_list_completed",
+		"count", len(lots),
+		"total", total,
+		"page", page,
+		"limit", limit,
+	)
+
+	return lots, total, nil
 }
 
 func (s *LotsService) GetByID(id uuid.UUID) (*domain.Lot, error) {
+	s.logger.Info("lot_service_get_by_id_started",
+		"lot_id", id,
+	)
+
 	lot, err := s.lotRepo.GetByID(id)
 	if err != nil {
+		s.logger.Error("lot_service_get_by_id_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
 		return nil, fmt.Errorf("failed to get lot: %w", err)
 	}
 	if lot == nil {
+		s.logger.Warn("lot_service_get_by_id_not_found",
+			"lot_id", id,
+		)
 		return nil, ErrLotNotFound
 	}
+
+	s.logger.Info("lot_service_get_by_id_completed",
+		"lot_id", id,
+	)
+
 	return lot, nil
 }
 
 func (s *LotsService) Create(lot *domain.Lot) error {
-	return s.lotRepo.Create(lot)
+	s.logger.Info("lot_service_create_started",
+		"lot_type", lot.Type,
+		"project_id", lot.ProjectID,
+		"developer_id", lot.DeveloperID,
+	)
+
+	err := s.lotRepo.Create(lot)
+	if err != nil {
+		s.logger.Error("lot_service_create_failed",
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	s.logger.Info("lot_service_create_completed",
+		"lot_id", lot.ID,
+		"lot_type", lot.Type,
+	)
+
+	return nil
 }
 
 func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
+	s.logger.Info("lot_service_update_started",
+		"lot_id", id,
+	)
+
 	existing, err := s.lotRepo.GetByID(id)
 	if err != nil {
+		s.logger.Error("lot_service_update_get_existing_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
 		return fmt.Errorf("failed to get lot: %w", err)
 	}
 	if existing == nil {
+		s.logger.Warn("lot_service_update_not_found",
+			"lot_id", id,
+		)
 		return ErrLotNotFound
 	}
 
@@ -120,17 +197,56 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 		existing.Data = updates.Data
 	}
 
-	return s.lotRepo.Update(id, existing)
+	err = s.lotRepo.Update(id, existing)
+	if err != nil {
+		s.logger.Error("lot_service_update_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	s.logger.Info("lot_service_update_completed",
+		"lot_id", id,
+		"lot_type", existing.Type,
+	)
+
+	return nil
 }
 
 func (s *LotsService) Delete(id uuid.UUID) error {
+	s.logger.Info("lot_service_delete_started",
+		"lot_id", id,
+	)
+
 	existing, err := s.lotRepo.GetByID(id)
 	if err != nil {
+		s.logger.Error("lot_service_delete_get_existing_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
 		return fmt.Errorf("failed to get lot: %w", err)
 	}
 	if existing == nil {
+		s.logger.Warn("lot_service_delete_not_found",
+			"lot_id", id,
+		)
 		return ErrLotNotFound
 	}
 
-	return s.lotRepo.Delete(id)
+	err = s.lotRepo.Delete(id)
+	if err != nil {
+		s.logger.Error("lot_service_delete_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	s.logger.Info("lot_service_delete_completed",
+		"lot_id", id,
+		"lot_type", existing.Type,
+	)
+
+	return nil
 }

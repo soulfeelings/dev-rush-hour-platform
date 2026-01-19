@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log/slog"
 	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
@@ -15,13 +16,26 @@ import (
 
 type LotsHandler struct {
 	lotsService *services.LotsService
+	logger      *slog.Logger
 }
 
 func NewLotsHandler(lotsService *services.LotsService) *LotsHandler {
-	return &LotsHandler{lotsService: lotsService}
+	return &LotsHandler{
+		lotsService: lotsService,
+		logger:      slog.Default(),
+	}
 }
 
 func (h *LotsHandler) ListLots(c *fiber.Ctx, params generated.ListLotsParams) error {
+	h.logger.Info("list_lots_started",
+		"area", params.Area,
+		"project", params.Project,
+		"type", params.Type,
+		"bedrooms", params.Bedrooms,
+		"page", params.Page,
+		"limit", params.Limit,
+	)
+
 	filters := repo.LotFilters{
 		Status: domain.LotStatusActive,
 	}
@@ -77,6 +91,13 @@ func (h *LotsHandler) ListLots(c *fiber.Ctx, params generated.ListLotsParams) er
 
 	lots, total, err := h.lotsService.List(filters, sort, page, limit)
 	if err != nil {
+		h.logger.Error("list_lots_failed",
+			"error", err.Error(),
+			"filters", filters,
+			"sort", sort,
+			"page", page,
+			"limit", limit,
+		)
 		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
 			Error: &struct {
 				Code    *string              `json:"code,omitempty"`
@@ -105,13 +126,27 @@ func (h *LotsHandler) ListLots(c *fiber.Ctx, params generated.ListLotsParams) er
 		Limit: &limit,
 	}
 
+	h.logger.Info("list_lots_completed",
+		"count", len(items),
+		"total", total,
+	)
+
 	return c.JSON(response)
 }
 
 func (h *LotsHandler) GetLot(c *fiber.Ctx, id openapi_types.UUID) error {
 	uuidID := uuid.UUID(id)
+
+	h.logger.Info("get_lot_started",
+		"lot_id", uuidID,
+	)
+
 	lot, err := h.lotsService.GetByID(uuidID)
 	if err != nil {
+		h.logger.Error("get_lot_failed",
+			"lot_id", uuidID,
+			"error", err.Error(),
+		)
 		return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
 			Error: &struct {
 				Code    *string              `json:"code,omitempty"`
@@ -165,6 +200,10 @@ func (h *LotsHandler) GetLot(c *fiber.Ctx, id openapi_types.UUID) error {
 	if len(lot.Data.Features) > 0 {
 		dataMap["features"] = lot.Data.Features
 	}
+
+	h.logger.Info("get_lot_completed",
+		"lot_id", uuidID,
+	)
 
 	return c.JSON(response)
 }

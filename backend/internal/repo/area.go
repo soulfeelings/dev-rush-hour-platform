@@ -3,20 +3,29 @@ package repo
 import (
 	"database/sql"
 	"encoding/json"
+	"log/slog"
 	"rush-hour-platform/backend/internal/domain"
 
 	"github.com/google/uuid"
 )
 
 type AreaRepo struct {
-	db *sql.DB
+	db     *sql.DB
+	logger *slog.Logger
 }
 
 func NewAreaRepo(db *sql.DB) *AreaRepo {
-	return &AreaRepo{db: db}
+	return &AreaRepo{
+		db:     db,
+		logger: slog.Default(),
+	}
 }
 
 func (r *AreaRepo) GetBySlug(slug string) (*domain.Area, error) {
+	r.logger.Info("area_repo_get_by_slug_started",
+		"slug", slug,
+	)
+
 	var area domain.Area
 	var dataJSON []byte
 
@@ -32,23 +41,43 @@ func (r *AreaRepo) GetBySlug(slug string) (*domain.Area, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			r.logger.Info("area_repo_get_by_slug_not_found",
+				"slug", slug,
+			)
 			return nil, nil
 		}
+		r.logger.Error("area_repo_get_by_slug_failed",
+			"slug", slug,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 
 	if len(dataJSON) > 0 {
 		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+			r.logger.Error("area_repo_get_by_slug_unmarshal_failed",
+				"slug", slug,
+				"error", err.Error(),
+			)
 			return nil, err
 		}
 	} else {
 		area.Data = domain.AreaData{}
 	}
 
+	r.logger.Info("area_repo_get_by_slug_completed",
+		"slug", slug,
+		"area_id", area.ID,
+	)
+
 	return &area, nil
 }
 
 func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
+	r.logger.Info("area_repo_list_started",
+		"include_boundary", includeBoundary,
+	)
+
 	query := `
 		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
 		FROM areas
@@ -58,6 +87,10 @@ func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
 
 	rows, err := r.db.Query(query)
 	if err != nil {
+		r.logger.Error("area_repo_list_query_failed",
+			"include_boundary", includeBoundary,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 	defer rows.Close()
@@ -90,24 +123,64 @@ func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
 		areas = append(areas, area)
 	}
 
-	return areas, rows.Err()
+	err = rows.Err()
+	if err != nil {
+		r.logger.Error("area_repo_list_rows_error",
+			"include_boundary", includeBoundary,
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	r.logger.Info("area_repo_list_completed",
+		"count", len(areas),
+		"include_boundary", includeBoundary,
+	)
+
+	return areas, nil
 }
 
 func (r *AreaRepo) GetIDBySlug(slug string) (*uuid.UUID, error) {
+	r.logger.Info("area_repo_get_id_by_slug_started",
+		"slug", slug,
+	)
+
 	var id uuid.UUID
 	err := r.db.QueryRow(`SELECT id FROM areas WHERE slug = $1 AND deleted_at IS NULL`, slug).Scan(&id)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			r.logger.Info("area_repo_get_id_by_slug_not_found",
+				"slug", slug,
+			)
 			return nil, nil
 		}
+		r.logger.Error("area_repo_get_id_by_slug_failed",
+			"slug", slug,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
+
+	r.logger.Info("area_repo_get_id_by_slug_completed",
+		"slug", slug,
+		"area_id", id,
+	)
+
 	return &id, nil
 }
 
 func (r *AreaRepo) Create(area *domain.Area) error {
+	r.logger.Info("area_repo_create_started",
+		"area_slug", area.Slug,
+		"area_name", area.Name,
+	)
+
 	dataJSON, err := json.Marshal(area.Data)
 	if err != nil {
+		r.logger.Error("area_repo_create_marshal_failed",
+			"area_slug", area.Slug,
+			"error", err.Error(),
+		)
 		return err
 	}
 
@@ -119,12 +192,33 @@ func (r *AreaRepo) Create(area *domain.Area) error {
 		&area.ID, &area.CreatedAt, &area.UpdatedAt,
 	)
 
-	return err
+	if err != nil {
+		r.logger.Error("area_repo_create_failed",
+			"area_slug", area.Slug,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("area_repo_create_completed",
+		"area_id", area.ID,
+		"area_slug", area.Slug,
+	)
+
+	return nil
 }
 
 func (r *AreaRepo) Update(id uuid.UUID, area *domain.Area) error {
+	r.logger.Info("area_repo_update_started",
+		"area_id", id,
+	)
+
 	dataJSON, err := json.Marshal(area.Data)
 	if err != nil {
+		r.logger.Error("area_repo_update_marshal_failed",
+			"area_id", id,
+			"error", err.Error(),
+		)
 		return err
 	}
 
@@ -135,10 +229,27 @@ func (r *AreaRepo) Update(id uuid.UUID, area *domain.Area) error {
 		RETURNING updated_at
 	`, area.Slug, area.Name, area.City, area.Lat, area.Lng, area.Status, dataJSON, id).Scan(&area.UpdatedAt)
 
-	return err
+	if err != nil {
+		r.logger.Error("area_repo_update_failed",
+			"area_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("area_repo_update_completed",
+		"area_id", id,
+		"area_slug", area.Slug,
+	)
+
+	return nil
 }
 
 func (r *AreaRepo) GetByID(id uuid.UUID) (*domain.Area, error) {
+	r.logger.Info("area_repo_get_by_id_started",
+		"area_id", id,
+	)
+
 	var area domain.Area
 	var dataJSON []byte
 
@@ -154,23 +265,41 @@ func (r *AreaRepo) GetByID(id uuid.UUID) (*domain.Area, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			r.logger.Info("area_repo_get_by_id_not_found",
+				"area_id", id,
+			)
 			return nil, nil
 		}
+		r.logger.Error("area_repo_get_by_id_failed",
+			"area_id", id,
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 
 	if len(dataJSON) > 0 {
 		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+			r.logger.Error("area_repo_get_by_id_unmarshal_failed",
+				"area_id", id,
+				"error", err.Error(),
+			)
 			return nil, err
 		}
 	} else {
 		area.Data = domain.AreaData{}
 	}
 
+	r.logger.Info("area_repo_get_by_id_completed",
+		"area_id", id,
+		"area_slug", area.Slug,
+	)
+
 	return &area, nil
 }
 
 func (r *AreaRepo) ListAll() ([]domain.Area, error) {
+	r.logger.Info("area_repo_list_all_started")
+
 	rows, err := r.db.Query(`
 		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
 		FROM areas
@@ -178,6 +307,9 @@ func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 		ORDER BY name
 	`)
 	if err != nil {
+		r.logger.Error("area_repo_list_all_query_failed",
+			"error", err.Error(),
+		)
 		return nil, err
 	}
 	defer rows.Close()
@@ -192,11 +324,18 @@ func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 			&area.Lat, &area.Lng, &area.Status, &dataJSON,
 			&area.CreatedAt, &area.UpdatedAt, &area.DeletedAt,
 		); err != nil {
+			r.logger.Error("area_repo_list_all_scan_failed",
+				"error", err.Error(),
+			)
 			return nil, err
 		}
 
 		if len(dataJSON) > 0 {
 			if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+				r.logger.Error("area_repo_list_all_unmarshal_failed",
+					"area_id", area.ID,
+					"error", err.Error(),
+				)
 				return nil, err
 			}
 		} else {
@@ -206,16 +345,44 @@ func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 		areas = append(areas, area)
 	}
 
-	return areas, rows.Err()
+	err = rows.Err()
+	if err != nil {
+		r.logger.Error("area_repo_list_all_rows_error",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	r.logger.Info("area_repo_list_all_completed",
+		"count", len(areas),
+	)
+
+	return areas, nil
 }
 
 func (r *AreaRepo) Delete(id uuid.UUID) error {
+	r.logger.Info("area_repo_delete_started",
+		"area_id", id,
+	)
+
 	_, err := r.db.Exec(`
 		UPDATE areas
 		SET deleted_at = NOW()
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id)
 
-	return err
+	if err != nil {
+		r.logger.Error("area_repo_delete_failed",
+			"area_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("area_repo_delete_completed",
+		"area_id", id,
+	)
+
+	return nil
 }
 

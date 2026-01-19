@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"log"
+	"log/slog"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
 	"rush-hour-platform/backend/internal/services"
@@ -11,10 +11,14 @@ import (
 
 type ProjectsHandler struct {
 	projectsService *services.ProjectsService
+	logger          *slog.Logger
 }
 
 func NewProjectsHandler(projectsService *services.ProjectsService) *ProjectsHandler {
-	return &ProjectsHandler{projectsService: projectsService}
+	return &ProjectsHandler{
+		projectsService: projectsService,
+		logger:          slog.Default(),
+	}
 }
 
 func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjectsParams) error {
@@ -25,7 +29,10 @@ func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjec
 
 	projects, err := h.projectsService.List(areaSlug)
 	if err != nil {
-		log.Printf("ERROR [ListProjects] failed to list projects: %v", err)
+		h.logger.Error("list_projects_failed",
+			"area_slug", areaSlug,
+			"error", err.Error(),
+		)
 		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
 			Error: &struct {
 				Code    *string              `json:"code,omitempty"`
@@ -39,14 +46,16 @@ func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjec
 	}
 
 	result := make([]generated.Project, len(projects))
-	for i := range projects {
-		gen := mappers.DomainProjectToGenerated(&projects[i])
-		if gen != nil {
-			result[i] = *gen
-		} else {
-			log.Printf("WARNING [ListProjects] mapper returned nil for project %s", projects[i].Slug)
+		for i := range projects {
+			gen := mappers.DomainProjectToGenerated(&projects[i])
+			if gen != nil {
+				result[i] = *gen
+			} else {
+				h.logger.Warn("list_projects_mapper_nil",
+					"project_slug", projects[i].Slug,
+				)
+			}
 		}
-	}
 
 	return c.JSON(result)
 }
@@ -55,7 +64,11 @@ func (h *ProjectsHandler) GetProject(c *fiber.Ctx, slug string, params generated
 	includeLots := params.IncludeLots
 	project, lots, err := h.projectsService.GetBySlug(slug, includeLots)
 	if err != nil {
-		log.Printf("ERROR [GetProject] failed to get project by slug %s: %v", slug, err)
+		h.logger.Error("get_project_failed",
+			"project_slug", slug,
+			"include_lots", includeLots,
+			"error", err.Error(),
+		)
 		return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
 			Error: &struct {
 				Code    *string              `json:"code,omitempty"`
