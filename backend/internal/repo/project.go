@@ -68,8 +68,16 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		project.Lng = &lng.Float64
 	}
 
-	if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		project.Data = domain.ProjectData{
+			Specs:             make(map[string]interface{}),
+			FeaturesAmenities: []interface{}{},
+			Tags:              []string{},
+		}
 	}
 
 	// Populate developer info
@@ -115,7 +123,7 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 		argPos++
 		query += ` AND p.status = 'active' AND p.deleted_at IS NULL`
 	} else {
-		query += ` WHERE p.status = 'active' AND deleted_at IS NULL`
+		query += ` WHERE p.status = 'active' AND p.deleted_at IS NULL`
 	}
 
 	query += ` ORDER BY p.name`
@@ -165,8 +173,12 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 			project.Lng = &lng.Float64
 		}
 
-		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			project.Data = domain.ProjectData{}
 		}
 
 		// Populate developer info
@@ -312,8 +324,16 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		project.Lng = &lng.Float64
 	}
 
-	if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		project.Data = domain.ProjectData{
+			Specs:             make(map[string]interface{}),
+			FeaturesAmenities: []interface{}{},
+			Tags:              []string{},
+		}
 	}
 
 	return &project, nil
@@ -362,8 +382,12 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 			project.Lng = &lng.Float64
 		}
 
-		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			project.Data = domain.ProjectData{}
 		}
 
 		projects = append(projects, project)

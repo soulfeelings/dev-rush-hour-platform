@@ -84,8 +84,12 @@ func (r *LeadRepo) GetByID(id uuid.UUID) (*domain.Lead, error) {
 		lead.Source = &source.String
 	}
 
-	if err := json.Unmarshal(dataJSON, &lead.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &lead.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		lead.Data = domain.LeadData{}
 	}
 
 	return &lead, nil
@@ -143,8 +147,12 @@ func (r *LeadRepo) List(status *domain.LeadStatus) ([]domain.Lead, error) {
 			lead.Source = &source.String
 		}
 
-		if err := json.Unmarshal(dataJSON, &lead.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &lead.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			lead.Data = domain.LeadData{}
 		}
 
 		leads = append(leads, lead)

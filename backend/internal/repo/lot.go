@@ -121,8 +121,12 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	}
 	lot.BonusKeys = []string(bonusKeys)
 
-	if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		lot.Data = domain.LotData{}
 	}
 
 	// Заполняем вложенный проект, если данные есть
@@ -389,8 +393,12 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		}
 		lot.BonusKeys = []string(bonusKeys)
 
-		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
-			return nil, 0, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+				return nil, 0, err
+			}
+		} else {
+			lot.Data = domain.LotData{}
 		}
 
 		// Заполняем вложенный проект, если данные есть
@@ -637,8 +645,12 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 		}
 		lot.BonusKeys = []string(bonusKeys)
 
-		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			lot.Data = domain.LotData{}
 		}
 
 		lots = append(lots, lot)

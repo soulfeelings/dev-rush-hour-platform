@@ -69,8 +69,12 @@ func (r *DeveloperRepo) GetByID(id uuid.UUID) (*domain.Developer, error) {
 		return nil, err
 	}
 
-	if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		dev.Data = make(map[string]interface{})
 	}
 
 	return &dev, nil
@@ -96,8 +100,12 @@ func (r *DeveloperRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Developer, err
 		return nil, err
 	}
 
-	if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		dev.Data = make(map[string]interface{})
 	}
 
 	return &dev, nil
@@ -127,8 +135,12 @@ func (r *DeveloperRepo) List() ([]domain.Developer, error) {
 			return nil, err
 		}
 
-		if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			dev.Data = make(map[string]interface{})
 		}
 
 		developers = append(developers, dev)
@@ -160,8 +172,12 @@ func (r *DeveloperRepo) ListWithDeleted() ([]domain.Developer, error) {
 			return nil, err
 		}
 
-		if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			dev.Data = make(map[string]interface{})
 		}
 
 		developers = append(developers, dev)

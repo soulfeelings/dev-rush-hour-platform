@@ -23,7 +23,7 @@ func (r *AreaRepo) GetBySlug(slug string) (*domain.Area, error) {
 	err := r.db.QueryRow(`
 		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
 		FROM areas
-		WHERE slug = $1 AND p.deleted_at IS NULL
+		WHERE slug = $1 AND deleted_at IS NULL
 	`, slug).Scan(
 		&area.ID, &area.Slug, &area.Name, &area.City,
 		&area.Lat, &area.Lng, &area.Status, &dataJSON,
@@ -37,8 +37,12 @@ func (r *AreaRepo) GetBySlug(slug string) (*domain.Area, error) {
 		return nil, err
 	}
 
-	if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		area.Data = domain.AreaData{}
 	}
 
 	return &area, nil
@@ -71,8 +75,12 @@ func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
 			return nil, err
 		}
 
-		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			area.Data = domain.AreaData{}
 		}
 
 		if !includeBoundary && area.Data.Boundary != nil {
@@ -151,8 +159,12 @@ func (r *AreaRepo) GetByID(id uuid.UUID) (*domain.Area, error) {
 		return nil, err
 	}
 
-	if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		area.Data = domain.AreaData{}
 	}
 
 	return &area, nil
@@ -183,8 +195,12 @@ func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 			return nil, err
 		}
 
-		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			area.Data = domain.AreaData{}
 		}
 
 		areas = append(areas, area)
