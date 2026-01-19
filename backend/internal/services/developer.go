@@ -20,16 +20,30 @@ func (s *DevelopersService) Create(dev *domain.Developer) error {
 	return s.developerRepo.Create(dev)
 }
 
-func (s *DevelopersService) Update(id uuid.UUID, dev *domain.Developer) error {
+func (s *DevelopersService) Update(id uuid.UUID, updates *domain.Developer) error {
 	existing, err := s.developerRepo.GetByID(id)
 	if err != nil {
 		return fmt.Errorf("failed to get developer: %w", err)
 	}
 	if existing == nil {
-		return fmt.Errorf("developer not found")
+		return ErrDeveloperNotFound
 	}
 
-	return s.developerRepo.Update(id, dev)
+	// Merge updates with existing data
+	if updates.Slug != "" {
+		existing.Slug = updates.Slug
+	}
+	if updates.Name != "" {
+		existing.Name = updates.Name
+	}
+	if updates.Status != "" {
+		existing.Status = updates.Status
+	}
+	if len(updates.Data) > 0 {
+		existing.Data = updates.Data
+	}
+
+	return s.developerRepo.Update(id, existing)
 }
 
 func (s *DevelopersService) GetByID(id uuid.UUID) (*domain.Developer, error) {
@@ -38,7 +52,7 @@ func (s *DevelopersService) GetByID(id uuid.UUID) (*domain.Developer, error) {
 		return nil, fmt.Errorf("failed to get developer: %w", err)
 	}
 	if dev == nil {
-		return nil, fmt.Errorf("developer not found")
+		return nil, ErrDeveloperNotFound
 	}
 	return dev, nil
 }
@@ -47,3 +61,14 @@ func (s *DevelopersService) List() ([]domain.Developer, error) {
 	return s.developerRepo.List()
 }
 
+func (s *DevelopersService) Delete(id uuid.UUID) error {
+	existing, err := s.developerRepo.GetByID(id)
+	if err != nil {
+		return fmt.Errorf("failed to get developer: %w", err)
+	}
+	if existing == nil {
+		return ErrDeveloperNotFound
+	}
+
+	return s.developerRepo.Delete(id)
+}

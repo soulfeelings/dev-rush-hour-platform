@@ -22,6 +22,7 @@ type Project struct {
 	// Embedded related data (populated by joins)
 	Developer *Developer
 	Area      *Area
+	DeletedAt *time.Time
 }
 
 type ProjectData struct {

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
@@ -8,8 +9,8 @@ import (
 	"rush-hour-platform/backend/internal/validation"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -137,38 +138,10 @@ func (h *AdminAreasHandler) UpdateArea(c *fiber.Ctx, id openapi_types.UUID) erro
 		})
 	}
 
-	area, err := mappers.GeneratedAreaUpdateToDomain(&req)
+	areaID := uuid.UUID(id)
+	existing, err := h.areasService.GetByID(areaID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(generated.ValidationError{
-			Error: &struct {
-				Code    *string                        `json:"code,omitempty"`
-				Details *generated.Error_Error_Details `json:"details,omitempty"`
-				Message *string                        `json:"message,omitempty"`
-			}{
-				Code:    stringPtr("invalid_request"),
-				Message: stringPtr(err.Error()),
-			},
-		})
-	}
-
-	// Валидация GeoJSON polygon
-	if area.Data.Boundary != nil {
-		if err := validation.ValidateGeoJSONPolygon(area.Data.Boundary); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(generated.ValidationError{
-				Error: &struct {
-					Code    *string                        `json:"code,omitempty"`
-					Details *generated.Error_Error_Details `json:"details,omitempty"`
-					Message *string                        `json:"message,omitempty"`
-				}{
-					Code:    stringPtr("validation_error"),
-					Message: stringPtr(fmt.Sprintf("Invalid GeoJSON polygon: %v", err)),
-				},
-			})
-		}
-	}
-
-	if err := h.areasService.Update(uuid.UUID(id), area); err != nil {
-		if err.Error() == "area not found" {
+		if errors.Is(err, services.ErrAreaNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
 				Error: &struct {
 					Code    *string                        `json:"code,omitempty"`
@@ -192,7 +165,50 @@ func (h *AdminAreasHandler) UpdateArea(c *fiber.Ctx, id openapi_types.UUID) erro
 		})
 	}
 
-	updated, err := h.areasService.GetByID(uuid.UUID(id))
+	updatedArea := mappers.ApplyAreaUpdateRequest(existing, &req)
+
+	// Валидация GeoJSON polygon
+	if req.Data != nil && req.Data.Boundary != nil {
+		if err := validation.ValidateGeoJSONPolygon(updatedArea.Data.Boundary); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(generated.ValidationError{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("validation_error"),
+					Message: stringPtr(fmt.Sprintf("Invalid GeoJSON polygon: %v", err)),
+				},
+			})
+		}
+	}
+
+	if err := h.areasService.Update(areaID, updatedArea); err != nil {
+		if errors.Is(err, services.ErrAreaNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	updated, err := h.areasService.GetByID(areaID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
 			Error: &struct {
@@ -209,3 +225,62 @@ func (h *AdminAreasHandler) UpdateArea(c *fiber.Ctx, id openapi_types.UUID) erro
 	return c.JSON(mappers.DomainAreaToGenerated(updated))
 }
 
+func (h *AdminAreasHandler) GetArea(c *fiber.Ctx, id openapi_types.UUID) error {
+	area, err := h.areasService.GetByID(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrAreaNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.JSON(mappers.DomainAreaToGenerated(area))
+}
+
+func (h *AdminAreasHandler) SoftDeleteArea(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.areasService.Delete(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrAreaNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}

@@ -18,6 +18,11 @@ func AdminAuth(cfg *config.Config) fiber.Handler {
 			return c.Next()
 		}
 
+		// Пропускаем OPTIONS запросы (CORS preflight)
+		if c.Method() == "OPTIONS" {
+			return c.Next()
+		}
+
 		// Если API key не настроен, пропускаем проверку
 		if cfg.Admin.APIKey == "" {
 			return c.Next()

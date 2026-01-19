@@ -14,5 +14,6 @@ type Developer struct {
 	Data      map[string]interface{}
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 

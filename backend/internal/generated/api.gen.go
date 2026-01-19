@@ -81,6 +81,21 @@ const (
 	LeadCreateRequestTypeViewing  LeadCreateRequestType = "viewing"
 )
 
+// Defines values for LeadUpdateRequestStatus.
+const (
+	LeadUpdateRequestStatusDone       LeadUpdateRequestStatus = "done"
+	LeadUpdateRequestStatusInProgress LeadUpdateRequestStatus = "in_progress"
+	LeadUpdateRequestStatusNew        LeadUpdateRequestStatus = "new"
+	LeadUpdateRequestStatusSpam       LeadUpdateRequestStatus = "spam"
+)
+
+// Defines values for LeadUpdateRequestType.
+const (
+	Callback LeadUpdateRequestType = "callback"
+	Details  LeadUpdateRequestType = "details"
+	Viewing  LeadUpdateRequestType = "viewing"
+)
+
 // Defines values for LotStatus.
 const (
 	LotStatusActive   LotStatus = "active"
@@ -113,6 +128,22 @@ const (
 	LotCreateRequestTypeVilla     LotCreateRequestType = "villa"
 )
 
+// Defines values for LotListItemStatus.
+const (
+	LotListItemStatusActive   LotListItemStatus = "active"
+	LotListItemStatusHidden   LotListItemStatus = "hidden"
+	LotListItemStatusReserved LotListItemStatus = "reserved"
+	LotListItemStatusSold     LotListItemStatus = "sold"
+)
+
+// Defines values for LotListItemType.
+const (
+	LotListItemTypeApartment LotListItemType = "apartment"
+	LotListItemTypePenthouse LotListItemType = "penthouse"
+	LotListItemTypeTownhouse LotListItemType = "townhouse"
+	LotListItemTypeVilla     LotListItemType = "villa"
+)
+
 // Defines values for LotUpdateRequestStatus.
 const (
 	LotUpdateRequestStatusActive   LotUpdateRequestStatus = "active"
@@ -129,10 +160,24 @@ const (
 	LotUpdateRequestTypeVilla     LotUpdateRequestType = "villa"
 )
 
+// Defines values for ProjectSale.
+const (
+	ProjectSaleSale              ProjectSale = "sale"
+	ProjectSaleSalesAnnouncement ProjectSale = "sales announcement"
+	ProjectSaleStartOfSales      ProjectSale = "start of sales"
+)
+
 // Defines values for ProjectStatus.
 const (
 	ProjectStatusActive   ProjectStatus = "active"
 	ProjectStatusArchived ProjectStatus = "archived"
+)
+
+// Defines values for ProjectCreateRequestSale.
+const (
+	ProjectCreateRequestSaleSale              ProjectCreateRequestSale = "sale"
+	ProjectCreateRequestSaleSalesAnnouncement ProjectCreateRequestSale = "sales announcement"
+	ProjectCreateRequestSaleStartOfSales      ProjectCreateRequestSale = "start of sales"
 )
 
 // Defines values for ProjectCreateRequestStatus.
@@ -141,18 +186,25 @@ const (
 	ProjectCreateRequestStatusArchived ProjectCreateRequestStatus = "archived"
 )
 
+// Defines values for ProjectUpdateRequestSale.
+const (
+	Sale              ProjectUpdateRequestSale = "sale"
+	SalesAnnouncement ProjectUpdateRequestSale = "sales announcement"
+	StartOfSales      ProjectUpdateRequestSale = "start of sales"
+)
+
 // Defines values for ProjectUpdateRequestStatus.
 const (
-	ProjectUpdateRequestStatusActive   ProjectUpdateRequestStatus = "active"
-	ProjectUpdateRequestStatusArchived ProjectUpdateRequestStatus = "archived"
+	Active   ProjectUpdateRequestStatus = "active"
+	Archived ProjectUpdateRequestStatus = "archived"
 )
 
 // Defines values for AdminListLeadsParamsStatus.
 const (
-	AdminListLeadsParamsStatusDone       AdminListLeadsParamsStatus = "done"
-	AdminListLeadsParamsStatusInProgress AdminListLeadsParamsStatus = "in_progress"
-	AdminListLeadsParamsStatusNew        AdminListLeadsParamsStatus = "new"
-	AdminListLeadsParamsStatusSpam       AdminListLeadsParamsStatus = "spam"
+	Done       AdminListLeadsParamsStatus = "done"
+	InProgress AdminListLeadsParamsStatus = "in_progress"
+	New        AdminListLeadsParamsStatus = "new"
+	Spam       AdminListLeadsParamsStatus = "spam"
 )
 
 // Defines values for ListAreasParamsInclude.
@@ -162,10 +214,10 @@ const (
 
 // Defines values for ListLotsParamsType.
 const (
-	ListLotsParamsTypeApartment ListLotsParamsType = "apartment"
-	ListLotsParamsTypePenthouse ListLotsParamsType = "penthouse"
-	ListLotsParamsTypeTownhouse ListLotsParamsType = "townhouse"
-	ListLotsParamsTypeVilla     ListLotsParamsType = "villa"
+	Apartment ListLotsParamsType = "apartment"
+	Penthouse ListLotsParamsType = "penthouse"
+	Townhouse ListLotsParamsType = "townhouse"
+	Villa     ListLotsParamsType = "villa"
 )
 
 // Defines values for ListLotsParamsSort.
@@ -178,16 +230,20 @@ const (
 
 // Area defines model for Area.
 type Area struct {
-	City      *string             `json:"city,omitempty"`
-	CreatedAt *time.Time          `json:"createdAt,omitempty"`
-	Data      *AreaData           `json:"data,omitempty"`
-	Id        *openapi_types.UUID `json:"id,omitempty"`
-	Lat       *float32            `json:"lat,omitempty"`
-	Lng       *float32            `json:"lng,omitempty"`
-	Name      *string             `json:"name,omitempty"`
-	Slug      *string             `json:"slug,omitempty"`
-	Status    *AreaStatus         `json:"status,omitempty"`
-	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
+	City      *string    `json:"city,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	Data      *AreaData  `json:"data,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt   *time.Time          `json:"deletedAt"`
+	Description *string             `json:"description,omitempty"`
+	Id          *openapi_types.UUID `json:"id,omitempty"`
+	Lat         *float32            `json:"lat,omitempty"`
+	Lng         *float32            `json:"lng,omitempty"`
+	Name        *string             `json:"name,omitempty"`
+	Slug        *string             `json:"slug,omitempty"`
+	Status      *AreaStatus         `json:"status,omitempty"`
+	UpdatedAt   *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // AreaStatus defines model for Area.Status.
@@ -218,13 +274,14 @@ type AreaData struct {
 
 // AreaUpdateRequest defines model for AreaUpdateRequest.
 type AreaUpdateRequest struct {
-	City   *string                  `json:"city,omitempty"`
-	Data   *AreaData                `json:"data,omitempty"`
-	Lat    *float32                 `json:"lat,omitempty"`
-	Lng    *float32                 `json:"lng,omitempty"`
-	Name   *string                  `json:"name,omitempty"`
-	Slug   *string                  `json:"slug,omitempty"`
-	Status *AreaUpdateRequestStatus `json:"status,omitempty"`
+	City        *string                  `json:"city"`
+	Data        *AreaData                `json:"data,omitempty"`
+	Description *string                  `json:"description"`
+	Lat         *float32                 `json:"lat"`
+	Lng         *float32                 `json:"lng"`
+	Name        *string                  `json:"name"`
+	Slug        *string                  `json:"slug"`
+	Status      *AreaUpdateRequestStatus `json:"status"`
 }
 
 // AreaUpdateRequestStatus defines model for AreaUpdateRequest.Status.
@@ -247,11 +304,14 @@ type BoundingBox struct {
 type Developer struct {
 	CreatedAt *time.Time              `json:"createdAt,omitempty"`
 	Data      *map[string]interface{} `json:"data,omitempty"`
-	Id        *openapi_types.UUID     `json:"id,omitempty"`
-	Name      *string                 `json:"name,omitempty"`
-	Slug      *string                 `json:"slug,omitempty"`
-	Status    *DeveloperStatus        `json:"status,omitempty"`
-	UpdatedAt *time.Time              `json:"updatedAt,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt *time.Time          `json:"deletedAt"`
+	Id        *openapi_types.UUID `json:"id,omitempty"`
+	Name      *string             `json:"name,omitempty"`
+	Slug      *string             `json:"slug,omitempty"`
+	Status    *DeveloperStatus    `json:"status,omitempty"`
+	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // DeveloperStatus defines model for Developer.Status.
@@ -317,8 +377,11 @@ type GeoJSONPolygonType string
 
 // Lead defines model for Lead.
 type Lead struct {
-	CreatedAt *time.Time          `json:"createdAt,omitempty"`
-	Data      *LeadData           `json:"data,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	Data      *LeadData  `json:"data,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt *time.Time          `json:"deletedAt"`
 	Email     *string             `json:"email,omitempty"`
 	Id        *openapi_types.UUID `json:"id,omitempty"`
 	LotId     *openapi_types.UUID `json:"lotId,omitempty"`
@@ -368,47 +431,49 @@ type LeadDataRequest struct {
 	Utm       *map[string]interface{} `json:"utm,omitempty"`
 }
 
+// LeadUpdateRequest defines model for LeadUpdateRequest.
+type LeadUpdateRequest struct {
+	Data      *LeadData                `json:"data,omitempty"`
+	Email     *openapi_types.Email     `json:"email,omitempty"`
+	LotId     *openapi_types.UUID      `json:"lotId,omitempty"`
+	Name      *string                  `json:"name,omitempty"`
+	Phone     *string                  `json:"phone,omitempty"`
+	ProjectId *openapi_types.UUID      `json:"projectId,omitempty"`
+	Source    *string                  `json:"source,omitempty"`
+	Status    *LeadUpdateRequestStatus `json:"status,omitempty"`
+	Type      *LeadUpdateRequestType   `json:"type,omitempty"`
+}
+
+// LeadUpdateRequestStatus defines model for LeadUpdateRequest.Status.
+type LeadUpdateRequestStatus string
+
+// LeadUpdateRequestType defines model for LeadUpdateRequest.Type.
+type LeadUpdateRequestType string
+
 // Lot defines model for Lot.
 type Lot struct {
-	AreaId        *openapi_types.UUID `json:"areaId,omitempty"`
-	AreaSqm       *float32            `json:"areaSqm,omitempty"`
-	Bathrooms     *int                `json:"bathrooms,omitempty"`
-	Bedrooms      *int                `json:"bedrooms,omitempty"`
-	BonusKeys     *[]string           `json:"bonusKeys,omitempty"`
-	CreatedAt     *time.Time          `json:"createdAt,omitempty"`
-	Data          *LotData            `json:"data,omitempty"`
+	Area      *Area               `json:"area,omitempty"`
+	AreaId    *openapi_types.UUID `json:"areaId,omitempty"`
+	AreaSqm   *float32            `json:"areaSqm,omitempty"`
+	Bathrooms *int                `json:"bathrooms,omitempty"`
+	Bedrooms  *int                `json:"bedrooms,omitempty"`
+	BonusKeys *[]string           `json:"bonusKeys,omitempty"`
+	CreatedAt *time.Time          `json:"createdAt,omitempty"`
+	Data      *LotData            `json:"data,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt     *time.Time          `json:"deletedAt"`
+	Developer     *Developer          `json:"developer,omitempty"`
 	DeveloperId   *openapi_types.UUID `json:"developerId,omitempty"`
 	Floor         *int                `json:"floor,omitempty"`
 	Id            *openapi_types.UUID `json:"id,omitempty"`
 	PriceAmount   *float32            `json:"priceAmount,omitempty"`
 	PriceCurrency *string             `json:"priceCurrency,omitempty"`
+	Project       *Project            `json:"project,omitempty"`
 	ProjectId     *openapi_types.UUID `json:"projectId,omitempty"`
 	Status        *LotStatus          `json:"status,omitempty"`
 	Type          *LotType            `json:"type,omitempty"`
 	UpdatedAt     *time.Time          `json:"updatedAt,omitempty"`
-}
-
-// LotListItem defines model for LotListItem.
-type LotListItem struct {
-	Area         *Area               `json:"area,omitempty"`
-	AreaId       *openapi_types.UUID `json:"areaId,omitempty"`
-	AreaSqm      *float32            `json:"areaSqm,omitempty"`
-	Bathrooms    *int                `json:"bathrooms,omitempty"`
-	Bedrooms     *int                `json:"bedrooms,omitempty"`
-	BonusKeys    *[]string           `json:"bonusKeys,omitempty"`
-	CreatedAt    *time.Time          `json:"createdAt,omitempty"`
-	Data         *LotData            `json:"data,omitempty"`
-	Developer    *Developer          `json:"developer,omitempty"`
-	DeveloperId  *openapi_types.UUID `json:"developerId,omitempty"`
-	Floor        *int                `json:"floor,omitempty"`
-	Id           *openapi_types.UUID `json:"id,omitempty"`
-	PriceAmount  *float32            `json:"priceAmount,omitempty"`
-	PriceCurrency *string             `json:"priceCurrency,omitempty"`
-	Project      *Project            `json:"project,omitempty"`
-	ProjectId    *openapi_types.UUID `json:"projectId,omitempty"`
-	Status       *LotStatus          `json:"status,omitempty"`
-	Type         *LotType            `json:"type,omitempty"`
-	UpdatedAt    *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // LotStatus defines model for Lot.Status.
@@ -448,6 +513,35 @@ type LotData struct {
 	PaymentPlan   *PaymentPlan   `json:"paymentPlan,omitempty"`
 	Tags          *[]string      `json:"tags,omitempty"`
 }
+
+// LotListItem defines model for LotListItem.
+type LotListItem struct {
+	Area          *Area               `json:"area,omitempty"`
+	AreaId        *openapi_types.UUID `json:"areaId,omitempty"`
+	AreaSqm       *float32            `json:"areaSqm,omitempty"`
+	Bathrooms     *int                `json:"bathrooms,omitempty"`
+	Bedrooms      *int                `json:"bedrooms,omitempty"`
+	BonusKeys     *[]string           `json:"bonusKeys,omitempty"`
+	CreatedAt     *time.Time          `json:"createdAt,omitempty"`
+	Data          *LotData            `json:"data,omitempty"`
+	Developer     *Developer          `json:"developer,omitempty"`
+	DeveloperId   *openapi_types.UUID `json:"developerId,omitempty"`
+	Floor         *int                `json:"floor,omitempty"`
+	Id            *openapi_types.UUID `json:"id,omitempty"`
+	PriceAmount   *float32            `json:"priceAmount,omitempty"`
+	PriceCurrency *string             `json:"priceCurrency,omitempty"`
+	Project       *Project            `json:"project,omitempty"`
+	ProjectId     *openapi_types.UUID `json:"projectId,omitempty"`
+	Status        *LotListItemStatus  `json:"status,omitempty"`
+	Type          *LotListItemType    `json:"type,omitempty"`
+	UpdatedAt     *time.Time          `json:"updatedAt,omitempty"`
+}
+
+// LotListItemStatus defines model for LotListItem.Status.
+type LotListItemStatus string
+
+// LotListItemType defines model for LotListItem.Type.
+type LotListItemType string
 
 // LotMedia defines model for LotMedia.
 type LotMedia struct {
@@ -520,11 +614,14 @@ type Point struct {
 
 // Project defines model for Project.
 type Project struct {
-	Area        *ProjectArea        `json:"area,omitempty"`
-	AreaId      *openapi_types.UUID `json:"areaId,omitempty"`
-	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
-	Data        *ProjectData        `json:"data,omitempty"`
-	Developer   *ProjectDeveloper   `json:"developer,omitempty"`
+	Area      *Area               `json:"area,omitempty"`
+	AreaId    *openapi_types.UUID `json:"areaId,omitempty"`
+	CreatedAt *time.Time          `json:"createdAt,omitempty"`
+	Data      *ProjectData        `json:"data,omitempty"`
+
+	// DeletedAt Время мягкого удаления (если null - не удален)
+	DeletedAt   *time.Time          `json:"deletedAt"`
+	Developer   *Developer          `json:"developer,omitempty"`
 	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
 	Id          *openapi_types.UUID `json:"id,omitempty"`
 	Lat         *float32            `json:"lat,omitempty"`
@@ -533,23 +630,14 @@ type Project struct {
 	// Lots Первые N лотов проекта (если запрошено через includeLots)
 	Lots      *[]Lot         `json:"lots,omitempty"`
 	Name      *string        `json:"name,omitempty"`
-	Sale      *string        `json:"sale,omitempty"`
+	Sale      *ProjectSale   `json:"sale,omitempty"`
 	Slug      *string        `json:"slug,omitempty"`
 	Status    *ProjectStatus `json:"status,omitempty"`
 	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
 }
 
-// ProjectArea defines embedded area info in project response.
-type ProjectArea struct {
-	Name *string `json:"name,omitempty"`
-	City *string `json:"city,omitempty"`
-}
-
-// ProjectDeveloper defines embedded developer info in project response.
-type ProjectDeveloper struct {
-	Name *string                 `json:"name,omitempty"`
-	Data *map[string]interface{} `json:"data,omitempty"`
-}
+// ProjectSale defines model for Project.Sale.
+type ProjectSale string
 
 // ProjectStatus defines model for Project.Status.
 type ProjectStatus string
@@ -562,9 +650,13 @@ type ProjectCreateRequest struct {
 	Lat         *float32                    `json:"lat,omitempty"`
 	Lng         *float32                    `json:"lng,omitempty"`
 	Name        string                      `json:"name"`
+	Sale        *ProjectCreateRequestSale   `json:"sale,omitempty"`
 	Slug        string                      `json:"slug"`
 	Status      *ProjectCreateRequestStatus `json:"status,omitempty"`
 }
+
+// ProjectCreateRequestSale defines model for ProjectCreateRequest.Sale.
+type ProjectCreateRequestSale string
 
 // ProjectCreateRequestStatus defines model for ProjectCreateRequest.Status.
 type ProjectCreateRequestStatus string
@@ -573,11 +665,17 @@ type ProjectCreateRequestStatus string
 type ProjectData struct {
 	Description       *ProjectData_Description `json:"description,omitempty"`
 	FeaturesAmenities *[]interface{}           `json:"featuresAmenities,omitempty"`
-	IsFeatured        *bool                    `json:"isFeatured,omitempty"`
-	IsRecommended     *bool                    `json:"isRecommended,omitempty"`
-	Media             *Media                   `json:"media,omitempty"`
-	Specs             *map[string]interface{}  `json:"specs,omitempty"`
-	Tags              *[]string                `json:"tags,omitempty"`
+
+	// IsFeatured Избранный проект
+	IsFeatured *bool `json:"isFeatured,omitempty"`
+
+	// IsRecommended Рекомендуемый проект
+	IsRecommended *bool                   `json:"isRecommended,omitempty"`
+	Media         *Media                  `json:"media,omitempty"`
+	Specs         *map[string]interface{} `json:"specs,omitempty"`
+
+	// Tags Теги проекта
+	Tags *[]string `json:"tags,omitempty"`
 }
 
 // ProjectDataDescription0 defines model for .
@@ -599,9 +697,13 @@ type ProjectUpdateRequest struct {
 	Lat         *float32                    `json:"lat,omitempty"`
 	Lng         *float32                    `json:"lng,omitempty"`
 	Name        *string                     `json:"name,omitempty"`
+	Sale        *ProjectUpdateRequestSale   `json:"sale,omitempty"`
 	Slug        *string                     `json:"slug,omitempty"`
 	Status      *ProjectUpdateRequestStatus `json:"status,omitempty"`
 }
+
+// ProjectUpdateRequestSale defines model for ProjectUpdateRequest.Sale.
+type ProjectUpdateRequestSale string
 
 // ProjectUpdateRequestStatus defines model for ProjectUpdateRequest.Status.
 type ProjectUpdateRequestStatus string
@@ -704,6 +806,9 @@ type AdminCreateDeveloperJSONRequestBody = DeveloperCreateRequest
 
 // AdminUpdateDeveloperJSONRequestBody defines body for AdminUpdateDeveloper for application/json ContentType.
 type AdminUpdateDeveloperJSONRequestBody = DeveloperUpdateRequest
+
+// AdminUpdateLeadJSONRequestBody defines body for AdminUpdateLead for application/json ContentType.
+type AdminUpdateLeadJSONRequestBody = LeadUpdateRequest
 
 // AdminCreateLotJSONRequestBody defines body for AdminCreateLot for application/json ContentType.
 type AdminCreateLotJSONRequestBody = LotCreateRequest
@@ -852,6 +957,12 @@ type ServerInterface interface {
 	// Создать район (админ)
 	// (POST /admin/areas)
 	AdminCreateArea(c *fiber.Ctx) error
+	// Мягкое удаление района (установка deleted_at)
+	// (DELETE /admin/areas/{id})
+	AdminSoftDeleteArea(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить район по ID (админ)
+	// (GET /admin/areas/{id})
+	AdminGetArea(c *fiber.Ctx, id openapi_types.UUID) error
 	// Обновить район (админ)
 	// (PATCH /admin/areas/{id})
 	AdminUpdateArea(c *fiber.Ctx, id openapi_types.UUID) error
@@ -861,18 +972,39 @@ type ServerInterface interface {
 	// Создать застройщика (админ)
 	// (POST /admin/developers)
 	AdminCreateDeveloper(c *fiber.Ctx) error
+	// Мягкое удаление застройщика (установка deleted_at)
+	// (DELETE /admin/developers/{id})
+	AdminSoftDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить застройщика по ID (админ)
+	// (GET /admin/developers/{id})
+	AdminGetDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
 	// Обновить застройщика (админ)
 	// (PATCH /admin/developers/{id})
 	AdminUpdateDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список заявок (админ)
 	// (GET /admin/leads)
 	AdminListLeads(c *fiber.Ctx, params AdminListLeadsParams) error
+	// Мягкое удаление заявки
+	// (DELETE /admin/leads/{id})
+	AdminSoftDeleteLead(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить заявку по ID (админ)
+	// (GET /admin/leads/{id})
+	AdminGetLead(c *fiber.Ctx, id openapi_types.UUID) error
+	// Обновить заявку (админ)
+	// (PATCH /admin/leads/{id})
+	AdminUpdateLead(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список лотов (админ)
 	// (GET /admin/lots)
 	AdminListLots(c *fiber.Ctx) error
 	// Создать лот (админ)
 	// (POST /admin/lots)
 	AdminCreateLot(c *fiber.Ctx) error
+	// Мягкое удаление лота (установка deleted_at)
+	// (DELETE /admin/lots/{id})
+	AdminSoftDeleteLot(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить лот по ID (админ)
+	// (GET /admin/lots/{id})
+	AdminGetLot(c *fiber.Ctx, id openapi_types.UUID) error
 	// Обновить лот (админ)
 	// (PATCH /admin/lots/{id})
 	AdminUpdateLot(c *fiber.Ctx, id openapi_types.UUID) error
@@ -882,6 +1014,12 @@ type ServerInterface interface {
 	// Создать проект (админ)
 	// (POST /admin/projects)
 	AdminCreateProject(c *fiber.Ctx) error
+	// Мягкое удаление проекта (установка deleted_at)
+	// (DELETE /admin/projects/{id})
+	AdminSoftDeleteProject(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить проект по ID (админ)
+	// (GET /admin/projects/{id})
+	AdminGetProject(c *fiber.Ctx, id openapi_types.UUID) error
 	// Обновить проект (админ)
 	// (PATCH /admin/projects/{id})
 	AdminUpdateProject(c *fiber.Ctx, id openapi_types.UUID) error
@@ -931,6 +1069,42 @@ func (siw *ServerInterfaceWrapper) AdminCreateArea(c *fiber.Ctx) error {
 	return siw.Handler.AdminCreateArea(c)
 }
 
+// AdminSoftDeleteArea operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteArea(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteArea(c, id)
+}
+
+// AdminGetArea operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetArea(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetArea(c, id)
+}
+
 // AdminUpdateArea operation middleware
 func (siw *ServerInterfaceWrapper) AdminUpdateArea(c *fiber.Ctx) error {
 
@@ -963,6 +1137,42 @@ func (siw *ServerInterfaceWrapper) AdminCreateDeveloper(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateDeveloper(c)
+}
+
+// AdminSoftDeleteDeveloper operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteDeveloper(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteDeveloper(c, id)
+}
+
+// AdminGetDeveloper operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetDeveloper(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetDeveloper(c, id)
 }
 
 // AdminUpdateDeveloper operation middleware
@@ -1009,6 +1219,60 @@ func (siw *ServerInterfaceWrapper) AdminListLeads(c *fiber.Ctx) error {
 	return siw.Handler.AdminListLeads(c, params)
 }
 
+// AdminSoftDeleteLead operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteLead(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteLead(c, id)
+}
+
+// AdminGetLead operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetLead(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetLead(c, id)
+}
+
+// AdminUpdateLead operation middleware
+func (siw *ServerInterfaceWrapper) AdminUpdateLead(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminUpdateLead(c, id)
+}
+
 // AdminListLots operation middleware
 func (siw *ServerInterfaceWrapper) AdminListLots(c *fiber.Ctx) error {
 
@@ -1023,6 +1287,42 @@ func (siw *ServerInterfaceWrapper) AdminCreateLot(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateLot(c)
+}
+
+// AdminSoftDeleteLot operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteLot(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteLot(c, id)
+}
+
+// AdminGetLot operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetLot(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetLot(c, id)
 }
 
 // AdminUpdateLot operation middleware
@@ -1057,6 +1357,42 @@ func (siw *ServerInterfaceWrapper) AdminCreateProject(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateProject(c)
+}
+
+// AdminSoftDeleteProject operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteProject(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteProject(c, id)
+}
+
+// AdminGetProject operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetProject(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetProject(c, id)
 }
 
 // AdminUpdateProject operation middleware
@@ -1321,25 +1657,47 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 
 	router.Post(options.BaseURL+"/admin/areas", wrapper.AdminCreateArea)
 
+	router.Delete(options.BaseURL+"/admin/areas/:id", wrapper.AdminSoftDeleteArea)
+
+	router.Get(options.BaseURL+"/admin/areas/:id", wrapper.AdminGetArea)
+
 	router.Patch(options.BaseURL+"/admin/areas/:id", wrapper.AdminUpdateArea)
 
 	router.Get(options.BaseURL+"/admin/developers", wrapper.AdminListDevelopers)
 
 	router.Post(options.BaseURL+"/admin/developers", wrapper.AdminCreateDeveloper)
 
+	router.Delete(options.BaseURL+"/admin/developers/:id", wrapper.AdminSoftDeleteDeveloper)
+
+	router.Get(options.BaseURL+"/admin/developers/:id", wrapper.AdminGetDeveloper)
+
 	router.Patch(options.BaseURL+"/admin/developers/:id", wrapper.AdminUpdateDeveloper)
 
 	router.Get(options.BaseURL+"/admin/leads", wrapper.AdminListLeads)
 
+	router.Delete(options.BaseURL+"/admin/leads/:id", wrapper.AdminSoftDeleteLead)
+
+	router.Get(options.BaseURL+"/admin/leads/:id", wrapper.AdminGetLead)
+
+	router.Patch(options.BaseURL+"/admin/leads/:id", wrapper.AdminUpdateLead)
+
 	router.Get(options.BaseURL+"/admin/lots", wrapper.AdminListLots)
 
 	router.Post(options.BaseURL+"/admin/lots", wrapper.AdminCreateLot)
+
+	router.Delete(options.BaseURL+"/admin/lots/:id", wrapper.AdminSoftDeleteLot)
+
+	router.Get(options.BaseURL+"/admin/lots/:id", wrapper.AdminGetLot)
 
 	router.Patch(options.BaseURL+"/admin/lots/:id", wrapper.AdminUpdateLot)
 
 	router.Get(options.BaseURL+"/admin/projects", wrapper.AdminListProjects)
 
 	router.Post(options.BaseURL+"/admin/projects", wrapper.AdminCreateProject)
+
+	router.Delete(options.BaseURL+"/admin/projects/:id", wrapper.AdminSoftDeleteProject)
+
+	router.Get(options.BaseURL+"/admin/projects/:id", wrapper.AdminGetProject)
 
 	router.Patch(options.BaseURL+"/admin/projects/:id", wrapper.AdminUpdateProject)
 

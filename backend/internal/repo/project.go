@@ -33,7 +33,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		FROM projects p
 		LEFT JOIN developers d ON p.developer_id = d.id
 		LEFT JOIN areas a ON p.area_id = a.id
-		WHERE p.slug = $1
+		WHERE p.slug = $1 AND p.deleted_at IS NULL
 	`, slug).Scan(
 		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 		&developerID, &areaID, &lat, &lng, &dataJSON,
@@ -68,8 +68,16 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		project.Lng = &lng.Float64
 	}
 
-	if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		project.Data = domain.ProjectData{
+			Specs:             make(map[string]interface{}),
+			FeaturesAmenities: []interface{}{},
+			Tags:              []string{},
+		}
 	}
 
 	// Populate developer info
@@ -113,9 +121,9 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 		query += ` WHERE a.slug = $` + fmt.Sprintf("%d", argPos)
 		args = append(args, *areaSlug)
 		argPos++
-		query += ` AND p.status = 'active'`
+		query += ` AND p.status = 'active' AND p.deleted_at IS NULL`
 	} else {
-		query += ` WHERE p.status = 'active'`
+		query += ` WHERE p.status = 'active' AND p.deleted_at IS NULL`
 	}
 
 	query += ` ORDER BY p.name`
@@ -165,8 +173,12 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 			project.Lng = &lng.Float64
 		}
 
-		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			project.Data = domain.ProjectData{}
 		}
 
 		// Populate developer info
@@ -199,7 +211,7 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 
 func (r *ProjectRepo) GetIDBySlug(slug string) (*uuid.UUID, error) {
 	var id uuid.UUID
-	err := r.db.QueryRow(`SELECT id FROM projects WHERE slug = $1`, slug).Scan(&id)
+	err := r.db.QueryRow(`SELECT id FROM projects WHERE slug = $1 AND deleted_at IS NULL`, slug).Scan(&id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -267,7 +279,7 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 	err = r.db.QueryRow(`
 		UPDATE projects
 		SET slug = $1, name = $2, status = $3, sale = $4, developer_id = $5, area_id = $6, lat = $7, lng = $8, data = $9, updated_at = NOW()
-		WHERE id = $10
+		WHERE id = $10 AND deleted_at IS NULL
 		RETURNING updated_at
 	`, project.Slug, project.Name, project.Status, project.Sale, developerID, areaID, lat, lng, dataJSON, id).Scan(&project.UpdatedAt)
 
@@ -281,13 +293,13 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 	var lat, lng sql.NullFloat64
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at
+		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
 		FROM projects
-		WHERE id = $1
+		WHERE id = $1 AND deleted_at IS NULL
 	`, id).Scan(
 		&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
 		&developerID, &areaID, &lat, &lng, &dataJSON,
-		&project.CreatedAt, &project.UpdatedAt,
+		&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
 	)
 
 	if err != nil {
@@ -312,8 +324,16 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		project.Lng = &lng.Float64
 	}
 
-	if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		project.Data = domain.ProjectData{
+			Specs:             make(map[string]interface{}),
+			FeaturesAmenities: []interface{}{},
+			Tags:              []string{},
+		}
 	}
 
 	return &project, nil
@@ -321,8 +341,9 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 
 func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at
+		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
 		FROM projects
+		WHERE deleted_at IS NULL 
 		ORDER BY name
 	`)
 	if err != nil {
@@ -340,10 +361,11 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 		if err := rows.Scan(
 			&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
 			&developerID, &areaID, &lat, &lng, &dataJSON,
-			&project.CreatedAt, &project.UpdatedAt,
+			&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
+
 
 		if developerID.Valid {
 			id := uuid.MustParse(developerID.String)
@@ -360,8 +382,12 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 			project.Lng = &lng.Float64
 		}
 
-		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			project.Data = domain.ProjectData{}
 		}
 
 		projects = append(projects, project)
@@ -370,3 +396,12 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 	return projects, rows.Err()
 }
 
+func (r *ProjectRepo) Delete(id uuid.UUID) error {
+	_, err := r.db.Exec(`
+		UPDATE projects 
+		SET deleted_at = NOW()
+		WHERE id = $1 AND deleted_at IS NULL
+	`, id)
+	
+	return err
+}

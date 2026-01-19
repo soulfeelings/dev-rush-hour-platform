@@ -23,11 +23,11 @@ type Lot struct {
 	Data          LotData
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
-
+	DeletedAt     *time.Time
 	// Вложенные объекты (загружаются опционально)
-	Project   *Project   `json:"project,omitempty"`
-	Developer *Developer `json:"developer,omitempty"`
-	Area      *Area      `json:"area,omitempty"`
+	Project       *Project   `json:"project,omitempty"`
+	Developer     *Developer `json:"developer,omitempty"`
+	Area          *Area      `json:"area,omitempty"`
 }
 
 type LotData struct {

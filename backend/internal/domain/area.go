@@ -17,6 +17,7 @@ type Area struct {
 	Data      AreaData
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
 type AreaData struct {

@@ -79,7 +79,7 @@ func DomainAreaToGenerated(area *domain.Area) *generated.Area {
 			Zoom:     area.Data.Zoom,
 			Bbox:     domainBBoxToGenerated(area.Data.BBox),
 		}
-		if area.Data.SEO != nil && len(area.Data.SEO) > 0 {
+		if len(area.Data.SEO) > 0 {
 			result.Data.Seo = &area.Data.SEO
 		}
 	}
@@ -94,11 +94,17 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 	id := openapi_types.UUID(project.ID)
 	status := generated.ProjectStatus(project.Status)
 	result := &generated.Project{
-		Id:        &id,
-		Slug:      &project.Slug,
-		Name:      &project.Name,
-		Status:    &status,
-		Sale:      &project.Sale,
+		Id:     &id,
+		Slug:   &project.Slug,
+		Name:   &project.Name,
+		Status: &status,
+		Sale: func() *generated.ProjectSale {
+			if project.Sale == "" {
+				return nil
+			}
+			sale := generated.ProjectSale(project.Sale)
+			return &sale
+		}(),
 		CreatedAt: timePtr(project.CreatedAt),
 		UpdatedAt: timePtr(project.UpdatedAt),
 	}
@@ -120,31 +126,41 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 
 	// Include embedded developer info
 	if project.Developer != nil {
-		result.Developer = &generated.ProjectDeveloper{
-			Name: &project.Developer.Name,
+		result.Developer = &generated.Developer{
+			Id:     &project.Developer.ID,
+			Slug:   &project.Developer.Slug,
+			Name:   &project.Developer.Name,
+			Status: (*generated.DeveloperStatus)(&project.Developer.Status),
 		}
-		if project.Developer.Data != nil && len(project.Developer.Data) > 0 {
+		if project.Developer.Data != nil {
 			result.Developer.Data = &project.Developer.Data
 		}
 	}
 
 	// Include embedded area info
 	if project.Area != nil {
-		result.Area = &generated.ProjectArea{
-			Name: &project.Area.Name,
-			City: &project.Area.City,
+		result.Area = &generated.Area{
+			Id:     &project.Area.ID,
+			Slug:   &project.Area.Slug,
+			Name:   &project.Area.Name,
+			City:   &project.Area.City,
+			Status: (*generated.AreaStatus)(&project.Area.Status),
 		}
 	}
 
 	// Always include data for isRecommended, isFeatured, tags
+	specs := domainSpecsToGenerated(project.Data.Specs)
+	features := domainFeaturesAmenitiesToGenerated(project.Data.FeaturesAmenities)
+	media := domainMediaToGenerated(project.Data.Media)
+
 	result.Data = &generated.ProjectData{
-		Specs:             domainSpecsToGenerated(project.Data.Specs),
-		FeaturesAmenities: domainFeaturesAmenitiesToGenerated(project.Data.FeaturesAmenities),
-		Media:             domainMediaToGenerated(project.Data.Media),
+		Specs:             specs,
+		FeaturesAmenities: features,
+		Media:             media,
 		IsRecommended:     &project.Data.IsRecommended,
 		IsFeatured:        &project.Data.IsFeatured,
 	}
-	if len(project.Data.Tags) > 0 {
+	if project.Data.Tags != nil && len(project.Data.Tags) > 0 {
 		result.Data.Tags = &project.Data.Tags
 	}
 	if project.Data.Description != nil {
@@ -223,8 +239,8 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 	lotType := generated.LotType(lot.Type)
 	result := &generated.LotListItem{
 		Id:            &id,
-		Status:        &status,
-		Type:          &lotType,
+		Status:        (*generated.LotListItemStatus)(&status),
+		Type:          (*generated.LotListItemType)(&lotType),
 		PriceCurrency: &lot.PriceCurrency,
 		PriceAmount:   float32Ptr(float32(lot.PriceAmount)),
 		CreatedAt:     timePtr(lot.CreatedAt),
@@ -370,7 +386,7 @@ func domainBBoxToGenerated(bbox *domain.BoundingBox) *generated.BoundingBox {
 }
 
 func domainSpecsToGenerated(specs map[string]interface{}) *map[string]interface{} {
-	if specs == nil || len(specs) == 0 {
+	if len(specs) == 0 {
 		return nil
 	}
 	return &specs
@@ -565,7 +581,7 @@ func DomainDeveloperToGenerated(dev *domain.Developer) *generated.Developer {
 		CreatedAt: timePtr(dev.CreatedAt),
 		UpdatedAt: timePtr(dev.UpdatedAt),
 	}
-	if dev.Data != nil && len(dev.Data) > 0 {
+	if len(dev.Data) > 0 {
 		result.Data = &dev.Data
 	}
 	return result
@@ -585,41 +601,44 @@ func GeneratedAreaCreateToDomain(req *generated.AreaCreateRequest) (*domain.Area
 		area.Status = domain.AreaStatus(*req.Status)
 	}
 	if req.Data != nil {
-		area.Data = domainAreaDataFromGenerated(req.Data)
+		area.Data = AreaDataFromGenerated(req.Data)
 	}
 
 	return area, nil
 }
 
-func GeneratedAreaUpdateToDomain(req *generated.AreaUpdateRequest) (*domain.Area, error) {
-	area := &domain.Area{}
+func ApplyAreaUpdateRequest(existing *domain.Area, req *generated.AreaUpdateRequest) *domain.Area {
+	if existing == nil || req == nil {
+		return nil
+	}
+	updated := *existing
 
 	if req.Slug != nil {
-		area.Slug = *req.Slug
+		updated.Slug = *req.Slug
 	}
 	if req.Name != nil {
-		area.Name = *req.Name
+		updated.Name = *req.Name
 	}
 	if req.City != nil {
-		area.City = *req.City
+		updated.City = *req.City
 	}
 	if req.Lat != nil {
-		area.Lat = float64(*req.Lat)
+		updated.Lat = float64(*req.Lat)
 	}
 	if req.Lng != nil {
-		area.Lng = float64(*req.Lng)
+		updated.Lng = float64(*req.Lng)
 	}
 	if req.Status != nil {
-		area.Status = domain.AreaStatus(*req.Status)
+		updated.Status = domain.AreaStatus(*req.Status)
 	}
 	if req.Data != nil {
-		area.Data = domainAreaDataFromGenerated(req.Data)
+		updated.Data = AreaDataFromGenerated(req.Data)
 	}
 
-	return area, nil
+	return &updated
 }
 
-func domainAreaDataFromGenerated(data *generated.AreaData) domain.AreaData {
+func AreaDataFromGenerated(data *generated.AreaData) domain.AreaData {
 	result := domain.AreaData{}
 	if data.Boundary != nil {
 		result.Boundary = generatedGeoJSONToDomain(data.Boundary)
@@ -718,7 +737,7 @@ func GeneratedProjectUpdateToDomain(req *generated.ProjectUpdateRequest) (*domai
 	if req.Slug != nil {
 		project.Slug = *req.Slug
 	}
-	if req.Name != nil {
+	if req.Name != nil && *req.Name != "" {
 		project.Name = *req.Name
 	}
 	if req.Status != nil {
@@ -949,6 +968,50 @@ func generatedLotMediaToDomain(media *generated.LotMedia) *domain.LotMedia {
 	return result
 }
 
+func GeneratedLeadUpdateToDomain(req *generated.LeadUpdateRequest) (*domain.Lead, error) {
+	lead := &domain.Lead{}
+
+	if req.Status != nil {
+		lead.Status = domain.LeadStatus(*req.Status)
+	}
+	if req.Type != nil {
+		lead.Type = domain.LeadType(*req.Type)
+	}
+	if req.Source != nil {
+		lead.Source = req.Source
+	}
+	if req.ProjectId != nil {
+		id := uuid.UUID(*req.ProjectId)
+		lead.ProjectID = &id
+	}
+	if req.LotId != nil {
+		id := uuid.UUID(*req.LotId)
+		lead.LotID = &id
+	}
+	if req.Name != nil && *req.Name != "" {
+		lead.Name = *req.Name
+	}
+	if req.Phone != nil {
+		lead.Phone = *req.Phone
+	}
+	if req.Email != nil {
+		emailStr := string(*req.Email)
+		lead.Email = &emailStr
+	}
+	if req.Data != nil {
+		lead.Data = domain.LeadData{
+			Preferred: req.Data.Preferred,
+			Comment:   req.Data.Comment,
+			PageURL:   req.Data.PageUrl,
+		}
+		if req.Data.Utm != nil {
+			lead.Data.UTM = *req.Data.Utm
+		}
+	}
+
+	return lead, nil
+}
+
 func generatedPaymentPlanToDomain(plan *generated.PaymentPlan) *domain.PaymentPlan {
 	if plan == nil || plan.Schedule == nil {
 		return nil
@@ -966,10 +1029,10 @@ func generatedPaymentPlanToDomain(plan *generated.PaymentPlan) *domain.PaymentPl
 			dueDate = *item.DueDate
 		}
 		result.Schedule[i] = domain.PaymentScheduleItem{
-			Stage:    stage,
-			Percent:  float64(*item.Percent),
-			Amount:   float64(*item.Amount),
-			DueDate:  dueDate,
+			Stage:   stage,
+			Percent: float64(*item.Percent),
+			Amount:  float64(*item.Amount),
+			DueDate: dueDate,
 		}
 	}
 	return result
@@ -1009,4 +1072,3 @@ func generatedFloorPositionToDomain(fp *generated.FloorPosition) *domain.FloorPo
 		Y:     float64(*fp.Y),
 	}
 }
-

@@ -66,7 +66,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	err := r.db.QueryRow(`
 		SELECT 
 			l.id, l.status, l.project_id, l.developer_id, l.area_id, l.type, l.bedrooms, l.bathrooms,
-			l.area_sqm, l.floor, l.price_currency, l.price_amount, l.bonus_keys, l.data, l.created_at, l.updated_at,
+			l.area_sqm, l.floor, l.price_currency, l.price_amount, l.bonus_keys, l.data, l.created_at, l.updated_at, l.deleted_at,
 			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.data, p.created_at, p.updated_at,
 			d.slug, d.name, d.status, d.data, d.created_at, d.updated_at,
 			a.slug, a.name, a.city, a.status, a.lat, a.lng, a.data, a.created_at, a.updated_at
@@ -74,12 +74,12 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		LEFT JOIN projects p ON l.project_id = p.id
 		LEFT JOIN developers d ON l.developer_id = d.id
 		LEFT JOIN areas a ON l.area_id = a.id
-		WHERE l.id = $1
+		WHERE l.id = $1 AND l.deleted_at IS NULL 
 	`, id).Scan(
 		&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
 		&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
 		&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
-		&lot.CreatedAt, &lot.UpdatedAt,
+		&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 		&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projDataJSON, &projCreatedAt, &projUpdatedAt,
 		&devSlug, &devName, &devStatus, &devDataJSON, &devCreatedAt, &devUpdatedAt,
 		&areaSlug, &areaName, &areaCity, &areaStatus, &areaLat, &areaLng, &areaDataJSON, &areaCreatedAt, &areaUpdatedAt,
@@ -121,8 +121,12 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	}
 	lot.BonusKeys = []string(bonusKeys)
 
-	if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
-		return nil, err
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		lot.Data = domain.LotData{}
 	}
 
 	// Заполняем вложенный проект, если данные есть
@@ -230,8 +234,8 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		args = append(args, filters.Status)
 		argPos++
 	} else {
-		query += ` AND l.status = 'active'`
-		countQuery += ` AND l.status = 'active'`
+		query += ` AND l.status = 'active' AND l.deleted_at IS NULL`
+    	countQuery += ` AND l.status = 'active' AND l.deleted_at IS NULL`
 	}
 
 	if filters.AreaSlug != nil {
@@ -389,8 +393,12 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		}
 		lot.BonusKeys = []string(bonusKeys)
 
-		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
-			return nil, 0, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+				return nil, 0, err
+			}
+		} else {
+			lot.Data = domain.LotData{}
 		}
 
 		// Заполняем вложенный проект, если данные есть
@@ -563,7 +571,7 @@ func (r *LotRepo) Update(id uuid.UUID, lot *domain.Lot) error {
 	err = r.db.QueryRow(`
 		UPDATE lots
 		SET status = $1, project_id = $2, developer_id = $3, area_id = $4, type = $5, bedrooms = $6, bathrooms = $7, area_sqm = $8, floor = $9, price_currency = $10, price_amount = $11, bonus_keys = $12, data = $13, updated_at = NOW()
-		WHERE id = $14
+		WHERE id = $14 AND deleted_at IS NULL
 		RETURNING updated_at
 	`, lot.Status, projectID, developerID, areaID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceCurrency, lot.PriceAmount, pq.Array(lot.BonusKeys), dataJSON, id).Scan(&lot.UpdatedAt)
 
@@ -637,8 +645,12 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 		}
 		lot.BonusKeys = []string(bonusKeys)
 
-		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
-			return nil, err
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			lot.Data = domain.LotData{}
 		}
 
 		lots = append(lots, lot)
@@ -647,3 +659,12 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 	return lots, rows.Err()
 }
 
+func (r *LotRepo) Delete(id uuid.UUID) error {
+	_, err := r.db.Exec(`
+		UPDATE lots
+		SET deleted_at = NOW()
+		WHERE id = $1 AND deleted_at IS NULL
+	`, id)
+
+	return err
+}

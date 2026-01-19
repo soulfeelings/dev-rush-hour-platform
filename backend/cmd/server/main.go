@@ -105,6 +105,14 @@ func (s *Server) AdminUpdateDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
 	return s.adminDevelopersHandler.UpdateDeveloper(c, id)
 }
 
+func (s *Server) AdminGetDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminDevelopersHandler.GetDeveloper(c, id)
+}
+
+func (s *Server) AdminSoftDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
+    return s.adminDevelopersHandler.SoftDeleteDeveloper(c, id)
+}
+
 func (s *Server) AdminListAreas(c *fiber.Ctx) error {
 	return s.adminAreasHandler.ListAreas(c)
 }
@@ -115,6 +123,14 @@ func (s *Server) AdminCreateArea(c *fiber.Ctx) error {
 
 func (s *Server) AdminUpdateArea(c *fiber.Ctx, id openapi_types.UUID) error {
 	return s.adminAreasHandler.UpdateArea(c, id)
+}
+
+func (s *Server) AdminGetArea(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminAreasHandler.GetArea(c, id)
+}
+
+func (s *Server) AdminSoftDeleteArea(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminAreasHandler.SoftDeleteArea(c, id)
 }
 
 func (s *Server) AdminListProjects(c *fiber.Ctx) error {
@@ -129,6 +145,14 @@ func (s *Server) AdminUpdateProject(c *fiber.Ctx, id openapi_types.UUID) error {
 	return s.adminProjectsHandler.UpdateProject(c, id)
 }
 
+func (s *Server) AdminGetProject(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminProjectsHandler.GetProject(c, id)
+}
+
+func (s *Server) AdminSoftDeleteProject(c *fiber.Ctx, id openapi_types.UUID) error {
+    return s.adminProjectsHandler.SoftDeleteProject(c, id)
+}
+
 func (s *Server) AdminListLots(c *fiber.Ctx) error {
 	return s.adminLotsHandler.ListLots(c)
 }
@@ -137,12 +161,33 @@ func (s *Server) AdminCreateLot(c *fiber.Ctx) error {
 	return s.adminLotsHandler.CreateLot(c)
 }
 
+
 func (s *Server) AdminUpdateLot(c *fiber.Ctx, id openapi_types.UUID) error {
 	return s.adminLotsHandler.UpdateLot(c, id)
 }
 
+func (s *Server) AdminGetLot(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminLotsHandler.GetLot(c, id)
+}
+
+func (s *Server) AdminSoftDeleteLot(c *fiber.Ctx, id openapi_types.UUID) error {
+    return s.adminLotsHandler.SoftDeleteLot(c, id)
+}
+
 func (s *Server) AdminListLeads(c *fiber.Ctx, params generated.AdminListLeadsParams) error {
 	return s.adminLeadsHandler.ListLeads(c, params)
+}
+
+func (s *Server) AdminUpdateLead(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminLeadsHandler.UpdateLead(c, id)
+}
+
+func (s *Server) AdminGetLead(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminLeadsHandler.GetLead(c, id)
+}
+
+func (s *Server) AdminSoftDeleteLead(c *fiber.Ctx, id openapi_types.UUID) error {
+    return s.adminLeadsHandler.SoftDeleteLead(c, id)
 }
 
 func main() {

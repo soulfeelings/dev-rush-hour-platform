@@ -6,14 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * @nullable
- */
-export type AreaUpdateRequestStatus =
-  | (typeof AreaUpdateRequestStatus)[keyof typeof AreaUpdateRequestStatus]
-  | null
+export type LeadUpdateRequestStatus =
+  (typeof LeadUpdateRequestStatus)[keyof typeof LeadUpdateRequestStatus]
 
-export const AreaUpdateRequestStatus = {
-  active: 'active',
-  inactive: 'inactive',
+export const LeadUpdateRequestStatus = {
+  new: 'new',
+  in_progress: 'in_progress',
+  done: 'done',
+  spam: 'spam',
 } as const

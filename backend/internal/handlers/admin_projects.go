@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"errors"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
 	"rush-hour-platform/backend/internal/services"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -175,3 +176,62 @@ func (h *AdminProjectsHandler) UpdateProject(c *fiber.Ctx, id openapi_types.UUID
 	return c.JSON(mappers.DomainProjectToGenerated(updated))
 }
 
+func (h *AdminProjectsHandler) GetProject(c *fiber.Ctx, id openapi_types.UUID) error {
+	project, err := h.projectsService.GetByID(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrProjectNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.JSON(mappers.DomainProjectToGenerated(project))
+}
+
+func (h *AdminProjectsHandler) SoftDeleteProject(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.projectsService.Delete(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrProjectNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}

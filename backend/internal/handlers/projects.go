@@ -43,6 +43,8 @@ func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjec
 		gen := mappers.DomainProjectToGenerated(&projects[i])
 		if gen != nil {
 			result[i] = *gen
+		} else {
+			log.Printf("WARNING [ListProjects] mapper returned nil for project %s", projects[i].Slug)
 		}
 	}
 

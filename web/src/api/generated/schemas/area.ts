@@ -13,10 +13,16 @@ export interface Area {
   slug?: string
   name?: string
   city?: string
+  description?: string
   lat?: number
   lng?: number
   status?: AreaStatus
   data?: AreaData
   createdAt?: string
   updatedAt?: string
+  /**
+   * Время мягкого удаления (если null - не удален)
+   * @nullable
+   */
+  deletedAt?: string | null
 }

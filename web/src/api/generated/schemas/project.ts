@@ -8,6 +8,8 @@
 import type { ProjectStatus } from './projectStatus'
 import type { ProjectSale } from './projectSale'
 import type { ProjectData } from './projectData'
+import type { Developer } from './developer'
+import type { Area } from './area'
 import type { Lot } from './lot'
 
 export interface Project {
@@ -21,8 +23,17 @@ export interface Project {
   lat?: number
   lng?: number
   data?: ProjectData
+  /** Вложенный объект застройщика */
+  developer?: Developer
+  /** Вложенный объект района */
+  area?: Area
   createdAt?: string
   updatedAt?: string
+  /**
+   * Время мягкого удаления (если null - не удален)
+   * @nullable
+   */
+  deletedAt?: string | null
   /** Первые N лотов проекта (если запрошено через includeLots) */
   lots?: Lot[]
 }
