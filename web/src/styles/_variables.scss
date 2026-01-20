@@ -25,6 +25,10 @@ $color-secondary-light: #e8f5f3;
 $color-bg: #fdfbf7; // Warm off-white
 $color-bg-card: #ffffff;
 $color-bg-overlay: rgba(0, 0, 0, 0.5);
+$color-bg-header: rgba(255, 255, 255, 0.95);
+$color-overlay-hover: rgba(0, 0, 0, 0.05);
+$color-bg-control: rgba(19, 20, 21, 0.1); // Charcoal_Grey10
+$color-bg-log-in: #ffd400; // Yellow
 
 // Text
 $color-text: #1a1a1a; // Dark charcoal
@@ -35,6 +39,7 @@ $color-text-inverse: #ffffff;
 // Borders
 $color-border: #e5e0d8; // Warm light border
 $color-border-focus: $color-primary;
+$color-border-light: rgba(19, 20, 21, 0.1);
 
 // Status
 $color-success: #3d9970;
