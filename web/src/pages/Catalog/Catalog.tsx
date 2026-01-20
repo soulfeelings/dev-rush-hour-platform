@@ -52,7 +52,7 @@ const loadSplitterPosition = (): number => {
 }
 
 const sortOptions = [
-  { value: 'default', label: 'По умолчанию' },
+  { value: 'default', label: 'Default' },
   { value: 'price-asc', label: 'Цена: по возрастанию' },
   { value: 'price-desc', label: 'Цена: по убыванию' },
   { value: 'date-asc', label: 'Дата: сначала новые' },
@@ -248,7 +248,7 @@ export default function Catalog() {
       </div>
       <div className={styles.resultsHeader}>
         <span className={styles.resultsCount}>
-          {displayedResults} из {totalResults} результатов
+          {displayedResults} of {totalResults} results
         </span>
         <div className={styles.headerActions}>
           <div className={styles.sortContainer}>
