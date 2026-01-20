@@ -47,6 +47,11 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Hide Leaflet attribution control */
+.leaflet-control-attribution a {
+  display: none !important;
+}
+
 /* Three.js Html popup wrapper - ограничение в пределах канваса */
 .apartment-popup-wrapper {
   max-width: min(90vw, 300px) !important;

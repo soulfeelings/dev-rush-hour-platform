@@ -104,12 +104,17 @@ export default function LotDetail() {
       center: defaultCoordinates,
       zoom: MAP_ZOOM_DEFAULT,
       zoomControl: true,
+      attributionControl: true,
     })
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 19,
-    }).addTo(mapRef.current)
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        attribution:
+          'Thanks for the amazing satellite imagery provided by Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
+        maxZoom: 19,
+      }
+    ).addTo(mapRef.current)
 
     setTimeout(() => {
       mapRef.current?.invalidateSize()
