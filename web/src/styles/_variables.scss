@@ -11,7 +11,7 @@
 // ----------------
 
 // Primary - Warm golden yellow (sand-inspired)
-$color-primary: #e5a732;
+$color-primary: rgba(255, 212, 0, 1);
 $color-primary-hover: #d19526;
 $color-primary-active: #bd8620;
 $color-primary-light: #fdf4e3;
@@ -28,6 +28,7 @@ $color-bg-overlay: rgba(0, 0, 0, 0.5);
 $color-bg-header: rgba(255, 255, 255, 0.95);
 $color-overlay-hover: rgba(0, 0, 0, 0.05);
 $color-bg-control: rgba(19, 20, 21, 0.1); // Charcoal_Grey10
+$color-bg-black: rgba(19, 20, 21, 1); // Charcoal_Black
 $color-bg-log-in: #ffd400; // Yellow
 
 // Text
@@ -39,7 +40,6 @@ $color-text-inverse: #ffffff;
 // Borders
 $color-border: #e5e0d8; // Warm light border
 $color-border-focus: $color-primary;
-$color-border-light: rgba(19, 20, 21, 0.1);
 
 // Status
 $color-success: #3d9970;
