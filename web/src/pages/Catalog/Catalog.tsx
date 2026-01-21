@@ -21,7 +21,7 @@ const GRID_CONSTANTS = {
 
   // Границы ширины панели для определения количества колонок (%)
   PANEL_WIDTH_BREAKPOINT_1: 40, // < 40% - 1 колонка
-  PANEL_WIDTH_BREAKPOINT_2: 70, // 40-70% - 2 колонки, > 70% - 3 колонки
+  PANEL_WIDTH_BREAKPOINT_2: 60, // 40-70% - 2 колонки, > 70% - 3 колонки
 
   // Размеры панелей ResizableSplitter (%)
   INITIAL_LEFT_WIDTH: 40,

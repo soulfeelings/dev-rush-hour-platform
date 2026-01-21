@@ -424,3 +424,24 @@
     left: 0;
   }
 }
+
+// ----------------
+// PROJECT CARD COMPONENTS
+// ----------------
+
+@mixin dataCell($justify: flex-start) {
+  width: 222px;
+  height: $data-row-height;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-1 $spacing-4;
+  box-sizing: border-box;
+  justify-content: $justify;
+
+  @include sm {
+    width: 50%;
+    padding: $spacing-1 $spacing-3;
+    gap: $spacing-2;
+  }
+}

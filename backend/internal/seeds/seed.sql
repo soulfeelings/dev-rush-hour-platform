@@ -44,7 +44,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM areas WHERE slug = 'al-jazeera-al-hamra-industrial'),
  25.3340, 55.3070,
  '{"description": "Modern residential complex offering flexible studio to 2-bedroom units in an emerging mixed-use community at Al Jazeera Al Hamra Industrial area, featuring contemporary design, green spaces, and community-focused amenities for comfortable urban living.",
-   "specs": {"priceFrom": 800000, "currency": "AED", "types": ["Primary"], "bedrooms": ["Ст", "1К", "2К"], "completionDate": "2029-Q1"},
+   "specs": {"priceFrom": 800000, "currency": "AED", "types": ["Primary"], "bedrooms": ["Ст", "1К", "2К"], "completionDate": "Q12029"},
    "media": {
      "cover": {"id": "colibri-views-cover", "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"},
      "gallery": [
@@ -60,7 +60,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM areas WHERE slug = 'dubai-islands'),
  25.3216, 55.2911,
  '{"description": "Premium waterfront residences on Dubai Islands featuring 1 to 4-bedroom apartments with modern architecture, private beach access, and luxury amenities in a serene island setting just minutes from the city center.",
-   "specs": {"priceFrom": 1400000, "currency": "AED", "types": ["Primary"], "bedrooms": ["1К", "2К", "4К"], "completionDate": "2027-Q2"},
+   "specs": {"priceFrom": 1400000, "currency": "AED", "types": ["Primary"], "bedrooms": ["1К", "2К", "4К"], "completionDate": "Q22027"},
    "media": {
      "cover": {"id": "luz-ora-cover", "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"},
      "gallery": [
@@ -76,7 +76,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  25.1154, 55.1390,
  '{"description": "Ultra-luxury beachfront residences on the iconic Palm Jumeirah, offering 2 to 4-bedroom apartments and villas with direct private beach access, infinity pools, and 5-star hotel amenities in Dubai''s most exclusive address.",
-   "specs": {"priceFrom": 2100000, "currency": "AED", "types": ["Primary"], "bedrooms": ["2К", "3К", "4К"], "completionDate": "2026-Q3"},
+   "specs": {"priceFrom": 2100000, "currency": "AED", "types": ["Primary"], "bedrooms": ["2К", "3К", "4К"], "completionDate": "Q32026"},
    "media": {
      "cover": {"id": "palm-jumeirah-cover", "url": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800"},
      "gallery": [
@@ -93,7 +93,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  25.1972, 55.2744,
  '{"description": "Premium high-rise tower in the heart of Downtown Dubai featuring 1 to 3-bedroom apartments with direct views of Burj Khalifa, immediate access to Dubai Mall, and luxury urban living at the center of the city''s cultural and commercial hub.",
-   "specs": {"priceFrom": 1400000, "currency": "AED", "types": ["Primary"], "bedrooms": ["1К", "2К", "3К"], "completionDate": "2028-Q1"},
+   "specs": {"priceFrom": 1400000, "currency": "AED", "types": ["Primary"], "bedrooms": ["1К", "2К", "3К"], "completionDate": "Q12028"},
    "media": {
      "cover": {"id": "downtown-dubai-cover", "url": "https://edge.travelatacdn.ru/thumbs/640x480/upload/2021_41/content_hotel_616721062c3ec6.34344983.jpeg"},
      "gallery": [
