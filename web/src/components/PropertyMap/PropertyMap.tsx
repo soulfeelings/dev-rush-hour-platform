@@ -65,6 +65,8 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           closeButton: false,
           autoPan: true,
           autoPanPadding: [20, 20],
+          maxWidth: 400,
+          minWidth: 320,
         }).setContent(popupElement)
 
         // Очистка React root при удалении popup

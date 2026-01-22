@@ -53,10 +53,10 @@ const loadSplitterPosition = (): number => {
 
 const sortOptions = [
   { value: 'default', label: 'Default' },
-  { value: 'price-asc', label: 'Цена: по возрастанию' },
-  { value: 'price-desc', label: 'Цена: по убыванию' },
-  { value: 'date-asc', label: 'Дата: сначала новые' },
-  { value: 'date-desc', label: 'Дата: сначала старые' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'date-asc', label: 'Date: Newest First' },
+  { value: 'date-desc', label: 'Date: Oldest First' },
 ]
 
 export default function Catalog() {
@@ -170,7 +170,16 @@ export default function Catalog() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const getGridColumns = (catalogWidth: number, screenWidth: number) => {
+  const getGridColumns = (
+    catalogWidth: number,
+    screenWidth: number,
+    isLotsMode: boolean = false
+  ) => {
+    // Для лотов всегда 1 колонка
+    if (isLotsMode) {
+      return 1
+    }
+
     // Определяем максимальное количество колонок на основе размера экрана
     const maxColumnsByScreen =
       screenWidth >= GRID_CONSTANTS.BREAKPOINT_XL
@@ -276,7 +285,9 @@ export default function Catalog() {
           panelWidth={panelWidth}
           screenWidth={screenWidth}
           onFavoriteClick={handleLotFavoriteClick}
-          getGridColumns={getGridColumns}
+          getGridColumns={(catalogWidth, screenWidth) =>
+            getGridColumns(catalogWidth, screenWidth, true)
+          }
           lots={lots}
           isLoading={lotsLoading}
           error={lotsError}

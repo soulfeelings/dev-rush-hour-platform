@@ -1,0 +1,628 @@
+@use '@/styles' as *;
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.card {
+  max-width: 930px;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* Галерея */
+.photoSection {
+  width: 45%;
+  min-width: 200px;
+  height: 350px;
+  border: 0.5px solid rgba(19, 20, 21, 0.1);
+  border-right: none;
+  border-radius: 16px 0 0 16px;
+  background: repeating-linear-gradient(
+    45deg,
+    #f0f0f0 0,
+    #f0f0f0 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 1;
+}
+
+.galleryContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.mainImageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f8f9fa; /* Добавляем фоновый цвет на случай если изображение не загрузится */
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Используем cover для полного заполнения */
+    transition: transform $transition-normal;
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+}
+
+.favoriteButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 183.92px;
+  background: $color-bg-card;
+  border: none;
+  @include flex-center;
+  cursor: pointer;
+  transition: all $transition-fast;
+  z-index: 2;
+  padding: $spacing-3;
+  box-sizing: border-box;
+
+  &:hover {
+    background: $color-bg-card;
+    transform: scale(1.05);
+    box-shadow: $shadow-sm;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: rgba(19, 20, 21, 0.3);
+
+    path {
+      fill: rgba(19, 20, 21, 0.3);
+      stroke: none;
+    }
+  }
+
+  &.favorited {
+    svg {
+      color: rgba(255, 30, 0, 0.8);
+
+      path {
+        fill: rgba(255, 30, 0, 0.8);
+      }
+    }
+  }
+}
+
+.navButton {
+  @include circle-button(36px);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(253, 253, 253, 0.6);
+  z-index: 10;
+  opacity: 0;
+  transition: all $transition-fast;
+
+  .galleryContainer:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    background: rgba(253, 253, 253, 0.8);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  svg {
+    color: rgba(19, 20, 21, 0.5);
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.prevButton {
+  left: 16px;
+}
+
+.nextButton {
+  right: 16px;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  @include flex-center;
+  flex-direction: column;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+
+  svg {
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  span {
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+
+/* Пагинация */
+.photoPagination {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 388px;
+  height: 6px;
+  display: flex;
+  gap: 3px;
+  z-index: 10;
+}
+
+.paginationDot {
+  flex: 1;
+  height: 6px;
+  border-radius: 15px;
+  background: rgba(253, 253, 253, 0.6);
+  border: none;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &.activePagination {
+    background: rgba(255, 212, 0, 1);
+  }
+
+  &:hover {
+    background: rgba(255, 212, 0, 0.8);
+  }
+}
+
+/* Информация */
+.lotInfoSection {
+  flex: 1;
+  min-width: 0;
+  height: 350px;
+  border: 0.5px solid rgba(19, 20, 21, 0.1);
+  border-left: none;
+  border-radius: 0 16px 16px 0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.frame66 {
+  width: 100%;
+  height: 100%;
+  max-width: 510px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Developer контейнер */
+.developerContainer {
+  height: 85px;
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-2 $spacing-4;
+  border-bottom: 1px solid $color-bg-control;
+  background: $color-bg-card;
+}
+
+.developerLogoContainer {
+  width: $logo-size;
+  height: $logo-size;
+  flex-shrink: 0;
+  @include flex-center;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid $color-border;
+  background: white;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    clip-path: circle(50%);
+  }
+}
+
+.projectInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+  overflow: hidden;
+}
+
+.projectTitle {
+  @include truncate;
+  color: $color-bg-black;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  line-height: 1.2;
+}
+
+.developerName {
+  @include truncate;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.2;
+}
+
+.regionName {
+  @include truncate;
+  font-size: $font-size-sm;
+  color: $color-bg-qq;
+  line-height: 1.2;
+}
+
+/* ROI Badge */
+.roiContainer {
+  @include flex-center;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $radius-full;
+  background: $color-roi-bg;
+  min-width: $roi-badge-width;
+  height: $roi-badge-height;
+}
+
+.roiValue {
+  color: $color-roi-text;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+/* Информация о лоте */
+.currencyObjectInfo {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 16px;
+  border-bottom: 0.5px solid rgba(19, 20, 21, 0.1);
+}
+
+.apartmentType {
+  width: 91px;
+  height: 20px;
+  font-size: 16px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.dotSeparator {
+  width: 12px;
+  height: 12px;
+  @include flex-center;
+}
+
+.dot {
+  width: 2px;
+  height: 2px;
+  background: rgba(19, 20, 21, 1);
+  border-radius: 50%;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+}
+
+.iconContainer {
+  width: 20px;
+  height: 20px;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.icon {
+  width: 100%;
+  height: 100%;
+  fill: $color-text;
+}
+
+.count {
+  font-size: $font-size-md;
+  line-height: 1.2;
+  font-weight: $font-weight-medium;
+}
+
+.areaValue {
+  font-size: $font-size-md;
+  line-height: 1.2;
+  font-weight: $font-weight-medium;
+  min-width: 28px;
+}
+
+.areaUnit {
+  width: 19px;
+  height: 18px;
+  @include flex-center;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+/* Цены */
+.priceSection {
+  border-bottom: 1px solid $color-bg-control;
+}
+
+.priceItem {
+  height: $data-row-height;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-1 $spacing-4;
+  gap: $spacing-3;
+}
+
+.priceLabel {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  flex: 1;
+}
+
+.priceLabelText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.discountBadge {
+  height: 23px;
+  display: flex;
+  align-items: center;
+  padding: 0 $spacing-3;
+  border-radius: $radius-full;
+  background: rgba(255, 30, 0, 0.2);
+}
+
+.discountValue {
+  color: rgba(255, 30, 0, 1);
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.priceValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-align: right;
+
+  .from {
+    color: $color-bg-qq;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    line-height: 1.2;
+    margin-right: $spacing-1;
+  }
+}
+
+/* Дата и план платежей */
+.paymentPlanContainer {
+  height: 33px;
+  display: flex;
+  align-items: center;
+  border-bottom: 0.5px solid $color-bg-control;
+}
+
+.dateContainer {
+  @include dataCell(flex-start);
+  padding-left: 16px;
+}
+
+.dateValue {
+  font-size: $font-size-md;
+  line-height: 1.2;
+
+  .quarter {
+    color: $color-bg-qq;
+  }
+
+  .year {
+    color: $color-bg-black;
+  }
+}
+
+/* Кнопка WhatsApp */
+.buttonSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-2 $spacing-4;
+}
+
+.whatsappButton {
+  width: 100%;
+  max-width: 478px;
+  height: 36px;
+  @include btn-primary;
+  @include btn-sm;
+  border-radius: $radius-full;
+  background: $color-primary;
+  padding: $spacing-2 $spacing-4;
+
+  &:hover {
+    background: $color-primary-hover;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($color-primary, 0.3);
+  }
+}
+
+.whatsappText {
+  color: rgba(19, 20, 21, 1);
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.whatsappNote {
+  color: rgba(19, 20, 21, 0.3);
+  font-size: 13.7px;
+  font-weight: 500;
+  line-height: 17px;
+}
+
+/* Адаптивность */
+@media (max-width: 968px) {
+  .card {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .photoSection {
+    width: 100%;
+    height: 280px;
+    border-radius: 16px 16px 0 0;
+    border-right: 0.5px solid rgba(19, 20, 21, 0.1);
+    border-bottom: none;
+    min-width: 0;
+  }
+
+  .lotInfoSection {
+    width: 100%;
+    height: auto;
+    border-radius: 0 0 16px 16px;
+    border-left: 0.5px solid rgba(19, 20, 21, 0.1);
+    border-top: none;
+  }
+
+  .frame66,
+  .developerContainer,
+  .currencyObjectInfo,
+  .priceSection,
+  .buttonSection {
+    width: 100%;
+  }
+
+  .whatsappNote {
+    width: 100%;
+  }
+
+  .photoPagination {
+    width: calc(100% - 32px);
+    max-width: 300px;
+  }
+
+  .navButton {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .photoSection {
+    height: 220px;
+    min-width: 0;
+  }
+
+  .lotInfoSection {
+    height: auto;
+    min-height: 220px;
+  }
+
+  .navButton {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+  }
+
+  .navButton svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .prevButton {
+    left: 8px;
+  }
+
+  .nextButton {
+    right: 8px;
+  }
+
+  .favoriteButton {
+    width: 40px;
+    height: 40px;
+    padding: $spacing-2;
+    top: 8px;
+    right: 8px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .currencyObjectInfo {
+    gap: 6px;
+    padding: 6px 12px;
+  }
+
+  .apartmentType {
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  .count,
+  .areaValue,
+  .priceLabelText,
+  .priceValue {
+    font-size: $font-size-sm;
+    line-height: 18px;
+  }
+
+  .priceValue .from {
+    font-size: 11px;
+    line-height: 14px;
+  }
+
+  .whatsappText {
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  .whatsappNote {
+    font-size: 12px;
+    line-height: 15px;
+  }
+
+  .photoPagination {
+    width: calc(100% - 16px);
+    max-width: 250px;
+  }
+}
