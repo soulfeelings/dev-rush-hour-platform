@@ -1,0 +1,24 @@
+@use '../../styles' as *;
+
+.attribution {
+  margin: 0;
+  padding: $spacing-2 $spacing-4;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(253, 251, 247, 1) 100%);
+  border-top: 1px solid $color-border;
+  font-size: $font-size-xs;
+  line-height: $line-height-normal;
+  color: $color-text;
+  font-weight: $font-weight-medium;
+  text-align: center;
+}
+
+.credits {
+  color: $color-text-muted;
+  font-weight: $font-weight-regular;
+}
+
+@media (min-width: $breakpoint-md) {
+  .attribution {
+    text-align: left;
+  }
+}

@@ -22,12 +22,17 @@ export function MapPicker({ lat, lng, onCoordinatesChange }: MapPickerProps) {
         center: [25.2048, 55.2708],
         zoom: 11,
         zoomControl: true,
+        attributionControl: true,
       })
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-      }).addTo(mapRef.current)
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution:
+            'Thanks for the amazing satellite imagery provided by Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
+          maxZoom: 19,
+        }
+      ).addTo(mapRef.current)
 
       mapRef.current.on('click', e => {
         const { lat, lng } = e.latlng
