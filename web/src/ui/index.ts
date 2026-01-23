@@ -16,6 +16,9 @@ export * from './Card'
 export * from './Modal'
 export * from './ImagePreview'
 
+// Typography
+export * from './Typography'
+
 // Feedback
 export * from './Toast'
 export * from './Tooltip'

@@ -1,0 +1,32 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.typography {
+  margin: 0;
+}
+
+// H1 variant
+.typography--h1 {
+  @include typography-h1;
+}
+
+// Body variants
+.typography--body-large-medium {
+  @include typography-body-large-medium;
+}
+
+.typography--body-large-regular {
+  @include typography-body-large-regular;
+}
+
+.typography--body-regular-regular {
+  @include typography-body-regular-regular;
+}
+
+.typography--body-small-medium {
+  @include typography-body-small-medium;
+}
+
+.typography--body-small-regular {
+  @include typography-body-small-regular;
+}

@@ -84,6 +84,61 @@
   color: $color-text-muted;
 }
 
+// Typography styles from design system
+@mixin typography-h1 {
+  font-family: $font-family-primary;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 25px;
+  letter-spacing: 0%;
+  text-align: left;
+}
+
+@mixin typography-body-large-medium {
+  font-family: $font-family-primary;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0%;
+  text-align: left;
+}
+
+@mixin typography-body-large-regular {
+  font-family: $font-family-primary;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0%;
+  text-align: left;
+}
+
+@mixin typography-body-regular-regular {
+  font-family: $font-family-primary;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0%;
+  text-align: left;
+}
+
+@mixin typography-body-small-medium {
+  font-family: $font-family-primary;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 15px;
+  letter-spacing: 0%;
+  text-align: left;
+}
+
+@mixin typography-body-small-regular {
+  font-family: $font-family-primary;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15px;
+  letter-spacing: 0%;
+  text-align: left;
+}
+
 // ----------------
 // BUTTONS
 // ----------------
