@@ -19,7 +19,7 @@
   transition: color $transition-fast;
 
   &:hover {
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
@@ -80,7 +80,7 @@
   border-radius: $radius-lg;
   padding: $spacing-6;
   box-shadow: $shadow-card;
-  border-left: 4px solid $color-primary;
+  border-left: 4px solid $color-yellow;
   text-decoration: none;
   transition: all $transition-normal;
 

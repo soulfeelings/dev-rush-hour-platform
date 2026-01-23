@@ -79,7 +79,7 @@
 }
 
 .heroHighlight {
-  color: $color-primary;
+  color: $color-yellow;
   position: relative;
   white-space: nowrap;
 
@@ -92,11 +92,11 @@
     height: 6px;
     background: linear-gradient(
       90deg,
-      color.change($color-primary, $alpha: 0.4) 0%,
-      color.change($color-primary, $alpha: 0.7) 25%,
-      color.change($color-primary, $alpha: 0.4) 50%,
-      color.change($color-primary, $alpha: 0.7) 75%,
-      color.change($color-primary, $alpha: 0.4) 100%
+      color.change($color-yellow, $alpha: 0.4) 0%,
+      color.change($color-yellow, $alpha: 0.7) 25%,
+      color.change($color-yellow, $alpha: 0.4) 50%,
+      color.change($color-yellow, $alpha: 0.7) 75%,
+      color.change($color-yellow, $alpha: 0.4) 100%
     );
     background-size: 200% 100%;
     border-radius: 3px;
@@ -164,13 +164,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $color-primary-light;
+  background: $color-yellow-light;
   border-radius: $radius-xl;
 
   svg {
     width: 60px;
     height: 60px;
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
@@ -291,7 +291,7 @@
 }
 
 .cardBadgeFeatured {
-  background: $color-primary;
+  background: $color-yellow;
 }
 
 .cardFavorite {
@@ -335,7 +335,7 @@
 .cardPrice {
   font-size: $font-size-xl;
   font-weight: $font-weight-bold;
-  color: $color-primary;
+  color: $color-yellow;
   margin: 0 0 $spacing-1;
 }
 
@@ -387,7 +387,7 @@
 // ----------------
 .features {
   padding: $spacing-12 $spacing-4;
-  background: $color-primary-light;
+  background: $color-yellow-light;
 }
 
 // Video Block with Burj Khalifa frame
@@ -429,9 +429,9 @@
   border-radius: $radius-lg;
   overflow: hidden;
   box-shadow:
-    0 4px 20px color.change($color-primary, $alpha: 0.2),
+    0 4px 20px color.change($color-yellow, $alpha: 0.2),
     0 8px 40px rgba(0, 0, 0, 0.15);
-  border: 2px solid color.change($color-primary, $alpha: 0.3);
+  border: 2px solid color.change($color-yellow, $alpha: 0.3);
 
   &::before {
     content: '';
@@ -450,7 +450,7 @@
   transform: translate(-50%, -50%);
   width: 80px;
   height: 80px;
-  background: $color-primary;
+  background: $color-yellow;
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -458,7 +458,7 @@
   align-items: center;
   justify-content: center;
   transition: all $transition-normal;
-  box-shadow: 0 4px 20px color.change($color-primary, $alpha: 0.4);
+  box-shadow: 0 4px 20px color.change($color-yellow, $alpha: 0.4);
   z-index: 1;
 
   &::before {
@@ -473,7 +473,7 @@
 
   &:hover {
     transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: 0 6px 30px color.change($color-primary, $alpha: 0.5);
+    box-shadow: 0 6px 30px color.change($color-yellow, $alpha: 0.5);
   }
 
   @media (min-width: $breakpoint-md) {
@@ -525,13 +525,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $color-primary-light;
+  background: $color-yellow-light;
   border-radius: $radius-lg;
 
   svg {
     width: 32px;
     height: 32px;
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
@@ -615,7 +615,7 @@
     margin: 0 0 $spacing-3;
 
     span {
-      color: $color-primary;
+      color: $color-yellow;
     }
   }
 
@@ -656,7 +656,7 @@
 
     &:hover {
       opacity: 1;
-      color: $color-primary;
+      color: $color-yellow;
     }
   }
 }
@@ -692,7 +692,7 @@
     transition: all $transition-fast;
 
     &:hover {
-      background: $color-primary;
+      background: $color-yellow;
     }
 
     svg {

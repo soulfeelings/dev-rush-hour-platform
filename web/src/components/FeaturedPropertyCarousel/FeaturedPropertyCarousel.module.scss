@@ -135,7 +135,7 @@
 }
 
 .dotActive {
-  background: $color-primary;
+  background: $color-yellow;
   width: 24px;
   border-radius: $radius-full;
 }
@@ -158,8 +158,8 @@
   transition: all $transition-fast;
 
   &:hover {
-    background: $color-primary-light;
-    border-color: $color-primary;
+    background: $color-yellow-light;
+    border-color: $color-yellow;
   }
 
   svg {

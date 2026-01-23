@@ -4,7 +4,7 @@
   width: 100%;
   background: $color-bg-header;
   backdrop-filter: blur(10px);
-  border-bottom: 0.5px solid $color-bg-control;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
   height: 54px;
   flex-shrink: 0;
 }
@@ -82,7 +82,7 @@
   transition: all $transition-fast;
 
   &:hover {
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 

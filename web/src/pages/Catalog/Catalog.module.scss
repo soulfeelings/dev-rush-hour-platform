@@ -14,7 +14,7 @@
   padding: $spacing-3 $spacing-0;
   background: $color-bg-card;
   box-sizing: border-box;
-  border-bottom: 0.5px solid $color-bg-control;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
   flex-shrink: 0;
 }
 
@@ -78,21 +78,21 @@
   border-radius: $radius-full;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   cursor: pointer;
   transition: all $transition-fast;
 
   &:hover {
-    background: rgba($color-primary, 0.05);
+    background: rgba($color-yellow, 0.05);
     color: $color-text;
   }
 
   &.active {
-    background: $color-primary;
-    color: $color-bg-black;
+    background: $color-yellow;
+    color: $color-charcoal-black;
 
     &:hover {
-      background: $color-primary-hover;
+      background: $color-yellow-hover;
     }
   }
 }
@@ -117,7 +117,7 @@
 
 .resultsCount {
   font-size: $font-size-xs;
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   padding: $spacing-1 $spacing-2;
   white-space: nowrap;
   width: 121px;
@@ -143,7 +143,7 @@
   align-items: center;
   gap: $spacing-2;
   padding: $spacing-2 $spacing-4;
-  background: $color-primary;
+  background: $color-yellow;
   color: $color-text-inverse;
   border: none;
   border-radius: $radius-md;
@@ -158,7 +158,7 @@
   }
 
   &:hover {
-    background: $color-primary-hover;
+    background: $color-yellow-hover;
     transform: translateY(-1px);
   }
 }
@@ -198,7 +198,7 @@
 
   button {
     padding: $spacing-2 $spacing-4;
-    background: $color-primary;
+    background: $color-yellow;
     color: $color-text-inverse;
     border: none;
     border-radius: $radius-md;
@@ -207,7 +207,7 @@
     transition: background $transition-fast;
 
     &:hover {
-      background: $color-primary-hover;
+      background: $color-yellow-hover;
     }
   }
 }

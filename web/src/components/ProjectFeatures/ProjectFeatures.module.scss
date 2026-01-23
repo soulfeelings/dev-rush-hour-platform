@@ -42,18 +42,18 @@
   width: 36px;
   height: 36px;
   border-radius: $radius-md;
-  background: $color-primary-light;
+  background: $color-yellow-light;
   flex-shrink: 0;
   transition: all $transition-normal;
 }
 
 .featureItem:hover .iconWrapper {
-  background: $color-primary;
+  background: $color-yellow;
   transform: scale(1.1);
 }
 
 .icon {
-  color: $color-primary;
+  color: $color-yellow;
   transition: color $transition-normal;
 }
 
@@ -83,9 +83,9 @@
   transition: all $transition-normal;
 
   &:hover {
-    background: $color-primary-light;
-    border-color: $color-primary;
-    color: $color-primary;
+    background: $color-yellow-light;
+    border-color: $color-yellow;
+    color: $color-yellow;
     transform: translateY(-1px);
     box-shadow: $shadow-sm;
   }

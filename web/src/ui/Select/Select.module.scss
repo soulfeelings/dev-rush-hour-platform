@@ -82,7 +82,7 @@
   }
 
   &--open {
-    border-color: $color-primary;
+    border-color: $color-yellow;
     color: $color-text;
   }
 
@@ -151,7 +151,7 @@
   transition: border-color $transition-fast;
 
   &:focus {
-    border-color: $color-primary;
+    border-color: $color-yellow;
   }
 
   &::placeholder {
@@ -197,7 +197,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: $color-primary;
+    background: $color-yellow;
     opacity: 0;
     transition: opacity $transition-fast;
   }
@@ -209,9 +209,9 @@
   }
 
   &--selected {
-    color: $color-primary;
+    color: $color-yellow;
     font-weight: $font-weight-medium;
-    background: $color-primary-light;
+    background: $color-yellow-light;
 
     &::after {
       content: '';
@@ -252,7 +252,7 @@
     background: transparent;
   }
   50% {
-    background: color.change($color-primary, $alpha: 0.2);
+    background: color.change($color-yellow, $alpha: 0.2);
   }
   100% {
     background: transparent;

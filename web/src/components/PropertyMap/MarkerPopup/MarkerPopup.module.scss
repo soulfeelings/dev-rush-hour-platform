@@ -45,7 +45,7 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: $color-primary;
+  background: $color-yellow;
   color: white;
   padding: 2px 6px;
   border-radius: $radius-sm;
@@ -62,7 +62,7 @@
   gap: 8px;
   padding: 12px 16px;
   box-sizing: border-box;
-  border-bottom: 0.5px solid $color-bg-control;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
   background: $color-bg-card;
 
   @include sm {
@@ -133,7 +133,7 @@
 .projectTitle {
   @include truncate;
   height: 20px;
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   font-family: $font-family-primary;
   font-size: $font-size-lg;
   font-weight: $font-weight-medium;
@@ -162,7 +162,7 @@
 .regionName {
   @include truncate;
   height: 16px;
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   font-family: $font-family-primary;
   font-size: $font-size-sm;
   font-weight: $font-weight-regular;
@@ -175,7 +175,7 @@
 }
 
 .regionName {
-  color: $color-bg-qq;
+  color: $color-charcoal-grey-50;
 }
 
 .roiContainer {
@@ -184,7 +184,7 @@
   justify-content: center;
   padding: $spacing-1 $spacing-2;
   border-radius: $radius-full;
-  background: $color-roi-bg;
+  background: $color-label-lightgreen;
   flex-shrink: 0;
   min-width: 35px;
   height: 18px;
@@ -197,7 +197,7 @@
 }
 
 .roiValue {
-  color: $color-roi-text;
+  color: $color-label-green;
   font-family: $font-family-primary;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
@@ -216,7 +216,7 @@
   flex-direction: column;
   box-sizing: border-box;
   height: 32px;
-  border-bottom: 0.5px solid $color-bg-control;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
 }
 
 .priceRow {
@@ -246,7 +246,7 @@
 }
 
 .attributeLabel {
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   font-family: $font-family-primary;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
@@ -264,11 +264,11 @@
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   line-height: 14px;
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   white-space: nowrap;
 
   .from {
-    color: $color-bg-qq;
+    color: $color-charcoal-grey-50;
     font-size: $font-size-xs;
     font-weight: $font-weight-regular;
     margin-right: 2px;
@@ -320,11 +320,11 @@
 
 .dateValue {
   .quarter {
-    color: $color-bg-qq;
+    color: $color-charcoal-grey-50;
   }
 
   .year {
-    color: $color-bg-black;
+    color: $color-charcoal-black;
   }
 }
 
@@ -336,6 +336,6 @@
   }
 
   .planNumbers {
-    color: $color-bg-black;
+    color: $color-charcoal-black;
   }
 }

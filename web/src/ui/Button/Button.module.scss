@@ -29,15 +29,15 @@
 
 // Variants
 .btn--primary {
-  background: $color-primary;
-  color: $color-bg-black;
+  background: $color-yellow;
+  color: $color-charcoal-black;
 
   &:hover:not(:disabled) {
-    background: $color-primary-hover;
+    background: $color-yellow-hover;
   }
 
   &:active:not(:disabled) {
-    background: $color-primary-active;
+    background: $color-yellow-active;
   }
 }
 

@@ -79,7 +79,7 @@
   cursor: pointer;
 
   &:focus {
-    outline: 2px solid rgba($color-primary, 0.4);
+    outline: 2px solid rgba($color-yellow, 0.4);
     outline-offset: 2px;
   }
 
@@ -99,11 +99,11 @@
   }
 
   &.selected {
-    background: rgba($color-primary, 0.04);
-    border-color: rgba($color-primary, 0.5);
+    background: rgba($color-yellow, 0.04);
+    border-color: rgba($color-yellow, 0.5);
     box-shadow:
-      0 2px 8px rgba($color-primary, 0.12),
-      0 0 0 1px rgba($color-primary, 0.2);
+      0 2px 8px rgba($color-yellow, 0.12),
+      0 0 0 1px rgba($color-yellow, 0.2);
   }
 
   &.disabled {
@@ -177,7 +177,7 @@
 .priceValue {
   font-weight: $font-weight-bold;
   font-size: $font-size-lg;
-  color: $color-primary;
+  color: $color-yellow;
   line-height: 1.2;
   letter-spacing: -0.01em;
 }

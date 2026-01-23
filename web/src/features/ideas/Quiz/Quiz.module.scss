@@ -55,10 +55,10 @@
 
 .quizProgressBar {
   height: 100%;
-  background: linear-gradient(90deg, #ffffff 0%, $color-primary 100%);
+  background: linear-gradient(90deg, #ffffff 0%, $color-yellow 100%);
   border-radius: $radius-full;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px color.change($color-primary, $alpha: 0.3);
+  box-shadow: 0 2px 8px color.change($color-yellow, $alpha: 0.3);
   position: relative;
   overflow: visible;
 
@@ -87,11 +87,11 @@
     transform: translateY(-50%);
     width: 16px;
     height: 16px;
-    background: $color-primary;
+    background: $color-yellow;
     border-radius: 50%;
     box-shadow:
-      0 0 0 0 $color-primary,
-      0 0 0 0 color.change($color-primary, $alpha: 0.7);
+      0 0 0 0 $color-yellow,
+      0 0 0 0 color.change($color-yellow, $alpha: 0.7);
     animation: pulse 2s infinite;
     z-index: 1;
   }
@@ -109,20 +109,20 @@
 @keyframes pulse {
   0% {
     box-shadow:
-      0 0 0 0 color.change($color-primary, $alpha: 0.7),
-      0 0 0 0 color.change($color-primary, $alpha: 0.4);
+      0 0 0 0 color.change($color-yellow, $alpha: 0.7),
+      0 0 0 0 color.change($color-yellow, $alpha: 0.4);
     transform: translateY(-50%) scale(1);
   }
   50% {
     box-shadow:
-      0 0 0 8px color.change($color-primary, $alpha: 0),
-      0 0 0 16px color.change($color-primary, $alpha: 0);
+      0 0 0 8px color.change($color-yellow, $alpha: 0),
+      0 0 0 16px color.change($color-yellow, $alpha: 0);
     transform: translateY(-50%) scale(1.1);
   }
   100% {
     box-shadow:
-      0 0 0 0 color.change($color-primary, $alpha: 0),
-      0 0 0 0 color.change($color-primary, $alpha: 0);
+      0 0 0 0 color.change($color-yellow, $alpha: 0),
+      0 0 0 0 color.change($color-yellow, $alpha: 0);
     transform: translateY(-50%) scale(1);
   }
 }
@@ -197,7 +197,7 @@
   }
 
   &:hover {
-    border-color: $color-primary;
+    border-color: $color-yellow;
     transform: translateY(-4px);
     box-shadow: $shadow-lg;
 
@@ -208,9 +208,9 @@
 }
 
 .quizOptionSelected {
-  border-color: $color-primary !important;
+  border-color: $color-yellow !important;
   box-shadow:
-    0 0 0 3px color.change($color-primary, $alpha: 0.2),
+    0 0 0 3px color.change($color-yellow, $alpha: 0.2),
     $shadow-lg;
 
   &::before {

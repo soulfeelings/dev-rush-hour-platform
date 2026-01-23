@@ -71,7 +71,7 @@
   }
 
   &--open {
-    border-color: $color-primary;
+    border-color: $color-yellow;
     color: $color-text;
   }
 }
@@ -163,11 +163,11 @@
   }
 
   &--selected {
-    background: $color-primary;
+    background: $color-yellow;
     color: white;
 
     &:hover {
-      background: color.scale($color-primary, $lightness: -5%);
+      background: color.scale($color-yellow, $lightness: -5%);
     }
   }
 }

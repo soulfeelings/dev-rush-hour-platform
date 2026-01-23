@@ -80,12 +80,12 @@
     height: $splitter-handle-height;
     background: 
       // Точки в 2 колонки по 3
-      radial-gradient(circle at 30% 40%, $color-bg-pount 1px, transparent 1px),
-      radial-gradient(circle at 70% 40%, $color-bg-pount 1px, transparent 1px),
-      radial-gradient(circle at 30% 50%, $color-bg-pount 1px, transparent 1px),
-      radial-gradient(circle at 70% 50%, $color-bg-pount 1px, transparent 1px),
-      radial-gradient(circle at 30% 60%, $color-bg-pount 1px, transparent 1px),
-      radial-gradient(circle at 70% 60%, $color-bg-pount 1px, transparent 1px),
+      radial-gradient(circle at 30% 40%, $color-charcoal-grey-70 1px, transparent 1px),
+      radial-gradient(circle at 70% 40%, $color-charcoal-grey-70 1px, transparent 1px),
+      radial-gradient(circle at 30% 50%, $color-charcoal-grey-70 1px, transparent 1px),
+      radial-gradient(circle at 70% 50%, $color-charcoal-grey-70 1px, transparent 1px),
+      radial-gradient(circle at 30% 60%, $color-charcoal-grey-70 1px, transparent 1px),
+      radial-gradient(circle at 70% 60%, $color-charcoal-grey-70 1px, transparent 1px),
       // Фон слайдера
       $color-bg-card;
     background-repeat: no-repeat;
@@ -96,7 +96,7 @@
   // Active state when resizing
   &.isResizing {
     &::after {
-      background-color: $color-primary-light;
+      background-color: $color-yellow-light;
     }
   }
 }

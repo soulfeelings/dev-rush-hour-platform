@@ -230,7 +230,7 @@
   align-items: center;
   gap: $spacing-4;
   padding: $spacing-2 $spacing-4;
-  border-bottom: 1px solid $color-bg-control;
+  border-bottom: 1px solid $color-charcoal-grey-10;
   background: $color-bg-card;
 }
 
@@ -264,7 +264,7 @@
 
 .projectTitle {
   @include truncate;
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   font-size: $font-size-lg;
   font-weight: $font-weight-medium;
   line-height: 1.2;
@@ -280,7 +280,7 @@
 .regionName {
   @include truncate;
   font-size: $font-size-sm;
-  color: $color-bg-qq;
+  color: $color-charcoal-grey-50;
   line-height: 1.2;
 }
 
@@ -289,13 +289,13 @@
   @include flex-center;
   padding: $spacing-1 $spacing-2;
   border-radius: $radius-full;
-  background: $color-roi-bg;
+  background: $color-label-lightgreen;
   min-width: $roi-badge-width;
   height: $roi-badge-height;
 }
 
 .roiValue {
-  color: $color-roi-text;
+  color: $color-label-green;
   font-size: $font-size-md;
   font-weight: $font-weight-medium;
   white-space: nowrap;
@@ -374,7 +374,7 @@
 
 /* Цены */
 .priceSection {
-  border-bottom: 1px solid $color-bg-control;
+  border-bottom: 1px solid $color-charcoal-grey-10;
 }
 
 .priceItem {
@@ -425,7 +425,7 @@
   text-align: right;
 
   .from {
-    color: $color-bg-qq;
+    color: $color-charcoal-grey-50;
     font-size: $font-size-xs;
     font-weight: $font-weight-medium;
     line-height: 1.2;
@@ -438,7 +438,7 @@
   height: 33px;
   display: flex;
   align-items: center;
-  border-bottom: 0.5px solid $color-bg-control;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
 }
 
 .dateContainer {
@@ -451,11 +451,11 @@
   line-height: 1.2;
 
   .quarter {
-    color: $color-bg-qq;
+    color: $color-charcoal-grey-50;
   }
 
   .year {
-    color: $color-bg-black;
+    color: $color-charcoal-black;
   }
 }
 
@@ -475,13 +475,13 @@
   @include btn-primary;
   @include btn-sm;
   border-radius: $radius-full;
-  background: $color-primary;
+  background: $color-yellow;
   padding: $spacing-2 $spacing-4;
 
   &:hover {
-    background: $color-primary-hover;
+    background: $color-yellow-hover;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba($color-primary, 0.3);
+    box-shadow: 0 4px 12px rgba($color-yellow, 0.3);
   }
 }
 

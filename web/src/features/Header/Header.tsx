@@ -92,13 +92,7 @@ export default function Header() {
             </Link>
             <nav className={styles.nav}>
               <Link to={ROUTES.CATALOG} className={styles.navLink}>
-                {t('Buy Property')}
-              </Link>
-              <Link to={ROUTES.CATALOG} className={styles.navLink}>
                 {t('header.nav.catalog')}
-              </Link>
-              <Link to={ROUTES.DESIGN_DEMO} className={styles.navLink}>
-                {t('header.nav.designDemo')}
               </Link>
               <Link to="/admin" className={styles.navLink}>
                 {t('header.nav.admin')}

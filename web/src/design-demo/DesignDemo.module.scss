@@ -55,7 +55,7 @@
   text-decoration: none;
 
   span {
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
@@ -76,7 +76,7 @@
   transition: color $transition-fast;
 
   &:hover {
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
@@ -182,7 +182,7 @@
 }
 
 .heroHighlight {
-  color: $color-primary;
+  color: $color-yellow;
   position: relative;
   white-space: nowrap;
 
@@ -195,11 +195,11 @@
     height: 6px;
     background: linear-gradient(
       90deg,
-      color.change($color-primary, $alpha: 0.4) 0%,
-      color.change($color-primary, $alpha: 0.7) 25%,
-      color.change($color-primary, $alpha: 0.4) 50%,
-      color.change($color-primary, $alpha: 0.7) 75%,
-      color.change($color-primary, $alpha: 0.4) 100%
+      color.change($color-yellow, $alpha: 0.4) 0%,
+      color.change($color-yellow, $alpha: 0.7) 25%,
+      color.change($color-yellow, $alpha: 0.4) 50%,
+      color.change($color-yellow, $alpha: 0.7) 75%,
+      color.change($color-yellow, $alpha: 0.4) 100%
     );
     background-size: 200% 100%;
     border-radius: 3px;
@@ -291,7 +291,7 @@
 .statValue {
   font-size: $font-size-2xl;
   font-weight: $font-weight-bold;
-  color: $color-primary;
+  color: $color-yellow;
 }
 
 .statLabel {
@@ -384,10 +384,10 @@
 
 .quizProgressBar {
   height: 100%;
-  background: linear-gradient(90deg, #ffffff 0%, $color-primary 100%);
+  background: linear-gradient(90deg, #ffffff 0%, $color-yellow 100%);
   border-radius: $radius-full;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px color.change($color-primary, $alpha: 0.3);
+  box-shadow: 0 2px 8px color.change($color-yellow, $alpha: 0.3);
   position: relative;
   overflow: visible;
 
@@ -416,11 +416,11 @@
     transform: translateY(-50%);
     width: 16px;
     height: 16px;
-    background: $color-primary;
+    background: $color-yellow;
     border-radius: 50%;
     box-shadow:
-      0 0 0 0 $color-primary,
-      0 0 0 0 color.change($color-primary, $alpha: 0.7);
+      0 0 0 0 $color-yellow,
+      0 0 0 0 color.change($color-yellow, $alpha: 0.7);
     animation: pulse 2s infinite;
     z-index: 1;
   }
@@ -438,20 +438,20 @@
 @keyframes pulse {
   0% {
     box-shadow:
-      0 0 0 0 color.change($color-primary, $alpha: 0.7),
-      0 0 0 0 color.change($color-primary, $alpha: 0.4);
+      0 0 0 0 color.change($color-yellow, $alpha: 0.7),
+      0 0 0 0 color.change($color-yellow, $alpha: 0.4);
     transform: translateY(-50%) scale(1);
   }
   50% {
     box-shadow:
-      0 0 0 8px color.change($color-primary, $alpha: 0),
-      0 0 0 16px color.change($color-primary, $alpha: 0);
+      0 0 0 8px color.change($color-yellow, $alpha: 0),
+      0 0 0 16px color.change($color-yellow, $alpha: 0);
     transform: translateY(-50%) scale(1.1);
   }
   100% {
     box-shadow:
-      0 0 0 0 color.change($color-primary, $alpha: 0),
-      0 0 0 0 color.change($color-primary, $alpha: 0);
+      0 0 0 0 color.change($color-yellow, $alpha: 0),
+      0 0 0 0 color.change($color-yellow, $alpha: 0);
     transform: translateY(-50%) scale(1);
   }
 }
@@ -526,7 +526,7 @@
   }
 
   &:hover {
-    border-color: $color-primary;
+    border-color: $color-yellow;
     transform: translateY(-4px);
     box-shadow: $shadow-lg;
 
@@ -537,9 +537,9 @@
 }
 
 .quizOptionSelected {
-  border-color: $color-primary !important;
+  border-color: $color-yellow !important;
   box-shadow:
-    0 0 0 3px color.change($color-primary, $alpha: 0.2),
+    0 0 0 3px color.change($color-yellow, $alpha: 0.2),
     $shadow-lg;
 
   &::before {
@@ -609,35 +609,35 @@
 }
 
 .btnPrimary {
-  background: $color-primary;
+  background: $color-yellow;
   color: $color-text-inverse;
-  border-color: $color-primary;
+  border-color: $color-yellow;
 
   &:hover:not(:disabled) {
-    background: $color-primary-hover;
-    border-color: $color-primary-hover;
+    background: $color-yellow-hover;
+    border-color: $color-yellow-hover;
     transform: translateY(-1px);
     box-shadow: $shadow-md;
   }
 
   &:active:not(:disabled) {
-    background: $color-primary-active;
-    border-color: $color-primary-active;
+    background: $color-yellow-active;
+    border-color: $color-yellow-active;
     transform: translateY(0);
   }
 }
 
 .btnSecondary {
   background: transparent;
-  color: $color-primary;
-  border-color: $color-primary;
+  color: $color-yellow;
+  border-color: $color-yellow;
 
   &:hover:not(:disabled) {
-    background: $color-primary-light;
+    background: $color-yellow-light;
   }
 
   &:active:not(:disabled) {
-    background: color.change($color-primary, $alpha: 0.2);
+    background: color.change($color-yellow, $alpha: 0.2);
   }
 }
 
@@ -701,8 +701,8 @@
 
   &:focus {
     outline: none;
-    border-color: $color-primary;
-    box-shadow: 0 0 0 3px color.change($color-primary, $alpha: 0.15);
+    border-color: $color-yellow;
+    box-shadow: 0 0 0 3px color.change($color-yellow, $alpha: 0.15);
   }
 }
 
@@ -763,8 +763,8 @@
   }
 
   &.open {
-    border-color: $color-primary;
-    box-shadow: 0 0 0 3px color.change($color-primary, $alpha: 0.15);
+    border-color: $color-yellow;
+    box-shadow: 0 0 0 3px color.change($color-yellow, $alpha: 0.15);
   }
 }
 
@@ -859,7 +859,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: $color-primary;
+    background: $color-yellow;
     opacity: 0;
     transition: opacity $transition-fast;
   }
@@ -871,9 +871,9 @@
   }
 
   &.selected {
-    color: $color-primary;
+    color: $color-yellow;
     font-weight: $font-weight-medium;
-    background: $color-primary-light;
+    background: $color-yellow-light;
 
     &::after {
       content: '';
@@ -914,7 +914,7 @@
     background: transparent;
   }
   50% {
-    background: color.change($color-primary, $alpha: 0.2);
+    background: color.change($color-yellow, $alpha: 0.2);
   }
   100% {
     background: transparent;
@@ -940,7 +940,7 @@
   input {
     width: 20px;
     height: 20px;
-    accent-color: $color-primary;
+    accent-color: $color-yellow;
     cursor: pointer;
   }
 }
@@ -986,13 +986,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $color-primary-light;
+  background: $color-yellow-light;
   border-radius: $radius-xl;
 
   svg {
     width: 60px;
     height: 60px;
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
@@ -1113,7 +1113,7 @@
 }
 
 .cardBadgeFeatured {
-  background: $color-primary;
+  background: $color-yellow;
 }
 
 .cardFavorite {
@@ -1157,7 +1157,7 @@
 .cardPrice {
   font-size: $font-size-xl;
   font-weight: $font-weight-bold;
-  color: $color-primary;
+  color: $color-yellow;
   margin: 0 0 $spacing-1;
 }
 
@@ -1209,7 +1209,7 @@
 // ----------------
 .features {
   padding: $spacing-12 $spacing-4;
-  background: $color-primary-light;
+  background: $color-yellow-light;
 }
 
 // Video Block with Burj Khalifa frame
@@ -1251,9 +1251,9 @@
   border-radius: $radius-lg;
   overflow: hidden;
   box-shadow:
-    0 4px 20px color.change($color-primary, $alpha: 0.2),
+    0 4px 20px color.change($color-yellow, $alpha: 0.2),
     0 8px 40px rgba(0, 0, 0, 0.15);
-  border: 2px solid color.change($color-primary, $alpha: 0.3);
+  border: 2px solid color.change($color-yellow, $alpha: 0.3);
 
   &::before {
     content: '';
@@ -1272,7 +1272,7 @@
   transform: translate(-50%, -50%);
   width: 80px;
   height: 80px;
-  background: $color-primary;
+  background: $color-yellow;
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -1280,7 +1280,7 @@
   align-items: center;
   justify-content: center;
   transition: all $transition-normal;
-  box-shadow: 0 4px 20px color.change($color-primary, $alpha: 0.4);
+  box-shadow: 0 4px 20px color.change($color-yellow, $alpha: 0.4);
   z-index: 1;
 
   &::before {
@@ -1295,7 +1295,7 @@
 
   &:hover {
     transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: 0 6px 30px color.change($color-primary, $alpha: 0.5);
+    box-shadow: 0 6px 30px color.change($color-yellow, $alpha: 0.5);
   }
 
   @media (min-width: $breakpoint-md) {
@@ -1347,13 +1347,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $color-primary-light;
+  background: $color-yellow-light;
   border-radius: $radius-lg;
 
   svg {
     width: 32px;
     height: 32px;
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
@@ -1611,7 +1611,7 @@
     margin: 0 0 $spacing-3;
 
     span {
-      color: $color-primary;
+      color: $color-yellow;
     }
   }
 
@@ -1652,7 +1652,7 @@
 
     &:hover {
       opacity: 1;
-      color: $color-primary;
+      color: $color-yellow;
     }
   }
 }
@@ -1688,7 +1688,7 @@
     transition: all $transition-fast;
 
     &:hover {
-      background: $color-primary;
+      background: $color-yellow;
     }
 
     svg {

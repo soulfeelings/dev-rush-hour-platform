@@ -20,7 +20,7 @@
   transition: color $transition-fast;
 
   &:hover {
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
@@ -201,12 +201,12 @@
   box-shadow: $shadow-sm;
 
   &.activeThumbnail {
-    border-color: $color-primary;
+    border-color: $color-yellow;
     transform: scale(1.05);
   }
 
   &:hover {
-    border-color: rgba($color-primary, 0.5);
+    border-color: rgba($color-yellow, 0.5);
   }
 }
 
@@ -260,14 +260,14 @@
   gap: $spacing-3;
 
   button {
-    box-shadow: 0 4px 12px rgba($color-primary, 0.4);
+    box-shadow: 0 4px 12px rgba($color-yellow, 0.4);
     font-weight: $font-weight-semibold;
     letter-spacing: 0.5px;
     transition: all $transition-fast;
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba($color-primary, 0.5);
+      box-shadow: 0 6px 16px rgba($color-yellow, 0.5);
     }
 
     &:active:not(:disabled) {

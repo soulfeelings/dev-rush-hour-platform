@@ -19,7 +19,7 @@
   transition: color $transition-fast;
 
   &:hover {
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
@@ -161,10 +161,10 @@
 .amenity {
   font-size: 0.75rem;
   color: $color-text-secondary;
-  background: $color-primary-light;
+  background: $color-yellow-light;
   padding: $spacing-1 $spacing-3;
   border-radius: $radius-sm;
-  border: 1px solid $color-primary;
+  border: 1px solid $color-yellow;
 }
 
 .metroList {
@@ -235,7 +235,7 @@
   transition: all $transition-fast;
 
   &:hover {
-    border-color: $color-primary;
+    border-color: $color-yellow;
     box-shadow: $shadow-sm;
   }
 }
@@ -279,7 +279,7 @@
 .propertyPrice {
   font-size: $font-size-sm;
   font-weight: $font-weight-bold;
-  color: $color-primary;
+  color: $color-yellow;
 }
 
 .propertyStatus {
@@ -306,17 +306,17 @@
 
 .catalogLink {
   display: inline-block;
-  color: $color-primary;
+  color: $color-yellow;
   text-decoration: none;
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   padding: $spacing-2 $spacing-4;
-  border: 1px solid $color-primary;
+  border: 1px solid $color-yellow;
   border-radius: $radius-sm;
   transition: all $transition-fast;
 
   &:hover {
-    background: $color-primary;
+    background: $color-yellow;
     color: white;
   }
 }

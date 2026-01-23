@@ -123,7 +123,7 @@
 }
 
 .overlayButton {
-  background: $color-primary;
+  background: $color-yellow;
   color: white;
   border: none;
   border-radius: $radius-full;
@@ -136,7 +136,7 @@
   align-self: flex-start;
 
   &:hover {
-    background: $color-primary-hover;
+    background: $color-yellow-hover;
     transform: translateY(-2px);
   }
 }
@@ -150,7 +150,7 @@
   gap: $spacing-4;
   padding: $spacing-2 $spacing-4;
   box-sizing: border-box;
-  border-bottom: 0.5px solid $color-bg-control;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
   background: $color-bg-card;
 
   @include sm {
@@ -221,7 +221,7 @@
 .projectTitle {
   @include truncate;
   height: 25px;
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   font-family: $font-family-primary;
   font-size: $font-size-lg;
   font-weight: $font-weight-medium;
@@ -250,7 +250,7 @@
 .regionName {
   @include truncate;
   height: 18px;
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   font-family: $font-family-primary;
   font-size: $font-size-sm;
   font-weight: $font-weight-regular;
@@ -263,7 +263,7 @@
 }
 
 .regionName {
-  color: $color-bg-qq;
+  color: $color-charcoal-grey-50;
 }
 
 // ROI Badge
@@ -273,7 +273,7 @@
   justify-content: center;
   padding: $spacing-1 $spacing-2;
   border-radius: $radius-full;
-  background: $color-roi-bg;
+  background: $color-label-lightgreen;
   flex-shrink: 0;
   min-width: $roi-badge-width;
   height: $roi-badge-height;
@@ -286,7 +286,7 @@
 }
 
 .roiValue {
-  color: $color-roi-text;
+  color: $color-label-green;
   font-family: $font-family-primary;
   font-size: $font-size-md;
   font-weight: $font-weight-medium;
@@ -310,7 +310,7 @@
 .priceContainer {
   @extend .dataContainer;
   height: $data-row-height;
-  border-bottom: 0.5px solid $color-bg-control;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
 }
 
 .priceRow {
@@ -344,7 +344,7 @@
 }
 
 .attributeLabel {
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   font-family: $font-family-primary;
   font-size: $font-size-md;
   font-weight: $font-weight-medium;
@@ -362,11 +362,11 @@
   font-size: $font-size-md;
   font-weight: $font-weight-medium;
   line-height: 20px;
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   white-space: nowrap;
 
   .from {
-    color: $color-bg-qq;
+    color: $color-charcoal-grey-50;
     font-size: $font-size-sm;
     font-weight: $font-weight-regular;
     margin-right: $spacing-1;
@@ -423,11 +423,11 @@
 
 .dateValue {
   .quarter {
-    color: $color-bg-qq;
+    color: $color-charcoal-grey-50;
   }
 
   .year {
-    color: $color-bg-black;
+    color: $color-charcoal-black;
   }
 }
 
@@ -439,7 +439,7 @@
   }
 
   .planNumbers {
-    color: $color-bg-black;
+    color: $color-charcoal-black;
   }
 }
 
@@ -451,7 +451,7 @@
   transition: all $transition-normal;
   background: $color-bg-card;
   padding: 0 $spacing-4;
-  border-top: 0.5px solid $color-bg-control;
+  border-top: 0.5px solid $color-charcoal-grey-10;
 
   .card:hover & {
     max-height: 500px;
@@ -482,21 +482,21 @@
 }
 
 .additionalInfoLabel {
-  color: $color-bg-qq;
+  color: $color-charcoal-grey-50;
   font-family: $font-family-primary;
   font-size: $font-size-xs;
   font-weight: $font-weight-regular;
 }
 
 .additionalInfoValue {
-  color: $color-bg-black;
+  color: $color-charcoal-black;
   font-family: $font-family-primary;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
 }
 
 .additionalInfoDescription {
-  color: $color-bg-qq;
+  color: $color-charcoal-grey-50;
   font-family: $font-family-primary;
   font-size: $font-size-sm;
   line-height: 1.4;
@@ -566,7 +566,7 @@
   position: absolute;
   top: 12px;
   left: 12px;
-  background: $color-primary;
+  background: $color-yellow;
   color: white;
   padding: 4px 8px;
   border-radius: $radius-sm;

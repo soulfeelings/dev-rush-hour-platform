@@ -71,7 +71,7 @@
   }
 
   &--open {
-    border-color: $color-primary;
+    border-color: $color-yellow;
     color: $color-text;
   }
 }
@@ -180,7 +180,7 @@
 
   &:focus {
     outline: none;
-    border-color: $color-primary;
+    border-color: $color-yellow;
   }
 
   &::placeholder {
@@ -231,17 +231,17 @@
   font-family: inherit;
   font-weight: $font-weight-medium;
   color: $color-text-inverse;
-  background: $color-primary;
+  background: $color-yellow;
   border: none;
   border-radius: $radius-md;
   cursor: pointer;
   transition: all $transition-fast;
 
   &:hover:not(:disabled) {
-    background: $color-primary-hover;
+    background: $color-yellow-hover;
   }
 
   &:active:not(:disabled) {
-    background: $color-primary-active;
+    background: $color-yellow-active;
   }
 }

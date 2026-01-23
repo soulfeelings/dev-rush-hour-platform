@@ -118,20 +118,20 @@
 
 @mixin btn-primary {
   @include btn-base;
-  background: $color-primary;
+  background: $color-yellow;
   color: $color-text-inverse;
-  border-color: $color-primary;
+  border-color: $color-yellow;
 
   &:hover:not(:disabled) {
-    background: $color-primary-hover;
-    border-color: $color-primary-hover;
+    background: $color-yellow-hover;
+    border-color: $color-yellow-hover;
     transform: translateY(-1px);
     box-shadow: $shadow-md;
   }
 
   &:active:not(:disabled) {
-    background: $color-primary-active;
-    border-color: $color-primary-active;
+    background: $color-yellow-active;
+    border-color: $color-yellow-active;
     transform: translateY(0);
   }
 }
@@ -139,15 +139,15 @@
 @mixin btn-secondary {
   @include btn-base;
   background: transparent;
-  color: $color-primary;
-  border-color: $color-primary;
+  color: $color-yellow;
+  border-color: $color-yellow;
 
   &:hover:not(:disabled) {
-    background: $color-primary-light;
+    background: $color-yellow-light;
   }
 
   &:active:not(:disabled) {
-    background: color.change($color-primary, $alpha: 0.2);
+    background: color.change($color-yellow, $alpha: 0.2);
   }
 }
 
@@ -201,8 +201,8 @@
 
   &:focus {
     outline: none;
-    border-color: $color-primary;
-    box-shadow: 0 0 0 3px color.change($color-primary, $alpha: 0.15);
+    border-color: $color-yellow;
+    box-shadow: 0 0 0 3px color.change($color-yellow, $alpha: 0.15);
   }
 }
 
@@ -390,7 +390,7 @@
   gap: $spacing-1;
   padding: $spacing-1 $spacing-4;
   border-radius: $radius-full;
-  background: $color-bg-control;
+  background: $color-charcoal-grey-10;
   font-family: $font-family-primary;
   font-size: $font-size-sm;
   font-weight: $font-weight-regular;

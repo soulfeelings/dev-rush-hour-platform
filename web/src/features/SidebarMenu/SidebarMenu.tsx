@@ -28,9 +28,6 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
           <Link to={ROUTES.CATALOG} className={styles.navItem} onClick={onClose}>
             {t('header.nav.catalog')}
           </Link>
-          <Link to={ROUTES.DESIGN_DEMO} className={styles.navItem} onClick={onClose}>
-            {t('header.nav.designDemo')}
-          </Link>
           <Link to="/admin" className={styles.navItem} onClick={onClose}>
             {t('header.nav.admin')}
           </Link>

@@ -20,32 +20,32 @@
   transition: color $transition-fast;
 
   &:hover {
-    color: $color-primary;
+    color: $color-yellow;
   }
 }
 
 .projectLink {
   display: block;
   margin-bottom: $spacing-2;
-  color: $color-primary;
+  color: $color-yellow;
   text-decoration: none;
   font-size: $font-size-md;
   font-weight: $font-weight-medium;
   transition: color $transition-fast;
 
   &:hover {
-    color: color.adjust($color-primary, $lightness: -10%);
+    color: color.adjust($color-yellow, $lightness: -10%);
     text-decoration: underline;
   }
 }
 
 .projectLinkInline {
-  color: $color-primary;
+  color: $color-yellow;
   text-decoration: none;
   transition: color $transition-fast;
 
   &:hover {
-    color: color.adjust($color-primary, $lightness: -10%);
+    color: color.adjust($color-yellow, $lightness: -10%);
     text-decoration: underline;
   }
 }
@@ -227,12 +227,12 @@
   box-shadow: $shadow-sm;
 
   &.activeThumbnail {
-    border-color: $color-primary;
+    border-color: $color-yellow;
     transform: scale(1.05);
   }
 
   &:hover {
-    border-color: rgba($color-primary, 0.5);
+    border-color: rgba($color-yellow, 0.5);
   }
 }
 
@@ -285,14 +285,14 @@
   justify-content: center;
 
   button {
-    box-shadow: 0 4px 12px rgba($color-primary, 0.4);
+    box-shadow: 0 4px 12px rgba($color-yellow, 0.4);
     font-weight: $font-weight-semibold;
     letter-spacing: 0.5px;
     transition: all $transition-fast;
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba($color-primary, 0.5);
+      box-shadow: 0 6px 16px rgba($color-yellow, 0.5);
     }
 
     &:active:not(:disabled) {
@@ -429,7 +429,7 @@
 }
 
 .viewItem:hover .viewIconWrapper {
-  background: $color-primary;
+  background: $color-yellow;
   transform: scale(1.1);
 }
 
@@ -444,12 +444,12 @@
   width: 40px;
   height: 40px;
   border-radius: $radius-md;
-  background: rgba($color-primary, 0.15);
+  background: rgba($color-yellow, 0.15);
   flex-shrink: 0;
 }
 
 .viewIcon {
-  color: $color-primary;
+  color: $color-yellow;
 }
 
 .viewText {

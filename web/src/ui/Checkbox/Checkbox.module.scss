@@ -15,8 +15,8 @@
   height: 0;
 
   &:checked + .checkmark {
-    background: $color-primary;
-    border-color: $color-primary;
+    background: $color-yellow;
+    border-color: $color-yellow;
 
     &::after {
       opacity: 1;
@@ -25,7 +25,7 @@
   }
 
   &:focus + .checkmark {
-    box-shadow: 0 0 0 3px rgba($color-primary, 0.15);
+    box-shadow: 0 0 0 3px rgba($color-yellow, 0.15);
   }
 
   &:disabled + .checkmark {
@@ -64,7 +64,7 @@
   }
 
   &:hover {
-    border-color: $color-primary;
+    border-color: $color-yellow;
   }
 }
 
