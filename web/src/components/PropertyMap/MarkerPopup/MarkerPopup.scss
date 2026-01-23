@@ -47,7 +47,7 @@
 .marker-popup-title {
   width: 258.28px;
   height: 26px;
-  color: var(--Charcoal_Black, rgba(19, 20, 21, 1));
+  color: var(--Charcoal_Black, $color-bg-black);
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-style: normal;
   font-size: 20.26px;
@@ -64,7 +64,7 @@
 .marker-popup-developer {
   width: 258.28px;
   height: 15px;
-  color: var(--Charcoal_Black, rgba(19, 20, 21, 1));
+  color: var(--Charcoal_Black, $color-bg-black);
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-style: normal;
   font-size: 12px;
@@ -82,7 +82,7 @@
 .marker-popup-price-info {
   width: 283.6px;
   height: 38px;
-  color: var(--Charcoal_Black, rgba(19, 20, 21, 1));
+  color: var(--Charcoal_Black, $color-bg-black);
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-style: normal;
   font-size: 15.19px;

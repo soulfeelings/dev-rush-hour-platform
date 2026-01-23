@@ -11,7 +11,7 @@
 // ----------------
 
 // Primary - Warm golden yellow (sand-inspired)
-$color-primary: #e5a732;
+$color-primary: rgba(255, 212, 0, 1);
 $color-primary-hover: #d19526;
 $color-primary-active: #bd8620;
 $color-primary-light: #fdf4e3;
@@ -23,14 +23,21 @@ $color-secondary-light: #e8f5f3;
 
 // Backgrounds
 $color-bg: #fdfbf7; // Warm off-white
-$color-bg-card: #ffffff;
+$color-bg-card: rgba(255, 255, 255, 1);
 $color-bg-overlay: rgba(0, 0, 0, 0.5);
+$color-bg-header: rgba(255, 255, 255, 0.95);
+$color-overlay-hover: rgba(0, 0, 0, 0.05);
+$color-bg-control: rgba(19, 20, 21, 0.1); // Charcoal_Grey10
+$color-bg-black: rgba(19, 20, 21, 1); // Charcoal_Black
+$color-bg-pount: rgba(19, 20, 21, 0.7);
+$color-bg-qq: rgba(19, 20, 21, 0.5);
+$color-bg-log-in: #ffd400; // Yellow
 
 // Text
 $color-text: #1a1a1a; // Dark charcoal
 $color-text-secondary: #5a5a5a;
 $color-text-muted: #8a8a8a;
-$color-text-inverse: #ffffff;
+$color-text-inverse: rgba(255, 255, 255, 1);
 
 // Borders
 $color-border: #e5e0d8; // Warm light border
@@ -40,6 +47,8 @@ $color-border-focus: $color-primary;
 $color-success: #3d9970;
 $color-error: #d35649;
 $color-warning: #e5a732;
+$color-roi-bg: rgba(209, 255, 226, 0.8);
+$color-roi-text: rgba(0, 115, 47, 0.8);
 
 // ----------------
 // TYPOGRAPHY
@@ -132,3 +141,24 @@ $z-sticky: 80;
 $z-header: 100;
 $z-modal: 200;
 $z-toast: 300;
+
+// ----------------
+// COMPONENT SIZES
+// ----------------
+
+$card-height: 690px;
+$image-height: 525.78px;
+$logo-size: 68px;
+$logo-size-sm: 56px;
+$roi-badge-width: 73px;
+$roi-badge-height: 29px;
+$roi-badge-width-sm: 65px;
+$roi-badge-height-sm: 26px;
+$data-row-height: 33px;
+
+// Переменные компонента
+$splitter-width: 8px;
+$splitter-handle-width: 8px;
+$splitter-handle-height: 32px;
+$splitter-line-width: 4px;
+$panel-min-width: 300px;

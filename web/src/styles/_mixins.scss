@@ -360,3 +360,88 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+// ----------------
+// UI COMPONENTS
+// ----------------
+
+@mixin circle-button($size: 40px) {
+  @include flex-center;
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: $color-overlay-hover;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin units-panel {
+  @include flex-center;
+  gap: $spacing-1;
+  padding: $spacing-1 $spacing-4;
+  border-radius: $radius-full;
+  background: $color-bg-control;
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-regular;
+  color: $color-text;
+}
+
+@mixin uae-flag($width: 18px, $height: 12px) {
+  width: $width;
+  height: $height;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: $width * 0.25; // 25% ширины
+    height: $height;
+    background: #ff0000;
+    left: 0;
+    top: 0;
+    z-index: 1;
+  }
+
+  .flagBlack,
+  .flagWhite,
+  .flagGreen {
+    position: absolute;
+    width: $width;
+    height: $height / 3;
+    left: 0;
+  }
+}
+
+// ----------------
+// PROJECT CARD COMPONENTS
+// ----------------
+
+@mixin dataCell($justify: flex-start) {
+  width: 222px;
+  height: $data-row-height;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-1 $spacing-4;
+  box-sizing: border-box;
+  justify-content: $justify;
+
+  @include sm {
+    width: 50%;
+    padding: $spacing-1 $spacing-3;
+    gap: $spacing-2;
+  }
+}

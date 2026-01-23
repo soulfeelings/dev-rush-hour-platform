@@ -4,14 +4,17 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  height: 100%;
+  height: 100vh;
 }
 
 .filtersWrapper {
   width: 100%;
-  padding: $spacing-1 $spacing-2;
+  max-width: 1872px;
+  margin: 0 auto;
+  padding: $spacing-3 $spacing-0;
   background: $color-bg-card;
-  border-bottom: 1px solid $color-border;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid $color-bg-control;
   flex-shrink: 0;
 }
 
@@ -43,6 +46,8 @@
   padding: $spacing-4;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 
   @media (min-width: $breakpoint-md) {
     padding: $spacing-6;
@@ -51,23 +56,29 @@
 
 .viewModeToggle {
   display: flex;
-  gap: $spacing-2;
+  height: 48px;
+  gap: $spacing-3;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
   margin-bottom: $spacing-4;
-  padding: $spacing-2;
+  padding: $spacing-1;
   background: $color-bg-card;
   border: 1px solid $color-border;
-  border-radius: $radius-md;
+  border-radius: $radius-full;
 }
 
 .toggleButton {
   flex: 1;
+  min-width: 0;
+  height: 40px;
   padding: $spacing-2 $spacing-4;
   background: transparent;
   border: none;
-  border-radius: $radius-sm;
+  border-radius: $radius-full;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: $color-text-secondary;
+  color: $color-bg-black;
   cursor: pointer;
   transition: all $transition-fast;
 
@@ -78,8 +89,7 @@
 
   &.active {
     background: $color-primary;
-    color: $color-text-inverse;
-    font-weight: $font-weight-semibold;
+    color: $color-bg-black;
 
     &:hover {
       background: $color-primary-hover;
@@ -94,13 +104,9 @@
   gap: $spacing-3;
   margin-bottom: $spacing-4;
   padding: $spacing-2 $spacing-3;
-  background: linear-gradient(
-    135deg,
-    rgba($color-primary, 0.04) 0%,
-    rgba($color-secondary, 0.02) 100%
-  );
+  background: $color-bg-card;
   border: 1px solid rgba($color-border, 0.6);
-  border-radius: $radius-md;
+  border-radius: $radius-full;
 }
 
 .headerActions {
@@ -111,12 +117,21 @@
 
 .resultsCount {
   font-size: $font-size-xs;
-  color: $color-text-secondary;
-  background: $color-bg-card;
+  color: $color-bg-black;
   padding: $spacing-1 $spacing-2;
-  border-radius: $radius-full;
-  border: 1px solid $color-border;
   white-space: nowrap;
+  width: 121px;
+  height: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-family: Plus Jakarta Sans;
+  font-style: Regular;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15px;
+  letter-spacing: 0%;
+  text-align: left;
 }
 
 .sortContainer {
@@ -152,6 +167,10 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: $spacing-4;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .loading {

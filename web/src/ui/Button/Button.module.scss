@@ -30,7 +30,7 @@
 // Variants
 .btn--primary {
   background: $color-primary;
-  color: $color-text-inverse;
+  color: $color-bg-black;
 
   &:hover:not(:disabled) {
     background: $color-primary-hover;

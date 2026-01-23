@@ -1,155 +1,578 @@
-@use '@styles/variables' as *;
+@use '@/styles' as *;
 
 .cardLink {
   text-decoration: none;
   color: inherit;
   display: block;
+  width: 100%;
+  min-width: 0;
+  position: relative;
 }
 
 .card {
-  background: $color-bg-card;
-  border-radius: $radius-lg;
-  overflow: hidden;
-  transition: all $transition-normal;
+  @include card;
+
+  height: $card-height;
+  display: flex;
+  flex-direction: column;
   position: relative;
   cursor: pointer;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden; // Добавляем overflow для корректной работы overlay
 
   &:hover {
-    box-shadow: $shadow-lg;
-    transform: translateY(-4px);
+    .overlayContent {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .additionalInfo {
+      max-height: 500px; // Достаточно большое значение для раскрытия
+      opacity: 1;
+    }
   }
 }
 
 .imageContainer {
   position: relative;
+  height: $image-height;
   width: 100%;
-  aspect-ratio: 16 / 10;
   overflow: hidden;
   background: $color-bg;
+  border-radius: $radius-md $radius-md 0 0;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform $transition-normal;
+  }
+
+  // Добавляем эффект при наведении
+  .card:hover & img {
+    transform: scale(1.05);
   }
 }
 
-.imagePlaceholder {
+// Overlay поверх изображения при наведении
+.overlayContent {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  background: linear-gradient(180deg, rgba(19, 20, 21, 0) 0%, rgba(19, 20, 21, 0.7) 70%);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: $color-bg;
-  color: $color-text-muted;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  box-sizing: border-box;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: all $transition-normal;
+  z-index: 1;
 
-  svg {
-    display: block;
+  // Только для десктопа
+  @media (min-width: 769px) {
+    display: flex;
+  }
+
+  // Скрываем на мобильных
+  @include sm {
+    display: none;
   }
 }
 
-.recommendedBadge {
-  position: absolute;
-  top: $spacing-3;
-  left: $spacing-3;
-  padding: $spacing-1 $spacing-3;
-  background: #2563eb;
-  color: $color-text-inverse;
-  border-radius: $radius-full;
-  font-size: $font-size-xs;
+.overlayTitle {
+  color: white;
+  font-family: $font-family-primary;
+  font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  z-index: 2;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.logo {
-  position: absolute;
-  bottom: $spacing-3;
-  left: $spacing-3;
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: $radius-md;
-  backdrop-filter: blur(4px);
-  z-index: 2;
+.overlayLocation {
+  color: rgba(255, 255, 255, 0.9);
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  margin-bottom: 12px;
+}
+
+.overlayFeatures {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  font-family: $font-family-primary;
+  font-size: $font-size-xs;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.overlayButton {
+  background: $color-primary;
+  color: white;
+  border: none;
+  border-radius: $radius-full;
+  padding: 8px 16px;
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+  align-self: flex-start;
+
+  &:hover {
+    background: $color-primary-hover;
+    transform: translateY(-2px);
+  }
+}
+
+.infoContainer {
+  width: 100%;
+  min-height: 93px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-2 $spacing-4;
+  box-sizing: border-box;
+  border-bottom: 0.5px solid $color-bg-control;
+  background: $color-bg-card;
+
+  @include sm {
+    gap: $spacing-3;
+    padding: $spacing-2 $spacing-3;
+  }
+}
+
+.developerInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
+}
+
+.developerLogoContainer {
+  width: $logo-size;
+  height: $logo-size;
+  min-width: $logo-size;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid $color-border;
+
+  @include sm {
+    width: $logo-size-sm;
+    height: $logo-size-sm;
+    min-width: $logo-size-sm;
+  }
+}
+
+.developerLogo {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    object-position: center;
+    clip-path: circle(50%);
   }
+}
+
+.projectNameContainer {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.projectTitleRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.projectTitle {
+  @include truncate;
+  height: 25px;
+  color: $color-bg-black;
+  font-family: $font-family-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  line-height: 25px;
+
+  @include sm {
+    font-size: $font-size-md;
+    height: 22px;
+    line-height: 22px;
+  }
+}
+
+.developerRow,
+.regionRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+
+  @include sm {
+    gap: $spacing-2;
+  }
+}
+
+.developerName,
+.regionName {
+  @include truncate;
+  height: 18px;
+  color: $color-bg-black;
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-regular;
+  line-height: 18px;
+
+  @include sm {
+    height: 16px;
+    line-height: 16px;
+  }
+}
+
+.regionName {
+  color: $color-bg-qq;
+}
+
+// ROI Badge
+.roiContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $radius-full;
+  background: $color-roi-bg;
+  flex-shrink: 0;
+  min-width: $roi-badge-width;
+  height: $roi-badge-height;
+
+  @include sm {
+    min-width: $roi-badge-width-sm;
+    height: $roi-badge-height-sm;
+    padding: $spacing-1 $spacing-2;
+  }
+}
+
+.roiValue {
+  color: $color-roi-text;
+  font-family: $font-family-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  line-height: 20px;
+  white-space: nowrap;
+
+  @include sm {
+    font-size: $font-size-sm;
+    line-height: 18px;
+  }
+}
+
+// Общий стиль для контейнеров с данными
+.dataContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.priceContainer {
+  @extend .dataContainer;
+  height: $data-row-height;
+  border-bottom: 0.5px solid $color-bg-control;
+}
+
+.priceRow {
+  width: 100%;
+  height: $data-row-height;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.attributeContainer {
+  @include dataCell(flex-start);
+}
+
+.priceValueContainer {
+  @include dataCell(flex-end);
+  padding: $spacing-1 $spacing-4 $spacing-1 0;
+
+  @include sm {
+    padding: $spacing-1 $spacing-3 $spacing-1 0;
+  }
+}
+
+.priceValueContainer {
+  justify-content: flex-end;
+  padding: $spacing-1 $spacing-4 $spacing-1 0;
+
+  @include sm {
+    padding: $spacing-1 $spacing-3 $spacing-1 0;
+  }
+}
+
+.attributeLabel {
+  color: $color-bg-black;
+  font-family: $font-family-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  line-height: 20px;
+  white-space: nowrap;
+
+  @include sm {
+    font-size: $font-size-sm;
+    line-height: 18px;
+  }
+}
+
+.priceValue {
+  font-family: $font-family-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  line-height: 20px;
+  color: $color-bg-black;
+  white-space: nowrap;
+
+  .from {
+    color: $color-bg-qq;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-regular;
+    margin-right: $spacing-1;
+  }
+
+  @include sm {
+    font-size: $font-size-sm;
+    line-height: 18px;
+  }
+}
+
+// Контейнер с планом платежей
+.paymentPlanContainer {
+  width: 100%;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.dateContainer {
+  @include dataCell(flex-start);
+}
+
+.planContainer {
+  @include dataCell(flex-end);
+  padding: $spacing-1 $spacing-4 $spacing-1 0;
+
+  @include sm {
+    padding: $spacing-1 $spacing-3 $spacing-1 0;
+  }
+}
+
+.planContainer {
+  justify-content: flex-end;
+  padding: $spacing-1 $spacing-4 $spacing-1 0;
+
+  @include sm {
+    padding: $spacing-1 $spacing-3 $spacing-1 0;
+  }
+}
+
+.dateValue,
+.planValue {
+  font-family: $font-family-primary;
+  font-size: $font-size-md;
+  line-height: 20px;
+
+  @include sm {
+    font-size: $font-size-sm;
+    line-height: 18px;
+  }
+}
+
+.dateValue {
+  .quarter {
+    color: $color-bg-qq;
+  }
+
+  .year {
+    color: $color-bg-black;
+  }
+}
+
+.planValue {
+  text-align: right;
+
+  .planLabel {
+    color: $color-bg-overlay;
+  }
+
+  .planNumbers {
+    color: $color-bg-black;
+  }
+}
+
+// Блок с дополнительной информацией (скрыт по умолчанию)
+.additionalInfo {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all $transition-normal;
+  background: $color-bg-card;
+  padding: 0 $spacing-4;
+  border-top: 0.5px solid $color-bg-control;
+
+  .card:hover & {
+    max-height: 500px;
+    opacity: 1;
+    padding: $spacing-3 $spacing-4;
+  }
+
+  @include sm {
+    padding: 0 $spacing-3;
+
+    .card:hover & {
+      padding: $spacing-2 $spacing-3;
+    }
+  }
+}
+
+.additionalInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-3;
+  margin-bottom: $spacing-3;
+}
+
+.additionalInfoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.additionalInfoLabel {
+  color: $color-bg-qq;
+  font-family: $font-family-primary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-regular;
+}
+
+.additionalInfoValue {
+  color: $color-bg-black;
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.additionalInfoDescription {
+  color: $color-bg-qq;
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  line-height: 1.4;
+  margin: 0;
 }
 
 .favoriteButton {
   position: absolute;
-  bottom: $spacing-3;
-  right: $spacing-3;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 183.92px;
+  background: $color-bg-card;
   border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   cursor: pointer;
   transition: all $transition-fast;
-  backdrop-filter: blur(4px);
-  z-index: 2;
+  z-index: 2; // Поверх overlay
+  padding: $spacing-3;
+  box-sizing: border-box;
 
   &:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.1);
+    background: $color-bg-card;
+    transform: scale(1.05);
+    box-shadow: $shadow-sm;
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 
   svg {
-    color: $color-text;
+    width: 20px;
+    height: 20px;
+    color: rgba(19, 20, 21, 0.3);
+
+    path {
+      fill: rgba(19, 20, 21, 0.3);
+      stroke: none;
+    }
+  }
+
+  &.favorited {
+    svg {
+      color: rgba(255, 30, 0, 0.8);
+
+      path {
+        fill: rgba(255, 30, 0, 0.8);
+      }
+    }
+  }
+
+  @include sm {
+    width: 40px;
+    height: 40px;
+    padding: $spacing-2;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
   }
 }
 
-.content {
-  padding: $spacing-4;
-}
-
-.title {
-  font-size: $font-size-md;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
-  margin: 0 0 $spacing-2 0;
-  line-height: $line-height-tight;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.developer {
-  font-size: $font-size-sm;
+.recommendedBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: $color-primary;
+  color: white;
+  padding: 4px 8px;
+  border-radius: $radius-sm;
+  font-family: $font-family-primary;
+  font-size: 11px;
   font-weight: $font-weight-medium;
-  color: $color-text;
-  margin: 0 0 $spacing-1 0;
-}
-
-.location {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  margin: 0 0 $spacing-2 0;
-}
-
-.priceInfo {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-text;
-  margin: 0 0 $spacing-1 0;
-}
-
-.completionDate {
-  font-size: $font-size-xs;
-  color: $color-text-muted;
-  margin: 0;
+  line-height: 14px;
+  z-index: 2; // Поверх overlay
 }

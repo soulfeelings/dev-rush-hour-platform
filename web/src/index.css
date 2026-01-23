@@ -36,10 +36,15 @@ body {
   padding: 0;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  max-width: none !important;
+  width: auto !important;
 }
 
 .marker-popup .leaflet-popup-content {
   margin: 0;
+  width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
 }
 
 .marker-popup .leaflet-popup-tip {

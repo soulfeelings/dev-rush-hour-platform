@@ -1,37 +1,45 @@
 @use '../../styles' as *;
 
 .header {
-  background: rgba(255, 255, 255, 0.95);
+  width: 100%;
+  background: $color-bg-header;
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid $color-border;
-  padding: $spacing-1 $spacing-4;
+  border-bottom: 0.5px solid $color-bg-control;
+  height: 54px;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: $z-header;
+
+  @media (max-width: $breakpoint-md) {
+    border-bottom: 0.5px solid $color-bg-control;
+  }
+}
+
+.container {
+  max-width: 1872px;
+  margin: 0 auto;
+  padding: 0 $spacing-4;
+  width: 100%;
+  height: 100%;
 }
 
 .headerInner {
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  max-width: 1872px;
+  height: 100%;
+  @include flex-between;
+  box-sizing: border-box;
   gap: $spacing-4;
+  padding: $spacing-3 0;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-2 0;
+  }
 }
 
 .menuBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: none;
-  border: none;
-  cursor: pointer;
+  @include circle-button;
   flex-shrink: 0;
-  transition: background $transition-fast;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
 
   @media (min-width: $breakpoint-md) {
     display: none;
@@ -39,31 +47,26 @@
 }
 
 .logo {
-  display: flex;
-  align-items: center;
+  @include flex-center;
   gap: $spacing-2;
   font-size: $font-size-lg;
   font-weight: $font-weight-bold;
   color: $color-text;
   text-decoration: none;
-  flex: 1;
-  justify-content: center;
+  white-space: nowrap;
+  min-width: fit-content;
 
   @media (min-width: $breakpoint-md) {
     flex: 0;
     justify-content: flex-start;
   }
-
-  span {
-    color: $color-primary;
-  }
 }
 
 .nav {
   display: none;
-  flex: 1;
-  margin-left: 50px;
-  gap: $spacing-6;
+  width: 1522px;
+  @include flex-center;
+  gap: 10px;
 
   @media (min-width: $breakpoint-md) {
     display: flex;
@@ -71,11 +74,19 @@
 }
 
 .navLink {
-  color: $color-text-secondary;
-  text-decoration: none;
+  @include flex-center;
+  height: 29px;
+  padding: $spacing-1 ($spacing-4 + $spacing-1);
+  border-radius: $radius-sm;
+  color: $color-text;
+  font-family: $font-family-primary;
   font-size: $font-size-md;
-  font-weight: $font-weight-bold;
-  transition: color $transition-fast;
+  font-weight: $font-weight-medium;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all $transition-fast;
 
   &:hover {
     color: $color-primary;
@@ -83,37 +94,103 @@
 }
 
 .headerActions {
-  display: flex;
-  align-items: center;
+  @include flex-center;
   gap: $spacing-3;
   flex-shrink: 0;
 }
 
-.desktopButton {
-  display: none;
+.controlPanel {
+  width: 262px;
+  height: 30px;
+  @include flex-center;
+  gap: $spacing-1;
+}
 
-  @media (min-width: $breakpoint-md) {
+.units {
+  @include units-panel;
+  width: 138px;
+  height: 30px;
+
+  span {
     display: flex;
+    align-items: center;
   }
 }
 
-.profileBtn {
-  display: flex;
+.uaeflag {
+  @include uae-flag;
+}
+
+.flagBlack {
+  background: $color-text;
+  top: 0;
+}
+
+.flagWhite {
+  background: $color-text-inverse;
+  top: 4px;
+}
+
+.flagGreen {
+  background: #00732f;
+  top: 8px;
+}
+
+.DotIcon {
+  width: 12px;
+  height: 12px;
+  @include flex-center;
+
+  &::before {
+    content: '';
+    width: 2px;
+    height: 2px;
+    background: $color-text;
+    border-radius: $radius-full;
+  }
+}
+
+// Стили для кнопки авторизации (если нужны кастомные стили)
+.loginBtn {
+  min-width: 120px;
+}
+
+.headerButton {
+  width: 120px;
+  height: 25px;
+  min-height: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: none;
+  padding: 8px 16px;
+  border-radius: 100px;
+  background: $color-bg-log-in;
   border: none;
   cursor: pointer;
-  transition: background $transition-fast;
 
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
+  color: #131415;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15px;
+  text-align: center;
+  white-space: nowrap;
+  text-decoration: none;
+
+  transition: all $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: #e6bf00;
+    transform: translateY(-1px);
   }
 
-  svg {
-    color: $color-text;
+  &:active:not(:disabled) {
+    background: #cca500;
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
