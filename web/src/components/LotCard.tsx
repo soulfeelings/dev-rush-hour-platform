@@ -45,34 +45,34 @@ interface LotCardProps {
   onFavoriteClick?: (lotId: string) => void
 }
 
+const formatPrice = (price: number, currency: string) => {
+  return `${(price / 1000000).toFixed(1)}M ${currency}`
+}
+
+// Функция для разделения completionDate на первые 2 символа и остальное
+const splitCompletionDate = (dateString: string) => {
+  if (dateString.length <= 2) {
+    return {
+      firstPart: dateString,
+      rest: '',
+    }
+  }
+
+  // Берем первые 2 символа
+  const firstPart = dateString.substring(0, 2)
+  // Берем остальную часть
+  const rest = dateString.substring(2)
+
+  return {
+    firstPart,
+    rest: rest.trim(), // Убираем лишние пробелы
+  }
+}
+
 export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   const { t } = useTranslation()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isFavorited, setIsFavorited] = useState(false)
-
-  const formatPrice = (price: number, currency: string) => {
-    return `${(price / 1000000).toFixed(1)}M ${currency}`
-  }
-
-  // Функция для разделения completionDate на первые 2 символа и остальное
-  const splitCompletionDate = (dateString: string) => {
-    if (dateString.length <= 2) {
-      return {
-        firstPart: dateString,
-        rest: '',
-      }
-    }
-
-    // Берем первые 2 символа
-    const firstPart = dateString.substring(0, 2)
-    // Берем остальную часть
-    const rest = dateString.substring(2)
-
-    return {
-      firstPart,
-      rest: rest.trim(), // Убираем лишние пробелы
-    }
-  }
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -146,7 +146,6 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                   src={allImages[currentImageIndex]}
                   alt={`${projectName} - image ${currentImageIndex + 1}`}
                 />
-
                 <button
                   className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
                   onClick={handleFavoriteClick}

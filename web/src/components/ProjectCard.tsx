@@ -11,31 +11,31 @@ interface ProjectCardProps {
   onFavoriteClick?: (propertyId: string) => void
 }
 
+const formatPrice = (price: number, currency: string) => {
+  const formatted = (price / 1000000).toFixed(1)
+  return `${formatted}M ${currency}`
+}
+
+const splitCompletionDate = (dateString: string) => {
+  if (dateString.length <= 2) {
+    return {
+      firstPart: dateString,
+      rest: '',
+    }
+  }
+
+  const firstPart = dateString.substring(0, 2)
+  const rest = dateString.substring(2)
+
+  return {
+    firstPart,
+    rest: rest.trim(),
+  }
+}
+
 export default function ProjectCard({ property, onFavoriteClick }: ProjectCardProps) {
   const { t } = useTranslation()
   const [isFavorited, setIsFavorited] = useState(false)
-
-  const formatPrice = (price: number, currency: string) => {
-    const formatted = (price / 1000000).toFixed(1)
-    return `${formatted}M ${currency}`
-  }
-
-  const splitCompletionDate = (dateString: string) => {
-    if (dateString.length <= 2) {
-      return {
-        firstPart: dateString,
-        rest: '',
-      }
-    }
-
-    const firstPart = dateString.substring(0, 2)
-    const rest = dateString.substring(2)
-
-    return {
-      firstPart,
-      rest: rest.trim(),
-    }
-  }
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()

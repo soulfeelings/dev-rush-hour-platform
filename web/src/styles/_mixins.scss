@@ -420,7 +420,7 @@
   .flagGreen {
     position: absolute;
     width: $width;
-    height: $height / 3;
+    height: calc($height / 3);
     left: 0;
   }
 }

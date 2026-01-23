@@ -5,27 +5,27 @@ interface MarkerPopupProps {
   property: Property
 }
 
-export const MarkerPopup = ({ property }: MarkerPopupProps) => {
-  const formatPrice = (price: number, currency: string) => {
-    const formatted = (price / 1000000).toFixed(1)
-    return `${formatted}M ${currency}`
-  }
+const formatPrice = (price: number, currency: string) => {
+  const formatted = (price / 1000000).toFixed(1)
+  return `${formatted}M ${currency}`
+}
 
-  const splitCompletionDate = (dateString: string) => {
-    if (dateString.length <= 2) {
-      return {
-        firstPart: dateString,
-        rest: '',
-      }
-    }
-    const firstPart = dateString.substring(0, 2)
-    const rest = dateString.substring(2)
+const splitCompletionDate = (dateString: string) => {
+  if (dateString.length <= 2) {
     return {
-      firstPart,
-      rest: rest.trim(),
+      firstPart: dateString,
+      rest: '',
     }
   }
+  const firstPart = dateString.substring(0, 2)
+  const rest = dateString.substring(2)
+  return {
+    firstPart,
+    rest: rest.trim(),
+  }
+}
 
+export const MarkerPopup = ({ property }: MarkerPopupProps) => {
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
 
   return (

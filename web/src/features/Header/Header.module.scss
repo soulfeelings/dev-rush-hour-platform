@@ -7,13 +7,6 @@
   border-bottom: 0.5px solid $color-bg-control;
   height: 54px;
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: $z-header;
-
-  @media (max-width: $breakpoint-md) {
-    border-bottom: 0.5px solid $color-bg-control;
-  }
 }
 
 .container {
