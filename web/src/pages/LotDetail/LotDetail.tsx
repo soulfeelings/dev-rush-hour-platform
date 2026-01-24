@@ -514,7 +514,6 @@ export default function LotDetail() {
         open={is3DModalOpen}
         onClose={() => setIs3DModalOpen(false)}
         title="3D Apartment Model"
-        variant="minimal"
         className="wide transparent"
       >
         <Model3DViewer embedded />
