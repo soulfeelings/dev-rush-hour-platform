@@ -19,7 +19,9 @@ function App() {
       <div style={{ flex: 1, overflow: 'auto' }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path={ROUTES.CATALOG} element={<Catalog />} />
+          <Route path={ROUTES.CATALOG} element={<Navigate to={ROUTES.PROJECTS} replace />} />
+          <Route path={ROUTES.PROJECTS} element={<Catalog />} />
+          <Route path={ROUTES.APARTMENTS} element={<Catalog />} />
           <Route path={ROUTES.PROJECT_DETAIL} element={<ProjectDetail />} />
           <Route path={ROUTES.LOT_DETAIL} element={<LotDetail />} />
           <Route path={ROUTES.AREAS} element={<ProjectArea />} />

@@ -25,10 +25,13 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
           </Link>
         </div>
         <nav className={styles.nav}>
-          <Link to={ROUTES.CATALOG} className={styles.navItem} onClick={onClose}>
-            {t('header.nav.catalog')}
+          <Link to={ROUTES.PROJECTS} className={styles.navItem} onClick={onClose}>
+            {t('header.nav.projects')}
           </Link>
-          <Link to="/admin" className={styles.navItem} onClick={onClose}>
+          <Link to={ROUTES.APARTMENTS} className={styles.navItem} onClick={onClose}>
+            {t('header.nav.apartments')}
+          </Link>
+          <Link to={ROUTES.ADMIN} className={styles.navItem} onClick={onClose}>
             {t('header.nav.admin')}
           </Link>
         </nav>

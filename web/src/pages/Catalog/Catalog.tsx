@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Select } from '../../ui/Select'
 import FiltersBar from '../../components/FiltersBar'
 import PropertyMap from '../../components/PropertyMap'
 import ResizableSplitter from '../../components/ResizableSplitter'
 import { useListProjects, useListLots } from '../../api'
 import { apiProjectsToProperties, apiLotsToPropertiesForMap } from '../../utils/apiAdapters'
-import { loadCatalogViewMode, saveCatalogViewMode } from '../../utils/catalogViewMode'
 import type { CatalogViewMode } from '../../utils/catalogViewMode'
+import { ROUTES } from '../../constants/routes'
 import styles from './Catalog.module.scss'
 import type { PropertyMapRef } from '../../components/PropertyMap/PropertyMap'
 import type { Lot } from '../../api'
@@ -60,12 +61,16 @@ const sortOptions = [
 ]
 
 export default function Catalog() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
   const [sortValue, setSortValue] = useState('default')
   const [panelWidth, setPanelWidth] = useState(loadSplitterPosition())
   const [screenWidth, setScreenWidth] = useState(window.innerWidth)
-  const [viewMode, setViewMode] = useState<CatalogViewMode>(loadCatalogViewMode)
   const mapRef = useRef<PropertyMapRef | null>(null)
+
+  // Определяем viewMode из URL
+  const viewMode: CatalogViewMode = location.pathname.includes('/apartments') ? 'lots' : 'projects'
 
   // Загружаем проекты только если открыта вкладка проектов
   const {
@@ -217,10 +222,10 @@ export default function Catalog() {
 
   const handleViewModeChange = useCallback(
     (mode: CatalogViewMode) => {
-      setViewMode(mode)
-      saveCatalogViewMode(mode)
+      const route = mode === 'lots' ? ROUTES.APARTMENTS : ROUTES.PROJECTS
+      navigate(route)
     },
-    [setViewMode]
+    [navigate]
   )
 
   const handleFinishResizing = useCallback((width: number) => {
