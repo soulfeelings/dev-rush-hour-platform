@@ -35,6 +35,31 @@
   }
 }
 
+// Max-width breakpoints
+@mixin max-sm {
+  @media (max-width: calc(#{$breakpoint-sm} - 1px)) {
+    @content;
+  }
+}
+
+@mixin max-md {
+  @media (max-width: calc(#{$breakpoint-md} - 1px)) {
+    @content;
+  }
+}
+
+@mixin max-lg {
+  @media (max-width: calc(#{$breakpoint-lg} - 1px)) {
+    @content;
+  }
+}
+
+@mixin max-xl {
+  @media (max-width: calc(#{$breakpoint-xl} - 1px)) {
+    @content;
+  }
+}
+
 // ----------------
 // TYPOGRAPHY
 // ----------------

@@ -23,7 +23,7 @@
   gap: $spacing-4;
   padding: $spacing-3 0;
 
-  @media (max-width: $breakpoint-md) {
+  @include max-md {
     padding: $spacing-2 0;
   }
 }
@@ -32,7 +32,7 @@
   @include circle-button;
   flex-shrink: 0;
 
-  @media (min-width: $breakpoint-md) {
+  @include md {
     display: none;
   }
 }
@@ -47,7 +47,7 @@
   white-space: nowrap;
   min-width: fit-content;
 
-  @media (min-width: $breakpoint-md) {
+  @include md {
     flex: 0;
     justify-content: flex-start;
   }
@@ -59,7 +59,11 @@
   @include flex-center;
   gap: 10px;
 
-  @media (min-width: $breakpoint-md) {
+  @include max-md {
+    display: none !important;
+  }
+
+  @include md {
     display: flex;
   }
 }
