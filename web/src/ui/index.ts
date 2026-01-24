@@ -18,6 +18,7 @@ export * from './ImagePreview'
 
 // Typography
 export * from './Typography'
+export * from './Link'
 
 // Feedback
 export * from './Toast'

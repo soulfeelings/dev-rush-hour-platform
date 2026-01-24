@@ -1,10 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import SidebarMenu from '../SidebarMenu'
-{
-  /*import { Select } from '../../ui'*/
-}
+import { Link } from '../../ui'
 import { ROUTES } from '../../constants/routes'
 import styles from './Header.module.scss'
 
@@ -68,9 +66,9 @@ function ControlPanel() {
         <DotIcon />
         <span>m²</span>
       </div>
-      <button className={styles.headerButton} onClick={() => console.log('Auth clicked')}>
+      {/* <button className={styles.headerButton} onClick={() => console.log('Auth clicked')}>
         Log in / Sign up
-      </button>
+      </button> */}
     </div>
   )
 }
@@ -87,9 +85,9 @@ export default function Header() {
             <button className={styles.menuBtn} onClick={() => setIsMenuOpen(true)} type="button">
               <IconMenu />
             </button>
-            <Link to="/" className={styles.logo}>
+            <RouterLink to="/" className={styles.logo}>
               Rush&nbsp;Hour
-            </Link>
+            </RouterLink>
             <nav className={styles.nav}>
               <Link to={ROUTES.CATALOG} className={styles.navLink}>
                 {t('header.nav.catalog')}

@@ -102,6 +102,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_PROXY_TARGET=http://backend:8080
+      - SKIP_LEFTHOOK=1
     volumes:
       - ./web:/app
       - /app/node_modules

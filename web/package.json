@@ -12,7 +12,7 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "preview": "vite preview",
-    "prepare": "lefthook install",
+    "prepare": "if [ \"$SKIP_LEFTHOOK\" = \"1\" ]; then echo \"skip lefthook\"; else lefthook install; fi",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "generate:api": "orval"
