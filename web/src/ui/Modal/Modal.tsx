@@ -1,11 +1,22 @@
 import { forwardRef, useEffect, useMemo, type HTMLAttributes } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import styles from './Modal.module.scss'
 import clsx from 'clsx'
 import { Typography } from '../Typography/Typography'
 
-export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
+export interface ModalProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  | 'onDrag'
+  | 'onDragEnd'
+  | 'onDragEnter'
+  | 'onDragExit'
+  | 'onDragLeave'
+  | 'onDragOver'
+  | 'onDragStart'
+  | 'onDrop'
+> {
   open: boolean
   onClose: () => void
   title?: string
@@ -43,30 +54,42 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       return () => document.removeEventListener('keydown', handleEscape)
     }, [open, onClose])
 
-    if (!open || !container) return null
+    if (!container) return null
 
     const modalContent = (
-      <div
-        className={clsx(styles.overlay, { [styles.largeOverlay]: size === 'large' })}
-        onClick={onClose}
-      >
-        <div
-          ref={ref}
-          className={clsx(styles.modal, { [styles.large]: size === 'large' }, className)}
-          onClick={e => e.stopPropagation()}
-          {...props}
-        >
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
-            <X size={12} />
-          </button>
-          <div className={styles.header}>
-            <Typography variant="h1" size="large">
-              {title}
-            </Typography>
-          </div>
-          {children}
-        </div>
-      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className={clsx(styles.overlay, { [styles.largeOverlay]: size === 'large' })}
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className={clsx(styles.modal, { [styles.large]: size === 'large' }, className)}
+              onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div ref={ref} {...props}>
+                <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+                  <X size={12} />
+                </button>
+                <div className={styles.header}>
+                  <Typography variant="h1" size="large">
+                    {title}
+                  </Typography>
+                </div>
+                {children}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     )
 
     return createPortal(modalContent, container)

@@ -9,7 +9,6 @@
   justify-content: center;
   padding: $spacing-4;
   z-index: 1000;
-  animation: fadeIn $transition-fast;
 
   &.largeOverlay {
     padding: 5vh 5vw;
@@ -23,7 +22,6 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: $shadow-modal;
-  animation: slideUp $transition-normal;
   max-width: 480px;
   position: relative;
   padding: $spacing-9 $spacing-4;
