@@ -10,7 +10,6 @@
 }
 
 .container {
-  max-width: 1872px;
   margin: 0 auto;
   padding: 0 $spacing-4;
   width: 100%;
@@ -18,7 +17,6 @@
 }
 
 .headerInner {
-  max-width: 1872px;
   height: 100%;
   @include flex-between;
   box-sizing: border-box;
