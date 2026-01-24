@@ -9,8 +9,6 @@
 }
 
 .sectionTitle {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
   margin: 0 0 $spacing-4 0;
   color: $color-text;
 }
@@ -30,9 +28,6 @@
   border: none;
   background: $color-charcoal-grey-10;
   color: $color-text;
-  font-family: $font-family-primary;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-regular;
   cursor: pointer;
   transition: all $transition-fast;
   white-space: nowrap;
