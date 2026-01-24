@@ -82,6 +82,12 @@
 .controlPanel {
   @include flex-center;
   gap: $spacing-1;
+  cursor: pointer;
+  transition: opacity $transition-fast;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .units {

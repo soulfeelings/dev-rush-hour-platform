@@ -240,5 +240,14 @@
   "projectCard.recommended": "RECOMMENDED",
   "projectCard.from": "from",
   "projectCard.million": "M",
-  "featuredCarousel.agency": "Agency"
+  "featuredCarousel.agency": "Agency",
+  "settings.title": "Settings",
+  "settings.language": "Language",
+  "settings.languages.arabic": "Arabic",
+  "settings.languages.english": "English",
+  "settings.languages.russian": "Russian",
+  "settings.currency": "Currency",
+  "settings.units": "Units of measurement",
+  "settings.units.squareMeters": "m²",
+  "settings.units.squareFeet": "ft²"
 }

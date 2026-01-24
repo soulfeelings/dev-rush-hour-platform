@@ -492,7 +492,8 @@ export default function ProjectDetail() {
         open={is3DModalOpen}
         onClose={() => setIs3DModalOpen(false)}
         title="3D Apartment Model"
-        className="wide transparent minimal"
+        variant="minimal"
+        className="wide transparent"
       >
         <Model3DViewer embedded />
       </Modal>

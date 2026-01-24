@@ -1,6 +1,8 @@
 import { forwardRef, useEffect, type HTMLAttributes } from 'react'
 import { X } from 'lucide-react'
 import styles from './Modal.module.scss'
+import clsx from 'clsx'
+import { Typography } from '../Typography/Typography'
 
 export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   open: boolean
@@ -11,19 +13,7 @@ export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(
-  (
-    {
-      open,
-      onClose,
-      title,
-      showCloseButton = true,
-      className,
-      size = 'compact',
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({ open, onClose, title, className, size = 'compact', children, ...props }, ref) => {
     useEffect(() => {
       if (open) {
         document.body.style.overflow = 'hidden'
@@ -47,49 +37,27 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
 
     if (!open) return null
 
-    const isMinimal = className?.includes('minimal')
-    const sizeClass = size === 'large' ? styles.large : ''
-
+    // Определяем позицию кнопки закрытия
     return (
       <div
-        className={`${styles.overlay} ${size === 'large' ? styles.largeOverlay : ''}`}
+        className={clsx(styles.overlay, { [styles.largeOverlay]: size === 'large' })}
         onClick={onClose}
       >
         <div
           ref={ref}
-          className={`${styles.modal} ${sizeClass} ${className || ''}`}
+          className={clsx(styles.modal, { [styles.large]: size === 'large' }, className)}
           onClick={e => e.stopPropagation()}
           {...props}
         >
-          {isMinimal ? (
-            <>
-              {(title || showCloseButton) && (
-                <div className={styles.minimalHeader}>
-                  {title && <h3 className={styles.minimalTitle}>{title}</h3>}
-                  {showCloseButton && (
-                    <button className={styles.minimalCloseBtn} onClick={onClose} aria-label="Close">
-                      <X size={20} />
-                    </button>
-                  )}
-                </div>
-              )}
-              {children}
-            </>
-          ) : (
-            <>
-              {(title || showCloseButton) && (
-                <div className={styles.header}>
-                  {title && <h3 className={styles.title}>{title}</h3>}
-                  {showCloseButton && (
-                    <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
-                      <X size={20} />
-                    </button>
-                  )}
-                </div>
-              )}
-              {children}
-            </>
-          )}
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+            <X size={12} />
+          </button>
+          <div className={styles.header}>
+            <Typography variant="h1" size="large">
+              {title}
+            </Typography>
+          </div>
+          {children}
         </div>
       </div>
     )
@@ -98,10 +66,9 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
 
 Modal.displayName = 'Modal'
 
-// Subcomponents
 export const ModalBody = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, children, ...props }, ref) => (
-    <div ref={ref} className={`${styles.body} ${className || ''}`} {...props}>
+    <div ref={ref} className={clsx(styles.body, className)} {...props}>
       {children}
     </div>
   )
@@ -111,7 +78,7 @@ ModalBody.displayName = 'ModalBody'
 
 export const ModalFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, children, ...props }, ref) => (
-    <div ref={ref} className={`${styles.footer} ${className || ''}`} {...props}>
+    <div ref={ref} className={clsx(styles.footer, className)} {...props}>
       {children}
     </div>
   )

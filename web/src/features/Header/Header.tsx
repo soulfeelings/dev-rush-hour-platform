@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import SidebarMenu from '../SidebarMenu'
+import { Settings } from '../Settings/Settings'
 import { Link } from '../../ui'
 import { ROUTES } from '../../constants/routes'
 import styles from './Header.module.scss'
@@ -56,9 +57,15 @@ const UAEFlag = () => (
 // Добавляем DotIcon
 const DotIcon = () => <div className={styles.DotIcon}></div>
 
-function ControlPanel() {
+function ControlPanel({ onClick }: { onClick: () => void }) {
   return (
-    <div className={styles.controlPanel}>
+    <div
+      className={styles.controlPanel}
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => e.key === 'Enter' && onClick()}
+    >
       <div className={styles.units}>
         <UAEFlag />
         <DotIcon />
@@ -76,6 +83,7 @@ function ControlPanel() {
 export default function Header() {
   const { t } = useTranslation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   return (
     <>
@@ -107,12 +115,13 @@ export default function Header() {
                 <IconUser />
               </button>
               */}
-              <ControlPanel />
+              <ControlPanel onClick={() => setIsSettingsOpen(true)} />
             </div>
           </div>
         </div>
       </header>
       <SidebarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <Settings open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   )
 }

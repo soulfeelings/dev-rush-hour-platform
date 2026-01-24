@@ -1,0 +1,181 @@
+@use '../../styles/variables' as *;
+
+.section {
+  margin-bottom: $spacing-6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  margin: 0 0 $spacing-4 0;
+  color: $color-text;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-4;
+  border-radius: 100px;
+  border: none;
+  background: $color-charcoal-grey-10;
+  color: $color-text;
+  font-family: $font-family-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-regular;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    background: $color-charcoal-grey-30;
+  }
+
+  &.active {
+    background: $color-yellow;
+    color: $color-charcoal-black;
+    font-weight: $font-weight-medium;
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+  }
+}
+
+// UAE Flag
+.uaeflag {
+  width: 18px;
+  height: 12px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 2px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 4.5px;
+    height: 12px;
+    background: #ff0000;
+    left: 0;
+    top: 0;
+    z-index: 1;
+  }
+
+  .flagBlack,
+  .flagWhite,
+  .flagGreen {
+    position: absolute;
+    width: 18px;
+    height: 4px;
+    left: 0;
+  }
+}
+
+.flagBlack {
+  background: $color-text;
+  top: 0;
+}
+
+.flagWhite {
+  background: $color-text-inverse;
+  top: 4px;
+}
+
+.flagGreen {
+  background: #00732f;
+  top: 8px;
+}
+
+// UK Flag
+.ukflag {
+  width: 18px;
+  height: 12px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 2px;
+  background: #012169;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 12px;
+    left: 8px;
+    top: 0;
+    background: #ffffff;
+    z-index: 1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 2px;
+    left: 0;
+    top: 5px;
+    background: #ffffff;
+    z-index: 1;
+  }
+
+  .ukCross1 {
+    position: absolute;
+    width: 2px;
+    height: 12px;
+    left: 8px;
+    top: 0;
+    background: #c8102e;
+    z-index: 2;
+  }
+
+  .ukCross2 {
+    position: absolute;
+    width: 18px;
+    height: 2px;
+    left: 0;
+    top: 5px;
+    background: #c8102e;
+    z-index: 2;
+  }
+}
+
+// Russian Flag
+.russianflag {
+  width: 18px;
+  height: 12px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 2px;
+
+  .flagWhite,
+  .flagBlue,
+  .flagRed {
+    position: absolute;
+    width: 18px;
+    height: 4px;
+    left: 0;
+  }
+}
+
+.flagBlue {
+  background: #0039a6;
+  top: 4px;
+}
+
+.flagRed {
+  background: #d52b1e;
+  top: 8px;
+}
