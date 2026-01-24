@@ -303,9 +303,6 @@ export default function Admin() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      {sidebarOpen && (
-        <div className={styles.sidebarOverlay} onClick={() => setSidebarOpen(false)} />
-      )}
       <div className={styles.content}>
         <Routes>
           <Route

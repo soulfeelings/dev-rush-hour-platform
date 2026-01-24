@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
 import styles from './SidebarMenu.module.scss'
@@ -14,8 +15,26 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
 
   return (
     <>
-      {isOpen && <div className={styles.overlay} onClick={onClose} />}
-      <div className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className={styles.overlay}
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          />
+        )}
+      </AnimatePresence>
+      <motion.aside
+        className={styles.sidebar}
+        initial={false}
+        animate={{
+          x: isOpen ? 0 : '-100%',
+        }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      >
         <div className={styles.header}>
           <button className={styles.closeButton} onClick={onClose} type="button">
             <X size={24} />
@@ -35,7 +54,7 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
             {t('header.nav.admin')}
           </Link>
         </nav>
-      </div>
+      </motion.aside>
     </>
   )
 }

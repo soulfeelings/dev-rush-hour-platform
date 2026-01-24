@@ -8,7 +8,6 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: $z-modal - 1;
-  animation: fadeIn $transition-normal;
 }
 
 .sidebar {
@@ -20,15 +19,9 @@
   max-width: 85vw;
   background: $color-bg-card;
   z-index: $z-modal;
-  transform: translateX(-100%);
-  transition: transform $transition-normal;
   box-shadow: $shadow-lg;
   display: flex;
   flex-direction: column;
-}
-
-.sidebarOpen {
-  transform: translateX(0);
 }
 
 .header {
@@ -107,14 +100,5 @@
 
   svg {
     color: $color-text-muted;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
