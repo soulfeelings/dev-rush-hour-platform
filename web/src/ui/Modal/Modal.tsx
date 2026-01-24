@@ -1,4 +1,5 @@
-import { forwardRef, useEffect, type HTMLAttributes } from 'react'
+import { forwardRef, useEffect, useMemo, type HTMLAttributes } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import styles from './Modal.module.scss'
 import clsx from 'clsx'
@@ -14,6 +15,13 @@ export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(
   ({ open, onClose, title, className, size = 'compact', children, ...props }, ref) => {
+    const container = useMemo(() => {
+      if (typeof document !== 'undefined') {
+        return document.body
+      }
+      return null
+    }, [])
+
     useEffect(() => {
       if (open) {
         document.body.style.overflow = 'hidden'
@@ -35,10 +43,9 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       return () => document.removeEventListener('keydown', handleEscape)
     }, [open, onClose])
 
-    if (!open) return null
+    if (!open || !container) return null
 
-    // Определяем позицию кнопки закрытия
-    return (
+    const modalContent = (
       <div
         className={clsx(styles.overlay, { [styles.largeOverlay]: size === 'large' })}
         onClick={onClose}
@@ -61,6 +68,8 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
         </div>
       </div>
     )
+
+    return createPortal(modalContent, container)
   }
 )
 

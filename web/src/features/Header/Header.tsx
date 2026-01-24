@@ -47,43 +47,9 @@ function LanguageSelector() {
 */
 }
 
-const UAEFlag = () => (
-  <div className={styles.uaeflag}>
-    <div className={styles.flagBlack}></div>
-    <div className={styles.flagWhite}></div>
-    <div className={styles.flagGreen}></div>
-  </div>
-)
-// Добавляем DotIcon
-const DotIcon = () => <div className={styles.DotIcon}></div>
-
-function ControlPanel({ onClick }: { onClick: () => void }) {
-  return (
-    <div
-      className={styles.controlPanel}
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={e => e.key === 'Enter' && onClick()}
-    >
-      <div className={styles.units}>
-        <UAEFlag />
-        <DotIcon />
-        <span>AED</span>
-        <DotIcon />
-        <span>m²</span>
-      </div>
-      {/* <button className={styles.headerButton} onClick={() => console.log('Auth clicked')}>
-        Log in / Sign up
-      </button> */}
-    </div>
-  )
-}
-
 export default function Header() {
   const { t } = useTranslation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   return (
     <>
@@ -115,13 +81,12 @@ export default function Header() {
                 <IconUser />
               </button>
               */}
-              <ControlPanel onClick={() => setIsSettingsOpen(true)} />
+              <Settings />
             </div>
           </div>
         </div>
       </header>
       <SidebarMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-      <Settings open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   )
 }
