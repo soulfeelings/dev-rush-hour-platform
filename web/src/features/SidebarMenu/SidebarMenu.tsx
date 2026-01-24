@@ -40,7 +40,7 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
             <X size={24} />
           </button>
           <Link to="/" className={styles.logo} onClick={onClose}>
-            Rush<span>Hour</span>
+            Rush Hour
           </Link>
         </div>
         <nav className={styles.nav}>
