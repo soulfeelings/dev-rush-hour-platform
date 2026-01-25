@@ -42,10 +42,6 @@ export default function HeroFilters() {
     : [
         { value: 'all', label: t('filters.propertyType.all') },
         { value: 'apartment', label: t('filters.propertyType.apartment') },
-        { value: 'villa', label: t('filters.propertyType.villa') },
-        { value: 'townhouse', label: t('filters.propertyType.townhouse') },
-        { value: 'penthouse', label: t('filters.propertyType.penthouse') },
-        { value: 'duplex', label: t('filters.propertyType.duplex') },
       ]
 
   const handleSearch = () => {
@@ -200,6 +196,7 @@ Filters:
               onClick={handleSearch}
               className={styles.searchButton}
               iconLeft={<Search size={20} />}
+              align="left"
             >
               <span className={styles.buttonText}>{t('filters.search.button')}</span>
             </Button>
@@ -208,6 +205,7 @@ Filters:
               onClick={handleContactAgent}
               className={styles.agentButton}
               iconLeft={<MessageCircle size={20} />}
+              align="left"
             >
               <span className={styles.buttonText}>{t('home.hero.contactAgent')}</span>
             </Button>

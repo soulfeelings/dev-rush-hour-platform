@@ -55,8 +55,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         style={{ '--icon-size': `${iconSize}px` } as React.CSSProperties}
         {...props}
       >
-        {iconLeft && <span className={styles.iconLeft}>{iconLeft}</span>}
-        {children && <span className={styles.text}>{children}</span>}
+        <span className={styles.content}>
+          {iconLeft && <span className={styles.iconLeft}>{iconLeft}</span>}
+          {children && <span className={styles.text}>{children}</span>}
+        </span>
         {iconRight && <span className={styles.iconRight}>{iconRight}</span>}
       </button>
     )
