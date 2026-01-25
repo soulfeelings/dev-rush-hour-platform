@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Select } from '../../ui/Select'
-import FiltersBar from '../../components/FiltersBar'
+import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
 import PropertyMap from '../../components/PropertyMap'
 import ResizableSplitter from '../../components/ResizableSplitter'
 import { useListProjects, useListLots } from '../../api'
@@ -312,9 +312,7 @@ export default function Catalog() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.filtersWrapper}>
-        <FiltersBar />
-      </div>
+      <CatalogFilters />
       <div className={styles.contentWrapper}>
         <div className={styles.desktopLayout}>
           <ResizableSplitter

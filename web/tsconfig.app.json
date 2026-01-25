@@ -13,8 +13,18 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "@api": ["./src/api"],
+      "@assets": ["./src/assets"],
+      "@components": ["./src/components"],
+      "@constants": ["./src/constants"],
+      "@data": ["./src/data"],
+      "@features": ["./src/features"],
+      "@locales": ["./src/locales"],
+      "@pages": ["./src/pages"],
       "@styles": ["./src/styles"],
-      "@assets": ["./src/assets"]
+      "@types": ["./src/types"],
+      "@ui": ["./src/ui"],
+      "@utils": ["./src/utils"]
     },
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,

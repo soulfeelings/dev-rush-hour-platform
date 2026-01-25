@@ -1,0 +1,11 @@
+@use '@/styles' as *;
+
+.filtersWrapper {
+  width: 100%;
+  margin: 0 auto;
+  padding: $spacing-0 $spacing-4;
+  background: $color-bg-card;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  margin-bottom: $spacing-3;
+}

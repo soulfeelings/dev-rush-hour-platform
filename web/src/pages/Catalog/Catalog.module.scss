@@ -7,16 +7,6 @@
   height: 100%;
 }
 
-.filtersWrapper {
-  width: 100%;
-  margin: 0 auto;
-  padding: $spacing-3 $spacing-4;
-  background: $color-bg-card;
-  box-sizing: border-box;
-  border-bottom: 0.5px solid $color-charcoal-grey-10;
-  flex-shrink: 0;
-}
-
 .contentWrapper {
   flex: 1;
   overflow: hidden;

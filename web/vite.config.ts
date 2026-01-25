@@ -13,8 +13,18 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        '@styles': path.resolve(__dirname, './src/styles'),
+        '@api': path.resolve(__dirname, './src/api'),
         '@assets': path.resolve(__dirname, './src/assets'),
+        '@components': path.resolve(__dirname, './src/components'),
+        '@constants': path.resolve(__dirname, './src/constants'),
+        '@data': path.resolve(__dirname, './src/data'),
+        '@features': path.resolve(__dirname, './src/features'),
+        '@locales': path.resolve(__dirname, './src/locales'),
+        '@pages': path.resolve(__dirname, './src/pages'),
+        '@styles': path.resolve(__dirname, './src/styles'),
+        '@types': path.resolve(__dirname, './src/types'),
+        '@ui': path.resolve(__dirname, './src/ui'),
+        '@utils': path.resolve(__dirname, './src/utils'),
       },
     },
     build: {

@@ -18,7 +18,6 @@ body {
   margin: 0;
   min-width: 320px;
   font-family: 'Plus Jakarta Sans', 'Noto Naskh Arabic', system-ui, sans-serif;
-  background: #fdfbf7;
   color: #1a1a1a;
   display: flex;
   flex-direction: column;
