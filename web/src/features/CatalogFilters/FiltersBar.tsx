@@ -1,51 +1,67 @@
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { Search, SlidersHorizontal, Plane, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useFilters, type FilterValues } from '../../contexts'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
-import { Tag } from '../../ui/Tag'
 import styles from './FiltersBar.module.scss'
 
 export default function FiltersBar() {
   const { t } = useTranslation()
-  const [activeFilters, setActiveFilters] = useState<string[]>(['advancement'])
+  const { filters, options, updateFilter, resetFilters } = useFilters()
 
-  const propertyTypeOptions = [
-    { value: 'all', label: t('filters.propertyType.all') },
-    { value: 'primary', label: t('filters.propertyType.primary') },
-    { value: 'secondary', label: t('filters.propertyType.secondary') },
-  ]
+  const propertyTypeOptions = options?.propertyTypes
+    ? options.propertyTypes.map(pt => ({ value: pt.value || '', label: pt.label || '' }))
+    : [
+        { value: 'all', label: t('filters.propertyType.all') },
+        { value: 'apartment', label: t('filters.propertyType.apartment') },
+        { value: 'villa', label: t('filters.propertyType.villa') },
+        { value: 'townhouse', label: t('filters.propertyType.townhouse') },
+        { value: 'penthouse', label: t('filters.propertyType.penthouse') },
+        { value: 'duplex', label: t('filters.propertyType.duplex') },
+      ]
 
-  const priceOptions = [
-    { value: 'all', label: t('filters.price.all') },
-    { value: '0-1m', label: t('filters.price.under1m') },
-    { value: '1-2m', label: t('filters.price.1to2m') },
-    { value: '2-5m', label: t('filters.price.2to5m') },
-    { value: '5m+', label: t('filters.price.5mPlus') },
-  ]
+  const priceOptions = options?.priceRanges
+    ? options.priceRanges.map(pr => ({ value: pr.value || '', label: pr.label || '' }))
+    : [
+        { value: 'all', label: t('filters.price.all') },
+        { value: '0-1m', label: t('filters.price.under1m') },
+        { value: '1-2m', label: t('filters.price.1to2m') },
+        { value: '2-5m', label: t('filters.price.2to5m') },
+        { value: '5m+', label: t('filters.price.5mPlus') },
+      ]
 
-  const bedroomsOptions = [
-    { value: 'all', label: t('filters.bedrooms.all') },
-    { value: 'studio', label: t('filters.bedrooms.studio') },
-    { value: '1', label: t('filters.bedrooms.one') },
-    { value: '2', label: t('filters.bedrooms.two') },
-    { value: '3', label: t('filters.bedrooms.three') },
-    { value: '4+', label: t('filters.bedrooms.fourPlus') },
-  ]
+  const bedroomsOptions = options?.bedrooms
+    ? options.bedrooms.map(b => ({ value: b.value || '', label: b.label || '' }))
+    : [
+        { value: 'all', label: t('filters.bedrooms.all') },
+        { value: 'studio', label: t('filters.bedrooms.studio') },
+        { value: '1', label: t('filters.bedrooms.one') },
+        { value: '2', label: t('filters.bedrooms.two') },
+        { value: '3', label: t('filters.bedrooms.three') },
+        { value: '4+', label: t('filters.bedrooms.fourPlus') },
+      ]
 
-  const statusOptions = [
-    { value: 'all', label: t('filters.status.all') },
-    { value: 'ready', label: t('filters.status.ready') },
-    { value: 'construction', label: t('filters.status.construction') },
-    { value: 'planning', label: t('filters.status.planning') },
-  ]
+  const statusOptions = options?.statuses
+    ? options.statuses.map(s => ({ value: s.value || '', label: s.label || '' }))
+    : [
+        { value: 'all', label: t('filters.status.all') },
+        { value: 'ready', label: t('filters.status.ready') },
+        { value: 'construction', label: t('filters.status.construction') },
+        { value: 'planning', label: t('filters.status.planning') },
+      ]
 
-  const removeFilter = (filter: string) => {
-    setActiveFilters(prev => prev.filter(f => f !== filter))
-  }
+  const activeFilters = useMemo(() => {
+    const active: string[] = []
+    if (filters.propertyType !== 'all') active.push('propertyType')
+    if (filters.priceRange !== 'all') active.push('priceRange')
+    if (filters.bedrooms !== 'all') active.push('bedrooms')
+    if (filters.status !== 'all') active.push('status')
+    return active
+  }, [filters])
 
   const clearAllFilters = () => {
-    setActiveFilters([])
+    resetFilters()
   }
 
   return (
@@ -60,35 +76,31 @@ export default function FiltersBar() {
         {t('filters.search.button')}
       </Button>
 
-      {activeFilters.includes('advancement') && (
-        <Tag onRemove={() => removeFilter('advancement')}>{t('filters.advancement.button')}</Tag>
-      )}
-
       <Select
         options={propertyTypeOptions}
-        value="all"
-        onChange={() => {}}
+        value={filters.propertyType}
+        onChange={value => updateFilter('propertyType', value as FilterValues['propertyType'])}
         placeholder={t('filters.propertyType.placeholder')}
       />
 
       <Select
         options={priceOptions}
-        value="all"
-        onChange={() => {}}
+        value={filters.priceRange}
+        onChange={value => updateFilter('priceRange', value as FilterValues['priceRange'])}
         placeholder={t('filters.price.placeholder')}
       />
 
       <Select
         options={bedroomsOptions}
-        value="all"
-        onChange={() => {}}
+        value={filters.bedrooms}
+        onChange={value => updateFilter('bedrooms', value as FilterValues['bedrooms'])}
         placeholder={t('filters.bedrooms.placeholder')}
       />
 
       <Select
         options={statusOptions}
-        value="all"
-        onChange={() => {}}
+        value={filters.status}
+        onChange={value => updateFilter('status', value as FilterValues['status'])}
         placeholder={t('filters.status.placeholder')}
       />
 

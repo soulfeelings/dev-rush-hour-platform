@@ -7,10 +7,12 @@ import {
   AdminApi,
   type DeveloperCreateRequest,
   type ProjectCreateRequest,
+  type CityCreateRequest,
   type Project,
   type LotListItem,
   type Developer,
   type Area,
+  type City,
 } from '../../api'
 import { Toast } from '../../ui'
 import { AuthForm } from './components/AuthForm'
@@ -22,6 +24,8 @@ import { LotForm } from './components/LotForm'
 import { ProjectsTable } from './components/ProjectsTable'
 import { LotsTable } from './components/LotsTable'
 import { AreasTable } from './components/AreasTable'
+import { CitiesTable } from './components/CitiesTable'
+import { CityForm } from './components/CityForm'
 import { ADMIN_ROUTES, ADMIN_ROUTE_SEGMENTS, ADMIN_API_ENDPOINTS } from './constants'
 
 const {
@@ -31,9 +35,11 @@ const {
   useAdminCreateDeveloper,
   useAdminCreateProject,
   useAdminCreateLot,
+  useAdminCreateCity,
   useAdminUpdateDeveloper,
   useAdminUpdateProject,
   useAdminUpdateLot,
+  useAdminUpdateCity,
 } = AdminApi
 import styles from './Admin.module.scss'
 
@@ -46,11 +52,11 @@ export default function Admin() {
   const [success, setSuccess] = useState<string | null>(null)
   const [formKey, setFormKey] = useState(0)
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false)
-  const [rightSidebarForm, setRightSidebarForm] = useState<'developer' | 'project' | 'lot' | null>(
-    null
-  )
+  const [rightSidebarForm, setRightSidebarForm] = useState<
+    'developer' | 'project' | 'lot' | 'city' | null
+  >(null)
   const [editingEntity, setEditingEntity] = useState<
-    Project | LotListItem | Developer | Area | null
+    Project | LotListItem | Developer | Area | City | null
   >(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -164,13 +170,47 @@ export default function Admin() {
     },
   })
 
+  const createCityMutation = useAdminCreateCity({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.CITIES] })
+        setSuccess('City created successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to create city')
+      },
+    },
+  })
+
+  const updateCityMutation = useAdminUpdateCity({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.CITIES] })
+        setSuccess('City updated successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to update city')
+      },
+    },
+  })
+
   const loading =
     createDeveloperMutation.isPending ||
     createProjectMutation.isPending ||
     createLotMutation.isPending ||
+    createCityMutation.isPending ||
     updateDeveloperMutation.isPending ||
     updateProjectMutation.isPending ||
-    updateLotMutation.isPending
+    updateLotMutation.isPending ||
+    updateCityMutation.isPending
 
   const handleAuth = (username: string, password: string) => {
     setError(null)
@@ -195,27 +235,29 @@ export default function Admin() {
     navigate(ADMIN_ROUTES.PROJECTS)
   }
 
-  const getActiveTab = (): 'projects-list' | 'lots-list' | 'areas-list' => {
+  const getActiveTab = (): 'projects-list' | 'lots-list' | 'areas-list' | 'cities-list' => {
     const path = params['*'] || ADMIN_ROUTE_SEGMENTS.PROJECTS
     if (path === ADMIN_ROUTE_SEGMENTS.LOTS) return 'lots-list'
     if (path === ADMIN_ROUTE_SEGMENTS.AREAS) return 'areas-list'
+    if (path === ADMIN_ROUTE_SEGMENTS.CITIES) return 'cities-list'
     return 'projects-list'
   }
 
   const activeTab = getActiveTab()
 
-  const handleTabChange = (tab: 'projects-list' | 'lots-list' | 'areas-list') => {
+  const handleTabChange = (tab: 'projects-list' | 'lots-list' | 'areas-list' | 'cities-list') => {
     const pathMap: Record<typeof tab, string> = {
       'projects-list': ADMIN_ROUTE_SEGMENTS.PROJECTS,
       'lots-list': ADMIN_ROUTE_SEGMENTS.LOTS,
       'areas-list': ADMIN_ROUTE_SEGMENTS.AREAS,
+      'cities-list': ADMIN_ROUTE_SEGMENTS.CITIES,
     }
     navigate(`${ADMIN_ROUTES.BASE}/${pathMap[tab]}`)
     setRightSidebarOpen(false)
     setRightSidebarForm(null)
   }
 
-  const handleNewClick = (formType: 'developer' | 'project' | 'lot') => {
+  const handleNewClick = (formType: 'developer' | 'project' | 'lot' | 'city') => {
     setEditingEntity(null)
     setRightSidebarForm(formType)
     setRightSidebarOpen(true)
@@ -224,8 +266,8 @@ export default function Admin() {
   }
 
   const handleEditClick = (
-    entity: Project | LotListItem | Developer | Area,
-    formType: 'developer' | 'project' | 'lot'
+    entity: Project | LotListItem | Developer | Area | City,
+    formType: 'developer' | 'project' | 'lot' | 'city'
   ) => {
     setEditingEntity(entity)
     setRightSidebarForm(formType)
@@ -271,6 +313,16 @@ export default function Admin() {
     }
   }
 
+  const handleCitySubmit = (payload: CityCreateRequest) => {
+    setError(null)
+    setSuccess(null)
+    if (editingEntity && 'id' in editingEntity && editingEntity.id) {
+      updateCityMutation.mutate({ id: editingEntity.id, data: payload })
+    } else {
+      createCityMutation.mutate({ data: payload })
+    }
+  }
+
   if (!isAuthenticated) {
     return (
       <div className={styles.admin}>
@@ -286,6 +338,7 @@ export default function Admin() {
     if (rightSidebarForm === 'developer') return isEditMode ? 'Edit Developer' : 'Create Developer'
     if (rightSidebarForm === 'project') return isEditMode ? 'Edit Project' : 'Create Project'
     if (rightSidebarForm === 'lot') return isEditMode ? 'Edit Lot' : 'Create Lot'
+    if (rightSidebarForm === 'city') return isEditMode ? 'Edit City' : 'Create City'
     return ''
   }
 
@@ -332,6 +385,15 @@ export default function Admin() {
               />
             }
           />
+          <Route
+            path={ADMIN_ROUTE_SEGMENTS.CITIES}
+            element={
+              <CitiesTable
+                onNewClick={() => handleNewClick('city')}
+                onEditClick={city => handleEditClick(city, 'city')}
+              />
+            }
+          />
           <Route path="*" element={<Navigate to={ADMIN_ROUTES.PROJECTS} replace />} />
         </Routes>
       </div>
@@ -374,6 +436,15 @@ export default function Admin() {
             initialData={
               isEditMode && 'projectId' in editingEntity ? (editingEntity as LotListItem) : null
             }
+            isEditMode={isEditMode}
+          />
+        )}
+        {rightSidebarForm === 'city' && (
+          <CityForm
+            key={formKey}
+            onSubmit={handleCitySubmit}
+            loading={loading}
+            initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as City) : null}
             isEditMode={isEditMode}
           />
         )}

@@ -587,6 +587,56 @@ func DomainDeveloperToGenerated(dev *domain.Developer) *generated.Developer {
 	return result
 }
 
+func DomainCityToGenerated(city *domain.City) *generated.City {
+	if city == nil {
+		return nil
+	}
+	id := openapi_types.UUID(city.ID)
+	status := generated.CityStatus(city.Status)
+	result := &generated.City{
+		Id:        &id,
+		Slug:      &city.Slug,
+		Name:      &city.Name,
+		Status:    &status,
+		CreatedAt: timePtr(city.CreatedAt),
+		UpdatedAt: timePtr(city.UpdatedAt),
+	}
+	return result
+}
+
+func GeneratedCityCreateToDomain(req *generated.CityCreateRequest) (*domain.City, error) {
+	city := &domain.City{
+		Slug:   req.Slug,
+		Name:   req.Name,
+		Status: domain.CityStatusActive,
+	}
+
+	if req.Status != nil {
+		city.Status = domain.CityStatus(*req.Status)
+	}
+
+	return city, nil
+}
+
+func ApplyCityUpdateRequest(existing *domain.City, req *generated.CityUpdateRequest) *domain.City {
+	if existing == nil || req == nil {
+		return nil
+	}
+	updated := *existing
+
+	if req.Slug != nil {
+		updated.Slug = *req.Slug
+	}
+	if req.Name != nil {
+		updated.Name = *req.Name
+	}
+	if req.Status != nil {
+		updated.Status = domain.CityStatus(*req.Status)
+	}
+
+	return &updated
+}
+
 func GeneratedAreaCreateToDomain(req *generated.AreaCreateRequest) (*domain.Area, error) {
 	area := &domain.Area{
 		Slug:   req.Slug,

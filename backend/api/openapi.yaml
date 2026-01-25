@@ -56,6 +56,40 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
+  /cities:
+    get:
+      operationId: listCities
+      summary: Получить список городов
+      tags:
+        - Cities
+      responses:
+        "200":
+          description: Список городов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/City"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /filters/options:
+    get:
+      operationId: getFilterOptions
+      summary: Получить опции фильтров
+      tags:
+        - Filters
+      responses:
+        "200":
+          description: Опции фильтров
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FilterOptions"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
   /projects:
     get:
       operationId: listProjects
@@ -239,6 +273,24 @@ paths:
                 $ref: "#/components/schemas/Lead"
         "400":
           $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /developers:
+    get:
+      operationId: listDevelopers
+      summary: Получить список застройщиков
+      tags:
+        - Developers
+      responses:
+        "200":
+          description: Список застройщиков
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Developer"
         "500":
           $ref: "#/components/responses/InternalError"
 
@@ -503,6 +555,141 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Area"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/cities:
+    get:
+      operationId: adminListCities
+      summary: Получить список городов (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список городов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/City"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: adminCreateCity
+      summary: Создать город (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CityCreateRequest"
+      responses:
+        "201":
+          description: Город создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/City"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/cities/{id}:
+    get:
+      operationId: adminGetCity
+      summary: Получить город по ID (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Город найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/City"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      operationId: adminSoftDeleteCity
+      summary: Мягкое удаление города (установка deleted_at)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Город помечен как удаленный
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      operationId: adminUpdateCity
+      summary: Обновить город (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CityUpdateRequest"
+      responses:
+        "200":
+          description: Город обновлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/City"
         "400":
           $ref: "#/components/responses/ValidationError"
         "401":
@@ -1437,6 +1624,104 @@ components:
           format: date-time
           nullable: true
           description: Время мягкого удаления (если null - не удален)
+
+    City:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        status:
+          $ref: "#/components/schemas/CityStatus"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CityStatus:
+      type: string
+      enum: [active, inactive]
+
+    CityCreateRequest:
+      type: object
+      required:
+        - slug
+        - name
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        status:
+          $ref: "#/components/schemas/CityStatus"
+          default: active
+
+    CityUpdateRequest:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        status:
+          $ref: "#/components/schemas/CityStatus"
+
+    FilterOptions:
+      type: object
+      properties:
+        cities:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterOption"
+        areas:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterOption"
+        developers:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterOption"
+        projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterOption"
+        propertyTypes:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterOption"
+        bedrooms:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterOption"
+        bathrooms:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterOption"
+        priceRanges:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterOption"
+        statuses:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterOption"
+
+    FilterOption:
+      type: object
+      required:
+        - value
+        - label
+      properties:
+        value:
+          type: string
+        label:
+          type: string
 
     DeveloperCreateRequest:
       type: object

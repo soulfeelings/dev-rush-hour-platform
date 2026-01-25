@@ -24,10 +24,14 @@ import (
 type Server struct {
 	projectsHandler      *handlers.ProjectsHandler
 	areasHandler         *handlers.AreasHandler
+	citiesHandler        *handlers.CitiesHandler
+	developersHandler    *handlers.DevelopersHandler
+	filtersHandler       *handlers.FiltersHandler
 	lotsHandler          *handlers.LotsHandler
 	leadsHandler         *handlers.LeadsHandler
 	adminDevelopersHandler *handlers.AdminDevelopersHandler
 	adminAreasHandler      *handlers.AdminAreasHandler
+	adminCitiesHandler     *handlers.AdminCitiesHandler
 	adminProjectsHandler   *handlers.AdminProjectsHandler
 	adminLotsHandler       *handlers.AdminLotsHandler
 	adminLeadsHandler      *handlers.AdminLeadsHandler
@@ -36,6 +40,7 @@ type Server struct {
 func NewServer(db *sql.DB) *Server {
 	// Repositories
 	areaRepo := repo.NewAreaRepo(db)
+	cityRepo := repo.NewCityRepo(db)
 	projectRepo := repo.NewProjectRepo(db)
 	lotRepo := repo.NewLotRepo(db)
 	leadRepo := repo.NewLeadRepo(db)
@@ -43,19 +48,25 @@ func NewServer(db *sql.DB) *Server {
 
 	// Services
 	areasService := services.NewAreasService(areaRepo)
+	citiesService := services.NewCitiesService(cityRepo)
 	projectsService := services.NewProjectsService(projectRepo, lotRepo)
 	lotsService := services.NewLotsService(lotRepo)
 	leadsService := services.NewLeadsService(leadRepo)
 	developersService := services.NewDevelopersService(developerRepo)
+	filtersService := services.NewFiltersService(citiesService, areasService, developersService, projectsService)
 
 	// Handlers
 	return &Server{
 		projectsHandler:        handlers.NewProjectsHandler(projectsService),
 		areasHandler:           handlers.NewAreasHandler(areasService),
+		citiesHandler:          handlers.NewCitiesHandler(citiesService),
+		developersHandler:      handlers.NewDevelopersHandler(developersService),
+		filtersHandler:         handlers.NewFiltersHandler(filtersService),
 		lotsHandler:            handlers.NewLotsHandler(lotsService),
 		leadsHandler:           handlers.NewLeadsHandler(leadsService),
 		adminDevelopersHandler: handlers.NewAdminDevelopersHandler(developersService),
 		adminAreasHandler:      handlers.NewAdminAreasHandler(areasService),
+		adminCitiesHandler:     handlers.NewAdminCitiesHandler(citiesService),
 		adminProjectsHandler:   handlers.NewAdminProjectsHandler(projectsService),
 		adminLotsHandler:       handlers.NewAdminLotsHandler(lotsService),
 		adminLeadsHandler:      handlers.NewAdminLeadsHandler(leadsService),
@@ -70,6 +81,18 @@ func (s *Server) ListAreas(c *fiber.Ctx, params generated.ListAreasParams) error
 
 func (s *Server) GetArea(c *fiber.Ctx, slug string) error {
 	return s.areasHandler.GetArea(c, slug)
+}
+
+func (s *Server) ListCities(c *fiber.Ctx) error {
+	return s.citiesHandler.ListCities(c)
+}
+
+func (s *Server) ListDevelopers(c *fiber.Ctx) error {
+	return s.developersHandler.ListDevelopers(c)
+}
+
+func (s *Server) GetFilterOptions(c *fiber.Ctx) error {
+	return s.filtersHandler.GetFilterOptions(c)
 }
 
 func (s *Server) CreateLead(c *fiber.Ctx) error {
@@ -132,6 +155,26 @@ func (s *Server) AdminGetArea(c *fiber.Ctx, id openapi_types.UUID) error {
 
 func (s *Server) AdminSoftDeleteArea(c *fiber.Ctx, id openapi_types.UUID) error {
 	return s.adminAreasHandler.SoftDeleteArea(c, id)
+}
+
+func (s *Server) AdminListCities(c *fiber.Ctx) error {
+	return s.adminCitiesHandler.ListCities(c)
+}
+
+func (s *Server) AdminCreateCity(c *fiber.Ctx) error {
+	return s.adminCitiesHandler.CreateCity(c)
+}
+
+func (s *Server) AdminUpdateCity(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminCitiesHandler.UpdateCity(c, id)
+}
+
+func (s *Server) AdminGetCity(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminCitiesHandler.GetCity(c, id)
+}
+
+func (s *Server) AdminSoftDeleteCity(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminCitiesHandler.SoftDeleteCity(c, id)
 }
 
 func (s *Server) AdminListProjects(c *fiber.Ctx) error {

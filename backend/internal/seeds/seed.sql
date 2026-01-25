@@ -1,6 +1,11 @@
 -- Seed data for Rush Hour Platform
 -- Run: make seed (local) or make seed-railway DATABASE_URL="..." (production)
 
+-- Insert cities
+INSERT INTO cities (slug, name, status) VALUES
+('dubai', 'Dubai', 'active')
+ON CONFLICT (slug) DO NOTHING;
+
 -- Insert developers
 INSERT INTO developers (slug, name, status, data) VALUES
 ('segrex-development-llc', 'Segrex Development L.L.C Агентство', 'active', '{"logoUrl": "https://avatars.mds.yandex.net/i?id=70d28def6aafbd8f46b5a6028a7218f0_l-5310919-images-thumbs&n=13"}'),

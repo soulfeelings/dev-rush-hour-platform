@@ -1,103 +1,99 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { MessageCircle, Search, MapPin, Building2, Home, Bed, DollarSign } from 'lucide-react'
+import { useFilters, type FilterValues } from '../../contexts'
 import { ROUTES } from '../../constants/routes'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
 import { BedsBathsSelect } from './BedsBathsSelect'
 import { PriceSelect } from './PriceSelect'
 import styles from './HeroFilters.module.scss'
+import { HeroFiltersSkeleton } from './HeroFiltersSkeleton'
 
 export default function HeroFilters() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [location, setLocation] = useState('all')
-  const [developer, setDeveloper] = useState('all')
-  const [project, setProject] = useState('all')
-  const [propertyType, setPropertyType] = useState('all')
-  const [beds, setBeds] = useState('all')
-  const [baths, setBaths] = useState('all')
-  const [minPrice, setMinPrice] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
+  const { filters, options, isLoading, updateFilter, getFilteredProjects } = useFilters()
 
-  const locationOptions = [
-    { value: 'all', label: t('filters.location.all') },
-    { value: 'dubai', label: t('filters.location.dubai') },
-  ]
+  // Prepare options with "all" option
+  const cityOptions = options?.cities
+    ? [
+        { value: 'all', label: t('filters.location.all') },
+        ...options.cities.map(c => ({ value: c.value, label: c.label })),
+      ]
+    : [{ value: 'all', label: t('filters.location.all') }]
 
-  const developerOptions = [
-    { value: 'all', label: t('filters.developer.all') },
-    { value: 'emaar', label: 'Emaar' },
-    { value: 'damac', label: 'DAMAC' },
-    { value: 'nakheel', label: 'Nakheel' },
-    { value: 'dubai-properties', label: 'Dubai Properties' },
-  ]
+  const developerOptions = options?.developers
+    ? [
+        { value: 'all', label: t('filters.developer.all') },
+        ...options.developers.map(d => ({ value: d.value || '', label: d.label || '' })),
+      ]
+    : [{ value: 'all', label: t('filters.developer.all') }]
 
-  const projectOptions = [
-    { value: 'all', label: t('filters.project.all') },
-    { value: 'dubai-marina-walk', label: 'Dubai Marina Walk' },
-    { value: 'palm-jumeirah-residences', label: 'Palm Jumeirah Residences' },
-    { value: 'downtown-views', label: 'Downtown Views' },
-  ]
+  const projectOptions = options?.projects
+    ? [
+        { value: 'all', label: t('filters.project.all') },
+        ...getFilteredProjects().map(p => ({ value: p.value || '', label: p.label || '' })),
+      ]
+    : [{ value: 'all', label: t('filters.project.all') }]
 
-  const propertyTypeOptions = [
-    { value: 'all', label: t('filters.propertyType.all') },
-    { value: 'apartment', label: t('filters.propertyType.apartment') },
-    { value: 'villa', label: t('filters.propertyType.villa') },
-    { value: 'townhouse', label: t('filters.propertyType.townhouse') },
-    { value: 'penthouse', label: t('filters.propertyType.penthouse') },
-    { value: 'duplex', label: t('filters.propertyType.duplex') },
-  ]
+  const propertyTypeOptions = options?.propertyTypes
+    ? options.propertyTypes.map(pt => ({ value: pt.value || '', label: pt.label || '' }))
+    : [
+        { value: 'all', label: t('filters.propertyType.all') },
+        { value: 'apartment', label: t('filters.propertyType.apartment') },
+        { value: 'villa', label: t('filters.propertyType.villa') },
+        { value: 'townhouse', label: t('filters.propertyType.townhouse') },
+        { value: 'penthouse', label: t('filters.propertyType.penthouse') },
+        { value: 'duplex', label: t('filters.propertyType.duplex') },
+      ]
 
   const handleSearch = () => {
     const params = new URLSearchParams()
-    if (location !== 'all') params.set('location', location)
-    if (developer !== 'all') params.set('developer', developer)
-    if (project !== 'all') params.set('project', project)
-    if (propertyType !== 'all') params.set('type', propertyType)
-    if (beds !== 'all') params.set('bedrooms', beds)
-    if (baths !== 'all') params.set('bathrooms', baths)
-    if (minPrice) params.set('minPrice', minPrice)
-    if (maxPrice) params.set('maxPrice', maxPrice)
+    if (filters.city) params.set('city', filters.city)
+    if (filters.area) params.set('area', filters.area)
+    if (filters.developer) params.set('developer', filters.developer)
+    if (filters.project) params.set('project', filters.project)
+    if (filters.propertyType !== 'all') params.set('type', filters.propertyType)
+    if (filters.bedrooms !== 'all') params.set('bedrooms', filters.bedrooms)
+    if (filters.bathrooms !== 'all') params.set('bathrooms', filters.bathrooms)
+    if (filters.minPrice) params.set('minPrice', filters.minPrice)
+    if (filters.maxPrice) params.set('maxPrice', filters.maxPrice)
     navigate(`${ROUTES.CATALOG}?${params.toString()}`)
   }
 
   const handleContactAgent = () => {
     const phone = '971544313048'
-    const locationLabel =
-      locationOptions.find(opt => opt.value === location)?.label ||
+    const cityLabel =
+      cityOptions.find(opt => opt.value === (filters.city || 'all'))?.label ||
       t('filters.location.placeholder')
     const developerLabel =
-      developerOptions.find(opt => opt.value === developer)?.label ||
+      developerOptions.find(opt => opt.value === (filters.developer || 'all'))?.label ||
       t('filters.developer.placeholder')
     const projectLabel =
-      projectOptions.find(opt => opt.value === project)?.label || t('filters.project.placeholder')
+      projectOptions.find(opt => opt.value === (filters.project || 'all'))?.label ||
+      t('filters.project.placeholder')
     const propertyTypeLabel =
-      propertyTypeOptions.find(opt => opt.value === propertyType)?.label ||
+      propertyTypeOptions.find(opt => opt.value === filters.propertyType)?.label ||
       t('filters.propertyType.placeholder')
     const bedsLabel =
-      beds === 'all'
+      filters.bedrooms === 'all'
         ? t('filters.bedrooms.all')
-        : beds === 'studio'
+        : filters.bedrooms === 'studio'
           ? t('filters.bedrooms.studio')
-          : beds === '7+'
-            ? '7+'
-            : `${beds} ${t('filters.bedrooms.one').replace('1 ', '')}`
+          : `${filters.bedrooms} ${t('filters.bedrooms.one').replace('1 ', '')}`
     const bathsLabel =
-      baths === 'all'
+      filters.bathrooms === 'all'
         ? t('home.properties.baths')
-        : baths === '7+'
-          ? '7+'
-          : `${baths} ${t('home.properties.baths')}`
+        : `${filters.bathrooms} ${t('home.properties.baths')}`
     const priceLabel =
-      minPrice || maxPrice
-        ? `${minPrice || '0'} - ${maxPrice || t('filters.price.any')} AED`
+      filters.minPrice || filters.maxPrice
+        ? `${filters.minPrice || '0'} - ${filters.maxPrice || t('filters.price.any')} AED`
         : t('filters.price.all')
 
     const message = `Hello! I'm interested in properties in Dubai.
 Filters:
-- Location: ${locationLabel}
+- City: ${cityLabel}
 - Developer: ${developerLabel}
 - Project: ${projectLabel}
 - Property Type: ${propertyTypeLabel}
@@ -108,6 +104,10 @@ Filters:
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
   }
 
+  if (isLoading) {
+    return <HeroFiltersSkeleton />
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.filterBar}>
@@ -115,9 +115,9 @@ Filters:
           <div className={styles.selectGroup}>
             <div className={styles.selectWrapper}>
               <Select
-                options={locationOptions}
-                value={location}
-                onChange={setLocation}
+                options={cityOptions}
+                value={filters.city || 'all'}
+                onChange={value => updateFilter('city', value === 'all' ? null : value)}
                 placeholder={t('filters.location.placeholder')}
                 icon={<MapPin size={18} />}
                 fullWidth
@@ -128,8 +128,8 @@ Filters:
             <div className={styles.selectWrapper}>
               <Select
                 options={developerOptions}
-                value={developer}
-                onChange={setDeveloper}
+                value={filters.developer || 'all'}
+                onChange={value => updateFilter('developer', value === 'all' ? null : value)}
                 placeholder={t('filters.developer.placeholder')}
                 icon={<Building2 size={18} />}
                 fullWidth
@@ -141,8 +141,8 @@ Filters:
             <div className={styles.selectWrapper}>
               <Select
                 options={projectOptions}
-                value={project}
-                onChange={setProject}
+                value={filters.project || 'all'}
+                onChange={value => updateFilter('project', value === 'all' ? null : value)}
                 placeholder={t('filters.project.placeholder')}
                 icon={<Home size={18} />}
                 fullWidth
@@ -154,8 +154,10 @@ Filters:
             <div className={styles.selectWrapper}>
               <Select
                 options={propertyTypeOptions}
-                value={propertyType}
-                onChange={setPropertyType}
+                value={filters.propertyType}
+                onChange={value =>
+                  updateFilter('propertyType', value as FilterValues['propertyType'])
+                }
                 placeholder={t('filters.propertyType.placeholder')}
                 icon={<Home size={18} />}
                 fullWidth
@@ -165,10 +167,14 @@ Filters:
             </div>
             <div className={styles.selectWrapper}>
               <BedsBathsSelect
-                bedrooms={beds}
-                bathrooms={baths}
-                onBedroomsChange={setBeds}
-                onBathroomsChange={setBaths}
+                bedrooms={filters.bedrooms}
+                bathrooms={filters.bathrooms}
+                onBedroomsChange={value =>
+                  updateFilter('bedrooms', value as FilterValues['bedrooms'])
+                }
+                onBathroomsChange={value =>
+                  updateFilter('bathrooms', value as FilterValues['bathrooms'])
+                }
                 placeholder={t('filters.bathrooms.placeholder')}
                 icon={<Bed size={18} />}
                 fullWidth
@@ -177,10 +183,10 @@ Filters:
             </div>
             <div className={styles.selectWrapper}>
               <PriceSelect
-                minPrice={minPrice}
-                maxPrice={maxPrice}
-                onMinPriceChange={setMinPrice}
-                onMaxPriceChange={setMaxPrice}
+                minPrice={filters.minPrice}
+                maxPrice={filters.maxPrice}
+                onMinPriceChange={value => updateFilter('minPrice', value)}
+                onMaxPriceChange={value => updateFilter('maxPrice', value)}
                 placeholder={t('filters.price.placeholder')}
                 icon={<DollarSign size={18} />}
                 fullWidth

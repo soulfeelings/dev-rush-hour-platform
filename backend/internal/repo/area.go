@@ -28,13 +28,14 @@ func (r *AreaRepo) GetBySlug(slug string) (*domain.Area, error) {
 
 	var area domain.Area
 	var dataJSON []byte
+	var cityID sql.NullString
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
-		FROM areas
-		WHERE slug = $1 AND deleted_at IS NULL
+		SELECT a.id, a.slug, a.name, a.city, a.city_id, a.lat, a.lng, a.status, a.data, a.created_at, a.updated_at
+		FROM areas a
+		WHERE a.slug = $1 AND a.deleted_at IS NULL
 	`, slug).Scan(
-		&area.ID, &area.Slug, &area.Name, &area.City,
+		&area.ID, &area.Slug, &area.Name, &area.City, &cityID,
 		&area.Lat, &area.Lng, &area.Status, &dataJSON,
 		&area.CreatedAt, &area.UpdatedAt,
 	)
@@ -51,6 +52,11 @@ func (r *AreaRepo) GetBySlug(slug string) (*domain.Area, error) {
 			"error", err.Error(),
 		)
 		return nil, err
+	}
+
+	if cityID.Valid {
+		id := uuid.MustParse(cityID.String)
+		area.CityID = &id
 	}
 
 	if len(dataJSON) > 0 {
@@ -79,7 +85,7 @@ func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
 	)
 
 	query := `
-		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at
+		SELECT id, slug, name, city, city_id, lat, lng, status, data, created_at, updated_at
 		FROM areas
 		WHERE status = 'active' AND deleted_at IS NULL
 		ORDER BY name
@@ -99,13 +105,19 @@ func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
 	for rows.Next() {
 		var area domain.Area
 		var dataJSON []byte
+		var cityID sql.NullString
 
 		if err := rows.Scan(
-			&area.ID, &area.Slug, &area.Name, &area.City,
+			&area.ID, &area.Slug, &area.Name, &area.City, &cityID,
 			&area.Lat, &area.Lng, &area.Status, &dataJSON,
 			&area.CreatedAt, &area.UpdatedAt,
 		); err != nil {
 			return nil, err
+		}
+
+		if cityID.Valid {
+			id := uuid.MustParse(cityID.String)
+			area.CityID = &id
 		}
 
 		if len(dataJSON) > 0 {
@@ -184,11 +196,17 @@ func (r *AreaRepo) Create(area *domain.Area) error {
 		return err
 	}
 
+	var cityID *string
+	if area.CityID != nil {
+		cityIDStr := area.CityID.String()
+		cityID = &cityIDStr
+	}
+
 	err = r.db.QueryRow(`
-		INSERT INTO areas (slug, name, city, lat, lng, status, data)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO areas (slug, name, city, city_id, lat, lng, status, data)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at, updated_at
-	`, area.Slug, area.Name, area.City, area.Lat, area.Lng, area.Status, dataJSON).Scan(
+	`, area.Slug, area.Name, area.City, cityID, area.Lat, area.Lng, area.Status, dataJSON).Scan(
 		&area.ID, &area.CreatedAt, &area.UpdatedAt,
 	)
 

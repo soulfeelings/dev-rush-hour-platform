@@ -3,12 +3,14 @@ export const ADMIN_ROUTES = {
   PROJECTS: '/admin/projects',
   LOTS: '/admin/lots',
   AREAS: '/admin/areas',
+  CITIES: '/admin/cities',
 } as const
 
 export const ADMIN_ROUTE_SEGMENTS = {
   PROJECTS: 'projects',
   LOTS: 'lots',
   AREAS: 'areas',
+  CITIES: 'cities',
 } as const
 
 export const ADMIN_API_ENDPOINTS = {
@@ -16,4 +18,5 @@ export const ADMIN_API_ENDPOINTS = {
   PROJECTS: '/admin/projects',
   LOTS: '/admin/lots',
   AREAS: '/admin/areas',
+  CITIES: '/admin/cities',
 } as const

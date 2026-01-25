@@ -150,3 +150,5 @@ backend/coverage.html
 # Air (Go hot reload)
 backend/tmp/
 backend/build-errors.log
+backend/server
+

@@ -10,7 +10,8 @@ type Area struct {
 	ID        uuid.UUID
 	Slug      string
 	Name      string
-	City      string
+	City      string // TODO: migrate to CityID
+	CityID    *uuid.UUID
 	Lat       float64
 	Lng       float64
 	Status    AreaStatus

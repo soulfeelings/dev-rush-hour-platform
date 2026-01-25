@@ -1,1 +1,1 @@
-export { default } from './CatalogFilters'
+export { CatalogFilters } from './CatalogFilters'

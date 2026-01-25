@@ -69,7 +69,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
           >
             <motion.div
               className={clsx(styles.modal, { [styles.large]: size === 'large' }, className)}
-              onClick={e => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}

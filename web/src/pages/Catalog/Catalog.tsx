@@ -8,6 +8,7 @@ import { useListProjects, useListLots } from '../../api'
 import { apiProjectsToProperties, apiLotsToPropertiesForMap } from '../../utils/apiAdapters'
 import type { CatalogViewMode } from '../../utils/catalogViewMode'
 import { ROUTES } from '../../constants/routes'
+import { useFilters } from '../../contexts'
 import styles from './Catalog.module.scss'
 import type { PropertyMapRef } from '../../components/PropertyMap/PropertyMap'
 import type { Lot } from '../../api'
@@ -63,6 +64,7 @@ const sortOptions = [
 export default function Catalog() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { filters } = useFilters()
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
   const [sortValue, setSortValue] = useState('default')
   const [panelWidth, setPanelWidth] = useState(loadSplitterPosition())
@@ -72,19 +74,62 @@ export default function Catalog() {
   // Определяем viewMode из URL
   const viewMode: CatalogViewMode = location.pathname.includes('/apartments') ? 'lots' : 'projects'
 
+  // Подготавливаем параметры для API запросов
+  const projectsParams = useMemo(() => {
+    const params: { area?: string } = {}
+    if (filters.area) {
+      params.area = filters.area
+    }
+    return params
+  }, [filters.area])
+
+  const lotsParams = useMemo(() => {
+    const params: {
+      area?: string
+      project?: string
+      type?: 'apartment' | 'villa' | 'townhouse' | 'penthouse'
+      bedrooms?: number
+      priceMin?: number
+      priceMax?: number
+    } = {}
+    if (filters.area) params.area = filters.area
+    if (filters.project) params.project = filters.project
+    if (filters.propertyType !== 'all') {
+      // Map propertyType to API type (exclude 'duplex' as it's not in API enum)
+      if (filters.propertyType !== 'duplex') {
+        params.type = filters.propertyType as 'apartment' | 'villa' | 'townhouse' | 'penthouse'
+      }
+    }
+    if (filters.bedrooms !== 'all') {
+      const bedsNum =
+        filters.bedrooms === 'studio'
+          ? 0
+          : filters.bedrooms === '4+'
+            ? 4
+            : parseInt(filters.bedrooms)
+      if (!isNaN(bedsNum)) params.bedrooms = bedsNum
+    }
+    if (filters.minPrice) {
+      const minPriceNum = parseFloat(filters.minPrice)
+      if (!isNaN(minPriceNum)) params.priceMin = minPriceNum
+    }
+    if (filters.maxPrice) {
+      const maxPriceNum = parseFloat(filters.maxPrice)
+      if (!isNaN(maxPriceNum)) params.priceMax = maxPriceNum
+    }
+    return params
+  }, [filters])
+
   // Загружаем проекты только если открыта вкладка проектов
   const {
     data: projectsData,
     isLoading: projectsLoading,
     error: projectsError,
-  } = useListProjects(
-    {},
-    {
-      query: {
-        enabled: viewMode === 'projects',
-      },
-    }
-  )
+  } = useListProjects(projectsParams, {
+    query: {
+      enabled: viewMode === 'projects',
+    },
+  })
   const projects = useMemo(() => {
     if (!projectsData) return []
     return apiProjectsToProperties(projectsData)
@@ -95,14 +140,11 @@ export default function Catalog() {
     data: lotsData,
     isLoading: lotsLoading,
     error: lotsError,
-  } = useListLots(
-    {},
-    {
-      query: {
-        enabled: viewMode === 'lots',
-      },
-    }
-  )
+  } = useListLots(lotsParams, {
+    query: {
+      enabled: viewMode === 'lots',
+    },
+  })
 
   const lots = useMemo(() => {
     if (!lotsData?.items) return []
@@ -111,14 +153,11 @@ export default function Catalog() {
 
   // Преобразуем лоты в Property для карты (используя координаты проектов)
   // Для карты нужно загружать проекты даже если открыта вкладка лотов
-  const { data: projectsDataForMap } = useListProjects(
-    {},
-    {
-      query: {
-        enabled: viewMode === 'lots',
-      },
-    }
-  )
+  const { data: projectsDataForMap } = useListProjects(projectsParams, {
+    query: {
+      enabled: viewMode === 'lots',
+    },
+  })
   const projectsForMap = useMemo(() => {
     if (!projectsDataForMap) return []
     return apiProjectsToProperties(projectsDataForMap)

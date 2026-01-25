@@ -36,6 +36,12 @@ const (
 	AreaUpdateRequestStatusInactive AreaUpdateRequestStatus = "inactive"
 )
 
+// Defines values for CityStatus.
+const (
+	CityStatusActive   CityStatus = "active"
+	CityStatusInactive CityStatus = "inactive"
+)
+
 // Defines values for DeveloperStatus.
 const (
 	DeveloperStatusActive   DeveloperStatus = "active"
@@ -195,8 +201,8 @@ const (
 
 // Defines values for ProjectUpdateRequestStatus.
 const (
-	Active   ProjectUpdateRequestStatus = "active"
-	Archived ProjectUpdateRequestStatus = "archived"
+	ProjectUpdateRequestStatusActive   ProjectUpdateRequestStatus = "active"
+	ProjectUpdateRequestStatusArchived ProjectUpdateRequestStatus = "archived"
 )
 
 // Defines values for AdminListLeadsParamsStatus.
@@ -300,6 +306,33 @@ type BoundingBox struct {
 	SouthWest *Point `json:"southWest,omitempty"`
 }
 
+// City defines model for City.
+type City struct {
+	CreatedAt *time.Time          `json:"createdAt,omitempty"`
+	Id        *openapi_types.UUID `json:"id,omitempty"`
+	Name      *string             `json:"name,omitempty"`
+	Slug      *string             `json:"slug,omitempty"`
+	Status    *CityStatus         `json:"status,omitempty"`
+	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
+}
+
+// CityCreateRequest defines model for CityCreateRequest.
+type CityCreateRequest struct {
+	Name   string      `json:"name"`
+	Slug   string      `json:"slug"`
+	Status *CityStatus `json:"status,omitempty"`
+}
+
+// CityStatus defines model for CityStatus.
+type CityStatus string
+
+// CityUpdateRequest defines model for CityUpdateRequest.
+type CityUpdateRequest struct {
+	Name   *string     `json:"name,omitempty"`
+	Slug   *string     `json:"slug,omitempty"`
+	Status *CityStatus `json:"status,omitempty"`
+}
+
 // Developer defines model for Developer.
 type Developer struct {
 	CreatedAt *time.Time              `json:"createdAt,omitempty"`
@@ -357,6 +390,25 @@ type ErrorErrorDetails1 map[string]interface{}
 // Error_Error_Details defines model for Error.Error.Details.
 type Error_Error_Details struct {
 	union json.RawMessage
+}
+
+// FilterOption defines model for FilterOption.
+type FilterOption struct {
+	Label *string `json:"label,omitempty"`
+	Value *string `json:"value,omitempty"`
+}
+
+// FilterOptions defines model for FilterOptions.
+type FilterOptions struct {
+	Areas         *[]FilterOption `json:"areas,omitempty"`
+	Bathrooms     *[]FilterOption `json:"bathrooms,omitempty"`
+	Bedrooms      *[]FilterOption `json:"bedrooms,omitempty"`
+	Cities        *[]FilterOption `json:"cities,omitempty"`
+	Developers    *[]FilterOption `json:"developers,omitempty"`
+	PriceRanges   *[]FilterOption `json:"priceRanges,omitempty"`
+	Projects      *[]FilterOption `json:"projects,omitempty"`
+	PropertyTypes *[]FilterOption `json:"propertyTypes,omitempty"`
+	Statuses      *[]FilterOption `json:"statuses,omitempty"`
 }
 
 // FloorPosition defines model for FloorPosition.
@@ -801,6 +853,12 @@ type AdminCreateAreaJSONRequestBody = AreaCreateRequest
 // AdminUpdateAreaJSONRequestBody defines body for AdminUpdateArea for application/json ContentType.
 type AdminUpdateAreaJSONRequestBody = AreaUpdateRequest
 
+// AdminCreateCityJSONRequestBody defines body for AdminCreateCity for application/json ContentType.
+type AdminCreateCityJSONRequestBody = CityCreateRequest
+
+// AdminUpdateCityJSONRequestBody defines body for AdminUpdateCity for application/json ContentType.
+type AdminUpdateCityJSONRequestBody = CityUpdateRequest
+
 // AdminCreateDeveloperJSONRequestBody defines body for AdminCreateDeveloper for application/json ContentType.
 type AdminCreateDeveloperJSONRequestBody = DeveloperCreateRequest
 
@@ -966,6 +1024,21 @@ type ServerInterface interface {
 	// Обновить район (админ)
 	// (PATCH /admin/areas/{id})
 	AdminUpdateArea(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить список городов (админ)
+	// (GET /admin/cities)
+	AdminListCities(c *fiber.Ctx) error
+	// Создать город (админ)
+	// (POST /admin/cities)
+	AdminCreateCity(c *fiber.Ctx) error
+	// Мягкое удаление города (установка deleted_at)
+	// (DELETE /admin/cities/{id})
+	AdminSoftDeleteCity(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить город по ID (админ)
+	// (GET /admin/cities/{id})
+	AdminGetCity(c *fiber.Ctx, id openapi_types.UUID) error
+	// Обновить город (админ)
+	// (PATCH /admin/cities/{id})
+	AdminUpdateCity(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список застройщиков (админ)
 	// (GET /admin/developers)
 	AdminListDevelopers(c *fiber.Ctx) error
@@ -1029,6 +1102,15 @@ type ServerInterface interface {
 	// Получить район по slug
 	// (GET /areas/{slug})
 	GetArea(c *fiber.Ctx, slug string) error
+	// Получить список городов
+	// (GET /cities)
+	ListCities(c *fiber.Ctx) error
+	// Получить список застройщиков
+	// (GET /developers)
+	ListDevelopers(c *fiber.Ctx) error
+	// Получить опции фильтров
+	// (GET /filters/options)
+	GetFilterOptions(c *fiber.Ctx) error
 	// Создать заявку (lead)
 	// (POST /leads)
 	CreateLead(c *fiber.Ctx) error
@@ -1121,6 +1203,76 @@ func (siw *ServerInterfaceWrapper) AdminUpdateArea(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminUpdateArea(c, id)
+}
+
+// AdminListCities operation middleware
+func (siw *ServerInterfaceWrapper) AdminListCities(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminListCities(c)
+}
+
+// AdminCreateCity operation middleware
+func (siw *ServerInterfaceWrapper) AdminCreateCity(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminCreateCity(c)
+}
+
+// AdminSoftDeleteCity operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteCity(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteCity(c, id)
+}
+
+// AdminGetCity operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetCity(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetCity(c, id)
+}
+
+// AdminUpdateCity operation middleware
+func (siw *ServerInterfaceWrapper) AdminUpdateCity(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminUpdateCity(c, id)
 }
 
 // AdminListDevelopers operation middleware
@@ -1453,6 +1605,24 @@ func (siw *ServerInterfaceWrapper) GetArea(c *fiber.Ctx) error {
 	return siw.Handler.GetArea(c, slug)
 }
 
+// ListCities operation middleware
+func (siw *ServerInterfaceWrapper) ListCities(c *fiber.Ctx) error {
+
+	return siw.Handler.ListCities(c)
+}
+
+// ListDevelopers operation middleware
+func (siw *ServerInterfaceWrapper) ListDevelopers(c *fiber.Ctx) error {
+
+	return siw.Handler.ListDevelopers(c)
+}
+
+// GetFilterOptions operation middleware
+func (siw *ServerInterfaceWrapper) GetFilterOptions(c *fiber.Ctx) error {
+
+	return siw.Handler.GetFilterOptions(c)
+}
+
 // CreateLead operation middleware
 func (siw *ServerInterfaceWrapper) CreateLead(c *fiber.Ctx) error {
 
@@ -1663,6 +1833,16 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 
 	router.Patch(options.BaseURL+"/admin/areas/:id", wrapper.AdminUpdateArea)
 
+	router.Get(options.BaseURL+"/admin/cities", wrapper.AdminListCities)
+
+	router.Post(options.BaseURL+"/admin/cities", wrapper.AdminCreateCity)
+
+	router.Delete(options.BaseURL+"/admin/cities/:id", wrapper.AdminSoftDeleteCity)
+
+	router.Get(options.BaseURL+"/admin/cities/:id", wrapper.AdminGetCity)
+
+	router.Patch(options.BaseURL+"/admin/cities/:id", wrapper.AdminUpdateCity)
+
 	router.Get(options.BaseURL+"/admin/developers", wrapper.AdminListDevelopers)
 
 	router.Post(options.BaseURL+"/admin/developers", wrapper.AdminCreateDeveloper)
@@ -1704,6 +1884,12 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	router.Get(options.BaseURL+"/areas", wrapper.ListAreas)
 
 	router.Get(options.BaseURL+"/areas/:slug", wrapper.GetArea)
+
+	router.Get(options.BaseURL+"/cities", wrapper.ListCities)
+
+	router.Get(options.BaseURL+"/developers", wrapper.ListDevelopers)
+
+	router.Get(options.BaseURL+"/filters/options", wrapper.GetFilterOptions)
 
 	router.Post(options.BaseURL+"/leads", wrapper.CreateLead)
 
