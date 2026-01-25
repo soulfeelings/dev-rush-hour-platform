@@ -93,32 +93,96 @@ export function Select({
 
   useEffect(() => {
     if (isOpen && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setDropdownPos({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
+      const calculatePosition = () => {
+        if (!triggerRef.current || !dropdownRef.current) return
+
+        const triggerRect = triggerRef.current.getBoundingClientRect()
+        const dropdownRect = dropdownRef.current.getBoundingClientRect()
+
+        const viewportWidth = window.innerWidth
+        const viewportHeight = window.innerHeight
+        const scrollY = window.scrollY
+        const scrollX = window.scrollX
+
+        // Рассчитываем позицию по умолчанию
+        let top = triggerRect.bottom + scrollY + 4
+        let left = triggerRect.left + scrollX
+
+        // Проверяем выход за правую границу
+        const dropdownWidth = dropdownRect.width || 180 // fallback на ширину из стилей
+        if (left + dropdownWidth > viewportWidth + scrollX) {
+          left = viewportWidth + scrollX - dropdownWidth - 8 // 8px отступ от края
+        }
+
+        // Проверяем выход за левую границу
+        if (left < scrollX) {
+          left = scrollX + 8
+        }
+
+        // Проверяем выход за нижнюю границу
+        const dropdownHeight = dropdownRect.height || 240 // fallback на высоту из стилей
+        const spaceBelow = viewportHeight - triggerRect.bottom
+        const spaceAbove = triggerRect.top
+
+        if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+          // Открываем вверх, если места сверху больше
+          top = triggerRect.top + scrollY - dropdownHeight - 4
+        }
+
+        setDropdownPos({ top, left })
+      }
+
+      // Используем requestAnimationFrame для получения актуальных размеров после рендера
+      requestAnimationFrame(() => {
+        requestAnimationFrame(calculatePosition)
       })
+
       if (searchable && searchInputRef.current) {
         setTimeout(() => {
           searchInputRef.current?.focus()
         }, 100)
       }
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearchQuery('')
     }
-  }, [isOpen, searchable])
+  }, [isOpen, searchable, filteredOptions.length])
 
   // Update position on scroll/resize
   useEffect(() => {
     if (!isOpen) return
 
     const updatePos = () => {
-      if (triggerRef.current) {
-        const rect = triggerRef.current.getBoundingClientRect()
-        setDropdownPos({
-          top: rect.bottom + window.scrollY,
-          left: rect.left + window.scrollX,
-        })
+      if (triggerRef.current && dropdownRef.current) {
+        const triggerRect = triggerRef.current.getBoundingClientRect()
+        const dropdownRect = dropdownRef.current.getBoundingClientRect()
+
+        const viewportWidth = window.innerWidth
+        const viewportHeight = window.innerHeight
+        const scrollY = window.scrollY
+        const scrollX = window.scrollX
+
+        let top = triggerRect.bottom + scrollY + 4
+        let left = triggerRect.left + scrollX
+
+        const dropdownWidth = dropdownRect.width || 180
+        if (left + dropdownWidth > viewportWidth + scrollX) {
+          left = viewportWidth + scrollX - dropdownWidth - 8
+        }
+
+        if (left < scrollX) {
+          left = scrollX + 8
+        }
+
+        const dropdownHeight = dropdownRect.height || 240
+        const spaceBelow = viewportHeight - triggerRect.bottom
+        const spaceAbove = triggerRect.top
+
+        if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+          top = triggerRect.top + scrollY - dropdownHeight - 4
+        }
+
+        setDropdownPos({ top, left })
       }
     }
 
@@ -157,13 +221,6 @@ export function Select({
 
   const handleToggle = () => {
     if (!disabled) {
-      if (!isOpen && triggerRef.current) {
-        const rect = triggerRef.current.getBoundingClientRect()
-        setDropdownPos({
-          top: rect.bottom + window.scrollY,
-          left: rect.left + window.scrollX,
-        })
-      }
       setIsOpen(!isOpen)
     }
   }
