@@ -4,14 +4,15 @@
   width: 100%;
   background: $color-bg-header;
   backdrop-filter: blur(10px);
-  border-bottom: 0.5px solid $color-charcoal-grey-10;
+  padding: 0 $spacing-4;
   height: 54px;
   flex-shrink: 0;
 }
 
 .container {
   margin: 0 auto;
-  padding: 0 $spacing-4;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
+
   width: 100%;
   height: 100%;
 }
