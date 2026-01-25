@@ -2,8 +2,10 @@ import { useState, useRef, useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { ChevronUp } from 'lucide-react'
+import { Button, type ButtonVariant, type ButtonSize, type ButtonProps } from '../Button'
 import styles from './Select.module.scss'
+import { Typography } from '../Typography'
+import { ChevronUp } from 'lucide-react'
 
 export interface SelectOption {
   value: string
@@ -23,6 +25,15 @@ export interface SelectProps {
   fullHeight?: boolean
   searchable?: boolean
   hideAllInTrigger?: boolean
+  triggerVariant?: ButtonVariant
+  triggerSize?: ButtonSize
+  triggerIconLeft?: React.ReactNode
+  triggerIconRight?: React.ReactNode
+  triggerSelected?: boolean
+  triggerFullWidth?: boolean
+  triggerFullHeight?: boolean
+  triggerAlign?: ButtonProps['align']
+  hideChevronRight?: boolean
 }
 
 export function Select({
@@ -33,17 +44,23 @@ export function Select({
   label,
   error,
   disabled = false,
-  icon,
   fullWidth = false,
   fullHeight = false,
   searchable = false,
   hideAllInTrigger = false,
+  triggerVariant,
+  triggerSize,
+  triggerIconLeft,
+  triggerIconRight,
+  triggerSelected = false,
+  triggerAlign = 'left',
+  hideChevronRight = false,
 }: SelectProps) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [selectingValue, setSelectingValue] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 })
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
   const selectRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -80,7 +97,6 @@ export function Select({
       setDropdownPos({
         top: rect.bottom + window.scrollY,
         left: rect.left + window.scrollX,
-        width: rect.width,
       })
       if (searchable && searchInputRef.current) {
         setTimeout(() => {
@@ -102,7 +118,6 @@ export function Select({
         setDropdownPos({
           top: rect.bottom + window.scrollY,
           left: rect.left + window.scrollX,
-          width: rect.width,
         })
       }
     }
@@ -147,7 +162,6 @@ export function Select({
         setDropdownPos({
           top: rect.bottom + window.scrollY,
           left: rect.left + window.scrollX,
-          width: rect.width,
         })
       }
       setIsOpen(!isOpen)
@@ -167,30 +181,36 @@ export function Select({
       <div
         className={`${styles.select} ${disabled ? styles['select--disabled'] : ''} ${fullWidth ? styles['select--fullWidth'] : ''} ${fullHeight ? styles['select--fullHeight'] : ''}`}
       >
-        <button
-          type="button"
-          id={buttonId}
+        <Button
           ref={triggerRef}
-          className={`${styles.trigger} ${isOpen ? styles['trigger--open'] : ''} ${error ? styles['trigger--error'] : ''} ${fullWidth ? styles['trigger--fullWidth'] : ''} ${fullHeight ? styles['trigger--fullHeight'] : ''}`}
+          id={buttonId}
+          variant={triggerVariant || 'secondary'}
+          size={triggerSize || 'md'}
+          fullWidth={fullWidth}
+          iconLeft={triggerIconLeft}
+          iconRight={
+            !hideChevronRight ? (
+              <ChevronUp
+                size={16}
+                style={{
+                  transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s ease-in-out',
+                }}
+              />
+            ) : (
+              triggerIconRight
+            )
+          }
+          selected={triggerSelected || (isOpen && triggerVariant === 'primary')}
           onClick={handleToggle}
           disabled={disabled}
+          align={triggerAlign}
+          style={fullHeight ? { height: '100%' } : undefined}
         >
-          {icon && <span className={styles.icon}>{icon}</span>}
-          <span
-            className={
-              selectedOption && (!hideAllInTrigger || selectedOption.value !== 'all')
-                ? ''
-                : styles.placeholder
-            }
-          >
-            {selectedOption && (!hideAllInTrigger || selectedOption.value !== 'all')
-              ? selectedOption.label
-              : placeholder}
-          </span>
-          <span className={styles.arrow}>
-            <ChevronUp size={16} />
-          </span>
-        </button>
+          {selectedOption && (!hideAllInTrigger || selectedOption.value !== 'all')
+            ? selectedOption.label
+            : placeholder}
+        </Button>
 
         {createPortal(
           <AnimatePresence>
@@ -207,7 +227,6 @@ export function Select({
                 style={{
                   top: `${dropdownPos.top + 4}px`,
                   left: `${dropdownPos.left}px`,
-                  width: `${dropdownPos.width}px`,
                 }}
               >
                 {searchable && (
@@ -234,7 +253,9 @@ export function Select({
                         } ${selectingValue === option.value ? styles['option--selecting'] : ''}`}
                         onClick={() => handleSelect(option.value)}
                       >
-                        {option.label}
+                        <Typography variant="body" size="small" weight="regular">
+                          {option.label}
+                        </Typography>
                       </div>
                     ))
                   ) : (

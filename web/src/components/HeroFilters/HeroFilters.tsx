@@ -196,12 +196,19 @@ Filters:
           </div>
 
           <div className={styles.actions}>
-            <Button onClick={handleSearch} className={styles.searchButton}>
-              <Search size={20} />
+            <Button
+              onClick={handleSearch}
+              className={styles.searchButton}
+              iconLeft={<Search size={20} />}
+            >
               <span className={styles.buttonText}>{t('filters.search.button')}</span>
             </Button>
-            <Button variant="secondary" onClick={handleContactAgent} className={styles.agentButton}>
-              <MessageCircle size={20} />
+            <Button
+              variant="secondary"
+              onClick={handleContactAgent}
+              className={styles.agentButton}
+              iconLeft={<MessageCircle size={20} />}
+            >
               <span className={styles.buttonText}>{t('home.hero.contactAgent')}</span>
             </Button>
           </div>

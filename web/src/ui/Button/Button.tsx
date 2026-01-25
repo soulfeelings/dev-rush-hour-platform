@@ -3,10 +3,12 @@ import styles from './Button.module.scss'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost'
 export type ButtonSize = 'sm' | 'md' | 'lg'
+export type ButtonAlign = 'left' | 'center' | 'right'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
   size?: ButtonSize
+  align?: ButtonAlign
   fullWidth?: boolean
   iconLeft?: ReactNode
   iconRight?: ReactNode
@@ -20,6 +22,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     {
       variant = 'primary',
       size = 'md',
+      align = 'center',
       fullWidth = false,
       iconLeft,
       iconRight,
@@ -36,6 +39,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       styles.btn,
       styles[`btn--${variant}`],
       styles[`btn--${size}`],
+      styles[`btn--align-${align}`],
       fullWidth && styles['btn--full'],
       selected && styles['btn--selected'],
       className,
@@ -52,7 +56,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {iconLeft && <span className={styles.iconLeft}>{iconLeft}</span>}
-        {children}
+        {children && <span className={styles.text}>{children}</span>}
         {iconRight && <span className={styles.iconRight}>{iconRight}</span>}
       </button>
     )
