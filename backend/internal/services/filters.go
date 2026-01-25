@@ -111,10 +111,6 @@ func (s *FiltersService) GetFilterOptions() (*generated.FilterOptions, error) {
 	propertyTypeOptions := []generated.FilterOption{
 		{Value: stringPtr("all"), Label: stringPtr("All")},
 		{Value: stringPtr("apartment"), Label: stringPtr("Apartment")},
-		{Value: stringPtr("villa"), Label: stringPtr("Villa")},
-		{Value: stringPtr("townhouse"), Label: stringPtr("Townhouse")},
-		{Value: stringPtr("penthouse"), Label: stringPtr("Penthouse")},
-		{Value: stringPtr("duplex"), Label: stringPtr("Duplex")},
 	}
 
 	bedroomOptions := []generated.FilterOption{

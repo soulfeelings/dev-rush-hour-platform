@@ -10,7 +10,4 @@ export type LotType = (typeof LotType)[keyof typeof LotType]
 
 export const LotType = {
   apartment: 'apartment',
-  villa: 'villa',
-  townhouse: 'townhouse',
-  penthouse: 'penthouse',
 } as const

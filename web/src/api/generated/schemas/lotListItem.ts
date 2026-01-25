@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { LotListItemStatus } from './lotListItemStatus'
-import type { LotListItemType } from './lotListItemType'
+import type { LotType } from './lotType'
 import type { LotData } from './lotData'
 import type { Project } from './project'
 import type { Developer } from './developer'
@@ -18,7 +18,7 @@ export interface LotListItem {
   projectId?: string
   developerId?: string
   areaId?: string
-  type?: LotListItemType
+  type?: LotType
   bedrooms?: number
   bathrooms?: number
   areaSqm?: number

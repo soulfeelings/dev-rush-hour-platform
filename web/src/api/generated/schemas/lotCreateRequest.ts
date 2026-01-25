@@ -5,7 +5,7 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
-import type { LotCreateRequestType } from './lotCreateRequestType'
+import type { LotType } from './lotType'
 import type { LotCreateRequestStatus } from './lotCreateRequestStatus'
 import type { LotData } from './lotData'
 
@@ -13,7 +13,7 @@ export interface LotCreateRequest {
   projectId: string
   developerId?: string
   areaId?: string
-  type: LotCreateRequestType
+  type: LotType
   status?: LotCreateRequestStatus
   bedrooms?: number
   bathrooms?: number

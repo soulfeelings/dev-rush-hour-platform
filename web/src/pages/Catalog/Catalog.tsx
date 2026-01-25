@@ -14,6 +14,7 @@ import type { PropertyMapRef } from '../../components/PropertyMap/PropertyMap'
 import type { Lot } from '../../api'
 import ProjectsView from './components/ProjectsView'
 import LotsView from './components/LotsView'
+import { LotType } from '../../api/generated/schemas/lotType'
 
 // Константы для размеров и брейкпоинтов
 const GRID_CONSTANTS = {
@@ -87,7 +88,7 @@ export default function Catalog() {
     const params: {
       area?: string
       project?: string
-      type?: 'apartment' | 'villa' | 'townhouse' | 'penthouse'
+      type?: LotType
       bedrooms?: number
       priceMin?: number
       priceMax?: number
@@ -96,8 +97,8 @@ export default function Catalog() {
     if (filters.project) params.project = filters.project
     if (filters.propertyType !== 'all') {
       // Map propertyType to API type (exclude 'duplex' as it's not in API enum)
-      if (filters.propertyType !== 'duplex') {
-        params.type = filters.propertyType as 'apartment' | 'villa' | 'townhouse' | 'penthouse'
+      if (filters.propertyType === 'apartment') {
+        params.type = LotType.apartment
       }
     }
     if (filters.bedrooms !== 'all') {

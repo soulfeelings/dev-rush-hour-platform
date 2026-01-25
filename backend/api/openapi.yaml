@@ -164,8 +164,7 @@ paths:
         - name: type
           in: query
           schema:
-            type: string
-            enum: [apartment, villa, townhouse, penthouse]
+            $ref: "#/components/schemas/LotType"
           description: Тип лота
         - name: bedrooms
           in: query
@@ -1171,6 +1170,10 @@ components:
         northEast:
           $ref: "#/components/schemas/Point"
 
+    LotType:
+      type: string
+      enum: [apartment]
+
     Project:
       type: object
       properties:
@@ -1288,8 +1291,7 @@ components:
           type: string
           format: uuid
         type:
-          type: string
-          enum: [apartment, villa, townhouse, penthouse]
+          $ref: "#/components/schemas/LotType"
         bedrooms:
           type: integer
         bathrooms:
@@ -1421,8 +1423,7 @@ components:
           type: string
           format: uuid
         type:
-          type: string
-          enum: [apartment, villa, townhouse, penthouse]
+          $ref: "#/components/schemas/LotType"
         bedrooms:
           type: integer
         bathrooms:
@@ -1885,8 +1886,7 @@ components:
           type: string
           format: uuid
         type:
-          type: string
-          enum: [apartment, villa, townhouse, penthouse]
+          $ref: "#/components/schemas/LotType"
         status:
           type: string
           enum: [active, hidden, reserved, sold]
@@ -1924,8 +1924,7 @@ components:
           type: string
           format: uuid
         type:
-          type: string
-          enum: [apartment, villa, townhouse, penthouse]
+          $ref: "#/components/schemas/LotType"
         status:
           type: string
           enum: [active, hidden, reserved, sold]

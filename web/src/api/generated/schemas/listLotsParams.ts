@@ -5,7 +5,7 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
-import type { ListLotsType } from './listLotsType'
+import type { LotType } from './lotType'
 import type { ListLotsSort } from './listLotsSort'
 
 export type ListLotsParams = {
@@ -20,7 +20,7 @@ export type ListLotsParams = {
   /**
    * Тип лота
    */
-  type?: ListLotsType
+  type?: LotType
   /**
    * Количество спален
    */
