@@ -114,6 +114,11 @@
 }
 
 // Sizes
+.btn--xs {
+  padding: $spacing-2 $spacing-4;
+  height: 31px;
+}
+
 .btn--sm {
   padding: $spacing-2 $spacing-4;
   font-size: $font-size-sm;

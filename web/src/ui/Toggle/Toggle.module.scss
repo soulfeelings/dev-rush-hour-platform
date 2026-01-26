@@ -39,6 +39,9 @@
   color: $color-charcoal-black;
   cursor: pointer;
   transition: color $transition-fast;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     color: $color-text;

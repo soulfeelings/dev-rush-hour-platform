@@ -300,11 +300,13 @@ export default function Catalog() {
         </span>
         <div className={styles.headerActions}>
           <div className={styles.sortContainer}>
+            Sorting
             <Select
               options={sortOptions}
               value={sortValue}
               onChange={setSortValue}
-              placeholder="Сортировать"
+              placeholder="Sort"
+              triggerSize="xs"
             />
           </div>
         </div>
