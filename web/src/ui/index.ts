@@ -10,6 +10,7 @@ export * from './Input'
 export * from './Select'
 export * from './Checkbox'
 export * from './Tag'
+export * from './Toggle'
 
 // Layout
 export * from './Card'

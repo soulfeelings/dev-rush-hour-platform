@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Select } from '../../ui/Select'
+import { Toggle } from '../../ui/Toggle'
 import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
 import PropertyMap from '../../components/PropertyMap'
 import ResizableSplitter from '../../components/ResizableSplitter'
@@ -284,22 +285,15 @@ export default function Catalog() {
   const catalogContent = (
     <div className={styles.catalogContent}>
       {/* <FeaturedPropertyCarousel properties={featuredProperties} /> */}
-      <div className={styles.viewModeToggle}>
-        <button
-          className={`${styles.toggleButton} ${viewMode === 'projects' ? styles.active : ''}`}
-          onClick={() => handleViewModeChange('projects')}
-          type="button"
-        >
-          Projects
-        </button>
-        <button
-          className={`${styles.toggleButton} ${viewMode === 'lots' ? styles.active : ''}`}
-          onClick={() => handleViewModeChange('lots')}
-          type="button"
-        >
-          Lots
-        </button>
-      </div>
+      <Toggle
+        options={[
+          { value: 'projects', label: 'Projects' },
+          { value: 'lots', label: 'Lots' },
+        ]}
+        value={viewMode}
+        onChange={handleViewModeChange}
+        className={styles.viewModeToggle}
+      />
       <div className={styles.resultsHeader}>
         <span className={styles.resultsCount}>
           {displayedResults} of {totalResults} results

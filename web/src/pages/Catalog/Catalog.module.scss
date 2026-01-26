@@ -39,51 +39,12 @@
   box-sizing: border-box;
 
   @media (min-width: $breakpoint-md) {
-    padding: $spacing-6;
+    padding: 0 $spacing-3;
   }
 }
 
 .viewModeToggle {
-  display: flex;
-  height: 48px;
-  gap: $spacing-3;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: $spacing-4;
-  padding: $spacing-1;
-  background: $color-bg-card;
-  border: 1px solid $color-border;
-  border-radius: $radius-full;
-}
-
-.toggleButton {
-  flex: 1;
-  min-width: 0;
-  height: 40px;
-  padding: $spacing-2 $spacing-4;
-  background: transparent;
-  border: none;
-  border-radius: $radius-full;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-charcoal-black;
-  cursor: pointer;
-  transition: all $transition-fast;
-
-  &:hover {
-    background: rgba($color-yellow, 0.05);
-    color: $color-text;
-  }
-
-  &.active {
-    background: $color-yellow;
-    color: $color-charcoal-black;
-
-    &:hover {
-      background: $color-yellow-hover;
-    }
-  }
+  margin-bottom: $spacing-3;
 }
 
 .resultsHeader {

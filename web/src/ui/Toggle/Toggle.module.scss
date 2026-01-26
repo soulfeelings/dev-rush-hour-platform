@@ -1,0 +1,50 @@
+@use '@/styles' as *;
+
+.toggle {
+  position: relative;
+  display: flex;
+  height: 48px;
+  gap: $spacing-3;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: $spacing-1;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-full;
+}
+
+.indicator {
+  position: absolute;
+  height: 40px;
+  background: $color-yellow;
+  border-radius: $radius-full;
+  transition: all $transition-fast;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.toggleButton {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: $spacing-2 $spacing-4;
+  background: transparent;
+  border: none;
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-charcoal-black;
+  cursor: pointer;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $color-text;
+  }
+
+  &.active {
+    color: $color-charcoal-black;
+  }
+}
