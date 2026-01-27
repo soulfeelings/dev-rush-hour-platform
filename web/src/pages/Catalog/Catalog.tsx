@@ -307,28 +307,31 @@ export default function Catalog() {
           </div>
         </div>
       </div>
-      {viewMode === 'projects' ? (
-        <ProjectsView
-          panelWidth={panelWidth}
-          screenWidth={screenWidth}
-          getGridColumns={getGridColumns}
-          properties={projects}
-          isLoading={projectsLoading}
-          error={projectsError}
-        />
-      ) : (
-        <LotsView
-          panelWidth={panelWidth}
-          screenWidth={screenWidth}
-          onFavoriteClick={handleLotFavoriteClick}
-          getGridColumns={(catalogWidth, screenWidth) =>
-            getGridColumns(catalogWidth, screenWidth, true)
-          }
-          lots={lots}
-          isLoading={lotsLoading}
-          error={lotsError}
-        />
-      )}
+      <div className={styles.viewContainer}>
+        <div className={`${styles.viewPanel} ${viewMode === 'projects' ? styles.active : ''}`}>
+          <ProjectsView
+            panelWidth={panelWidth}
+            screenWidth={screenWidth}
+            getGridColumns={getGridColumns}
+            properties={projects}
+            isLoading={projectsLoading}
+            error={projectsError}
+          />
+        </div>
+        <div className={`${styles.viewPanel} ${viewMode === 'lots' ? styles.active : ''}`}>
+          <LotsView
+            panelWidth={panelWidth}
+            screenWidth={screenWidth}
+            onFavoriteClick={handleLotFavoriteClick}
+            getGridColumns={(catalogWidth, screenWidth) =>
+              getGridColumns(catalogWidth, screenWidth, true)
+            }
+            lots={lots}
+            isLoading={lotsLoading}
+            error={lotsError}
+          />
+        </div>
+      </div>
     </div>
   )
 
