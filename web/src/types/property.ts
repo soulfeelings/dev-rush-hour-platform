@@ -22,4 +22,5 @@ export interface Property {
   sale: 'start of sales' | 'sales announcement' | 'sale'
   status: 'active' | 'inactive'
   districtId?: string
+  discount?: number // процент скидки, например 25
 }
