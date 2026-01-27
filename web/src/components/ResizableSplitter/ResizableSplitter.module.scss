@@ -14,27 +14,26 @@
 .leftPanel {
   overflow-y: auto;
   background: $color-bg;
-  width: 100%;
   min-width: $panel-min-width;
-  max-width: 70%;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
 
   @media (max-width: $breakpoint-md) {
-    width: 100%;
+    width: 100% !important;
     max-width: 100%;
+    flex: 1 1 auto;
   }
 }
 
 .rightPanel {
   position: relative;
-  width: 100%;
   background: $color-bg-card;
   overflow: hidden;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-width: $panel-min-width;
 
   @media (max-width: $breakpoint-md) {
-    width: 100%;
+    width: 100% !important;
+    flex: 1 1 auto;
   }
 }
 
