@@ -253,10 +253,6 @@ export default function Catalog() {
     setSelectedPropertyId(propertyId === selectedPropertyId ? undefined : propertyId)
   }
 
-  const handleFavoriteClick = (propertyId: string) => {
-    console.log('Favorite clicked:', propertyId)
-  }
-
   const handleLotFavoriteClick = (lotId: string) => {
     console.log('Lot favorite clicked:', lotId)
   }
@@ -315,7 +311,6 @@ export default function Catalog() {
         <ProjectsView
           panelWidth={panelWidth}
           screenWidth={screenWidth}
-          onFavoriteClick={handleFavoriteClick}
           getGridColumns={getGridColumns}
           properties={projects}
           isLoading={projectsLoading}

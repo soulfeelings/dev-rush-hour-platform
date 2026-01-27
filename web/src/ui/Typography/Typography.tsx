@@ -5,6 +5,7 @@ import styles from './Typography.module.scss'
 export type TypographyVariant = 'h1' | 'body'
 export type TypographySize = 'large' | 'regular' | 'small'
 export type TypographyWeight = 'medium' | 'regular'
+export type TypographyColor = 'default' | 'white' | 'inherit'
 
 export type TypographyProps = {
   /**
@@ -14,6 +15,7 @@ export type TypographyProps = {
   variant?: TypographyVariant
   size?: TypographySize
   weight?: TypographyWeight
+  color?: TypographyColor
   className?: string
   children?: React.ReactNode
 }
@@ -32,6 +34,7 @@ export const Typography = ({
   variant = 'body',
   size = 'regular',
   weight = 'regular',
+  color = 'inherit',
   as: Component = 'span',
   className,
   children,
@@ -44,6 +47,8 @@ export const Typography = ({
   } else {
     classNames.push(styles[`typography--body-${size}-${weight}`])
   }
+
+  classNames.push(styles[`typography--color-${color}`])
 
   return (
     <Component {...rest} className={clsx(classNames, className)}>

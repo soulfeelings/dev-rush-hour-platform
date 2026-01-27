@@ -310,7 +310,7 @@
 
 @mixin card {
   background: $color-bg-card;
-  border-radius: $radius-lg;
+  border-radius: $radius-2xl;
   overflow: hidden;
   box-shadow: $shadow-card;
   transition: all $transition-normal;

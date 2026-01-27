@@ -12,7 +12,6 @@
 .card {
   @include card;
 
-  height: $card-height;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -21,123 +20,87 @@
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  overflow: hidden; // Добавляем overflow для корректной работы overlay
+  overflow: hidden;
+  padding: $spacing-2;
 
   &:hover {
-    .overlayContent {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
     .additionalInfo {
-      max-height: 500px; // Достаточно большое значение для раскрытия
+      max-height: 500px;
       opacity: 1;
     }
   }
 }
 
-.imageContainer {
+.cardInner {
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 1 / 1.57;
+  border-radius: 16px;
+  box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.1);
+  background: var(--Snow_White, rgba(253, 253, 253, 1));
   position: relative;
-  height: $image-height;
-  width: 100%;
+  overflow: hidden;
+}
+
+// Обёртка для картинок (занимает свободное пространство над infoSection)
+.imagesWrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+
+// Основная картинка
+.imageContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
   background: $color-bg;
-  border-radius: $radius-md $radius-md 0 0;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform $transition-normal;
-  }
-
-  // Добавляем эффект при наведении
-  .card:hover & img {
-    transform: scale(1.05);
   }
 }
 
-// Overlay поверх изображения при наведении
-.overlayContent {
+// Контейнер для второй картинки (появляется при hover)
+.secondaryImageContainer {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(180deg, rgba(19, 20, 21, 0) 0%, rgba(19, 20, 21, 0.7) 70%);
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity $transition-normal;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card:hover & {
+    opacity: 1;
+  }
+}
+
+// Информационная секция
+.infoSection {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 20px;
-  box-sizing: border-box;
-  transform: translateY(100%);
-  opacity: 0;
-  transition: all $transition-normal;
-  z-index: 1;
+  background: var(--Snow_White, rgba(253, 253, 253, 1));
+  border-radius: 0 0 16px 16px;
 
-  // Только для десктопа
-  @media (min-width: 769px) {
-    display: flex;
-  }
-
-  // Скрываем на мобильных
-  @include sm {
-    display: none;
-  }
-}
-
-.overlayTitle {
-  color: white;
-  font-family: $font-family-primary;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  margin-bottom: 8px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.overlayLocation {
-  color: rgba(255, 255, 255, 0.9);
-  font-family: $font-family-primary;
-  font-size: $font-size-sm;
-  margin-bottom: 12px;
-}
-
-.overlayFeatures {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.featureItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: white;
-  font-family: $font-family-primary;
-  font-size: $font-size-xs;
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-}
-
-.overlayButton {
-  background: $color-yellow;
-  color: white;
-  border: none;
-  border-radius: $radius-full;
-  padding: 8px 16px;
-  font-family: $font-family-primary;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  cursor: pointer;
-  transition: all $transition-fast;
-  align-self: flex-start;
-
-  &:hover {
-    background: $color-yellow-hover;
-    transform: translateY(-2px);
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 }
 
@@ -562,17 +525,34 @@
   }
 }
 
-.recommendedBadge {
+.badgesContainer {
   position: absolute;
   top: 12px;
   left: 12px;
-  background: $color-yellow;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  z-index: 2;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: $radius-full;
   color: white;
-  padding: 4px 8px;
-  border-radius: $radius-sm;
-  font-family: $font-family-primary;
-  font-size: 11px;
-  font-weight: $font-weight-medium;
-  line-height: 14px;
-  z-index: 2; // Поверх overlay
+}
+
+.badgeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-yellow;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 }

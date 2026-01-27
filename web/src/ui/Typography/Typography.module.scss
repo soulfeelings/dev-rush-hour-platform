@@ -31,3 +31,12 @@
 .typography--body-small-regular {
   @include typography-body-small-regular;
 }
+
+// Color variants
+.typography--color-white {
+  color: white;
+}
+
+.typography--color-inherit {
+  color: inherit;
+}

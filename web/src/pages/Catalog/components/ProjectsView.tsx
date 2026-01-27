@@ -1,4 +1,4 @@
-import ProjectCard from '../../../components/ProjectCard'
+import { ProjectCard } from '../../../components/ProjectCard'
 import { SkeletonCard } from '../../../ui/Skeleton'
 import styles from '../Catalog.module.scss'
 import type { Property } from '../../../types/property'
@@ -6,7 +6,6 @@ import type { Property } from '../../../types/property'
 interface ProjectsViewProps {
   panelWidth: number
   screenWidth: number
-  onFavoriteClick: (propertyId: string) => void
   getGridColumns: (catalogWidth: number, screenWidth: number) => number
   properties: Property[]
   isLoading: boolean
@@ -16,7 +15,6 @@ interface ProjectsViewProps {
 export default function ProjectsView({
   panelWidth,
   screenWidth,
-  onFavoriteClick,
   getGridColumns,
   properties,
   isLoading,
@@ -57,7 +55,7 @@ export default function ProjectsView({
       }}
     >
       {regularProperties.map(property => (
-        <ProjectCard key={property.id} property={property} onFavoriteClick={onFavoriteClick} />
+        <ProjectCard key={property.id} property={property} />
       ))}
     </div>
   )
