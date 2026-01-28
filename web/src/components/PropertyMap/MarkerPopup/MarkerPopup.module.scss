@@ -43,22 +43,6 @@
   z-index: 2;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: $radius-full;
-  font-size: 10px;
-  font-weight: $font-weight-medium;
-  white-space: nowrap;
-  box-shadow: $shadow-sm;
-}
-
-.badgeIcon {
-  font-size: 12px;
-}
-
 .favoriteButton {
   position: absolute;
   top: 8px;

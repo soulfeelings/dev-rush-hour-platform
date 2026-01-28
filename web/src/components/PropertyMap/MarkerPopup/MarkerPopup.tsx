@@ -1,5 +1,6 @@
 import styles from './MarkerPopup.module.scss'
 import type { Property } from '../../../types/property'
+import { Badge } from '../../../ui/Badge'
 
 interface MarkerPopupProps {
   property: Property
@@ -44,17 +45,14 @@ export const MarkerPopup = ({ property, onMouseEnter, onMouseLeave }: MarkerPopu
         {badges.length > 0 && (
           <div className={styles.badgesContainer}>
             {badges.map(badge => (
-              <span
+              <Badge
                 key={badge.id}
-                className={styles.badge}
-                style={{
-                  backgroundColor: badge.backgroundColor,
-                  color: badge.textColor,
-                }}
-              >
-                {badge.icon && <span className={styles.badgeIcon}>{badge.icon}</span>}
-                {badge.name}
-              </span>
+                text={badge.name}
+                backgroundColor={badge.backgroundColor}
+                textColor={badge.textColor}
+                iconName={badge.icon}
+                size="small"
+              />
             ))}
           </div>
         )}

@@ -78,16 +78,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           },
         })
 
-        const popup = L.popup({
-          offset: [0, -(size / 2 + 10)],
-          className: 'marker-popup',
-          closeButton: false,
-          autoPan: true,
-          autoPanPadding: [20, 20],
-          maxWidth: 320,
-          minWidth: 280,
-        }).setContent(popupElement)
-
         marker.on('click', () => {
           onPropertyClick?.(property.id)
           navigate(getProjectDetailRoute(property.id))
@@ -95,6 +85,63 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
         marker.on('mouseover', () => {
           clearPopupTimeout()
+
+          // Calculate smart popup position based on marker location in viewport
+          const markerPoint = map.latLngToContainerPoint(property.coordinates)
+          const mapSize = map.getSize()
+          const popupWidth = 290
+          const popupHeight = 400
+          const markerSize = size || 32
+          const gap = 12
+
+          const spaceAbove = markerPoint.y
+          const spaceBelow = mapSize.y - markerPoint.y
+          const spaceLeft = markerPoint.x
+          const spaceRight = mapSize.x - markerPoint.x
+
+          // Leaflet popup anchor is at bottom-center by default
+          // offset [x, y]: positive y = move popup down, positive x = move popup right
+          let offsetX = 0
+          let offsetY = 0
+
+          // Check available space and position accordingly
+          let popupDirection = 'top' // default: popup above marker, arrow points down
+          if (spaceAbove > popupHeight + markerSize / 2 + gap) {
+            // Enough space above - show popup above marker (default)
+            offsetX = 0
+            offsetY = -(markerSize / 2 + gap)
+            popupDirection = 'top'
+          } else if (spaceBelow > popupHeight + markerSize / 2 + gap) {
+            // Show below - need to offset by popup height since anchor is at bottom
+            offsetX = 0
+            offsetY = markerSize / 2 + gap + popupHeight
+            popupDirection = 'bottom'
+          } else if (spaceRight > popupWidth / 2 + markerSize / 2 + gap) {
+            // Show to the right
+            offsetX = markerSize / 2 + gap + popupWidth / 2
+            offsetY = popupHeight / 2
+            popupDirection = 'right'
+          } else if (spaceLeft > popupWidth / 2 + markerSize / 2 + gap) {
+            // Show to the left
+            offsetX = -(markerSize / 2 + gap + popupWidth / 2)
+            offsetY = popupHeight / 2
+            popupDirection = 'left'
+          } else {
+            // Not enough space anywhere - show above anyway and let it clip
+            offsetX = 0
+            offsetY = -(markerSize / 2 + gap)
+            popupDirection = 'top'
+          }
+
+          const popup = L.popup({
+            offset: [offsetX, offsetY],
+            className: `marker-popup marker-popup--${popupDirection}`,
+            closeButton: false,
+            autoPan: false,
+            maxWidth: 320,
+            minWidth: 280,
+          }).setContent(popupElement)
+
           marker.bindPopup(popup).openPopup()
         })
 

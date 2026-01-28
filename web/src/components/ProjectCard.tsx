@@ -1,21 +1,15 @@
-import { type ReactNode, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import { getProjectDetailRoute } from '../constants/routes'
 import { Typography } from '../ui/Typography'
+import { Badge } from '../ui/Badge'
 import styles from './ProjectCard.module.scss'
 import type { Property } from '../types/property'
 
-export interface CardBadge {
-  text: string
-  backgroundColor: string
-  icon?: ReactNode
-}
-
 interface ProjectCardProps {
   property: Property
-  badges?: CardBadge[]
   onFavoriteClick?: (propertyId: string) => void
 }
 
@@ -41,12 +35,13 @@ const splitCompletionDate = (dateString: string) => {
   }
 }
 
-export const ProjectCard = ({ property, badges = [], onFavoriteClick }: ProjectCardProps) => {
+export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => {
   const { t } = useTranslation()
   const [isFavorited, setIsFavorited] = useState(false)
 
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
   const secondaryImage = property.gallery?.[0]
+  const badges = property.badges ?? []
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -76,17 +71,14 @@ export const ProjectCard = ({ property, badges = [], onFavoriteClick }: ProjectC
             {/* Бейджи */}
             {badges.length > 0 && (
               <div className={styles.badgesContainer}>
-                {badges.map((badge, index) => (
-                  <span
-                    key={index}
-                    className={styles.badge}
-                    style={{ backgroundColor: badge.backgroundColor }}
-                  >
-                    {badge.icon && <span className={styles.badgeIcon}>{badge.icon}</span>}
-                    <Typography size="small" color="white">
-                      {badge.text}
-                    </Typography>
-                  </span>
+                {badges.map(badge => (
+                  <Badge
+                    key={badge.id}
+                    text={badge.name}
+                    backgroundColor={badge.backgroundColor}
+                    textColor={badge.textColor}
+                    iconName={badge.icon}
+                  />
                 ))}
               </div>
             )}
