@@ -169,6 +169,15 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		result.Data.Description.UnmarshalJSON(descBytes)
 	}
 
+	// Include badges
+	if len(project.Badges) > 0 {
+		badges := make([]generated.Badge, len(project.Badges))
+		for i := range project.Badges {
+			badges[i] = *DomainBadgeToGenerated(&project.Badges[i])
+		}
+		result.Badges = &badges
+	}
+
 	return result
 }
 

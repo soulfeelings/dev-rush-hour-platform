@@ -38,6 +38,15 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
     const markersRef = useRef<L.Marker[]>([])
     const districtLayersRef = useRef<L.Polygon[]>([])
     const [showDistricts, setShowDistricts] = useState(false)
+    const popupCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const isPopupHoveredRef = useRef(false)
+
+    const clearPopupTimeout = useCallback(() => {
+      if (popupCloseTimeoutRef.current) {
+        clearTimeout(popupCloseTimeoutRef.current)
+        popupCloseTimeoutRef.current = null
+      }
+    }, [])
 
     const updateMarkers = useCallback(() => {
       if (!mapRef.current) return
@@ -58,21 +67,26 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           icon: createPropertyMarkerIcon(false, 'sale', logoUrl, currentZoom, false),
         }).addTo(map)
 
-        const popupElement = createMarkerPopupElement(property)
+        const popupElement = createMarkerPopupElement(property, {
+          onMouseEnter: () => {
+            clearPopupTimeout()
+            isPopupHoveredRef.current = true
+          },
+          onMouseLeave: () => {
+            isPopupHoveredRef.current = false
+            marker.closePopup()
+          },
+        })
+
         const popup = L.popup({
           offset: [0, -(size / 2 + 10)],
           className: 'marker-popup',
           closeButton: false,
           autoPan: true,
           autoPanPadding: [20, 20],
-          maxWidth: 400,
-          minWidth: 320,
+          maxWidth: 320,
+          minWidth: 280,
         }).setContent(popupElement)
-
-        // Очистка React root при удалении popup
-        // popup.on('remove', () => {
-        //   cleanupMarkerPopupElement(popupElement)
-        // })
 
         marker.on('click', () => {
           onPropertyClick?.(property.id)
@@ -80,16 +94,21 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         })
 
         marker.on('mouseover', () => {
+          clearPopupTimeout()
           marker.bindPopup(popup).openPopup()
         })
 
         marker.on('mouseout', () => {
-          marker.closePopup()
+          popupCloseTimeoutRef.current = setTimeout(() => {
+            if (!isPopupHoveredRef.current) {
+              marker.closePopup()
+            }
+          }, 150)
         })
 
         markersRef.current.push(marker)
       })
-    }, [properties, selectedPropertyId, onPropertyClick, navigate])
+    }, [properties, selectedPropertyId, onPropertyClick, navigate, clearPopupTimeout])
 
     useImperativeHandle(ref, () => ({
       invalidateSize: () => {
@@ -233,8 +252,9 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         }
         markersRef.current.forEach(marker => marker.remove())
         districtLayersRef.current.forEach(layer => layer.remove())
+        clearPopupTimeout()
       }
-    }, [properties, selectedPropertyId, onPropertyClick, updateMarkers])
+    }, [properties, selectedPropertyId, onPropertyClick, updateMarkers, clearPopupTimeout])
 
     useEffect(() => {
       if (!mapRef.current || !selectedPropertyId) return

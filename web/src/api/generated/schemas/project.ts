@@ -11,6 +11,7 @@ import type { ProjectData } from './projectData'
 import type { Developer } from './developer'
 import type { Area } from './area'
 import type { Lot } from './lot'
+import type { Badge } from './badge'
 
 export interface Project {
   id?: string
@@ -36,4 +37,6 @@ export interface Project {
   deletedAt?: string | null
   /** Первые N лотов проекта (если запрошено через includeLots) */
   lots?: Lot[]
+  /** Бейджи проекта */
+  badges?: Badge[]
 }

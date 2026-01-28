@@ -51,7 +51,7 @@ func NewServer(db *sql.DB) *Server {
 	// Services
 	areasService := services.NewAreasService(areaRepo)
 	citiesService := services.NewCitiesService(cityRepo)
-	projectsService := services.NewProjectsService(projectRepo, lotRepo)
+	projectsService := services.NewProjectsService(projectRepo, lotRepo, badgeRepo)
 	lotsService := services.NewLotsService(lotRepo)
 	leadsService := services.NewLeadsService(leadRepo)
 	developersService := services.NewDevelopersService(developerRepo)

@@ -3,6 +3,8 @@ import type { Property } from '../../../types/property'
 
 interface MarkerPopupProps {
   property: Property
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
 }
 
 const formatPrice = (price: number, currency: string) => {
@@ -25,15 +27,52 @@ const splitCompletionDate = (dateString: string) => {
   }
 }
 
-export const MarkerPopup = ({ property }: MarkerPopupProps) => {
+export const MarkerPopup = ({ property, onMouseEnter, onMouseLeave }: MarkerPopupProps) => {
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
+  const discount = property.discount
+  const roi = property.roi ?? 7
+  const paymentPlan = property.paymentPlan ?? '30/10/60'
+  const badges = property.badges ?? []
+  const pricesByType = property.pricesByType ?? []
+
+  // Calculate discounted price if discount exists
+  const discountedPrice = discount ? property.priceFrom * (1 - discount / 100) : null
 
   return (
-    <div className={styles.card}>
+    <div className={styles.card} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
       <div className={styles.imageContainer}>
+        {badges.length > 0 && (
+          <div className={styles.badgesContainer}>
+            {badges.map(badge => (
+              <span
+                key={badge.id}
+                className={styles.badge}
+                style={{
+                  backgroundColor: badge.backgroundColor,
+                  color: badge.textColor,
+                }}
+              >
+                {badge.icon && <span className={styles.badgeIcon}>{badge.icon}</span>}
+                {badge.name}
+              </span>
+            ))}
+          </div>
+        )}
+        <button className={styles.favoriteButton} aria-label="Add to favorites">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        </button>
         <img src={property.image} alt={property.title} />
-        {property.isRecommended && <span className={styles.recommendedBadge}>Recommended</span>}
       </div>
+
       <div className={styles.infoContainer}>
         <div className={styles.developerInfo}>
           <div className={styles.developerLogoContainer}>
@@ -57,10 +96,25 @@ export const MarkerPopup = ({ property }: MarkerPopupProps) => {
         </div>
 
         <div className={styles.roiContainer}>
-          <span className={styles.roiValue}>ROI 7%</span>
+          <span className={styles.roiValue}>ROI {roi}%</span>
         </div>
       </div>
+
       <div className={styles.priceContainer}>
+        {discountedPrice && (
+          <div className={styles.priceRow}>
+            <div className={styles.attributeContainer}>
+              <span className={styles.attributeLabel}>Our price:</span>
+              <span className={styles.discountBadge}>-{discount}%</span>
+            </div>
+            <div className={styles.priceValueContainer}>
+              <span className={styles.priceValue}>
+                <span className={styles.from}>from</span>{' '}
+                {formatPrice(discountedPrice, property.currency)}
+              </span>
+            </div>
+          </div>
+        )}
         <div className={styles.priceRow}>
           <div className={styles.attributeContainer}>
             <span className={styles.attributeLabel}>Developer price:</span>
@@ -73,6 +127,7 @@ export const MarkerPopup = ({ property }: MarkerPopupProps) => {
           </div>
         </div>
       </div>
+
       <div className={styles.paymentPlanContainer}>
         <div className={styles.dateContainer}>
           <span className={styles.dateValue}>
@@ -83,10 +138,24 @@ export const MarkerPopup = ({ property }: MarkerPopupProps) => {
         <div className={styles.planContainer}>
           <span className={styles.planValue}>
             <span className={styles.planLabel}>PP: </span>
-            <span className={styles.planNumbers}>30/10/60</span>
+            <span className={styles.planNumbers}>{paymentPlan}</span>
           </span>
         </div>
       </div>
+
+      {pricesByType.length > 0 && (
+        <div className={styles.pricesByTypeContainer}>
+          {pricesByType.map((item, index) => (
+            <div key={index} className={styles.priceByTypeRow}>
+              <span className={styles.typeLabel}>{item.type}</span>
+              <span className={styles.typePrice}>
+                <span className={styles.from}>from</span>{' '}
+                {formatPrice(item.price, property.currency)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

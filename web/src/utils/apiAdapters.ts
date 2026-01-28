@@ -1,4 +1,4 @@
-import type { Property, PriceByType } from '../types/property'
+import type { Property, PriceByType, PropertyBadge } from '../types/property'
 
 // Тип для API проекта (фактическая структура из backend)
 interface ApiProject {
@@ -39,6 +39,14 @@ interface ApiProject {
     name?: string
     city?: string
   }
+  badges?: Array<{
+    id?: string
+    slug?: string
+    name?: string
+    backgroundColor?: string
+    textColor?: string
+    icon?: string
+  }>
   createdAt?: string
   updatedAt?: string
 }
@@ -91,6 +99,18 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
   const isFeatured = apiProject.data?.isFeatured ?? false
   const tags = apiProject.data?.tags ?? []
 
+  // Transform badges
+  const badges: PropertyBadge[] = (apiProject.badges ?? [])
+    .filter(b => b.id && b.name)
+    .map(b => ({
+      id: b.id!,
+      slug: b.slug ?? '',
+      name: b.name!,
+      backgroundColor: b.backgroundColor ?? '#000000',
+      textColor: b.textColor ?? '#FFFFFF',
+      icon: b.icon,
+    }))
+
   return {
     id,
     title,
@@ -118,6 +138,7 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
     roi,
     paymentPlan,
     pricesByType,
+    badges: badges.length > 0 ? badges : undefined,
   }
 }
 

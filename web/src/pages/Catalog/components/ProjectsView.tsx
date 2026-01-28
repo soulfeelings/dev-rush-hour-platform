@@ -1,7 +1,21 @@
-import { ProjectCard } from '../../../components/ProjectCard'
+import { type ReactNode } from 'react'
+import { Gift, Sofa, Tag, Stamp, Waves, Anchor, Sparkles, Key } from 'lucide-react'
+import { ProjectCard, type CardBadge } from '../../../components/ProjectCard'
 import { SkeletonCard } from '../../../ui/Skeleton'
 import styles from '../Catalog.module.scss'
 import type { Property } from '../../../types/property'
+
+// Map icon names from backend to lucide-react components
+const iconMap: Record<string, ReactNode> = {
+  gift: <Gift size={14} />,
+  sofa: <Sofa size={14} />,
+  tag: <Tag size={14} />,
+  passport: <Stamp size={14} />,
+  waves: <Waves size={14} />,
+  anchor: <Anchor size={14} />,
+  sparkles: <Sparkles size={14} />,
+  key: <Key size={14} />,
+}
 
 interface ProjectsViewProps {
   panelWidth: number
@@ -10,6 +24,16 @@ interface ProjectsViewProps {
   properties: Property[]
   isLoading: boolean
   error: unknown
+}
+
+// Transform property badges to CardBadge format
+const propertyBadgesToCardBadges = (property: Property): CardBadge[] => {
+  if (!property.badges) return []
+  return property.badges.map(badge => ({
+    text: badge.name,
+    backgroundColor: badge.backgroundColor,
+    icon: badge.icon ? iconMap[badge.icon] : undefined,
+  }))
 }
 
 export default function ProjectsView({
@@ -54,7 +78,11 @@ export default function ProjectsView({
       }}
     >
       {activeProperties.map(property => (
-        <ProjectCard key={property.id} property={property} />
+        <ProjectCard
+          key={property.id}
+          property={property}
+          badges={propertyBadgesToCardBadges(property)}
+        />
       ))}
     </div>
   )

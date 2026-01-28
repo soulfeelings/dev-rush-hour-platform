@@ -3,6 +3,15 @@ export interface PriceByType {
   price: number
 }
 
+export interface PropertyBadge {
+  id: string
+  slug: string
+  name: string
+  backgroundColor: string
+  textColor: string
+  icon?: string
+}
+
 export interface Property {
   id: string
   title: string
@@ -32,4 +41,5 @@ export interface Property {
   roi?: number // процент ROI, например 7
   paymentPlan?: string // план платежей, например "30/10/60"
   pricesByType?: PriceByType[] // цены по типам для hover секции
+  badges?: PropertyBadge[] // бейджи проекта
 }

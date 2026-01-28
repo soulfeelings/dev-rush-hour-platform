@@ -1359,6 +1359,11 @@ components:
           items:
             $ref: "#/components/schemas/Lot"
           description: Первые N лотов проекта (если запрошено через includeLots)
+        badges:
+          type: array
+          items:
+            $ref: "#/components/schemas/Badge"
+          description: Бейджи проекта
 
     ProjectData:
       type: object

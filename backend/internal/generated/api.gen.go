@@ -672,10 +672,13 @@ type Point struct {
 
 // Project defines model for Project.
 type Project struct {
-	Area      *Area               `json:"area,omitempty"`
-	AreaId    *openapi_types.UUID `json:"areaId,omitempty"`
-	CreatedAt *time.Time          `json:"createdAt,omitempty"`
-	Data      *ProjectData        `json:"data,omitempty"`
+	Area   *Area               `json:"area,omitempty"`
+	AreaId *openapi_types.UUID `json:"areaId,omitempty"`
+
+	// Badges Бейджи проекта
+	Badges    *[]Badge     `json:"badges,omitempty"`
+	CreatedAt *time.Time   `json:"createdAt,omitempty"`
+	Data      *ProjectData `json:"data,omitempty"`
 
 	// DeletedAt Время мягкого удаления (если null - не удален)
 	DeletedAt   *time.Time          `json:"deletedAt"`
