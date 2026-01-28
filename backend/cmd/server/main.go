@@ -35,6 +35,7 @@ type Server struct {
 	adminProjectsHandler   *handlers.AdminProjectsHandler
 	adminLotsHandler       *handlers.AdminLotsHandler
 	adminLeadsHandler      *handlers.AdminLeadsHandler
+	adminBadgesHandler     *handlers.AdminBadgesHandler
 }
 
 func NewServer(db *sql.DB) *Server {
@@ -45,6 +46,7 @@ func NewServer(db *sql.DB) *Server {
 	lotRepo := repo.NewLotRepo(db)
 	leadRepo := repo.NewLeadRepo(db)
 	developerRepo := repo.NewDeveloperRepo(db)
+	badgeRepo := repo.NewBadgeRepo(db)
 
 	// Services
 	areasService := services.NewAreasService(areaRepo)
@@ -53,6 +55,7 @@ func NewServer(db *sql.DB) *Server {
 	lotsService := services.NewLotsService(lotRepo)
 	leadsService := services.NewLeadsService(leadRepo)
 	developersService := services.NewDevelopersService(developerRepo)
+	badgesService := services.NewBadgesService(badgeRepo)
 	filtersService := services.NewFiltersService(citiesService, areasService, developersService, projectsService)
 
 	// Handlers
@@ -70,6 +73,7 @@ func NewServer(db *sql.DB) *Server {
 		adminProjectsHandler:   handlers.NewAdminProjectsHandler(projectsService),
 		adminLotsHandler:       handlers.NewAdminLotsHandler(lotsService),
 		adminLeadsHandler:      handlers.NewAdminLeadsHandler(leadsService),
+		adminBadgesHandler:     handlers.NewAdminBadgesHandler(badgesService),
 	}
 }
 
@@ -232,6 +236,26 @@ func (s *Server) AdminGetLead(c *fiber.Ctx, id openapi_types.UUID) error {
 
 func (s *Server) AdminSoftDeleteLead(c *fiber.Ctx, id openapi_types.UUID) error {
     return s.adminLeadsHandler.SoftDeleteLead(c, id)
+}
+
+func (s *Server) AdminListBadges(c *fiber.Ctx) error {
+	return s.adminBadgesHandler.ListBadges(c)
+}
+
+func (s *Server) AdminCreateBadge(c *fiber.Ctx) error {
+	return s.adminBadgesHandler.CreateBadge(c)
+}
+
+func (s *Server) AdminUpdateBadge(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminBadgesHandler.UpdateBadge(c, id)
+}
+
+func (s *Server) AdminGetBadge(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminBadgesHandler.GetBadge(c, id)
+}
+
+func (s *Server) AdminSoftDeleteBadge(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminBadgesHandler.SoftDeleteBadge(c, id)
 }
 
 func main() {

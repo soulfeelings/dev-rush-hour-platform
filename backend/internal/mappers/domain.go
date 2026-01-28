@@ -235,12 +235,12 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 		return nil
 	}
 	id := openapi_types.UUID(lot.ID)
-	status := generated.LotStatus(lot.Status)
+	status := generated.LotListItemStatus(lot.Status)
 	lotType := generated.LotType(lot.Type)
 	result := &generated.LotListItem{
 		Id:            &id,
-		Status:        (*generated.LotListItemStatus)(&status),
-		Type:          (*generated.LotListItemType)(&lotType),
+		Status:        &status,
+		Type:          &lotType,
 		PriceCurrency: &lot.PriceCurrency,
 		PriceAmount:   float32Ptr(float32(lot.PriceAmount)),
 		CreatedAt:     timePtr(lot.CreatedAt),
@@ -1121,4 +1121,87 @@ func generatedFloorPositionToDomain(fp *generated.FloorPosition) *domain.FloorPo
 		X:     float64(*fp.X),
 		Y:     float64(*fp.Y),
 	}
+}
+
+// Badge mappers
+
+func DomainBadgeToGenerated(badge *domain.Badge) *generated.Badge {
+	if badge == nil {
+		return nil
+	}
+	id := openapi_types.UUID(badge.ID)
+	status := generated.BadgeStatus(badge.Status)
+	result := &generated.Badge{
+		Id:              &id,
+		Slug:            &badge.Slug,
+		Name:            &badge.Name,
+		BackgroundColor: &badge.BackgroundColor,
+		TextColor:       &badge.TextColor,
+		Icon:            badge.Icon,
+		Status:          &status,
+		SortOrder:       intPtr(badge.SortOrder),
+		CreatedAt:       timePtr(badge.CreatedAt),
+		UpdatedAt:       timePtr(badge.UpdatedAt),
+	}
+	return result
+}
+
+func GeneratedBadgeCreateToDomain(req *generated.BadgeCreateRequest) (*domain.Badge, error) {
+	badge := &domain.Badge{
+		Slug:            req.Slug,
+		Name:            req.Name,
+		BackgroundColor: "#000000",
+		TextColor:       "#FFFFFF",
+		Status:          domain.BadgeStatusActive,
+		SortOrder:       0,
+	}
+
+	if req.BackgroundColor != nil {
+		badge.BackgroundColor = *req.BackgroundColor
+	}
+	if req.TextColor != nil {
+		badge.TextColor = *req.TextColor
+	}
+	if req.Icon != nil {
+		badge.Icon = req.Icon
+	}
+	if req.Status != nil {
+		badge.Status = domain.BadgeStatus(*req.Status)
+	}
+	if req.SortOrder != nil {
+		badge.SortOrder = *req.SortOrder
+	}
+
+	return badge, nil
+}
+
+func ApplyBadgeUpdateRequest(existing *domain.Badge, req *generated.BadgeUpdateRequest) *domain.Badge {
+	if existing == nil || req == nil {
+		return nil
+	}
+	updated := *existing
+
+	if req.Slug != nil {
+		updated.Slug = *req.Slug
+	}
+	if req.Name != nil {
+		updated.Name = *req.Name
+	}
+	if req.BackgroundColor != nil {
+		updated.BackgroundColor = *req.BackgroundColor
+	}
+	if req.TextColor != nil {
+		updated.TextColor = *req.TextColor
+	}
+	if req.Icon != nil {
+		updated.Icon = req.Icon
+	}
+	if req.Status != nil {
+		updated.Status = domain.BadgeStatus(*req.Status)
+	}
+	if req.SortOrder != nil {
+		updated.SortOrder = *req.SortOrder
+	}
+
+	return &updated
 }

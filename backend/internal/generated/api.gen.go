@@ -36,6 +36,12 @@ const (
 	AreaUpdateRequestStatusInactive AreaUpdateRequestStatus = "inactive"
 )
 
+// Defines values for BadgeStatus.
+const (
+	BadgeStatusActive   BadgeStatus = "active"
+	BadgeStatusInactive BadgeStatus = "inactive"
+)
+
 // Defines values for CityStatus.
 const (
 	CityStatusActive   CityStatus = "active"
@@ -110,28 +116,12 @@ const (
 	LotStatusSold     LotStatus = "sold"
 )
 
-// Defines values for LotType.
-const (
-	LotTypeApartment LotType = "apartment"
-	LotTypePenthouse LotType = "penthouse"
-	LotTypeTownhouse LotType = "townhouse"
-	LotTypeVilla     LotType = "villa"
-)
-
 // Defines values for LotCreateRequestStatus.
 const (
 	LotCreateRequestStatusActive   LotCreateRequestStatus = "active"
 	LotCreateRequestStatusHidden   LotCreateRequestStatus = "hidden"
 	LotCreateRequestStatusReserved LotCreateRequestStatus = "reserved"
 	LotCreateRequestStatusSold     LotCreateRequestStatus = "sold"
-)
-
-// Defines values for LotCreateRequestType.
-const (
-	LotCreateRequestTypeApartment LotCreateRequestType = "apartment"
-	LotCreateRequestTypePenthouse LotCreateRequestType = "penthouse"
-	LotCreateRequestTypeTownhouse LotCreateRequestType = "townhouse"
-	LotCreateRequestTypeVilla     LotCreateRequestType = "villa"
 )
 
 // Defines values for LotListItemStatus.
@@ -142,12 +132,9 @@ const (
 	LotListItemStatusSold     LotListItemStatus = "sold"
 )
 
-// Defines values for LotListItemType.
+// Defines values for LotType.
 const (
-	LotListItemTypeApartment LotListItemType = "apartment"
-	LotListItemTypePenthouse LotListItemType = "penthouse"
-	LotListItemTypeTownhouse LotListItemType = "townhouse"
-	LotListItemTypeVilla     LotListItemType = "villa"
+	Apartment LotType = "apartment"
 )
 
 // Defines values for LotUpdateRequestStatus.
@@ -156,14 +143,6 @@ const (
 	LotUpdateRequestStatusHidden   LotUpdateRequestStatus = "hidden"
 	LotUpdateRequestStatusReserved LotUpdateRequestStatus = "reserved"
 	LotUpdateRequestStatusSold     LotUpdateRequestStatus = "sold"
-)
-
-// Defines values for LotUpdateRequestType.
-const (
-	LotUpdateRequestTypeApartment LotUpdateRequestType = "apartment"
-	LotUpdateRequestTypePenthouse LotUpdateRequestType = "penthouse"
-	LotUpdateRequestTypeTownhouse LotUpdateRequestType = "townhouse"
-	LotUpdateRequestTypeVilla     LotUpdateRequestType = "villa"
 )
 
 // Defines values for ProjectSale.
@@ -201,8 +180,8 @@ const (
 
 // Defines values for ProjectUpdateRequestStatus.
 const (
-	ProjectUpdateRequestStatusActive   ProjectUpdateRequestStatus = "active"
-	ProjectUpdateRequestStatusArchived ProjectUpdateRequestStatus = "archived"
+	Active   ProjectUpdateRequestStatus = "active"
+	Archived ProjectUpdateRequestStatus = "archived"
 )
 
 // Defines values for AdminListLeadsParamsStatus.
@@ -216,14 +195,6 @@ const (
 // Defines values for ListAreasParamsInclude.
 const (
 	Boundary ListAreasParamsInclude = "boundary"
-)
-
-// Defines values for ListLotsParamsType.
-const (
-	Apartment ListLotsParamsType = "apartment"
-	Penthouse ListLotsParamsType = "penthouse"
-	Townhouse ListLotsParamsType = "townhouse"
-	Villa     ListLotsParamsType = "villa"
 )
 
 // Defines values for ListLotsParamsSort.
@@ -292,6 +263,50 @@ type AreaUpdateRequest struct {
 
 // AreaUpdateRequestStatus defines model for AreaUpdateRequest.Status.
 type AreaUpdateRequestStatus string
+
+// Badge defines model for Badge.
+type Badge struct {
+	// BackgroundColor Hex color code for background (e.g. "#25D366")
+	BackgroundColor *string    `json:"backgroundColor,omitempty"`
+	CreatedAt       *time.Time `json:"createdAt,omitempty"`
+
+	// Icon Icon name or URL
+	Icon      *string             `json:"icon,omitempty"`
+	Id        *openapi_types.UUID `json:"id,omitempty"`
+	Name      *string             `json:"name,omitempty"`
+	Slug      *string             `json:"slug,omitempty"`
+	SortOrder *int                `json:"sortOrder,omitempty"`
+	Status    *BadgeStatus        `json:"status,omitempty"`
+
+	// TextColor Hex color code for text (e.g. "#FFFFFF")
+	TextColor *string    `json:"textColor,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// BadgeCreateRequest defines model for BadgeCreateRequest.
+type BadgeCreateRequest struct {
+	BackgroundColor *string      `json:"backgroundColor,omitempty"`
+	Icon            *string      `json:"icon,omitempty"`
+	Name            string       `json:"name"`
+	Slug            string       `json:"slug"`
+	SortOrder       *int         `json:"sortOrder,omitempty"`
+	Status          *BadgeStatus `json:"status,omitempty"`
+	TextColor       *string      `json:"textColor,omitempty"`
+}
+
+// BadgeStatus defines model for BadgeStatus.
+type BadgeStatus string
+
+// BadgeUpdateRequest defines model for BadgeUpdateRequest.
+type BadgeUpdateRequest struct {
+	BackgroundColor *string      `json:"backgroundColor,omitempty"`
+	Icon            *string      `json:"icon,omitempty"`
+	Name            *string      `json:"name,omitempty"`
+	Slug            *string      `json:"slug,omitempty"`
+	SortOrder       *int         `json:"sortOrder,omitempty"`
+	Status          *BadgeStatus `json:"status,omitempty"`
+	TextColor       *string      `json:"textColor,omitempty"`
+}
 
 // Bonus defines model for Bonus.
 type Bonus struct {
@@ -394,8 +409,8 @@ type Error_Error_Details struct {
 
 // FilterOption defines model for FilterOption.
 type FilterOption struct {
-	Label *string `json:"label,omitempty"`
-	Value *string `json:"value,omitempty"`
+	Label string `json:"label"`
+	Value string `json:"value"`
 }
 
 // FilterOptions defines model for FilterOptions.
@@ -531,9 +546,6 @@ type Lot struct {
 // LotStatus defines model for Lot.Status.
 type LotStatus string
 
-// LotType defines model for Lot.Type.
-type LotType string
-
 // LotCreateRequest defines model for LotCreateRequest.
 type LotCreateRequest struct {
 	AreaId        *openapi_types.UUID     `json:"areaId,omitempty"`
@@ -548,14 +560,11 @@ type LotCreateRequest struct {
 	PriceCurrency *string                 `json:"priceCurrency,omitempty"`
 	ProjectId     openapi_types.UUID      `json:"projectId"`
 	Status        *LotCreateRequestStatus `json:"status,omitempty"`
-	Type          LotCreateRequestType    `json:"type"`
+	Type          LotType                 `json:"type"`
 }
 
 // LotCreateRequestStatus defines model for LotCreateRequest.Status.
 type LotCreateRequestStatus string
-
-// LotCreateRequestType defines model for LotCreateRequest.Type.
-type LotCreateRequestType string
 
 // LotData defines model for LotData.
 type LotData struct {
@@ -585,15 +594,12 @@ type LotListItem struct {
 	Project       *Project            `json:"project,omitempty"`
 	ProjectId     *openapi_types.UUID `json:"projectId,omitempty"`
 	Status        *LotListItemStatus  `json:"status,omitempty"`
-	Type          *LotListItemType    `json:"type,omitempty"`
+	Type          *LotType            `json:"type,omitempty"`
 	UpdatedAt     *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // LotListItemStatus defines model for LotListItem.Status.
 type LotListItemStatus string
-
-// LotListItemType defines model for LotListItem.Type.
-type LotListItemType string
 
 // LotMedia defines model for LotMedia.
 type LotMedia struct {
@@ -601,6 +607,9 @@ type LotMedia struct {
 	FloorPlanImages *[]MediaItem `json:"floorPlanImages,omitempty"`
 	Photos          *[]MediaItem `json:"photos,omitempty"`
 }
+
+// LotType defines model for LotType.
+type LotType string
 
 // LotUpdateRequest defines model for LotUpdateRequest.
 type LotUpdateRequest struct {
@@ -616,14 +625,11 @@ type LotUpdateRequest struct {
 	PriceCurrency *string                 `json:"priceCurrency,omitempty"`
 	ProjectId     *openapi_types.UUID     `json:"projectId,omitempty"`
 	Status        *LotUpdateRequestStatus `json:"status,omitempty"`
-	Type          *LotUpdateRequestType   `json:"type,omitempty"`
+	Type          *LotType                `json:"type,omitempty"`
 }
 
 // LotUpdateRequestStatus defines model for LotUpdateRequest.Status.
 type LotUpdateRequestStatus string
-
-// LotUpdateRequestType defines model for LotUpdateRequest.Type.
-type LotUpdateRequestType string
 
 // LotsListResponse defines model for LotsListResponse.
 type LotsListResponse struct {
@@ -799,7 +805,7 @@ type ListLotsParams struct {
 	Project *string `form:"project,omitempty" json:"project,omitempty"`
 
 	// Type Тип лота
-	Type *ListLotsParamsType `form:"type,omitempty" json:"type,omitempty"`
+	Type *LotType `form:"type,omitempty" json:"type,omitempty"`
 
 	// Bedrooms Количество спален
 	Bedrooms *int `form:"bedrooms,omitempty" json:"bedrooms,omitempty"`
@@ -829,9 +835,6 @@ type ListLotsParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
-// ListLotsParamsType defines parameters for ListLots.
-type ListLotsParamsType string
-
 // ListLotsParamsSort defines parameters for ListLots.
 type ListLotsParamsSort string
 
@@ -852,6 +855,12 @@ type AdminCreateAreaJSONRequestBody = AreaCreateRequest
 
 // AdminUpdateAreaJSONRequestBody defines body for AdminUpdateArea for application/json ContentType.
 type AdminUpdateAreaJSONRequestBody = AreaUpdateRequest
+
+// AdminCreateBadgeJSONRequestBody defines body for AdminCreateBadge for application/json ContentType.
+type AdminCreateBadgeJSONRequestBody = BadgeCreateRequest
+
+// AdminUpdateBadgeJSONRequestBody defines body for AdminUpdateBadge for application/json ContentType.
+type AdminUpdateBadgeJSONRequestBody = BadgeUpdateRequest
 
 // AdminCreateCityJSONRequestBody defines body for AdminCreateCity for application/json ContentType.
 type AdminCreateCityJSONRequestBody = CityCreateRequest
@@ -1024,6 +1033,21 @@ type ServerInterface interface {
 	// Обновить район (админ)
 	// (PATCH /admin/areas/{id})
 	AdminUpdateArea(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить список бейджей (админ)
+	// (GET /admin/badges)
+	AdminListBadges(c *fiber.Ctx) error
+	// Создать бейдж (админ)
+	// (POST /admin/badges)
+	AdminCreateBadge(c *fiber.Ctx) error
+	// Мягкое удаление бейджа (установка deleted_at)
+	// (DELETE /admin/badges/{id})
+	AdminSoftDeleteBadge(c *fiber.Ctx, id openapi_types.UUID) error
+	// Получить бейдж по ID (админ)
+	// (GET /admin/badges/{id})
+	AdminGetBadge(c *fiber.Ctx, id openapi_types.UUID) error
+	// Обновить бейдж (админ)
+	// (PATCH /admin/badges/{id})
+	AdminUpdateBadge(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список городов (админ)
 	// (GET /admin/cities)
 	AdminListCities(c *fiber.Ctx) error
@@ -1203,6 +1227,76 @@ func (siw *ServerInterfaceWrapper) AdminUpdateArea(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminUpdateArea(c, id)
+}
+
+// AdminListBadges operation middleware
+func (siw *ServerInterfaceWrapper) AdminListBadges(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminListBadges(c)
+}
+
+// AdminCreateBadge operation middleware
+func (siw *ServerInterfaceWrapper) AdminCreateBadge(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminCreateBadge(c)
+}
+
+// AdminSoftDeleteBadge operation middleware
+func (siw *ServerInterfaceWrapper) AdminSoftDeleteBadge(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminSoftDeleteBadge(c, id)
+}
+
+// AdminGetBadge operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetBadge(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminGetBadge(c, id)
+}
+
+// AdminUpdateBadge operation middleware
+func (siw *ServerInterfaceWrapper) AdminUpdateBadge(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminUpdateBadge(c, id)
 }
 
 // AdminListCities operation middleware
@@ -1832,6 +1926,16 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	router.Get(options.BaseURL+"/admin/areas/:id", wrapper.AdminGetArea)
 
 	router.Patch(options.BaseURL+"/admin/areas/:id", wrapper.AdminUpdateArea)
+
+	router.Get(options.BaseURL+"/admin/badges", wrapper.AdminListBadges)
+
+	router.Post(options.BaseURL+"/admin/badges", wrapper.AdminCreateBadge)
+
+	router.Delete(options.BaseURL+"/admin/badges/:id", wrapper.AdminSoftDeleteBadge)
+
+	router.Get(options.BaseURL+"/admin/badges/:id", wrapper.AdminGetBadge)
+
+	router.Patch(options.BaseURL+"/admin/badges/:id", wrapper.AdminUpdateBadge)
 
 	router.Get(options.BaseURL+"/admin/cities", wrapper.AdminListCities)
 

@@ -78,74 +78,74 @@ func (s *FiltersService) GetFilterOptions() (*generated.FilterOptions, error) {
 	cityOptions := make([]generated.FilterOption, len(cities))
 	for i, city := range cities {
 		cityOptions[i] = generated.FilterOption{
-			Value: &city.Slug,
-			Label: &city.Name,
+			Value: city.Slug,
+			Label: city.Name,
 		}
 	}
 
 	areaOptions := make([]generated.FilterOption, len(areas))
 	for i, area := range areas {
 		areaOptions[i] = generated.FilterOption{
-			Value: &area.Slug,
-			Label: &area.Name,
+			Value: area.Slug,
+			Label: area.Name,
 		}
 	}
 
 	developerOptions := make([]generated.FilterOption, len(developers))
 	for i, dev := range developers {
 		developerOptions[i] = generated.FilterOption{
-			Value: &dev.Slug,
-			Label: &dev.Name,
+			Value: dev.Slug,
+			Label: dev.Name,
 		}
 	}
 
 	projectOptions := make([]generated.FilterOption, len(projects))
 	for i, project := range projects {
 		projectOptions[i] = generated.FilterOption{
-			Value: &project.Slug,
-			Label: &project.Name,
+			Value: project.Slug,
+			Label: project.Name,
 		}
 	}
 
 	// Static options
 	propertyTypeOptions := []generated.FilterOption{
-		{Value: stringPtr("all"), Label: stringPtr("All")},
-		{Value: stringPtr("apartment"), Label: stringPtr("Apartment")},
+		{Value: "all", Label: "All"},
+		{Value: "apartment", Label: "Apartment"},
 	}
 
 	bedroomOptions := []generated.FilterOption{
-		{Value: stringPtr("all"), Label: stringPtr("All")},
-		{Value: stringPtr("studio"), Label: stringPtr("Studio")},
-		{Value: stringPtr("1"), Label: stringPtr("1 Bedroom")},
-		{Value: stringPtr("2"), Label: stringPtr("2 Bedrooms")},
-		{Value: stringPtr("3"), Label: stringPtr("3 Bedrooms")},
-		{Value: stringPtr("4+"), Label: stringPtr("4+ Bedrooms")},
+		{Value: "all", Label: "All"},
+		{Value: "studio", Label: "Studio"},
+		{Value: "1", Label: "1 Bedroom"},
+		{Value: "2", Label: "2 Bedrooms"},
+		{Value: "3", Label: "3 Bedrooms"},
+		{Value: "4+", Label: "4+ Bedrooms"},
 	}
 
 	bathroomOptions := []generated.FilterOption{
-		{Value: stringPtr("all"), Label: stringPtr("All")},
-		{Value: stringPtr("1"), Label: stringPtr("1 Bathroom")},
-		{Value: stringPtr("2"), Label: stringPtr("2 Bathrooms")},
-		{Value: stringPtr("3"), Label: stringPtr("3 Bathrooms")},
-		{Value: stringPtr("4+"), Label: stringPtr("4+ Bathrooms")},
-		{Value: stringPtr("5+"), Label: stringPtr("5+ Bathrooms")},
-		{Value: stringPtr("6+"), Label: stringPtr("6+ Bathrooms")},
-		{Value: stringPtr("7+"), Label: stringPtr("7+ Bathrooms")},
+		{Value: "all", Label: "All"},
+		{Value: "1", Label: "1 Bathroom"},
+		{Value: "2", Label: "2 Bathrooms"},
+		{Value: "3", Label: "3 Bathrooms"},
+		{Value: "4+", Label: "4+ Bathrooms"},
+		{Value: "5+", Label: "5+ Bathrooms"},
+		{Value: "6+", Label: "6+ Bathrooms"},
+		{Value: "7+", Label: "7+ Bathrooms"},
 	}
 
 	priceRangeOptions := []generated.FilterOption{
-		{Value: stringPtr("all"), Label: stringPtr("All")},
-		{Value: stringPtr("0-1m"), Label: stringPtr("Under 1M AED")},
-		{Value: stringPtr("1-2m"), Label: stringPtr("1-2M AED")},
-		{Value: stringPtr("2-5m"), Label: stringPtr("2-5M AED")},
-		{Value: stringPtr("5m+"), Label: stringPtr("5M+ AED")},
+		{Value: "all", Label: "All"},
+		{Value: "0-1m", Label: "Under 1M AED"},
+		{Value: "1-2m", Label: "1-2M AED"},
+		{Value: "2-5m", Label: "2-5M AED"},
+		{Value: "5m+", Label: "5M+ AED"},
 	}
 
 	statusOptions := []generated.FilterOption{
-		{Value: stringPtr("all"), Label: stringPtr("All")},
-		{Value: stringPtr("ready"), Label: stringPtr("Ready")},
-		{Value: stringPtr("construction"), Label: stringPtr("Construction")},
-		{Value: stringPtr("planning"), Label: stringPtr("Planning")},
+		{Value: "all", Label: "All"},
+		{Value: "ready", Label: "Ready"},
+		{Value: "construction", Label: "Construction"},
+		{Value: "planning", Label: "Planning"},
 	}
 
 	s.logger.Info("filters_service_get_options_completed",

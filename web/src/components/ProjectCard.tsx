@@ -126,11 +126,13 @@ export const ProjectCard = ({ property, badges = [], onFavoriteClick }: ProjectC
                   </Typography>
                 </div>
               </div>
-              <div className={styles.roiContainer}>
-                <Typography size="small" weight="medium" className={styles.roiValue}>
-                  ROI 7%
-                </Typography>
-              </div>
+              {property.roi && (
+                <div className={styles.roiContainer}>
+                  <Typography size="small" weight="medium" className={styles.roiValue}>
+                    ROI {property.roi}%
+                  </Typography>
+                </div>
+              )}
             </div>
 
             {/* Цены */}
@@ -171,23 +173,42 @@ export const ProjectCard = ({ property, badges = [], onFavoriteClick }: ProjectC
                 <span className={styles.quarter}>{firstPart}</span>
                 {rest && <span className={styles.year}> {rest}</span>}
               </Typography>
-              <Typography size="small" className={styles.planValue}>
-                <span className={styles.planLabel}>PP:</span>{' '}
-                <span className={styles.planNumbers}>30/10/60</span>
-              </Typography>
+              {property.paymentPlan && (
+                <Typography size="small" className={styles.planValue}>
+                  <span className={styles.planLabel}>PP:</span>{' '}
+                  <span className={styles.planNumbers}>{property.paymentPlan}</span>
+                </Typography>
+              )}
             </div>
 
             {/* Дополнительная информация (появляется при наведении) */}
             <div className={styles.additionalInfo}>
               <div className={styles.additionalInfoGrid}>
-                <div className={styles.additionalInfoItem}>
-                  <Typography size="small" className={styles.additionalInfoLabel}>
-                    {property.types.join(', ')}
-                  </Typography>
-                  <Typography size="small" weight="medium" className={styles.additionalInfoValue}>
-                    {t('from')} {formatPrice(property.priceFrom, property.currency)}
-                  </Typography>
-                </div>
+                {property.pricesByType && property.pricesByType.length > 0 ? (
+                  property.pricesByType.map((item, index) => (
+                    <div key={index} className={styles.additionalInfoItem}>
+                      <Typography size="small" className={styles.additionalInfoLabel}>
+                        {item.type}
+                      </Typography>
+                      <Typography
+                        size="small"
+                        weight="medium"
+                        className={styles.additionalInfoValue}
+                      >
+                        {t('from')} {formatPrice(item.price, property.currency)}
+                      </Typography>
+                    </div>
+                  ))
+                ) : (
+                  <div className={styles.additionalInfoItem}>
+                    <Typography size="small" className={styles.additionalInfoLabel}>
+                      {property.types.join(', ')}
+                    </Typography>
+                    <Typography size="small" weight="medium" className={styles.additionalInfoValue}>
+                      {t('from')} {formatPrice(property.priceFrom, property.currency)}
+                    </Typography>
+                  </div>
+                )}
               </div>
 
               <button type="button" className={styles.whatsappButton}>

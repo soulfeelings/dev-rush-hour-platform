@@ -1,0 +1,1 @@
+export { BadgesTable } from './BadgesTable'

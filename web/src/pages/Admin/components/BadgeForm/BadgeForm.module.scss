@@ -1,0 +1,70 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.colorRow {
+  display: flex;
+  gap: 1rem;
+}
+
+.colorField {
+  flex: 1;
+}
+
+.colorLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.colorInputWrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.colorPicker {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 2px;
+  }
+
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 2px;
+  }
+}
+
+.previewSection {
+  padding: 1rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.badgePreview {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.saveButton {
+  background-color: #007bff;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+}

@@ -1,4 +1,4 @@
-import type { Property } from '../types/property'
+import type { Property, PriceByType } from '../types/property'
 
 // Тип для API проекта (фактическая структура из backend)
 interface ApiProject {
@@ -66,6 +66,12 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
   const bedrooms = (specs?.bedrooms as string[]) ?? ['Ст']
   const completionDate = (specs?.completionDate as string) ?? '2025-01-01'
 
+  // Новые поля для карточки
+  const discount = (specs?.discount as number) ?? undefined
+  const roi = (specs?.roi as number) ?? undefined
+  const paymentPlan = (specs?.paymentPlan as string) ?? undefined
+  const pricesByType = (specs?.pricesByType as PriceByType[]) ?? undefined
+
   // Получаем изображение
   const image =
     media?.cover?.url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
@@ -107,6 +113,11 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
     isRecommended,
     isFeatured,
     tags,
+    // Новые поля для карточки
+    discount,
+    roi,
+    paymentPlan,
+    pricesByType,
   }
 }
 

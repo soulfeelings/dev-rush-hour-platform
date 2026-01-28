@@ -1,0 +1,1 @@
+export { BadgeForm } from './BadgeForm'
