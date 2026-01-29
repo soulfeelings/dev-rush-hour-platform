@@ -61,6 +61,7 @@ export function Select({
   const [selectingValue, setSelectingValue] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
+  const [positionCalculated, setPositionCalculated] = useState(false)
   const selectRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -130,6 +131,7 @@ export function Select({
         }
 
         setDropdownPos({ top, left })
+        setPositionCalculated(true)
       }
 
       // Используем requestAnimationFrame для получения актуальных размеров после рендера
@@ -221,6 +223,9 @@ export function Select({
 
   const handleToggle = () => {
     if (!disabled) {
+      if (!isOpen) {
+        setPositionCalculated(false)
+      }
       setIsOpen(!isOpen)
     }
   }
@@ -284,6 +289,7 @@ export function Select({
                 style={{
                   top: `${dropdownPos.top + 4}px`,
                   left: `${dropdownPos.left}px`,
+                  visibility: positionCalculated ? 'visible' : 'hidden',
                 }}
               >
                 {searchable && (
