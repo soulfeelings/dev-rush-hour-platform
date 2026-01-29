@@ -67,7 +67,6 @@
     "lefthook": "^2.0.12",
     "orval": "^7.5.0",
     "pg": "^8.17.2",
-    "playwright": "^1.57.0",
     "prettier": "^3.7.4",
     "sass-embedded": "^1.96.0",
     "storybook": "^10.1.11",
