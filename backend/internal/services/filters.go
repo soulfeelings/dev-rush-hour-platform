@@ -3,6 +3,7 @@ package services
 import (
 	"log/slog"
 
+	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/generated"
 )
 
@@ -66,7 +67,7 @@ func (s *FiltersService) GetFilterOptions() (*generated.FilterOptions, error) {
 		return nil, err
 	}
 
-	projects, err := s.projectsService.List(nil)
+	projects, err := s.projectsService.List(domain.ProjectFilters{}, domain.ProjectSortNameAsc)
 	if err != nil {
 		s.logger.Error("filters_service_get_projects_failed",
 			"error", err.Error(),

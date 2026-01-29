@@ -34,6 +34,16 @@ type ProjectData struct {
 	IsRecommended     bool                   `json:"isRecommended,omitempty"`
 	IsFeatured        bool                   `json:"isFeatured,omitempty"`
 	Tags              []string               `json:"tags,omitempty"`
+	YoutubeURL        string                 `json:"youtubeUrl,omitempty"`
+	Timeline          *ProjectTimeline       `json:"timeline,omitempty"`
+}
+
+type ProjectTimeline struct {
+	ProjectAnnouncement  *time.Time `json:"projectAnnouncement,omitempty"`
+	BookingStarted       *time.Time `json:"bookingStarted,omitempty"`
+	ConstructionStarted  *time.Time `json:"constructionStarted,omitempty"`
+	ConstructionProgress *time.Time `json:"constructionProgress,omitempty"`
+	ExpectedCompletion   *time.Time `json:"expectedCompletion,omitempty"`
 }
 
 type Media struct {
@@ -44,5 +54,22 @@ type Media struct {
 type MediaItem struct {
 	ID  string `json:"id"`
 	URL string `json:"url"`
+}
+
+type ProjectSort string
+
+const (
+	ProjectSortPriceAsc  ProjectSort = "price_asc"
+	ProjectSortPriceDesc ProjectSort = "price_desc"
+	ProjectSortNewest    ProjectSort = "newest"
+	ProjectSortNameAsc   ProjectSort = "name_asc"
+)
+
+type ProjectFilters struct {
+	AreaSlug      *string
+	DeveloperSlug *string
+	Bedrooms      *int
+	PriceMin      *float64
+	PriceMax      *float64
 }
 

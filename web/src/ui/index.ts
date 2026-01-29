@@ -16,6 +16,7 @@ export * from './Toggle'
 export * from './Card'
 export * from './Modal'
 export * from './ImagePreview'
+export * from './YouTubePreview'
 
 // Typography
 export * from './Typography'

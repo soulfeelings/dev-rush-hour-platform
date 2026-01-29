@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Button, Input, Select, ImagePreview } from '../../../../ui'
+import { Button, Input, Select, ImagePreview, YouTubePreview } from '../../../../ui'
 import { Plus, X } from 'lucide-react'
 import { type ProjectCreateRequest, type Project } from '../../../../api'
 import { MapPicker } from '../MapPicker'
@@ -44,6 +44,14 @@ export function ProjectForm({
       lng: '',
       coverUrl: '',
       gallery: [] as string[],
+      youtubeUrl: '',
+      timeline: {
+        projectAnnouncement: '',
+        bookingStarted: '',
+        constructionStarted: '',
+        constructionProgress: '',
+        expectedCompletion: '',
+      },
     }),
     []
   )
@@ -62,6 +70,14 @@ export function ProjectForm({
         coverUrl: initialData.data?.media?.cover?.url || '',
         gallery:
           initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
+        youtubeUrl: initialData.data?.youtubeUrl || '',
+        timeline: {
+          projectAnnouncement: initialData.data?.timeline?.projectAnnouncement || '',
+          bookingStarted: initialData.data?.timeline?.bookingStarted || '',
+          constructionStarted: initialData.data?.timeline?.constructionStarted || '',
+          constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+          expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
+        },
       }
     }
     return defaultForm
@@ -86,6 +102,14 @@ export function ProjectForm({
       lng: initialData.lng?.toString() || '',
       coverUrl: initialData.data?.media?.cover?.url || '',
       gallery: initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
+      youtubeUrl: initialData.data?.youtubeUrl || '',
+      timeline: {
+        projectAnnouncement: initialData.data?.timeline?.projectAnnouncement || '',
+        bookingStarted: initialData.data?.timeline?.bookingStarted || '',
+        constructionStarted: initialData.data?.timeline?.constructionStarted || '',
+        constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+        expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
+      },
     }
   }, [initialData])
 
@@ -94,6 +118,12 @@ export function ProjectForm({
     const galleryChanged =
       form.gallery.length !== initialFormData.gallery.length ||
       form.gallery.some((url, idx) => url !== initialFormData.gallery[idx])
+    const timelineChanged =
+      form.timeline.projectAnnouncement !== initialFormData.timeline.projectAnnouncement ||
+      form.timeline.bookingStarted !== initialFormData.timeline.bookingStarted ||
+      form.timeline.constructionStarted !== initialFormData.timeline.constructionStarted ||
+      form.timeline.constructionProgress !== initialFormData.timeline.constructionProgress ||
+      form.timeline.expectedCompletion !== initialFormData.timeline.expectedCompletion
     return (
       form.slug !== initialFormData.slug ||
       form.name !== initialFormData.name ||
@@ -104,7 +134,9 @@ export function ProjectForm({
       form.lat !== initialFormData.lat ||
       form.lng !== initialFormData.lng ||
       form.coverUrl !== initialFormData.coverUrl ||
-      galleryChanged
+      form.youtubeUrl !== initialFormData.youtubeUrl ||
+      galleryChanged ||
+      timelineChanged
     )
   }, [form, initialFormData, isEditMode])
 
@@ -121,6 +153,8 @@ export function ProjectForm({
       ...(form.lng && { lng: parseFloat(form.lng) }),
     }
 
+    const dataPayload: Record<string, unknown> = {}
+
     const mediaData: Record<string, unknown> = {}
     if (form.coverUrl) {
       mediaData.cover = { url: form.coverUrl }
@@ -128,9 +162,30 @@ export function ProjectForm({
     if (form.gallery.length > 0) {
       mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
     }
-
     if (Object.keys(mediaData).length > 0) {
-      payload.data = { media: mediaData }
+      dataPayload.media = mediaData
+    }
+
+    if (form.youtubeUrl) {
+      dataPayload.youtubeUrl = form.youtubeUrl
+    }
+
+    const timelineData: Record<string, string> = {}
+    if (form.timeline.projectAnnouncement)
+      timelineData.projectAnnouncement = form.timeline.projectAnnouncement
+    if (form.timeline.bookingStarted) timelineData.bookingStarted = form.timeline.bookingStarted
+    if (form.timeline.constructionStarted)
+      timelineData.constructionStarted = form.timeline.constructionStarted
+    if (form.timeline.constructionProgress)
+      timelineData.constructionProgress = form.timeline.constructionProgress
+    if (form.timeline.expectedCompletion)
+      timelineData.expectedCompletion = form.timeline.expectedCompletion
+    if (Object.keys(timelineData).length > 0) {
+      dataPayload.timeline = timelineData
+    }
+
+    if (Object.keys(dataPayload).length > 0) {
+      payload.data = dataPayload
     }
 
     onSubmit(payload)
@@ -263,6 +318,74 @@ export function ProjectForm({
             </div>
           ))}
         </div>
+      </div>
+      <div className={styles.youtubeSection}>
+        <Input
+          label="YouTube Video URL"
+          type="url"
+          value={form.youtubeUrl}
+          onChange={e => setForm({ ...form, youtubeUrl: e.target.value })}
+          placeholder="https://www.youtube.com/watch?v=..."
+        />
+        <YouTubePreview url={form.youtubeUrl} size="medium" />
+      </div>
+      <div className={styles.mediaSection}>
+        <h3 className={styles.sectionTitle}>Project Timeline</h3>
+        <Input
+          label="Project Announcement"
+          type="date"
+          value={form.timeline.projectAnnouncement}
+          onChange={e =>
+            setForm({
+              ...form,
+              timeline: { ...form.timeline, projectAnnouncement: e.target.value },
+            })
+          }
+        />
+        <Input
+          label="Booking Started"
+          type="date"
+          value={form.timeline.bookingStarted}
+          onChange={e =>
+            setForm({
+              ...form,
+              timeline: { ...form.timeline, bookingStarted: e.target.value },
+            })
+          }
+        />
+        <Input
+          label="Construction Started"
+          type="date"
+          value={form.timeline.constructionStarted}
+          onChange={e =>
+            setForm({
+              ...form,
+              timeline: { ...form.timeline, constructionStarted: e.target.value },
+            })
+          }
+        />
+        <Input
+          label="Construction Progress"
+          type="date"
+          value={form.timeline.constructionProgress}
+          onChange={e =>
+            setForm({
+              ...form,
+              timeline: { ...form.timeline, constructionProgress: e.target.value },
+            })
+          }
+        />
+        <Input
+          label="Expected Completion"
+          type="date"
+          value={form.timeline.expectedCompletion}
+          onChange={e =>
+            setForm({
+              ...form,
+              timeline: { ...form.timeline, expectedCompletion: e.target.value },
+            })
+          }
+        />
       </div>
       <Button
         type="submit"

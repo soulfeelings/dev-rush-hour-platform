@@ -5,10 +5,31 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
+import type { ListProjectsSort } from './listProjectsSort'
 
 export type ListProjectsParams = {
   /**
    * Фильтр по slug района
    */
   area?: string
+  /**
+   * Фильтр по slug застройщика
+   */
+  developer?: string
+  /**
+   * Фильтр по количеству спален (минимум)
+   */
+  bedrooms?: number
+  /**
+   * Минимальная цена
+   */
+  priceMin?: number
+  /**
+   * Максимальная цена
+   */
+  priceMax?: number
+  /**
+   * Сортировка
+   */
+  sort?: ListProjectsSort
 }

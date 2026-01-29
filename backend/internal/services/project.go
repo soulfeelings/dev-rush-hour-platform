@@ -25,15 +25,16 @@ func NewProjectsService(projectRepo *repo.ProjectRepo, lotRepo *repo.LotRepo, ba
 	}
 }
 
-func (s *ProjectsService) List(areaSlug *string) ([]domain.Project, error) {
+func (s *ProjectsService) List(filters domain.ProjectFilters, sort domain.ProjectSort) ([]domain.Project, error) {
 	s.logger.Info("project_service_list_started",
-		"area_slug", areaSlug,
+		"filters", filters,
+		"sort", sort,
 	)
 
-	projects, err := s.projectRepo.List(areaSlug)
+	projects, err := s.projectRepo.List(filters, sort)
 	if err != nil {
 		s.logger.Error("project_service_list_failed",
-			"area_slug", areaSlug,
+			"filters", filters,
 			"error", err.Error(),
 		)
 		return nil, err
@@ -57,7 +58,7 @@ func (s *ProjectsService) List(areaSlug *string) ([]domain.Project, error) {
 
 	s.logger.Info("project_service_list_completed",
 		"count", len(projects),
-		"area_slug", areaSlug,
+		"filters", filters,
 	)
 
 	return projects, nil

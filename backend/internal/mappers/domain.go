@@ -168,6 +168,12 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		result.Data.Description = &generated.ProjectData_Description{}
 		result.Data.Description.UnmarshalJSON(descBytes)
 	}
+	if project.Data.YoutubeURL != "" {
+		result.Data.YoutubeUrl = &project.Data.YoutubeURL
+	}
+	if project.Data.Timeline != nil {
+		result.Data.Timeline = domainTimelineToGenerated(project.Data.Timeline)
+	}
 
 	// Include badges
 	if len(project.Badges) > 0 {
@@ -838,6 +844,68 @@ func domainProjectDataFromGenerated(data *generated.ProjectData) domain.ProjectD
 	}
 	if data.Media != nil {
 		result.Media = generatedMediaToDomain(data.Media)
+	}
+	if data.YoutubeUrl != nil {
+		result.YoutubeURL = *data.YoutubeUrl
+	}
+	if data.Timeline != nil {
+		result.Timeline = generatedTimelineToDomain(data.Timeline)
+	}
+	return result
+}
+
+func generatedTimelineToDomain(timeline *generated.ProjectTimeline) *domain.ProjectTimeline {
+	if timeline == nil {
+		return nil
+	}
+	result := &domain.ProjectTimeline{}
+	if timeline.ProjectAnnouncement != nil {
+		t := timeline.ProjectAnnouncement.Time
+		result.ProjectAnnouncement = &t
+	}
+	if timeline.BookingStarted != nil {
+		t := timeline.BookingStarted.Time
+		result.BookingStarted = &t
+	}
+	if timeline.ConstructionStarted != nil {
+		t := timeline.ConstructionStarted.Time
+		result.ConstructionStarted = &t
+	}
+	if timeline.ConstructionProgress != nil {
+		t := timeline.ConstructionProgress.Time
+		result.ConstructionProgress = &t
+	}
+	if timeline.ExpectedCompletion != nil {
+		t := timeline.ExpectedCompletion.Time
+		result.ExpectedCompletion = &t
+	}
+	return result
+}
+
+func domainTimelineToGenerated(timeline *domain.ProjectTimeline) *generated.ProjectTimeline {
+	if timeline == nil {
+		return nil
+	}
+	result := &generated.ProjectTimeline{}
+	if timeline.ProjectAnnouncement != nil {
+		d := openapi_types.Date{Time: *timeline.ProjectAnnouncement}
+		result.ProjectAnnouncement = &d
+	}
+	if timeline.BookingStarted != nil {
+		d := openapi_types.Date{Time: *timeline.BookingStarted}
+		result.BookingStarted = &d
+	}
+	if timeline.ConstructionStarted != nil {
+		d := openapi_types.Date{Time: *timeline.ConstructionStarted}
+		result.ConstructionStarted = &d
+	}
+	if timeline.ConstructionProgress != nil {
+		d := openapi_types.Date{Time: *timeline.ConstructionProgress}
+		result.ConstructionProgress = &d
+	}
+	if timeline.ExpectedCompletion != nil {
+		d := openapi_types.Date{Time: *timeline.ExpectedCompletion}
+		result.ExpectedCompletion = &d
 	}
 	return result
 }

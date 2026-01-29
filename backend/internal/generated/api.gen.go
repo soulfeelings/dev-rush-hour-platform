@@ -199,10 +199,18 @@ const (
 
 // Defines values for ListLotsParamsSort.
 const (
-	AreaDesc  ListLotsParamsSort = "area_desc"
-	Newest    ListLotsParamsSort = "newest"
-	PriceAsc  ListLotsParamsSort = "price_asc"
-	PriceDesc ListLotsParamsSort = "price_desc"
+	ListLotsParamsSortAreaDesc  ListLotsParamsSort = "area_desc"
+	ListLotsParamsSortNewest    ListLotsParamsSort = "newest"
+	ListLotsParamsSortPriceAsc  ListLotsParamsSort = "price_asc"
+	ListLotsParamsSortPriceDesc ListLotsParamsSort = "price_desc"
+)
+
+// Defines values for ListProjectsParamsSort.
+const (
+	ListProjectsParamsSortNameAsc   ListProjectsParamsSort = "name_asc"
+	ListProjectsParamsSortNewest    ListProjectsParamsSort = "newest"
+	ListProjectsParamsSortPriceAsc  ListProjectsParamsSort = "price_asc"
+	ListProjectsParamsSortPriceDesc ListProjectsParamsSort = "price_desc"
 )
 
 // Area defines model for Area.
@@ -737,6 +745,12 @@ type ProjectData struct {
 
 	// Tags Теги проекта
 	Tags *[]string `json:"tags,omitempty"`
+
+	// Timeline Project timeline with milestone dates
+	Timeline *ProjectTimeline `json:"timeline,omitempty"`
+
+	// YoutubeUrl YouTube video URL for the project
+	YoutubeUrl *string `json:"youtubeUrl,omitempty"`
 }
 
 // ProjectDataDescription0 defines model for .
@@ -748,6 +762,24 @@ type ProjectDataDescription1 map[string]string
 // ProjectData_Description defines model for ProjectData.Description.
 type ProjectData_Description struct {
 	union json.RawMessage
+}
+
+// ProjectTimeline Project timeline with milestone dates
+type ProjectTimeline struct {
+	// BookingStarted Date when booking started
+	BookingStarted *openapi_types.Date `json:"bookingStarted,omitempty"`
+
+	// ConstructionProgress Date of construction progress milestone
+	ConstructionProgress *openapi_types.Date `json:"constructionProgress,omitempty"`
+
+	// ConstructionStarted Date when construction started
+	ConstructionStarted *openapi_types.Date `json:"constructionStarted,omitempty"`
+
+	// ExpectedCompletion Expected completion date
+	ExpectedCompletion *openapi_types.Date `json:"expectedCompletion,omitempty"`
+
+	// ProjectAnnouncement Date of project announcement
+	ProjectAnnouncement *openapi_types.Date `json:"projectAnnouncement,omitempty"`
 }
 
 // ProjectUpdateRequest defines model for ProjectUpdateRequest.
@@ -845,7 +877,25 @@ type ListLotsParamsSort string
 type ListProjectsParams struct {
 	// Area Фильтр по slug района
 	Area *string `form:"area,omitempty" json:"area,omitempty"`
+
+	// Developer Фильтр по slug застройщика
+	Developer *string `form:"developer,omitempty" json:"developer,omitempty"`
+
+	// Bedrooms Фильтр по количеству спален (минимум)
+	Bedrooms *int `form:"bedrooms,omitempty" json:"bedrooms,omitempty"`
+
+	// PriceMin Минимальная цена
+	PriceMin *float32 `form:"priceMin,omitempty" json:"priceMin,omitempty"`
+
+	// PriceMax Максимальная цена
+	PriceMax *float32 `form:"priceMax,omitempty" json:"priceMax,omitempty"`
+
+	// Sort Сортировка
+	Sort *ListProjectsParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
 }
+
+// ListProjectsParamsSort defines parameters for ListProjects.
+type ListProjectsParamsSort string
 
 // GetProjectParams defines parameters for GetProject.
 type GetProjectParams struct {
@@ -1862,6 +1912,41 @@ func (siw *ServerInterfaceWrapper) ListProjects(c *fiber.Ctx) error {
 	err = runtime.BindQueryParameter("form", true, false, "area", query, &params.Area)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter area: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "developer" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "developer", query, &params.Developer)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter developer: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "bedrooms" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "bedrooms", query, &params.Bedrooms)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter bedrooms: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "priceMin" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "priceMin", query, &params.PriceMin)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter priceMin: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "priceMax" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "priceMax", query, &params.PriceMax)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter priceMax: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", query, &params.Sort)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter sort: %w", err).Error())
 	}
 
 	return siw.Handler.ListProjects(c, params)

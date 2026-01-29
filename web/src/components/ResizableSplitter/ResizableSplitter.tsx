@@ -41,7 +41,6 @@ export default function ResizableSplitter({
       setLeftWidth(initialLeftWidth)
       currentWidthRef.current = initialLeftWidth
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLeftWidth])
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {

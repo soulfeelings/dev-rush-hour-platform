@@ -8,6 +8,7 @@
 import type { ProjectDataDescription } from './projectDataDescription'
 import type { ProjectDataSpecs } from './projectDataSpecs'
 import type { Media } from './media'
+import type { ProjectTimeline } from './projectTimeline'
 
 export interface ProjectData {
   description?: ProjectDataDescription
@@ -20,4 +21,7 @@ export interface ProjectData {
   isFeatured?: boolean
   /** Теги проекта */
   tags?: string[]
+  /** YouTube video URL for the project */
+  youtubeUrl?: string
+  timeline?: ProjectTimeline
 }

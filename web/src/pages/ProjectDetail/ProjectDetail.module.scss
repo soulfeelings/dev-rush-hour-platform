@@ -7,129 +7,73 @@
   padding: $spacing-6;
 }
 
-.header {
-  margin-bottom: $spacing-8;
-}
-
-.backLink {
-  display: inline-block;
-  margin-bottom: $spacing-4;
-  color: $color-text-secondary;
-  text-decoration: none;
-  font-size: $font-size-sm;
-  transition: color $transition-fast;
-
-  &:hover {
-    color: $color-yellow;
-  }
-}
-
-.title {
-  font-size: $font-size-3xl;
-  font-weight: $font-weight-bold;
-  color: $color-text;
-  margin: 0;
-}
-
-.content {
+// Hero Section
+.heroSection {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-8;
+  grid-template-columns: 1fr 280px;
+  gap: $spacing-4;
+  margin-bottom: $spacing-6;
 
   @media (max-width: $breakpoint-md) {
     grid-template-columns: 1fr;
-    display: flex;
-    flex-direction: column;
   }
 }
 
-.imageSection {
-  position: sticky;
-  top: $spacing-6;
-  height: fit-content;
+.mainGallery {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.galleryContainer {
+  position: relative;
+  width: 100%;
+  height: 450px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $color-border;
 
   @media (max-width: $breakpoint-md) {
-    position: static;
-    order: 2;
+    height: 300px;
   }
-}
-
-.mainImage {
-  width: 100%;
-  border-radius: $radius-lg;
-  object-fit: cover;
-  box-shadow: $shadow-md;
 }
 
 .projectImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-.galleryContainer {
-  position: relative;
-  width: 100%;
-  height: 500px;
-  border-radius: $radius-lg;
-  overflow: hidden;
-  box-shadow: $shadow-md;
-  margin-bottom: $spacing-4;
-
-  &:hover {
-    .navButton {
-      opacity: 1;
-    }
-
-    .thumbnailCarousel {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    .imageCounter {
-      transform: translateY(-100px);
-    }
-  }
-}
-
-.mainImageContainer {
-  position: relative;
+.imagePlaceholder {
   width: 100%;
   height: 100%;
-  overflow: hidden;
-
-  &:hover {
-    .navButton {
-      opacity: 1;
-    }
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-secondary;
+  font-size: $font-size-lg;
 }
 
 .navButton {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
   color: white;
   border: none;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  font-size: 32px;
+  font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
   transition: all $transition-fast;
   z-index: 10;
-  padding: 0;
-  line-height: 1;
 
   &:hover {
     background: rgba(0, 0, 0, 0.7);
-    scale: 1.1;
   }
 
   &.prevButton {
@@ -141,68 +85,22 @@
   }
 }
 
-.imageCounter {
-  position: absolute;
-  bottom: $spacing-4;
-  right: $spacing-4;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  padding: $spacing-1 $spacing-3;
-  border-radius: $radius-full;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  backdrop-filter: blur(4px);
-  z-index: 10;
-  transition: transform $transition-normal;
-}
-
-.thumbnailCarousel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+.thumbnailRow {
   display: flex;
-  gap: $spacing-3;
-  overflow-x: auto;
-  padding: $spacing-3;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0.6) 50%,
-    transparent 100%
-  );
-  backdrop-filter: blur(8px);
-  transform: translateY(100%);
-  opacity: 0;
-  transition:
-    transform $transition-normal,
-    opacity $transition-normal;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-
-  &::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: $radius-full;
-  }
+  gap: $spacing-2;
 }
 
 .thumbnailWrapper {
-  flex: 0 0 100px;
-  height: 70px;
+  flex: 0 0 80px;
+  height: 60px;
   border-radius: $radius-md;
   overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
   transition: all $transition-fast;
-  box-shadow: $shadow-sm;
 
   &.activeThumbnail {
     border-color: $color-yellow;
-    transform: scale(1.05);
   }
 
   &:hover {
@@ -216,188 +114,566 @@
   object-fit: cover;
 }
 
-.imagePlaceholder {
-  width: 100%;
-  height: 400px;
-  border-radius: $radius-lg;
-  background: $color-border;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: $color-text-secondary;
-  font-size: $font-size-lg;
-  box-shadow: $shadow-md;
-}
-
-.infoSection {
+// Media Sidebar
+.mediaSidebar {
   display: flex;
   flex-direction: column;
-  gap: $spacing-6;
+  gap: $spacing-4;
 
   @media (max-width: $breakpoint-md) {
-    order: 1;
+    flex-direction: row;
   }
 }
 
-.infoCard {
+.videoPreview {
+  width: 100%;
+  height: 160px;
+
+  @media (max-width: $breakpoint-md) {
+    flex: 1;
+    height: 140px;
+  }
+}
+
+.mapThumbnail {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+
+  @media (max-width: $breakpoint-md) {
+    flex: 1;
+    height: 140px;
+  }
+}
+
+.miniMap {
+  width: 100%;
+  height: 100%;
+}
+
+.mapOverlay {
+  position: absolute;
+  bottom: $spacing-3;
+  right: $spacing-3;
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-yellow;
+  box-shadow: $shadow-md;
+}
+
+// Project Header
+.projectHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-6;
+  flex-wrap: wrap;
+  gap: $spacing-4;
+}
+
+.developerInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+}
+
+.developerLogo {
+  width: 64px;
+  height: 64px;
+  border-radius: $radius-lg;
+  object-fit: contain;
+  background: white;
+  padding: $spacing-2;
+  box-shadow: $shadow-card;
+}
+
+.projectTitle {
+  h1 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $color-text;
+    margin: 0 0 $spacing-1 0;
+  }
+}
+
+.projectLocation {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+.badgesRow {
+  display: flex;
+  gap: $spacing-2;
+  flex-wrap: wrap;
+}
+
+// Info + Timeline Section
+.infoSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-8;
+  margin-bottom: $spacing-8;
+  padding: $spacing-6;
   background: $color-bg-card;
   border-radius: $radius-lg;
-  padding: $spacing-6;
   box-shadow: $shadow-card;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.projectInfo {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.ourPrice,
+.developerPrice {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+.priceLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  min-width: 100px;
+}
+
+.priceDiscount {
+  background: $color-yellow;
+  color: $color-charcoal-black;
+  padding: 2px $spacing-2;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.priceValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text;
+}
+
+.priceValueStrike {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  text-decoration: line-through;
+}
+
+.handoverInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding-top: $spacing-3;
+  border-top: 1px solid $color-border;
+}
+
+.handoverLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.handoverDate {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+}
+
+// Timeline
+.projectTimeline {
+  h3 {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    margin: 0 0 $spacing-4 0;
+    color: $color-text;
+  }
+}
+
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+}
+
+.timelineDot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: $color-yellow;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-charcoal-black;
+  flex-shrink: 0;
+}
+
+.timelineContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timelineLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.timelineDate {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+}
+
+// Description Section
+.descriptionSection {
+  margin-bottom: $spacing-8;
+
+  p {
+    font-size: $font-size-md;
+    color: $color-text-secondary;
+    line-height: $line-height-relaxed;
+    margin: 0;
+
+    &.collapsed {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    &.expanded {
+      display: block;
+    }
+  }
+}
+
+.seeMoreBtn {
+  background: none;
+  border: none;
+  color: $color-yellow;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  padding: $spacing-2 0;
+  text-decoration: underline;
+
+  &:hover {
+    color: $color-yellow-hover;
+  }
+}
+
+// Infrastructure Section
+.infrastructureSection {
+  margin-bottom: $spacing-8;
 
   h2 {
     font-size: $font-size-xl;
     font-weight: $font-weight-semibold;
+    margin: 0 0 $spacing-4 0;
     color: $color-text;
-    margin: 0 0 $spacing-6 0;
   }
 }
 
-.viewApartmentsButton {
-  margin-bottom: $spacing-6;
+// Action Buttons
+.actionButtons {
   display: flex;
-  justify-content: center;
-  gap: $spacing-3;
+  gap: $spacing-4;
+  margin-bottom: $spacing-8;
 
-  button {
-    box-shadow: 0 4px 12px rgba($color-yellow, 0.4);
-    font-weight: $font-weight-semibold;
-    letter-spacing: 0.5px;
-    transition: all $transition-fast;
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba($color-yellow, 0.5);
-    }
-
-    &:active:not(:disabled) {
-      transform: translateY(0);
-    }
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
   }
 }
 
-.infoCardHeader {
+// Apartments Section
+.apartmentsSection {
+  margin-bottom: $spacing-8;
+}
+
+.apartmentsHeader {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: $spacing-6;
-
-  h2 {
-    margin: 0;
-  }
-}
-
-.infoRow {
-  display: flex;
-  justify-content: space-between;
-  padding: $spacing-3 0;
-  border-bottom: 1px solid $color-border;
-
-  &:last-of-type {
-    border-bottom: none;
-  }
-}
-
-.label {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  font-weight: $font-weight-medium;
-}
-
-.value {
-  font-size: $font-size-sm;
-  color: $color-text;
-  font-weight: $font-weight-medium;
-  text-align: right;
-}
-
-.description {
-  margin-top: $spacing-6;
-  padding-top: $spacing-6;
-  border-top: 1px solid $color-border;
-
-  h3 {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-semibold;
-    color: $color-text;
-    margin: 0 0 $spacing-3 0;
-  }
-
-  p {
-    font-size: $font-size-sm;
-    color: $color-text-secondary;
-    line-height: $line-height-relaxed;
-    margin: 0;
-  }
-}
-
-// Content card for Description and Features in imageSection (left column)
-.contentCard {
-  background: $color-bg-card;
-  border-radius: $radius-lg;
-  padding: $spacing-6;
-  box-shadow: $shadow-card;
-  margin-top: $spacing-6;
-  margin-bottom: $spacing-6;
-
-  .description {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-    margin-bottom: $spacing-6;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  :global(.featuresContainer) {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-  }
-}
-
-.mapCard {
-  background: $color-bg-card;
-  border-radius: $radius-lg;
-  padding: $spacing-6;
-  box-shadow: $shadow-card;
-}
-
-.mapHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
   gap: $spacing-4;
   margin-bottom: $spacing-4;
+  flex-wrap: wrap;
+
+  h2 {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    margin: 0;
+    color: $color-text;
+  }
 }
 
-.mapTitle {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
-  margin: 0;
-}
-
-.mapSubtitle {
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  margin: $spacing-1 0 0 0;
-}
-
-.coordinates {
+.apartmentsStats {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
   font-size: $font-size-sm;
   color: $color-text-secondary;
-  white-space: nowrap;
 }
 
-.map {
-  width: 100%;
-  height: 320px;
+.statDivider {
+  color: $color-border;
+}
+
+.viewAllBtn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  padding: $spacing-2 $spacing-4;
+  font-size: $font-size-sm;
+  color: $color-text;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $color-yellow;
+    color: $color-yellow;
+  }
+}
+
+.apartmentsScroll {
+  display: flex;
+  gap: $spacing-4;
+  overflow-x: auto;
+  padding-bottom: $spacing-4;
+  scroll-snap-type: x mandatory;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $color-border;
+    border-radius: $radius-full;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $color-charcoal-grey-30;
+    border-radius: $radius-full;
+
+    &:hover {
+      background: $color-charcoal-grey-50;
+    }
+  }
+}
+
+// Apartment Card
+.apartmentCard {
+  flex: 0 0 320px;
+  background: $color-bg-card;
   border-radius: $radius-lg;
   overflow: hidden;
-  box-shadow: $shadow-md;
+  box-shadow: $shadow-card;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: all $transition-fast;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.apartmentCardImage {
+  position: relative;
+  height: 200px;
+  background: $color-bg;
+}
+
+.apartmentCardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: white;
+}
+
+.apartmentCardPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-secondary;
+}
+
+.apartmentCardTags {
+  position: absolute;
+  top: $spacing-3;
+  left: $spacing-3;
+  display: flex;
+  gap: $spacing-2;
+}
+
+.apartmentTag {
+  background: $color-yellow;
+  color: $color-charcoal-black;
+  padding: 2px $spacing-2;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.favoriteBtn {
+  position: absolute;
+  top: $spacing-3;
+  right: $spacing-3;
+  width: 36px;
+  height: 36px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $color-text-secondary;
+  box-shadow: $shadow-sm;
+  transition: all $transition-fast;
+
+  &:hover {
+    color: $color-error;
+  }
+}
+
+.apartmentCardContent {
+  padding: $spacing-4;
+}
+
+.apartmentCardTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0 0 $spacing-2 0;
+  line-height: $line-height-tight;
+}
+
+.apartmentCardBadges {
+  display: flex;
+  gap: $spacing-2;
+  margin-bottom: $spacing-3;
+}
+
+.buildingBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: $color-charcoal-grey-10;
+  color: $color-text-secondary;
+  padding: 2px $spacing-2;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+}
+
+.roiBadge {
+  background: $color-yellow;
+  color: $color-charcoal-black;
+  padding: 2px $spacing-2;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.apartmentCardPrices {
+  margin-bottom: $spacing-3;
+}
+
+.apartmentOurPrice,
+.apartmentDevPrice {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: 4px;
+}
+
+.discountTag {
+  background: $color-yellow;
+  color: $color-charcoal-black;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+}
+
+.priceAmount {
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+}
+
+.priceAmountStrike {
+  text-decoration: line-through;
+}
+
+.apartmentCardSpecs {
+  display: flex;
+  gap: $spacing-3;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  padding: $spacing-2 0;
+  border-top: 1px solid $color-border;
+  margin-bottom: $spacing-3;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.whatsappBtn {
+  background: #25d366 !important;
+  color: white !important;
+
+  &:hover {
+    background: #128c7e !important;
+  }
+}
+
+// Loading and Error States
+.loading {
+  text-align: center;
+  padding: $spacing-20 0;
+
+  h1 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-medium;
+    color: $color-text-secondary;
+    margin: 0;
+  }
 }
 
 .notFound {
@@ -418,241 +694,12 @@
   }
 }
 
-.loading {
-  text-align: center;
-  padding: $spacing-20 0;
-
-  h1 {
-    font-size: $font-size-2xl;
-    font-weight: $font-weight-medium;
-    color: $color-text-secondary;
-    margin: 0;
-  }
-}
-
-.unitsSection {
-  margin-top: $spacing-12;
-
-  h2 {
-    font-size: $font-size-2xl;
-    font-weight: $font-weight-bold;
-    color: $color-text;
-    margin: 0 0 $spacing-6 0;
-  }
-}
-
-.unitsTable {
-  background: $color-bg-card;
-  border-radius: $radius-lg;
-  padding: $spacing-6;
-  box-shadow: $shadow-card;
-  overflow-x: auto;
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-
-    th,
-    td {
-      padding: $spacing-4 $spacing-3;
-      text-align: left;
-      font-size: $font-size-sm;
-      border-bottom: 1px solid $color-border;
-    }
-
-    th {
-      font-weight: $font-weight-semibold;
-      color: $color-text;
-      background: $color-border;
-    }
-
-    td {
-      color: $color-text-secondary;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-  }
-}
-
-.unitStatus {
-  display: inline-block;
-  padding: $spacing-1 $spacing-2;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
+.backLink {
+  color: $color-yellow;
+  text-decoration: none;
   font-weight: $font-weight-medium;
-  text-transform: uppercase;
-
-  &.unitStatusavailable {
-    background: color.change($color-success, $alpha: 0.1);
-    color: $color-success;
-  }
-
-  &.unitStatusreserved {
-    background: color.change($color-warning, $alpha: 0.1);
-    color: $color-warning;
-  }
-
-  &.unitStatussold {
-    background: color.change($color-error, $alpha: 0.1);
-    color: $color-error;
-  }
-}
-
-// Секция с карточками лотов (в стиле marker-popup)
-.lotsSection {
-  margin-top: $spacing-6;
-}
-
-.lotsTitle {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
-  margin: 0 0 $spacing-4 0;
-}
-
-.lotsList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-3;
-}
-
-.lotCard {
-  display: flex;
-  gap: $spacing-2;
-  padding: 0;
-  min-width: 0;
-  background: $color-bg-card;
-  border-radius: $radius-md;
-  overflow: hidden;
-  height: 240px;
-  box-shadow: $shadow-card;
-  transition:
-    transform $transition-fast,
-    box-shadow $transition-fast;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-lg;
+    text-decoration: underline;
   }
-
-  &[style*='cursor: pointer'] {
-    cursor: pointer;
-  }
-}
-
-.lotCardImage {
-  flex: 0 0 240px;
-  width: 75%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-
-  @media (max-width: $breakpoint-md) {
-    flex: 0 0 70%;
-    width: 70%;
-  }
-
-  @media (max-width: $breakpoint-sm) {
-    flex: 0 0 65%;
-    width: 65%;
-  }
-}
-
-.lotCardImagePlaceholder {
-  width: 100%;
-  height: 100%;
-  background: $color-border;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: $color-text-secondary;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-}
-
-.lotCardImageImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-
-  .lotCard:hover & {
-    transform: scale(1.05); // Легкий эффект при наведении
-  }
-}
-
-.lotCardContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  padding: $spacing-4;
-}
-
-.lotCardPrice {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
-  margin: 0 0 $spacing-1 0;
-  line-height: $line-height-tight;
-}
-
-.lotCardDetails {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap; // Запрещаем перенос на новую строку
-  gap: $spacing-1;
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  line-height: 1; // Убираем влияние высоты строки
-  overflow: hidden;
-}
-
-.lotCardDetail {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: $font-weight-medium;
-  white-space: nowrap; // Текст внутри (например, "160 sqm") не должен рваться
-  flex-shrink: 0;
-
-  svg {
-    display: block; // Убираем дефолтные отступы инлайновых элементов
-    flex-shrink: 0;
-    color: $color-text-secondary;
-  }
-}
-
-.lotCardSeparator {
-  color: $color-text-secondary;
-  margin: 0 2px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  height: 100%;
-}
-
-.lotCardInfo {
-  margin-top: $spacing-2;
-  padding-top: $spacing-2;
-  border-top: 1px solid $color-border;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-1;
-}
-
-.lotCardDeveloper {
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  color: $color-text;
-  line-height: $line-height-tight;
-}
-
-.lotCardLocation {
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  line-height: $line-height-tight;
 }

@@ -1,0 +1,82 @@
+@use '../../styles' as *;
+
+.preview,
+.player {
+  position: relative;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $color-charcoal-black;
+
+  &.small {
+    width: 240px;
+    height: 135px;
+  }
+
+  &.medium {
+    width: 320px;
+    height: 180px;
+  }
+
+  &.large {
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; // 16:9 aspect ratio
+  }
+}
+
+.preview {
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity $transition-fast;
+  }
+
+  &:hover img {
+    opacity: 0.9;
+  }
+
+  &.large img {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all $transition-fast;
+  pointer-events: none;
+
+  .preview:hover & {
+    background: rgba(255, 0, 0, 0.9);
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+.player {
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  &.large iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}

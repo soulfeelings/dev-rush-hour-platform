@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"log/slog"
+	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
 	"rush-hour-platform/backend/internal/services"
@@ -22,15 +23,42 @@ func NewProjectsHandler(projectsService *services.ProjectsService) *ProjectsHand
 }
 
 func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjectsParams) error {
-	var areaSlug *string
-	if params.Area != nil {
-		areaSlug = params.Area
+	// Build filters from params
+	filters := domain.ProjectFilters{
+		AreaSlug:      params.Area,
+		DeveloperSlug: params.Developer,
+		Bedrooms:      params.Bedrooms,
 	}
 
-	projects, err := h.projectsService.List(areaSlug)
+	// Convert float32 to float64 for price filters
+	if params.PriceMin != nil {
+		priceMin := float64(*params.PriceMin)
+		filters.PriceMin = &priceMin
+	}
+	if params.PriceMax != nil {
+		priceMax := float64(*params.PriceMax)
+		filters.PriceMax = &priceMax
+	}
+
+	// Parse sort parameter
+	sort := domain.ProjectSortNameAsc // default
+	if params.Sort != nil {
+		switch *params.Sort {
+		case generated.ListProjectsParamsSortPriceAsc:
+			sort = domain.ProjectSortPriceAsc
+		case generated.ListProjectsParamsSortPriceDesc:
+			sort = domain.ProjectSortPriceDesc
+		case generated.ListProjectsParamsSortNewest:
+			sort = domain.ProjectSortNewest
+		case generated.ListProjectsParamsSortNameAsc:
+			sort = domain.ProjectSortNameAsc
+		}
+	}
+
+	projects, err := h.projectsService.List(filters, sort)
 	if err != nil {
 		h.logger.Error("list_projects_failed",
-			"area_slug", areaSlug,
+			"filters", filters,
 			"error", err.Error(),
 		)
 		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{

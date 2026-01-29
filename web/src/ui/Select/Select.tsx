@@ -145,7 +145,6 @@ export function Select({
         }, 100)
       }
     } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearchQuery('')
     }
   }, [isOpen, searchable, filteredOptions.length])

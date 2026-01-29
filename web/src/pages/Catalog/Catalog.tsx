@@ -16,6 +16,22 @@ import type { Lot } from '../../api'
 import ProjectsView from './components/ProjectsView'
 import LotsView from './components/LotsView'
 import { LotType } from '../../api/generated/schemas/lotType'
+import { ListProjectsSort } from '../../api/generated/schemas/listProjectsSort'
+import { ListLotsSort } from '../../api/generated/schemas/listLotsSort'
+import type { ListProjectsParams } from '../../api/generated/schemas/listProjectsParams'
+import type { ListLotsParams } from '../../api/generated/schemas/listLotsParams'
+
+// Sort option type - 'default' or API sort values
+type SortValue = 'default' | ListProjectsSort | ListLotsSort
+
+// Type guards for sort values
+const isProjectsSort = (value: SortValue): value is ListProjectsSort => {
+  return Object.values(ListProjectsSort).includes(value as ListProjectsSort)
+}
+
+const isLotsSort = (value: SortValue): value is ListLotsSort => {
+  return Object.values(ListLotsSort).includes(value as ListLotsSort)
+}
 
 // Константы для размеров и брейкпоинтов
 const GRID_CONSTANTS = {
@@ -55,53 +71,53 @@ const loadSplitterPosition = (): number => {
   }
 }
 
-const sortOptions = [
+// Sort options using API constants for type safety
+const sortOptions: Array<{ value: SortValue; label: string }> = [
   { value: 'default', label: 'Default' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' },
-  { value: 'date-asc', label: 'Date: Newest First' },
-  { value: 'date-desc', label: 'Date: Oldest First' },
+  { value: ListProjectsSort.price_asc, label: 'Price: Low to High' },
+  { value: ListProjectsSort.price_desc, label: 'Price: High to Low' },
+  { value: ListProjectsSort.newest, label: 'Date: Newest First' },
 ]
 
 export default function Catalog() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { filters } = useFilters()
+  const { filters, updateFilter } = useFilters()
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
-  const [sortValue, setSortValue] = useState('default')
   const [panelWidth, setPanelWidth] = useState(loadSplitterPosition())
   const [screenWidth, setScreenWidth] = useState(window.innerWidth)
   const mapRef = useRef<PropertyMapRef | null>(null)
 
+  // Get sort value from filters context (synced with URL)
+  const sortValue = (filters.sort || 'default') as SortValue
+
   // Определяем viewMode из URL
   const viewMode: CatalogViewMode = location.pathname.includes('/apartments') ? 'lots' : 'projects'
 
-  // Подготавливаем параметры для API запросов
-  const projectsParams = useMemo(() => {
-    const params: { area?: string } = {}
-    if (filters.area) {
-      params.area = filters.area
+  // Helper to convert priceRange to min/max values
+  const getPriceRange = (priceRange: string): { min?: number; max?: number } => {
+    switch (priceRange) {
+      case '0-1m':
+        return { min: 0, max: 1000000 }
+      case '1-2m':
+        return { min: 1000000, max: 2000000 }
+      case '2-5m':
+        return { min: 2000000, max: 5000000 }
+      case '5m+':
+        return { min: 5000000 }
+      default:
+        return {}
     }
-    return params
-  }, [filters.area])
+  }
 
-  const lotsParams = useMemo(() => {
-    const params: {
-      area?: string
-      project?: string
-      type?: LotType
-      bedrooms?: number
-      priceMin?: number
-      priceMax?: number
-    } = {}
+  // Подготавливаем параметры для API запросов
+  const projectsParams = useMemo((): ListProjectsParams => {
+    const params: ListProjectsParams = {}
+
     if (filters.area) params.area = filters.area
-    if (filters.project) params.project = filters.project
-    if (filters.propertyType !== 'all') {
-      // Map propertyType to API type (exclude 'duplex' as it's not in API enum)
-      if (filters.propertyType === 'apartment') {
-        params.type = LotType.apartment
-      }
-    }
+    if (filters.developer) params.developer = filters.developer
+
+    // Handle bedrooms filter
     if (filters.bedrooms !== 'all') {
       const bedsNum =
         filters.bedrooms === 'studio'
@@ -111,6 +127,15 @@ export default function Catalog() {
             : parseInt(filters.bedrooms)
       if (!isNaN(bedsNum)) params.bedrooms = bedsNum
     }
+
+    // Handle price range preset
+    if (filters.priceRange !== 'all') {
+      const { min, max } = getPriceRange(filters.priceRange)
+      if (min !== undefined) params.priceMin = min
+      if (max !== undefined) params.priceMax = max
+    }
+
+    // Handle custom min/max prices (override preset if specified)
     if (filters.minPrice) {
       const minPriceNum = parseFloat(filters.minPrice)
       if (!isNaN(minPriceNum)) params.priceMin = minPriceNum
@@ -119,8 +144,72 @@ export default function Catalog() {
       const maxPriceNum = parseFloat(filters.maxPrice)
       if (!isNaN(maxPriceNum)) params.priceMax = maxPriceNum
     }
+
+    // Handle sorting - only set if not default
+    if (sortValue !== 'default' && isProjectsSort(sortValue)) {
+      params.sort = sortValue
+    }
+
     return params
-  }, [filters])
+  }, [
+    filters.area,
+    filters.developer,
+    filters.bedrooms,
+    filters.priceRange,
+    filters.minPrice,
+    filters.maxPrice,
+    sortValue,
+  ])
+
+  const lotsParams = useMemo((): ListLotsParams => {
+    const params: ListLotsParams = {}
+
+    if (filters.area) params.area = filters.area
+    if (filters.project) params.project = filters.project
+
+    // Handle property type filter
+    if (filters.propertyType !== 'all') {
+      // Map propertyType to API type (only 'apartment' is supported in API)
+      if (filters.propertyType === 'apartment') {
+        params.type = LotType.apartment
+      }
+    }
+
+    // Handle bedrooms filter
+    if (filters.bedrooms !== 'all') {
+      const bedsNum =
+        filters.bedrooms === 'studio'
+          ? 0
+          : filters.bedrooms === '4+'
+            ? 4
+            : parseInt(filters.bedrooms)
+      if (!isNaN(bedsNum)) params.bedrooms = bedsNum
+    }
+
+    // Handle price range preset
+    if (filters.priceRange !== 'all') {
+      const { min, max } = getPriceRange(filters.priceRange)
+      if (min !== undefined) params.priceMin = min
+      if (max !== undefined) params.priceMax = max
+    }
+
+    // Handle custom min/max prices (override preset if specified)
+    if (filters.minPrice) {
+      const minPriceNum = parseFloat(filters.minPrice)
+      if (!isNaN(minPriceNum)) params.priceMin = minPriceNum
+    }
+    if (filters.maxPrice) {
+      const maxPriceNum = parseFloat(filters.maxPrice)
+      if (!isNaN(maxPriceNum)) params.priceMax = maxPriceNum
+    }
+
+    // Handle sorting - only set if it's a valid lots sort value
+    if (sortValue !== 'default' && isLotsSort(sortValue)) {
+      params.sort = sortValue
+    }
+
+    return params
+  }, [filters, sortValue])
 
   // Загружаем проекты только если открыта вкладка проектов
   const {
@@ -300,7 +389,7 @@ export default function Catalog() {
             <Select
               options={sortOptions}
               value={sortValue}
-              onChange={setSortValue}
+              onChange={value => updateFilter('sort', value)}
               placeholder="Sort"
               triggerSize="xs"
             />

@@ -102,6 +102,33 @@ paths:
           schema:
             type: string
           description: Фильтр по slug района
+        - name: developer
+          in: query
+          schema:
+            type: string
+          description: Фильтр по slug застройщика
+        - name: bedrooms
+          in: query
+          schema:
+            type: integer
+          description: Фильтр по количеству спален (минимум)
+        - name: priceMin
+          in: query
+          schema:
+            type: number
+          description: Минимальная цена
+        - name: priceMax
+          in: query
+          schema:
+            type: number
+          description: Максимальная цена
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [price_asc, price_desc, newest, name_asc]
+            default: name_asc
+          description: Сортировка
       responses:
         "200":
           description: Список проектов
@@ -1393,6 +1420,36 @@ components:
           items:
             type: string
           description: Теги проекта
+        youtubeUrl:
+          type: string
+          description: YouTube video URL for the project
+        timeline:
+          $ref: "#/components/schemas/ProjectTimeline"
+
+    ProjectTimeline:
+      type: object
+      description: Project timeline with milestone dates
+      properties:
+        projectAnnouncement:
+          type: string
+          format: date
+          description: Date of project announcement
+        bookingStarted:
+          type: string
+          format: date
+          description: Date when booking started
+        constructionStarted:
+          type: string
+          format: date
+          description: Date when construction started
+        constructionProgress:
+          type: string
+          format: date
+          description: Date of construction progress milestone
+        expectedCompletion:
+          type: string
+          format: date
+          description: Expected completion date
 
     Media:
       type: object

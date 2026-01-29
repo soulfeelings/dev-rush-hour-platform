@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"rush-hour-platform/backend/internal/domain"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -130,9 +131,10 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 	return &project, nil
 }
 
-func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
+func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSort) ([]domain.Project, error) {
 	r.logger.Info("project_repo_list_started",
-		"area_slug", areaSlug,
+		"filters", filters,
+		"sort", sort,
 	)
 
 	query := `
@@ -145,22 +147,56 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 	`
 	args := []interface{}{}
 	argPos := 1
+	whereClauses := []string{"p.status = 'active'", "p.deleted_at IS NULL"}
 
-	if areaSlug != nil {
-		query += ` WHERE a.slug = $` + fmt.Sprintf("%d", argPos)
-		args = append(args, *areaSlug)
+	if filters.AreaSlug != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("a.slug = $%d", argPos))
+		args = append(args, *filters.AreaSlug)
 		argPos++
-		query += ` AND p.status = 'active' AND p.deleted_at IS NULL`
-	} else {
-		query += ` WHERE p.status = 'active' AND p.deleted_at IS NULL`
 	}
 
-	query += ` ORDER BY p.name`
+	if filters.DeveloperSlug != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("d.slug = $%d", argPos))
+		args = append(args, *filters.DeveloperSlug)
+		argPos++
+	}
+
+	if filters.Bedrooms != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("p.data->'specs'->>'bedrooms' IS NOT NULL AND p.data->'specs'->>'bedrooms' != '' AND (p.data->'specs'->>'bedrooms')::int >= $%d", argPos))
+		args = append(args, *filters.Bedrooms)
+		argPos++
+	}
+
+	if filters.PriceMin != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("p.data->'specs'->>'priceFrom' IS NOT NULL AND p.data->'specs'->>'priceFrom' != '' AND (p.data->'specs'->>'priceFrom')::numeric >= $%d", argPos))
+		args = append(args, *filters.PriceMin)
+		argPos++
+	}
+
+	if filters.PriceMax != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("p.data->'specs'->>'priceFrom' IS NOT NULL AND p.data->'specs'->>'priceFrom' != '' AND (p.data->'specs'->>'priceFrom')::numeric <= $%d", argPos))
+		args = append(args, *filters.PriceMax)
+		argPos++
+	}
+
+	query += " WHERE " + strings.Join(whereClauses, " AND ")
+
+	// Apply sorting
+	switch sort {
+	case domain.ProjectSortPriceAsc:
+		query += ` ORDER BY (p.data->'specs'->>'priceFrom')::numeric ASC NULLS LAST`
+	case domain.ProjectSortPriceDesc:
+		query += ` ORDER BY (p.data->'specs'->>'priceFrom')::numeric DESC NULLS LAST`
+	case domain.ProjectSortNewest:
+		query += ` ORDER BY p.created_at DESC`
+	default:
+		query += ` ORDER BY p.name`
+	}
 
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		r.logger.Error("project_repo_list_query_failed",
-			"area_slug", areaSlug,
+			"filters", filters,
 			"error", err.Error(),
 		)
 		return nil, err
@@ -246,14 +282,14 @@ func (r *ProjectRepo) List(areaSlug *string) ([]domain.Project, error) {
 	err = rows.Err()
 	if err != nil {
 		r.logger.Error("project_repo_list_rows_error",
-			"area_slug", areaSlug,
+			"filters", filters,
 			"error", err.Error(),
 		)
 		return nil, err
 	}
 
 	r.logger.Info("project_repo_list_completed",
-		"area_slug", areaSlug,
+		"filters", filters,
 		"count", len(projects),
 	)
 
