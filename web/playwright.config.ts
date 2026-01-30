@@ -1,6 +1,5 @@
 import { defineConfig } from '@playwright/test'
 
-const apiBaseURL = process.env.API_BASE_URL ?? 'http://localhost:8080/api'
 const webBaseURL = process.env.WEB_BASE_URL ?? 'http://localhost:5173'
 
 export default defineConfig({
@@ -28,7 +27,7 @@ export default defineConfig({
       name: 'api',
       testDir: './tests/api',
       use: {
-        baseURL: apiBaseURL,
+        baseURL: webBaseURL,
       },
     },
     {

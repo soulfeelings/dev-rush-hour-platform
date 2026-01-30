@@ -11,7 +11,7 @@ test('Авторизация в админке', async ({ page }) => {
     await expect(page).toHaveURL(/\/admin/);
   });
 
-  await test.step('Ввести логин и пароль и нажать Login', async () => {
+  await test.step('Ввести логин и пароль, и нажать Login', async () => {
     const username = page.getByPlaceholder('Enter username');
     const password = page.getByPlaceholder('Enter password');
 
