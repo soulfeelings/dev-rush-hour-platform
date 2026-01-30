@@ -14,6 +14,8 @@ import {
   type Area,
   type City,
 } from '../../api'
+import type { Badge } from '../../api/generated/schemas/badge'
+import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreateRequest'
 import { Toast } from '../../ui'
 import { AuthForm } from './components/AuthForm'
 import { Sidebar } from './components/Sidebar'
@@ -26,6 +28,8 @@ import { LotsTable } from './components/LotsTable'
 import { AreasTable } from './components/AreasTable'
 import { CitiesTable } from './components/CitiesTable'
 import { CityForm } from './components/CityForm'
+import { BadgesTable } from './components/BadgesTable'
+import { BadgeForm } from './components/BadgeForm'
 import { ADMIN_ROUTES, ADMIN_ROUTE_SEGMENTS, ADMIN_API_ENDPOINTS } from './constants'
 
 const {
@@ -40,6 +44,8 @@ const {
   useAdminUpdateProject,
   useAdminUpdateLot,
   useAdminUpdateCity,
+  useAdminCreateBadge,
+  useAdminUpdateBadge,
 } = AdminApi
 import styles from './Admin.module.scss'
 
@@ -53,10 +59,10 @@ export default function Admin() {
   const [formKey, setFormKey] = useState(0)
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false)
   const [rightSidebarForm, setRightSidebarForm] = useState<
-    'developer' | 'project' | 'lot' | 'city' | null
+    'developer' | 'project' | 'lot' | 'city' | 'badge' | null
   >(null)
   const [editingEntity, setEditingEntity] = useState<
-    Project | LotListItem | Developer | Area | City | null
+    Project | LotListItem | Developer | Area | City | Badge | null
   >(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -202,15 +208,49 @@ export default function Admin() {
     },
   })
 
+  const createBadgeMutation = useAdminCreateBadge({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.BADGES] })
+        setSuccess('Badge created successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to create badge')
+      },
+    },
+  })
+
+  const updateBadgeMutation = useAdminUpdateBadge({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.BADGES] })
+        setSuccess('Badge updated successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to update badge')
+      },
+    },
+  })
+
   const loading =
     createDeveloperMutation.isPending ||
     createProjectMutation.isPending ||
     createLotMutation.isPending ||
     createCityMutation.isPending ||
+    createBadgeMutation.isPending ||
     updateDeveloperMutation.isPending ||
     updateProjectMutation.isPending ||
     updateLotMutation.isPending ||
-    updateCityMutation.isPending
+    updateCityMutation.isPending ||
+    updateBadgeMutation.isPending
 
   const handleAuth = (username: string, password: string) => {
     setError(null)
@@ -235,29 +275,38 @@ export default function Admin() {
     navigate(ADMIN_ROUTES.PROJECTS)
   }
 
-  const getActiveTab = (): 'projects-list' | 'lots-list' | 'areas-list' | 'cities-list' => {
+  const getActiveTab = ():
+    | 'projects-list'
+    | 'lots-list'
+    | 'areas-list'
+    | 'cities-list'
+    | 'badges-list' => {
     const path = params['*'] || ADMIN_ROUTE_SEGMENTS.PROJECTS
     if (path === ADMIN_ROUTE_SEGMENTS.LOTS) return 'lots-list'
     if (path === ADMIN_ROUTE_SEGMENTS.AREAS) return 'areas-list'
     if (path === ADMIN_ROUTE_SEGMENTS.CITIES) return 'cities-list'
+    if (path === ADMIN_ROUTE_SEGMENTS.BADGES) return 'badges-list'
     return 'projects-list'
   }
 
   const activeTab = getActiveTab()
 
-  const handleTabChange = (tab: 'projects-list' | 'lots-list' | 'areas-list' | 'cities-list') => {
+  const handleTabChange = (
+    tab: 'projects-list' | 'lots-list' | 'areas-list' | 'cities-list' | 'badges-list'
+  ) => {
     const pathMap: Record<typeof tab, string> = {
       'projects-list': ADMIN_ROUTE_SEGMENTS.PROJECTS,
       'lots-list': ADMIN_ROUTE_SEGMENTS.LOTS,
       'areas-list': ADMIN_ROUTE_SEGMENTS.AREAS,
       'cities-list': ADMIN_ROUTE_SEGMENTS.CITIES,
+      'badges-list': ADMIN_ROUTE_SEGMENTS.BADGES,
     }
     navigate(`${ADMIN_ROUTES.BASE}/${pathMap[tab]}`)
     setRightSidebarOpen(false)
     setRightSidebarForm(null)
   }
 
-  const handleNewClick = (formType: 'developer' | 'project' | 'lot' | 'city') => {
+  const handleNewClick = (formType: 'developer' | 'project' | 'lot' | 'city' | 'badge') => {
     setEditingEntity(null)
     setRightSidebarForm(formType)
     setRightSidebarOpen(true)
@@ -266,8 +315,8 @@ export default function Admin() {
   }
 
   const handleEditClick = (
-    entity: Project | LotListItem | Developer | Area | City,
-    formType: 'developer' | 'project' | 'lot' | 'city'
+    entity: Project | LotListItem | Developer | Area | City | Badge,
+    formType: 'developer' | 'project' | 'lot' | 'city' | 'badge'
   ) => {
     setEditingEntity(entity)
     setRightSidebarForm(formType)
@@ -323,6 +372,16 @@ export default function Admin() {
     }
   }
 
+  const handleBadgeSubmit = (payload: BadgeCreateRequest) => {
+    setError(null)
+    setSuccess(null)
+    if (editingEntity && 'id' in editingEntity && editingEntity.id) {
+      updateBadgeMutation.mutate({ id: editingEntity.id, data: payload })
+    } else {
+      createBadgeMutation.mutate({ data: payload })
+    }
+  }
+
   if (!isAuthenticated) {
     return (
       <div className={styles.admin}>
@@ -339,6 +398,7 @@ export default function Admin() {
     if (rightSidebarForm === 'project') return isEditMode ? 'Edit Project' : 'Create Project'
     if (rightSidebarForm === 'lot') return isEditMode ? 'Edit Lot' : 'Create Lot'
     if (rightSidebarForm === 'city') return isEditMode ? 'Edit City' : 'Create City'
+    if (rightSidebarForm === 'badge') return isEditMode ? 'Edit Badge' : 'Create Badge'
     return ''
   }
 
@@ -394,6 +454,15 @@ export default function Admin() {
               />
             }
           />
+          <Route
+            path={ADMIN_ROUTE_SEGMENTS.BADGES}
+            element={
+              <BadgesTable
+                onNewClick={() => handleNewClick('badge')}
+                onEditClick={badge => handleEditClick(badge, 'badge')}
+              />
+            }
+          />
           <Route path="*" element={<Navigate to={ADMIN_ROUTES.PROJECTS} replace />} />
         </Routes>
       </div>
@@ -445,6 +514,15 @@ export default function Admin() {
             onSubmit={handleCitySubmit}
             loading={loading}
             initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as City) : null}
+            isEditMode={isEditMode}
+          />
+        )}
+        {rightSidebarForm === 'badge' && (
+          <BadgeForm
+            key={formKey}
+            onSubmit={handleBadgeSubmit}
+            loading={loading}
+            initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as Badge) : null}
             isEditMode={isEditMode}
           />
         )}

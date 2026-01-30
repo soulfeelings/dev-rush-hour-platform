@@ -1,8 +1,34 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { MemoryRouter } from 'react-router-dom'
-import { Star, Flame, Clock } from 'lucide-react'
-import { ProjectCard, type CardBadge } from './ProjectCard'
-import type { Property } from '../types/property'
+import { ProjectCard } from './ProjectCard'
+import type { Property, PropertyBadge } from '../types/property'
+
+const demoBadges: PropertyBadge[] = [
+  {
+    id: '1',
+    slug: 'recommended',
+    name: 'Recommended',
+    backgroundColor: '#F5A623',
+    textColor: 'white',
+    icon: 'sparkles',
+  },
+  {
+    id: '2',
+    slug: 'hot',
+    name: 'Hot',
+    backgroundColor: '#E53935',
+    textColor: 'white',
+    icon: 'gift',
+  },
+  {
+    id: '3',
+    slug: 'soon',
+    name: 'Soon',
+    backgroundColor: '#4A4A4A',
+    textColor: 'white',
+    icon: 'key',
+  },
+]
 
 const mockProperty: Property = {
   id: '1',
@@ -23,13 +49,8 @@ const mockProperty: Property = {
   sale: 'sale',
   status: 'active',
   description: 'Premium waterfront living with stunning marina views.',
+  badges: demoBadges,
 }
-
-const demoBadges: CardBadge[] = [
-  { text: 'Recommended', backgroundColor: '#F5A623', icon: <Star size={16} /> },
-  { text: 'Hot', backgroundColor: '#E53935', icon: <Flame size={16} /> },
-  { text: 'Soon', backgroundColor: '#4A4A4A', icon: <Clock size={16} /> },
-]
 
 const meta: Meta<typeof ProjectCard> = {
   title: 'Components/ProjectCard',
@@ -55,13 +76,15 @@ type Story = StoryObj<typeof ProjectCard>
 export const Default: Story = {
   args: {
     property: mockProperty,
-    badges: demoBadges,
   },
 }
 
 export const WithoutBadges: Story = {
   args: {
-    property: mockProperty,
+    property: {
+      ...mockProperty,
+      badges: [],
+    },
   },
 }
 
@@ -71,6 +94,5 @@ export const WithoutLogo: Story = {
       ...mockProperty,
       logoUrl: undefined,
     },
-    badges: demoBadges,
   },
 }

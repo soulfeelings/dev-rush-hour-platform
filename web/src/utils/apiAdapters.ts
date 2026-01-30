@@ -1,4 +1,4 @@
-import type { Property } from '../types/property'
+import type { Property, PriceByType, PropertyBadge } from '../types/property'
 
 // Тип для API проекта (фактическая структура из backend)
 interface ApiProject {
@@ -39,6 +39,14 @@ interface ApiProject {
     name?: string
     city?: string
   }
+  badges?: Array<{
+    id?: string
+    slug?: string
+    name?: string
+    backgroundColor?: string
+    textColor?: string
+    icon?: string
+  }>
   createdAt?: string
   updatedAt?: string
 }
@@ -66,6 +74,12 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
   const bedrooms = (specs?.bedrooms as string[]) ?? ['Ст']
   const completionDate = (specs?.completionDate as string) ?? '2025-01-01'
 
+  // Новые поля для карточки
+  const discount = (specs?.discount as number) ?? undefined
+  const roi = (specs?.roi as number) ?? undefined
+  const paymentPlan = (specs?.paymentPlan as string) ?? undefined
+  const pricesByType = (specs?.pricesByType as PriceByType[]) ?? undefined
+
   // Получаем изображение
   const image =
     media?.cover?.url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
@@ -84,6 +98,18 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
   const isRecommended = apiProject.data?.isRecommended ?? false
   const isFeatured = apiProject.data?.isFeatured ?? false
   const tags = apiProject.data?.tags ?? []
+
+  // Transform badges
+  const badges: PropertyBadge[] = (apiProject.badges ?? [])
+    .filter(b => b.id && b.name)
+    .map(b => ({
+      id: b.id!,
+      slug: b.slug ?? '',
+      name: b.name!,
+      backgroundColor: b.backgroundColor ?? '#000000',
+      textColor: b.textColor ?? '#FFFFFF',
+      icon: b.icon,
+    }))
 
   return {
     id,
@@ -107,6 +133,12 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
     isRecommended,
     isFeatured,
     tags,
+    // Новые поля для карточки
+    discount,
+    roi,
+    paymentPlan,
+    pricesByType,
+    badges: badges.length > 0 ? badges : undefined,
   }
 }
 

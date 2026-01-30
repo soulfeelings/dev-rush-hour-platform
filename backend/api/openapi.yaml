@@ -102,6 +102,33 @@ paths:
           schema:
             type: string
           description: Фильтр по slug района
+        - name: developer
+          in: query
+          schema:
+            type: string
+          description: Фильтр по slug застройщика
+        - name: bedrooms
+          in: query
+          schema:
+            type: integer
+          description: Фильтр по количеству спален (минимум)
+        - name: priceMin
+          in: query
+          schema:
+            type: number
+          description: Минимальная цена
+        - name: priceMax
+          in: query
+          schema:
+            type: number
+          description: Максимальная цена
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [price_asc, price_desc, newest, name_asc]
+            default: name_asc
+          description: Сортировка
       responses:
         "200":
           description: Список проектов
@@ -995,6 +1022,141 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
 
+  /admin/badges:
+    get:
+      operationId: adminListBadges
+      summary: Получить список бейджей (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список бейджей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Badge"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: adminCreateBadge
+      summary: Создать бейдж (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BadgeCreateRequest"
+      responses:
+        "201":
+          description: Бейдж создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Badge"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/badges/{id}:
+    get:
+      operationId: adminGetBadge
+      summary: Получить бейдж по ID (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Бейдж найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Badge"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      operationId: adminSoftDeleteBadge
+      summary: Мягкое удаление бейджа (установка deleted_at)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Бейдж помечен как удаленный
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      operationId: adminUpdateBadge
+      summary: Обновить бейдж (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BadgeUpdateRequest"
+      responses:
+        "200":
+          description: Бейдж обновлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Badge"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
   /admin/leads/{id}:
     get:
       operationId: adminGetLead
@@ -1224,6 +1386,11 @@ components:
           items:
             $ref: "#/components/schemas/Lot"
           description: Первые N лотов проекта (если запрошено через includeLots)
+        badges:
+          type: array
+          items:
+            $ref: "#/components/schemas/Badge"
+          description: Бейджи проекта
 
     ProjectData:
       type: object
@@ -1253,6 +1420,36 @@ components:
           items:
             type: string
           description: Теги проекта
+        youtubeUrl:
+          type: string
+          description: YouTube video URL for the project
+        timeline:
+          $ref: "#/components/schemas/ProjectTimeline"
+
+    ProjectTimeline:
+      type: object
+      description: Project timeline with milestone dates
+      properties:
+        projectAnnouncement:
+          type: string
+          format: date
+          description: Date of project announcement
+        bookingStarted:
+          type: string
+          format: date
+          description: Date when booking started
+        constructionStarted:
+          type: string
+          format: date
+          description: Date when construction started
+        constructionProgress:
+          type: string
+          format: date
+          description: Date of construction progress milestone
+        expectedCompletion:
+          type: string
+          format: date
+          description: Expected completion date
 
     Media:
       type: object
@@ -1648,6 +1845,83 @@ components:
     CityStatus:
       type: string
       enum: [active, inactive]
+
+    Badge:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        backgroundColor:
+          type: string
+          description: Hex color code for background (e.g. "#25D366")
+        textColor:
+          type: string
+          description: Hex color code for text (e.g. "#FFFFFF")
+        icon:
+          type: string
+          description: Icon name or URL
+        status:
+          $ref: "#/components/schemas/BadgeStatus"
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    BadgeStatus:
+      type: string
+      enum: [active, inactive]
+
+    BadgeCreateRequest:
+      type: object
+      required:
+        - slug
+        - name
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        backgroundColor:
+          type: string
+          default: "#000000"
+        textColor:
+          type: string
+          default: "#FFFFFF"
+        icon:
+          type: string
+        status:
+          $ref: "#/components/schemas/BadgeStatus"
+          default: active
+        sortOrder:
+          type: integer
+          default: 0
+
+    BadgeUpdateRequest:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        backgroundColor:
+          type: string
+        textColor:
+          type: string
+        icon:
+          type: string
+        status:
+          $ref: "#/components/schemas/BadgeStatus"
+        sortOrder:
+          type: integer
 
     CityCreateRequest:
       type: object

@@ -21,7 +21,6 @@ export default function ProjectsView({
   error,
 }: ProjectsViewProps) {
   const activeProperties = properties.filter(p => p.status === 'active')
-  const regularProperties = activeProperties.filter(p => !p.isFeatured)
 
   if (isLoading) {
     return (
@@ -54,7 +53,7 @@ export default function ProjectsView({
         gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
       }}
     >
-      {regularProperties.map(property => (
+      {activeProperties.map(property => (
         <ProjectCard key={property.id} property={property} />
       ))}
     </div>

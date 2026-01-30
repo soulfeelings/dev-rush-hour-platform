@@ -52,7 +52,6 @@ export function PriceSelect({
     setIsOpen(false)
   }
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setLocalMinPrice(minPrice)
     setLocalMaxPrice(maxPrice)

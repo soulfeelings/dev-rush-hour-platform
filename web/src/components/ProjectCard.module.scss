@@ -27,6 +27,7 @@
     .additionalInfo {
       max-height: 500px;
       opacity: 1;
+      padding: $spacing-3 $spacing-4;
     }
   }
 }
@@ -34,15 +35,15 @@
 .cardInner {
   display: flex;
   flex-direction: column;
-  aspect-ratio: 1 / 1.57;
+  aspect-ratio: 1 / 1.6;
   border-radius: 16px;
   box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.1);
-  background: var(--Snow_White, rgba(253, 253, 253, 1));
+  background: $color-bg-card;
   position: relative;
   overflow: hidden;
 }
 
-// Обёртка для картинок (занимает свободное пространство над infoSection)
+// Обёртка для картинок
 .imagesWrapper {
   flex: 1;
   position: relative;
@@ -90,51 +91,91 @@
   }
 }
 
+// Бейджи
+.badgesContainer {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  z-index: 2;
+}
+
+// Кнопка избранного
+.favoriteButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: $color-bg-card;
+  border: none;
+  @include flex-center;
+  cursor: pointer;
+  transition: all $transition-fast;
+  z-index: 2;
+  padding: 0;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: $shadow-sm;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: rgba(19, 20, 21, 0.3);
+    stroke: rgba(19, 20, 21, 0.3);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  &.favorited {
+    svg {
+      color: #ff1e00;
+      fill: #ff1e00;
+      stroke: #ff1e00;
+    }
+  }
+}
+
 // Информационная секция
 .infoSection {
   display: flex;
   flex-direction: column;
-  background: var(--Snow_White, rgba(253, 253, 253, 1));
+  background: $color-bg-card;
   border-radius: 0 0 16px 16px;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 }
 
-.infoContainer {
-  width: 100%;
-  min-height: 93px;
+// Верхний блок с логотипом, названием и ROI
+.headerRow {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: $spacing-4;
-  padding: $spacing-2 $spacing-4;
-  box-sizing: border-box;
+  align-items: flex-start;
+  padding: $spacing-3 $spacing-4;
+  gap: $spacing-3;
   border-bottom: 0.5px solid $color-charcoal-grey-10;
-  background: $color-bg-card;
-
-  @include sm {
-    gap: $spacing-3;
-    padding: $spacing-2 $spacing-3;
-  }
 }
 
 .developerInfo {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: $spacing-2;
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 }
 
 .developerLogoContainer {
-  width: $logo-size;
-  height: $logo-size;
-  min-width: $logo-size;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -142,18 +183,12 @@
   overflow: hidden;
   flex-shrink: 0;
   border: 1px solid $color-border;
-
-  @include sm {
-    width: $logo-size-sm;
-    height: $logo-size-sm;
-    min-width: $logo-size-sm;
-  }
+  background: $color-bg-card;
 }
 
 .developerLogo {
   width: 100%;
   height: 100%;
-  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,7 +198,6 @@
     height: 100%;
     object-fit: contain;
     object-position: center;
-    clip-path: circle(50%);
   }
 }
 
@@ -172,60 +206,21 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.projectTitleRow {
-  width: 100%;
-  display: flex;
-  align-items: center;
+  gap: 2px;
 }
 
 .projectTitle {
   @include truncate;
-  height: 25px;
   color: $color-charcoal-black;
-  font-family: $font-family-primary;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-medium;
-  line-height: 25px;
-
-  @include sm {
-    font-size: $font-size-md;
-    height: 22px;
-    line-height: 22px;
-  }
 }
 
-.developerRow,
-.regionRow {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: $spacing-3;
-
-  @include sm {
-    gap: $spacing-2;
-  }
+.developerName {
+  @include truncate;
+  color: $color-charcoal-black;
 }
 
-.developerName,
 .regionName {
   @include truncate;
-  height: 18px;
-  color: $color-charcoal-black;
-  font-family: $font-family-primary;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-regular;
-  line-height: 18px;
-
-  @include sm {
-    height: 16px;
-    line-height: 16px;
-  }
-}
-
-.regionName {
   color: $color-charcoal-grey-50;
 }
 
@@ -238,150 +233,70 @@
   border-radius: $radius-full;
   background: $color-label-lightgreen;
   flex-shrink: 0;
-  min-width: $roi-badge-width;
-  height: $roi-badge-height;
-
-  @include sm {
-    min-width: $roi-badge-width-sm;
-    height: $roi-badge-height-sm;
-    padding: $spacing-1 $spacing-2;
-  }
 }
 
 .roiValue {
   color: $color-label-green;
-  font-family: $font-family-primary;
-  font-size: $font-size-md;
-  font-weight: $font-weight-medium;
-  line-height: 20px;
   white-space: nowrap;
-
-  @include sm {
-    font-size: $font-size-sm;
-    line-height: 18px;
-  }
 }
 
-// Общий стиль для контейнеров с данными
-.dataContainer {
-  width: 100%;
+// Секция цен
+.pricesSection {
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
-}
-
-.priceContainer {
-  @extend .dataContainer;
-  height: $data-row-height;
   border-bottom: 0.5px solid $color-charcoal-grey-10;
 }
 
 .priceRow {
-  width: 100%;
-  height: $data-row-height;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
+  padding: $spacing-2 $spacing-4;
+  min-height: 32px;
 
-.attributeContainer {
-  @include dataCell(flex-start);
-}
-
-.priceValueContainer {
-  @include dataCell(flex-end);
-  padding: $spacing-1 $spacing-4 $spacing-1 0;
-
-  @include sm {
-    padding: $spacing-1 $spacing-3 $spacing-1 0;
+  &:not(:last-child) {
+    border-bottom: 0.5px solid $color-charcoal-grey-10;
   }
 }
 
-.priceValueContainer {
-  justify-content: flex-end;
-  padding: $spacing-1 $spacing-4 $spacing-1 0;
-
-  @include sm {
-    padding: $spacing-1 $spacing-3 $spacing-1 0;
-  }
+.priceLabelContainer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
 }
 
-.attributeLabel {
+.priceLabel {
   color: $color-charcoal-black;
-  font-family: $font-family-primary;
-  font-size: $font-size-md;
-  font-weight: $font-weight-medium;
-  line-height: 20px;
-  white-space: nowrap;
+}
 
-  @include sm {
-    font-size: $font-size-sm;
-    line-height: 18px;
-  }
+.discountBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  background: #ff3b30;
+  color: white;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
 }
 
 .priceValue {
-  font-family: $font-family-primary;
-  font-size: $font-size-md;
-  font-weight: $font-weight-medium;
-  line-height: 20px;
   color: $color-charcoal-black;
   white-space: nowrap;
 
   .from {
     color: $color-charcoal-grey-50;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-regular;
-    margin-right: $spacing-1;
-  }
-
-  @include sm {
-    font-size: $font-size-sm;
-    line-height: 18px;
   }
 }
 
-// Контейнер с планом платежей
-.paymentPlanContainer {
-  width: 100%;
-  height: 33px;
+// Нижний ряд: дата и payment plan
+.footerRow {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  box-sizing: border-box;
-}
-
-.dateContainer {
-  @include dataCell(flex-start);
-}
-
-.planContainer {
-  @include dataCell(flex-end);
-  padding: $spacing-1 $spacing-4 $spacing-1 0;
-
-  @include sm {
-    padding: $spacing-1 $spacing-3 $spacing-1 0;
-  }
-}
-
-.planContainer {
-  justify-content: flex-end;
-  padding: $spacing-1 $spacing-4 $spacing-1 0;
-
-  @include sm {
-    padding: $spacing-1 $spacing-3 $spacing-1 0;
-  }
-}
-
-.dateValue,
-.planValue {
-  font-family: $font-family-primary;
-  font-size: $font-size-md;
-  line-height: 20px;
-
-  @include sm {
-    font-size: $font-size-sm;
-    line-height: 18px;
-  }
+  padding: $spacing-2 $spacing-4;
+  min-height: 32px;
 }
 
 .dateValue {
@@ -395,10 +310,8 @@
 }
 
 .planValue {
-  text-align: right;
-
   .planLabel {
-    color: $color-bg-overlay;
+    color: $color-charcoal-grey-50;
   }
 
   .planNumbers {
@@ -415,144 +328,47 @@
   background: $color-bg-card;
   padding: 0 $spacing-4;
   border-top: 0.5px solid $color-charcoal-grey-10;
-
-  .card:hover & {
-    max-height: 500px;
-    opacity: 1;
-    padding: $spacing-3 $spacing-4;
-  }
-
-  @include sm {
-    padding: 0 $spacing-3;
-
-    .card:hover & {
-      padding: $spacing-2 $spacing-3;
-    }
-  }
 }
 
 .additionalInfoGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $spacing-3;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
   margin-bottom: $spacing-3;
 }
 
 .additionalInfoItem {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .additionalInfoLabel {
   color: $color-charcoal-grey-50;
-  font-family: $font-family-primary;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-regular;
 }
 
 .additionalInfoValue {
   color: $color-charcoal-black;
-  font-family: $font-family-primary;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
 }
 
-.additionalInfoDescription {
-  color: $color-charcoal-grey-50;
-  font-family: $font-family-primary;
-  font-size: $font-size-sm;
-  line-height: 1.4;
-  margin: 0;
-}
-
-.favoriteButton {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 44px;
-  height: 44px;
-  border-radius: 183.92px;
-  background: $color-bg-card;
+// Кнопка WhatsApp
+.whatsappButton {
+  width: 100%;
+  padding: $spacing-3;
   border: none;
-  @include flex-center;
+  border-radius: $radius-md;
+  background: #25d366;
   cursor: pointer;
   transition: all $transition-fast;
-  z-index: 2; // Поверх overlay
-  padding: $spacing-3;
-  box-sizing: border-box;
+  margin-bottom: $spacing-2;
 
   &:hover {
-    background: $color-bg-card;
-    transform: scale(1.05);
-    box-shadow: $shadow-sm;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-    color: rgba(19, 20, 21, 0.3);
-
-    path {
-      fill: rgba(19, 20, 21, 0.3);
-      stroke: none;
-    }
-  }
-
-  &.favorited {
-    svg {
-      color: rgba(255, 30, 0, 0.8);
-
-      path {
-        fill: rgba(255, 30, 0, 0.8);
-      }
-    }
-  }
-
-  @include sm {
-    width: 40px;
-    height: 40px;
-    padding: $spacing-2;
-
-    svg {
-      width: 18px;
-      height: 18px;
-    }
+    background: darken(#25d366, 5%);
   }
 }
 
-.badgesContainer {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  z-index: 2;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 16px;
-  border-radius: $radius-full;
-  color: white;
-}
-
-.badgeIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: $color-yellow;
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+.disclaimer {
+  color: $color-charcoal-grey-50;
+  text-align: center;
+  display: block;
 }

@@ -25,7 +25,7 @@ const getMarkerConfig = (isRecommended: boolean, zoom: number, isSelected: boole
   }
 
   if (zoom < ZOOM_THRESHOLDS.SMALL) {
-    return { size: 20, isSolid: true }
+    return { size: 30, isSolid: true }
   }
 
   if (zoom < ZOOM_THRESHOLDS.MEDIUM) {
@@ -60,20 +60,21 @@ export const createPropertyMarkerIcon = (
   isSelected: boolean = false
 ) => {
   const { size, isSolid } = getMarkerConfig(isRecommended, zoom, isSelected)
-  const borderRadius = isRecommended ? '50%' : '2px'
+  const borderRadius = isSolid || isRecommended ? '50%' : '2px'
   const color = getStatusColor(sale, isSelected)
 
   const backgroundStyle = isSolid
-    ? `background: ${color};`
+    ? `background: #FBBF24;`
     : logoUrl
       ? `background-image: url('${logoUrl}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #ffffff;`
       : 'background: #ffffff;'
 
+  const borderColor = isSolid ? '#FBBF24' : color
   const borderWidth = 4
 
   return L.divIcon({
     className: '',
-    html: `<div style="width: ${size}px; height: ${size}px; ${backgroundStyle} border: ${borderWidth}px solid ${color}; border-radius: ${borderRadius}; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); cursor: pointer; overflow: hidden;"></div>`,
+    html: `<div style="width: ${size}px; height: ${size}px; ${backgroundStyle} border: ${borderWidth}px solid ${borderColor}; border-radius: ${borderRadius}; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); cursor: pointer; overflow: hidden;"></div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   })

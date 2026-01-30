@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useEffect, useMemo, useRef, useState, Fragment } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { createPropertyMarkerIcon } from '../../components/PropertyMap/markerIcon'
@@ -9,10 +9,13 @@ import Model3DViewer from '../../components/Model3DViewer'
 import FloorPlanTable from '../../components/FloorPlanTable'
 import { Modal } from '../../ui/Modal'
 import { Button } from '../../ui/Button'
+import { Badge } from '../../ui/Badge'
+import { YouTubePreview } from '../../ui/YouTubePreview'
 import { useGetProject, useListLots } from '../../api'
-import type { Project, Lot, Developer, Area } from '../../api'
-import { IconBed, IconBath, IconFloor, IconArea } from '../../components/icons'
+import type { Project, Lot, Developer, Area, Badge as BadgeType } from '../../api'
+import { IconBed, IconBath, IconArea } from '../../components/icons'
 import { ROUTES, getLotDetailRoute } from '../../constants/routes'
+import { Heart, MapPin, Building2, Check } from 'lucide-react'
 import styles from './ProjectDetail.module.scss'
 
 const MAP_ZOOM_DEFAULT = 13
@@ -25,10 +28,47 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 })
 
-// Расширенный тип Project с вложенными developer и area (возвращаются бэкендом, но не в типах)
 type ProjectWithRelations = Project & {
   developer?: Developer
   area?: Area
+  badges?: BadgeType[]
+}
+
+type ProjectDataFields = {
+  description?: string | Record<string, string>
+  featuresAmenities?: string[]
+  specs?: { priceFrom?: number; currency?: string; handoverDate?: string }
+  youtubeUrl?: string
+  timeline?: {
+    projectAnnouncement?: string
+    bookingStarted?: string
+    constructionStarted?: string
+    constructionProgress?: string
+    expectedCompletion?: string
+  }
+}
+
+interface LotGroup {
+  bedrooms: number
+  lots: Lot[]
+  minPrice: number
+  totalUnits: number
+  minArea: number
+  maxArea: number
+}
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return null
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+}
+
+const formatPrice = (price: number | undefined, currency = 'AED') => {
+  if (price === undefined) return '-'
+  if (price >= 1000000) {
+    return `${(price / 1000000).toFixed(1)}M ${currency}`
+  }
+  return `${price.toLocaleString()} ${currency}`
 }
 
 export default function ProjectDetail() {
@@ -37,6 +77,7 @@ export default function ProjectDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const [isFloorPlanModalOpen, setIsFloorPlanModalOpen] = useState(false)
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const [mapContainerEl, setMapContainerEl] = useState<HTMLDivElement | null>(null)
@@ -61,20 +102,37 @@ export default function ProjectDetail() {
   )
 
   const project = (projectData as ProjectWithRelations | undefined) || null
-  const displayLots = useMemo(() => {
-    const lots: Lot[] = lotsData?.items || []
-    const seen = new Map<string, Lot>()
-    lots.forEach(lot => {
-      const specKey = `${lot.projectId || 'no-project'}-${lot.type || 'unknown'}-${
-        lot.priceAmount || '0'
-      }-${lot.priceCurrency || 'AED'}-${lot.areaSqm || '0'}-${lot.floor ?? 'null'}-${
-        lot.bedrooms ?? 'null'
-      }-${lot.bathrooms ?? 'null'}`
+  const lots: Lot[] = lotsData?.items || []
 
-      if (!seen.has(specKey)) seen.set(specKey, lot)
+  const groupedLots = useMemo<LotGroup[]>(() => {
+    const groups: Record<number, LotGroup> = {}
+
+    lots.forEach(lot => {
+      const bedrooms = lot.bedrooms ?? 0
+      if (!groups[bedrooms]) {
+        groups[bedrooms] = {
+          bedrooms,
+          lots: [],
+          minPrice: Infinity,
+          totalUnits: 0,
+          minArea: Infinity,
+          maxArea: 0,
+        }
+      }
+      groups[bedrooms].lots.push(lot)
+      groups[bedrooms].totalUnits++
+      if (lot.priceAmount && lot.priceAmount < groups[bedrooms].minPrice) {
+        groups[bedrooms].minPrice = lot.priceAmount
+      }
+      if (lot.areaSqm) {
+        if (lot.areaSqm < groups[bedrooms].minArea) groups[bedrooms].minArea = lot.areaSqm
+        if (lot.areaSqm > groups[bedrooms].maxArea) groups[bedrooms].maxArea = lot.areaSqm
+      }
     })
-    return Array.from(seen.values())
-  }, [lotsData?.items])
+
+    return Object.values(groups).sort((a, b) => a.bedrooms - b.bedrooms)
+  }, [lots])
+
   const loading = projectLoading || lotsLoading
   const error =
     projectError instanceof Error
@@ -87,8 +145,6 @@ export default function ProjectDetail() {
     project.lat !== null &&
     project.lng !== null
 
-  // Инициализация карты: важно НЕ оставлять [] зависимостей,
-  // потому что контейнер карты рендерится только когда hasCoordinates === true.
   useEffect(() => {
     if (!hasCoordinates || !mapContainerEl || mapRef.current) return
 
@@ -96,28 +152,22 @@ export default function ProjectDetail() {
     mapRef.current = L.map(mapContainerEl, {
       center: defaultCoordinates,
       zoom: MAP_ZOOM_DEFAULT,
-      zoomControl: true,
-      attributionControl: true,
+      zoomControl: false,
+      attributionControl: false,
     })
 
     L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       {
-        attribution:
-          'Thanks for the amazing satellite imagery provided by Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
         maxZoom: 19,
       }
     ).addTo(mapRef.current)
 
-    // Инвалидируем размер карты после создания (после layout)
     setTimeout(() => {
       mapRef.current?.invalidateSize()
     }, 0)
   }, [hasCoordinates, mapContainerEl])
 
-  // Обновление карты и маркера когда данные проекта загрузились
-  // Важно: зависим от mapContainerEl, иначе маркер может не добавиться,
-  // если карта создаётся позже (когда ref-контейнер смонтировался).
   useEffect(() => {
     if (!mapRef.current || !project || !hasCoordinates) return
 
@@ -161,7 +211,6 @@ export default function ProjectDetail() {
     }
   }, [project, hasCoordinates, mapContainerEl])
 
-  // Отслеживание видимости карты для корректного обновления размеров
   useEffect(() => {
     if (!mapContainerEl) return
 
@@ -169,7 +218,6 @@ export default function ProjectDetail() {
       entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting && mapRef.current) {
-            // Карта стала видимой, обновляем размер
             setTimeout(() => {
               mapRef.current?.invalidateSize()
             }, 100)
@@ -218,19 +266,7 @@ export default function ProjectDetail() {
     )
   }
 
-  const getSaleText = (sale: string | undefined) => {
-    if (!sale) return 'Unknown'
-    switch (sale) {
-      case 'sale':
-        return 'On Sale'
-      case 'start of sales':
-        return 'Start of Sales'
-      case 'sales announcement':
-        return 'Sales Announcement'
-      default:
-        return sale
-    }
-  }
+  const projectDataFields = project.data as ProjectDataFields | undefined
 
   const allImages = [
     ...(project.data?.media?.cover?.url ? [project.data.media.cover.url] : []),
@@ -247,247 +283,347 @@ export default function ProjectDetail() {
     setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
   }
 
-  const projectDataFields = project.data as
-    | {
-        description?: string
-        featuresAmenities?: string[]
-        specs?: { priceFrom?: number; currency?: string }
-      }
-    | undefined
+  const developerLogoUrl =
+    (project.developer?.data as { logoUrl?: string } | undefined)?.logoUrl ||
+    developerLogos[project.developer?.name || '']
+
+  const description =
+    typeof projectDataFields?.description === 'string'
+      ? projectDataFields.description
+      : projectDataFields?.description
+        ? JSON.stringify(projectDataFields.description)
+        : null
+
+  const timeline = projectDataFields?.timeline
+
+  const timelineItems = [
+    { label: 'Project announcement', date: timeline?.projectAnnouncement },
+    { label: 'Booking started', date: timeline?.bookingStarted },
+    { label: 'Construction started', date: timeline?.constructionStarted },
+    { label: 'Construction progress', date: timeline?.constructionProgress },
+    { label: 'Expected completion', date: timeline?.expectedCompletion },
+  ].filter(item => item.date)
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <Link to={ROUTES.CATALOG} className={styles.backLink}>
-          ← Back to Catalog
-        </Link>
-        <h1 className={styles.title}>{project.name}</h1>
-      </div>
-
-      <div className={styles.content}>
-        <div className={styles.imageSection}>
+      {/* Hero Section */}
+      <section className={styles.heroSection}>
+        <div className={styles.mainGallery}>
           <div className={styles.galleryContainer}>
-            <div className={styles.mainImageContainer}>
-              {allImages.length > 0 ? (
-                <>
-                  <img
-                    src={allImages[currentImageIndex]}
-                    alt={`${project.name} - image ${currentImageIndex + 1}`}
-                    className={styles.projectImage}
-                  />
-                  {allImages.length > 1 && (
-                    <>
-                      <button
-                        className={`${styles.navButton} ${styles.prevButton}`}
-                        onClick={handlePrevImage}
-                        aria-label="Previous image"
-                      >
-                        ‹
-                      </button>
-                      <button
-                        className={`${styles.navButton} ${styles.nextButton}`}
-                        onClick={handleNextImage}
-                        aria-label="Next image"
-                      >
-                        ›
-                      </button>
-                      <div className={styles.imageCounter}>
-                        {currentImageIndex + 1} / {allImages.length}
-                      </div>
-                    </>
-                  )}
-                </>
-              ) : (
-                <div className={styles.imagePlaceholder}>
-                  <span>Project Image</span>
-                </div>
-              )}
-            </div>
-
-            {allImages.length > 1 && (
-              <div className={styles.thumbnailCarousel}>
-                {allImages.map((url, idx) => (
-                  <div
-                    key={idx}
-                    className={`${styles.thumbnailWrapper} ${
-                      idx === currentImageIndex ? styles.activeThumbnail : ''
-                    }`}
-                    onClick={() => setCurrentImageIndex(idx)}
-                  >
-                    <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
-                  </div>
-                ))}
+            {allImages.length > 0 ? (
+              <>
+                <img
+                  src={allImages[currentImageIndex]}
+                  alt={`${project.name} - image ${currentImageIndex + 1}`}
+                  className={styles.projectImage}
+                />
+                {allImages.length > 1 && (
+                  <>
+                    <button
+                      className={`${styles.navButton} ${styles.prevButton}`}
+                      onClick={handlePrevImage}
+                      aria-label="Previous image"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      className={`${styles.navButton} ${styles.nextButton}`}
+                      onClick={handleNextImage}
+                      aria-label="Next image"
+                    >
+                      ›
+                    </button>
+                  </>
+                )}
+              </>
+            ) : (
+              <div className={styles.imagePlaceholder}>
+                <span>Project Image</span>
               </div>
             )}
           </div>
 
-          {(projectDataFields?.description ||
-            (projectDataFields?.featuresAmenities &&
-              projectDataFields.featuresAmenities.length > 0)) && (
-            <div className={styles.contentCard}>
-              {projectDataFields?.description && (
-                <div className={styles.description}>
-                  <h3>Description</h3>
-                  <p>
-                    {typeof projectDataFields.description === 'string'
-                      ? projectDataFields.description
-                      : JSON.stringify(projectDataFields.description)}
-                  </p>
+          {allImages.length > 1 && (
+            <div className={styles.thumbnailRow}>
+              {allImages.slice(0, 5).map((url, idx) => (
+                <div
+                  key={idx}
+                  className={`${styles.thumbnailWrapper} ${
+                    idx === currentImageIndex ? styles.activeThumbnail : ''
+                  }`}
+                  onClick={() => setCurrentImageIndex(idx)}
+                >
+                  <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
                 </div>
-              )}
-              {projectDataFields?.featuresAmenities &&
-                projectDataFields.featuresAmenities.length > 0 && (
-                  <ProjectFeatures
-                    features={projectDataFields.featuresAmenities as string[]}
-                    maxItems={6}
-                  />
-                )}
+              ))}
             </div>
+          )}
+        </div>
+
+        <div className={styles.mediaSidebar}>
+          {projectDataFields?.youtubeUrl && (
+            <YouTubePreview
+              url={projectDataFields.youtubeUrl}
+              size="medium"
+              className={styles.videoPreview}
+            />
           )}
 
           {hasCoordinates && (
-            <div className={styles.mapCard}>
-              <div className={styles.mapHeader}>
-                <div>
-                  <h3 className={styles.mapTitle}>Location on Map</h3>
-                  <p className={styles.mapSubtitle}>Coordinates from database</p>
-                </div>
-                <span className={styles.coordinates}>
-                  {project.lat !== undefined && project.lng !== undefined
-                    ? `${project.lat.toFixed(4)}, ${project.lng.toFixed(4)}`
-                    : '-'}
-                </span>
-              </div>
-              <div ref={setMapContainerEl} className={styles.map} />
-            </div>
-          )}
-
-          {displayLots.length > 0 && (
-            <div className={styles.lotsSection}>
-              <h3 className={styles.lotsTitle}>Available Units</h3>
-              <div className={styles.lotsList}>
-                {displayLots.map((lot, index) => {
-                  const priceText =
-                    lot.priceAmount !== undefined && typeof lot.priceAmount === 'number'
-                      ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
-                      : '-'
-
-                  const lotCoverImage = (
-                    lot.data as { media?: { cover?: { url?: string } } } | undefined
-                  )?.media?.cover?.url
-
-                  return (
-                    <div
-                      key={lot.id || index}
-                      className={styles.lotCard}
-                      onClick={() => lot.id && navigate(getLotDetailRoute(lot.id))}
-                      style={{ cursor: lot.id ? 'pointer' : 'default' }}
-                    >
-                      <div className={styles.lotCardImage}>
-                        {lotCoverImage ? (
-                          <img
-                            src={lotCoverImage}
-                            alt={`${lot.type || 'Unit'} - ${priceText}`}
-                            className={styles.lotCardImageImg}
-                          />
-                        ) : (
-                          <div className={styles.lotCardImagePlaceholder}>
-                            <span>Image</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className={styles.lotCardContent}>
-                        <div className={styles.lotCardPrice}>{priceText}</div>
-                        <div className={styles.lotCardDetails}>
-                          {(() => {
-                            const details: Array<{
-                              icon: React.ReactElement
-                              value: string | number
-                            }> = []
-                            if (lot.bedrooms !== undefined && lot.bedrooms !== null) {
-                              details.push({ icon: <IconBed />, value: lot.bedrooms })
-                            }
-                            if (lot.bathrooms !== undefined && lot.bathrooms !== null) {
-                              details.push({ icon: <IconBath />, value: lot.bathrooms })
-                            }
-                            if (lot.areaSqm !== undefined && lot.areaSqm !== null) {
-                              details.push({ icon: <IconArea />, value: `${lot.areaSqm} sqm` })
-                            }
-                            if (lot.floor !== undefined && lot.floor !== null) {
-                              details.push({ icon: <IconFloor />, value: lot.floor })
-                            }
-                            return details.map((detail, idx) => (
-                              <Fragment key={idx}>
-                                <span className={styles.lotCardDetail}>
-                                  {detail.icon}
-                                  {detail.value}
-                                </span>
-                                {idx < details.length - 1 && (
-                                  <span className={styles.lotCardSeparator}>/</span>
-                                )}
-                              </Fragment>
-                            ))
-                          })()}
-                        </div>
-                        <div className={styles.lotCardInfo}>
-                          <div className={styles.lotCardDeveloper}>
-                            {lot.developer?.name || project.developer?.name || 'Not specified'}
-                          </div>
-                          <div className={styles.lotCardLocation}>
-                            {lot.area?.name || project.area?.name || 'Dubai'}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
+            <div className={styles.mapThumbnail}>
+              <div ref={setMapContainerEl} className={styles.miniMap} />
+              <div className={styles.mapOverlay}>
+                <MapPin size={20} />
               </div>
             </div>
           )}
         </div>
+      </section>
 
-        <div className={styles.infoSection}>
-          <div className={styles.viewApartmentsButton}>
-            <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
-              View Apartments in 3D
-            </Button>
-            <Button onClick={() => setIsFloorPlanModalOpen(true)} variant="secondary" size="lg">
-              View Building Plan
-            </Button>
+      {/* Project Header */}
+      <section className={styles.projectHeader}>
+        <div className={styles.developerInfo}>
+          {developerLogoUrl && (
+            <img
+              src={developerLogoUrl}
+              alt={project.developer?.name}
+              className={styles.developerLogo}
+            />
+          )}
+          <div className={styles.projectTitle}>
+            <h1>{project.name}</h1>
+            <div className={styles.projectLocation}>
+              <MapPin size={16} />
+              <span>{project.area?.name || 'Dubai'}</span>
+            </div>
           </div>
-          <div className={styles.infoCard}>
-            <div className={styles.infoCardHeader}>
-              <h2>Property Information</h2>
-            </div>
-            <div className={styles.infoRow}>
-              <span className={styles.label}>Location:</span>
-              <span className={styles.value}>{project.area?.name || 'Dubai'}</span>
-            </div>
-            <div className={styles.infoRow}>
-              <span className={styles.label}>Developer:</span>
-              <span className={styles.value}>{project.developer?.name || 'Not specified'}</span>
-            </div>
-            <div className={styles.infoRow}>
-              <span className={styles.label}>Price from:</span>
-              <span className={styles.value}>
-                {(() => {
-                  const priceFrom = projectDataFields?.specs?.priceFrom
-                  const currency = projectDataFields?.specs?.currency || 'AED'
-                  if (priceFrom !== undefined && typeof priceFrom === 'number') {
-                    return `${(priceFrom / 1000000).toFixed(1)}M ${currency}`
-                  }
-                  return '-'
-                })()}
+        </div>
+        <div className={styles.badgesRow}>
+          {project.badges?.map(badge => (
+            <Badge
+              key={badge.id}
+              text={badge.name || ''}
+              backgroundColor={badge.backgroundColor || '#000'}
+              textColor={badge.textColor || '#fff'}
+              iconName={badge.icon || undefined}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Info + Timeline Section */}
+      <section className={styles.infoSection}>
+        <div className={styles.projectInfo}>
+          <div className={styles.priceBlock}>
+            <div className={styles.ourPrice}>
+              <span className={styles.priceLabel}>Our price</span>
+              <span className={styles.priceDiscount}>-3%</span>
+              <span className={styles.priceValue}>
+                {formatPrice(projectDataFields?.specs?.priceFrom)}
               </span>
             </div>
-            <div className={styles.infoRow}>
-              <span className={styles.label}>Sale Status:</span>
-              <span className={styles.value}>{getSaleText(project.sale)}</span>
+            <div className={styles.developerPrice}>
+              <span className={styles.priceLabel}>Developer price</span>
+              <span className={styles.priceValueStrike}>
+                {formatPrice(
+                  projectDataFields?.specs?.priceFrom
+                    ? Math.round(projectDataFields.specs.priceFrom * 1.03)
+                    : undefined
+                )}
+              </span>
             </div>
           </div>
+          {projectDataFields?.specs?.handoverDate && (
+            <div className={styles.handoverInfo}>
+              <span className={styles.handoverLabel}>PP</span>
+              <span className={styles.handoverDate}>{projectDataFields.specs.handoverDate}</span>
+            </div>
+          )}
         </div>
+
+        {timelineItems.length > 0 && (
+          <div className={styles.projectTimeline}>
+            <h3>Project timeline</h3>
+            <div className={styles.timelineList}>
+              {timelineItems.map((item, idx) => (
+                <div key={idx} className={styles.timelineItem}>
+                  <div className={styles.timelineDot}>
+                    <Check size={12} />
+                  </div>
+                  <div className={styles.timelineContent}>
+                    <span className={styles.timelineLabel}>{item.label}</span>
+                    <span className={styles.timelineDate}>{formatDate(item.date)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Description Section */}
+      {description && (
+        <section className={styles.descriptionSection}>
+          <p className={isDescriptionExpanded ? styles.expanded : styles.collapsed}>
+            {description}
+          </p>
+          {description.length > 300 && (
+            <button
+              className={styles.seeMoreBtn}
+              onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+            >
+              {isDescriptionExpanded ? 'See less' : 'See more'}
+            </button>
+          )}
+        </section>
+      )}
+
+      {/* Infrastructure Section */}
+      {projectDataFields?.featuresAmenities && projectDataFields.featuresAmenities.length > 0 && (
+        <section className={styles.infrastructureSection}>
+          <h2>Residential complex infrastructure</h2>
+          <ProjectFeatures
+            features={projectDataFields.featuresAmenities as string[]}
+            maxItems={12}
+          />
+        </section>
+      )}
+
+      {/* Action Buttons */}
+      <div className={styles.actionButtons}>
+        <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
+          View Apartments in 3D
+        </Button>
+        <Button onClick={() => setIsFloorPlanModalOpen(true)} variant="secondary" size="lg">
+          View Building Plan
+        </Button>
       </div>
 
+      {/* Apartments Sections by Bedroom Count */}
+      {groupedLots.map(group => (
+        <section key={group.bedrooms} className={styles.apartmentsSection}>
+          <div className={styles.apartmentsHeader}>
+            <h2>Apartments</h2>
+            <div className={styles.apartmentsStats}>
+              <span>{group.bedrooms} beds</span>
+              <span className={styles.statDivider}>|</span>
+              <span>from {formatPrice(group.minPrice === Infinity ? 0 : group.minPrice)}</span>
+              <span className={styles.statDivider}>|</span>
+              <span>{group.totalUnits} units</span>
+              <span className={styles.statDivider}>|</span>
+              <span>
+                {group.minArea === Infinity
+                  ? '-'
+                  : group.minArea === group.maxArea
+                    ? `${group.minArea} m²`
+                    : `${group.minArea}-${group.maxArea} m²`}
+              </span>
+            </div>
+            <button className={styles.viewAllBtn}>View the grid</button>
+          </div>
+
+          <div className={styles.apartmentsScroll}>
+            {group.lots.map((lot, index) => {
+              const lotCoverImage = (
+                lot.data as { media?: { cover?: { url?: string } } } | undefined
+              )?.media?.cover?.url
+              const lotFloorPlan = (
+                lot.data as { media?: { floorPlanImages?: { url?: string }[] } } | undefined
+              )?.media?.floorPlanImages?.[0]?.url
+              const lotTags = (lot.data as { tags?: string[] } | undefined)?.tags || []
+
+              return (
+                <div
+                  key={lot.id || index}
+                  className={styles.apartmentCard}
+                  onClick={() => lot.id && navigate(getLotDetailRoute(lot.id))}
+                >
+                  <div className={styles.apartmentCardImage}>
+                    {lotFloorPlan || lotCoverImage ? (
+                      <img
+                        src={lotFloorPlan || lotCoverImage}
+                        alt={`${lot.type} floor plan`}
+                        className={styles.apartmentCardImg}
+                      />
+                    ) : (
+                      <div className={styles.apartmentCardPlaceholder}>
+                        <Building2 size={48} />
+                      </div>
+                    )}
+                    <div className={styles.apartmentCardTags}>
+                      {lotTags.slice(0, 2).map((tag, i) => (
+                        <span key={i} className={styles.apartmentTag}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <button
+                      className={styles.favoriteBtn}
+                      onClick={e => {
+                        e.stopPropagation()
+                      }}
+                    >
+                      <Heart size={20} />
+                    </button>
+                  </div>
+
+                  <div className={styles.apartmentCardContent}>
+                    <h3 className={styles.apartmentCardTitle}>
+                      {project.name} - {lot.bedrooms} Bedrooms {lot.type}
+                    </h3>
+
+                    <div className={styles.apartmentCardBadges}>
+                      <span className={styles.buildingBadge}>
+                        <Building2 size={14} />
+                        Building
+                      </span>
+                      <span className={styles.roiBadge}>ROI 7%</span>
+                    </div>
+
+                    <div className={styles.apartmentCardPrices}>
+                      <div className={styles.apartmentOurPrice}>
+                        <span>Our price</span>
+                        <span className={styles.discountTag}>-3%</span>
+                        <span className={styles.priceAmount}>
+                          {formatPrice(lot.priceAmount, lot.priceCurrency)}
+                        </span>
+                      </div>
+                      <div className={styles.apartmentDevPrice}>
+                        <span>Developer price</span>
+                        <span className={styles.priceAmountStrike}>
+                          {formatPrice(
+                            lot.priceAmount ? Math.round(lot.priceAmount * 1.03) : undefined,
+                            lot.priceCurrency
+                          )}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.apartmentCardSpecs}>
+                      <span>Apartments</span>
+                      <span>
+                        <IconBed /> {lot.bedrooms ?? '-'}
+                      </span>
+                      <span>
+                        <IconBath /> {lot.bathrooms ?? '-'}
+                      </span>
+                      <span>
+                        <IconArea /> {lot.areaSqm ?? '-'} m²
+                      </span>
+                    </div>
+
+                    <Button variant="primary" size="md" fullWidth className={styles.whatsappBtn}>
+                      Get Details on WhatsApp
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      ))}
+
+      {/* Modals */}
       <Modal
         open={is3DModalOpen}
         onClose={() => setIs3DModalOpen(false)}
@@ -503,8 +639,8 @@ export default function ProjectDetail() {
         title="Building Plan"
         size="large"
       >
-        {displayLots.length > 0 ? (
-          <FloorPlanTable lots={displayLots} />
+        {lots.length > 0 ? (
+          <FloorPlanTable lots={lots} />
         ) : (
           <div
             style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}

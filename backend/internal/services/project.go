@@ -12,34 +12,53 @@ import (
 type ProjectsService struct {
 	projectRepo *repo.ProjectRepo
 	lotRepo     *repo.LotRepo
+	badgeRepo   *repo.BadgeRepo
 	logger      *slog.Logger
 }
 
-func NewProjectsService(projectRepo *repo.ProjectRepo, lotRepo *repo.LotRepo) *ProjectsService {
+func NewProjectsService(projectRepo *repo.ProjectRepo, lotRepo *repo.LotRepo, badgeRepo *repo.BadgeRepo) *ProjectsService {
 	return &ProjectsService{
 		projectRepo: projectRepo,
 		lotRepo:     lotRepo,
+		badgeRepo:   badgeRepo,
 		logger:      slog.Default(),
 	}
 }
 
-func (s *ProjectsService) List(areaSlug *string) ([]domain.Project, error) {
+func (s *ProjectsService) List(filters domain.ProjectFilters, sort domain.ProjectSort) ([]domain.Project, error) {
 	s.logger.Info("project_service_list_started",
-		"area_slug", areaSlug,
+		"filters", filters,
+		"sort", sort,
 	)
 
-	projects, err := s.projectRepo.List(areaSlug)
+	projects, err := s.projectRepo.List(filters, sort)
 	if err != nil {
 		s.logger.Error("project_service_list_failed",
-			"area_slug", areaSlug,
+			"filters", filters,
 			"error", err.Error(),
 		)
 		return nil, err
 	}
 
+	// Fetch badges for each project
+	if s.badgeRepo != nil {
+		for i := range projects {
+			badges, err := s.badgeRepo.GetProjectBadges(projects[i].ID)
+			if err != nil {
+				s.logger.Warn("project_service_list_get_badges_failed",
+					"project_id", projects[i].ID,
+					"error", err.Error(),
+				)
+				// Continue without badges on error
+				continue
+			}
+			projects[i].Badges = badges
+		}
+	}
+
 	s.logger.Info("project_service_list_completed",
 		"count", len(projects),
-		"area_slug", areaSlug,
+		"filters", filters,
 	)
 
 	return projects, nil
@@ -64,6 +83,21 @@ func (s *ProjectsService) GetBySlug(slug string, includeLots *int) (*domain.Proj
 			"slug", slug,
 		)
 		return nil, nil, ErrProjectNotFound
+	}
+
+	// Fetch badges for the project
+	if s.badgeRepo != nil {
+		badges, err := s.badgeRepo.GetProjectBadges(project.ID)
+		if err != nil {
+			s.logger.Warn("project_service_get_by_slug_get_badges_failed",
+				"slug", slug,
+				"project_id", project.ID,
+				"error", err.Error(),
+			)
+			// Continue without badges on error
+		} else {
+			project.Badges = badges
+		}
 	}
 
 	var lots []domain.Lot

@@ -23,10 +23,24 @@ export const createMarkerPopupHTML = (property: Property): string => {
   `
 }
 
-export const createMarkerPopupElement = (property: Property): HTMLElement => {
+interface PopupEventHandlers {
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
+}
+
+export const createMarkerPopupElement = (
+  property: Property,
+  handlers?: PopupEventHandlers
+): HTMLElement => {
   const container = document.createElement('div')
   const root = createRoot(container)
-  root.render(createElement(MarkerPopup, { property }))
+  root.render(
+    createElement(MarkerPopup, {
+      property,
+      onMouseEnter: handlers?.onMouseEnter,
+      onMouseLeave: handlers?.onMouseLeave,
+    })
+  )
 
   // Сохраняем root в контейнере для последующей очистки
   ;(container as unknown as { _reactRoot?: Root })._reactRoot = root

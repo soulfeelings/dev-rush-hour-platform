@@ -168,6 +168,21 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		result.Data.Description = &generated.ProjectData_Description{}
 		result.Data.Description.UnmarshalJSON(descBytes)
 	}
+	if project.Data.YoutubeURL != "" {
+		result.Data.YoutubeUrl = &project.Data.YoutubeURL
+	}
+	if project.Data.Timeline != nil {
+		result.Data.Timeline = domainTimelineToGenerated(project.Data.Timeline)
+	}
+
+	// Include badges
+	if len(project.Badges) > 0 {
+		badges := make([]generated.Badge, len(project.Badges))
+		for i := range project.Badges {
+			badges[i] = *DomainBadgeToGenerated(&project.Badges[i])
+		}
+		result.Badges = &badges
+	}
 
 	return result
 }
@@ -235,12 +250,12 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 		return nil
 	}
 	id := openapi_types.UUID(lot.ID)
-	status := generated.LotStatus(lot.Status)
+	status := generated.LotListItemStatus(lot.Status)
 	lotType := generated.LotType(lot.Type)
 	result := &generated.LotListItem{
 		Id:            &id,
-		Status:        (*generated.LotListItemStatus)(&status),
-		Type:          (*generated.LotListItemType)(&lotType),
+		Status:        &status,
+		Type:          &lotType,
 		PriceCurrency: &lot.PriceCurrency,
 		PriceAmount:   float32Ptr(float32(lot.PriceAmount)),
 		CreatedAt:     timePtr(lot.CreatedAt),
@@ -830,6 +845,68 @@ func domainProjectDataFromGenerated(data *generated.ProjectData) domain.ProjectD
 	if data.Media != nil {
 		result.Media = generatedMediaToDomain(data.Media)
 	}
+	if data.YoutubeUrl != nil {
+		result.YoutubeURL = *data.YoutubeUrl
+	}
+	if data.Timeline != nil {
+		result.Timeline = generatedTimelineToDomain(data.Timeline)
+	}
+	return result
+}
+
+func generatedTimelineToDomain(timeline *generated.ProjectTimeline) *domain.ProjectTimeline {
+	if timeline == nil {
+		return nil
+	}
+	result := &domain.ProjectTimeline{}
+	if timeline.ProjectAnnouncement != nil {
+		t := timeline.ProjectAnnouncement.Time
+		result.ProjectAnnouncement = &t
+	}
+	if timeline.BookingStarted != nil {
+		t := timeline.BookingStarted.Time
+		result.BookingStarted = &t
+	}
+	if timeline.ConstructionStarted != nil {
+		t := timeline.ConstructionStarted.Time
+		result.ConstructionStarted = &t
+	}
+	if timeline.ConstructionProgress != nil {
+		t := timeline.ConstructionProgress.Time
+		result.ConstructionProgress = &t
+	}
+	if timeline.ExpectedCompletion != nil {
+		t := timeline.ExpectedCompletion.Time
+		result.ExpectedCompletion = &t
+	}
+	return result
+}
+
+func domainTimelineToGenerated(timeline *domain.ProjectTimeline) *generated.ProjectTimeline {
+	if timeline == nil {
+		return nil
+	}
+	result := &generated.ProjectTimeline{}
+	if timeline.ProjectAnnouncement != nil {
+		d := openapi_types.Date{Time: *timeline.ProjectAnnouncement}
+		result.ProjectAnnouncement = &d
+	}
+	if timeline.BookingStarted != nil {
+		d := openapi_types.Date{Time: *timeline.BookingStarted}
+		result.BookingStarted = &d
+	}
+	if timeline.ConstructionStarted != nil {
+		d := openapi_types.Date{Time: *timeline.ConstructionStarted}
+		result.ConstructionStarted = &d
+	}
+	if timeline.ConstructionProgress != nil {
+		d := openapi_types.Date{Time: *timeline.ConstructionProgress}
+		result.ConstructionProgress = &d
+	}
+	if timeline.ExpectedCompletion != nil {
+		d := openapi_types.Date{Time: *timeline.ExpectedCompletion}
+		result.ExpectedCompletion = &d
+	}
 	return result
 }
 
@@ -1121,4 +1198,87 @@ func generatedFloorPositionToDomain(fp *generated.FloorPosition) *domain.FloorPo
 		X:     float64(*fp.X),
 		Y:     float64(*fp.Y),
 	}
+}
+
+// Badge mappers
+
+func DomainBadgeToGenerated(badge *domain.Badge) *generated.Badge {
+	if badge == nil {
+		return nil
+	}
+	id := openapi_types.UUID(badge.ID)
+	status := generated.BadgeStatus(badge.Status)
+	result := &generated.Badge{
+		Id:              &id,
+		Slug:            &badge.Slug,
+		Name:            &badge.Name,
+		BackgroundColor: &badge.BackgroundColor,
+		TextColor:       &badge.TextColor,
+		Icon:            badge.Icon,
+		Status:          &status,
+		SortOrder:       intPtr(badge.SortOrder),
+		CreatedAt:       timePtr(badge.CreatedAt),
+		UpdatedAt:       timePtr(badge.UpdatedAt),
+	}
+	return result
+}
+
+func GeneratedBadgeCreateToDomain(req *generated.BadgeCreateRequest) (*domain.Badge, error) {
+	badge := &domain.Badge{
+		Slug:            req.Slug,
+		Name:            req.Name,
+		BackgroundColor: "#000000",
+		TextColor:       "#FFFFFF",
+		Status:          domain.BadgeStatusActive,
+		SortOrder:       0,
+	}
+
+	if req.BackgroundColor != nil {
+		badge.BackgroundColor = *req.BackgroundColor
+	}
+	if req.TextColor != nil {
+		badge.TextColor = *req.TextColor
+	}
+	if req.Icon != nil {
+		badge.Icon = req.Icon
+	}
+	if req.Status != nil {
+		badge.Status = domain.BadgeStatus(*req.Status)
+	}
+	if req.SortOrder != nil {
+		badge.SortOrder = *req.SortOrder
+	}
+
+	return badge, nil
+}
+
+func ApplyBadgeUpdateRequest(existing *domain.Badge, req *generated.BadgeUpdateRequest) *domain.Badge {
+	if existing == nil || req == nil {
+		return nil
+	}
+	updated := *existing
+
+	if req.Slug != nil {
+		updated.Slug = *req.Slug
+	}
+	if req.Name != nil {
+		updated.Name = *req.Name
+	}
+	if req.BackgroundColor != nil {
+		updated.BackgroundColor = *req.BackgroundColor
+	}
+	if req.TextColor != nil {
+		updated.TextColor = *req.TextColor
+	}
+	if req.Icon != nil {
+		updated.Icon = req.Icon
+	}
+	if req.Status != nil {
+		updated.Status = domain.BadgeStatus(*req.Status)
+	}
+	if req.SortOrder != nil {
+		updated.SortOrder = *req.SortOrder
+	}
+
+	return &updated
 }
