@@ -124,21 +124,31 @@ export function FiltersProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
   const navigate = useNavigate()
   const [filters, setFilters] = useState<FilterValues>(() => parseFiltersFromURL(location.search))
-  const isInitialMount = useRef(true)
+
+  // Track the source of changes to prevent sync loops
+  const isSyncingFromURL = useRef(false)
+  const lastSyncedSearch = useRef(location.search)
 
   const { data: options, isLoading, error } = useGetFilterOptions()
 
   // Sync filters FROM URL when URL changes (e.g., browser back/forward)
   useEffect(() => {
+    // Skip if URL hasn't actually changed (prevents unnecessary re-parses)
+    if (location.search === lastSyncedSearch.current) {
+      return
+    }
+
+    lastSyncedSearch.current = location.search
+    isSyncingFromURL.current = true
     const newFilters = parseFiltersFromURL(location.search)
     setFilters(newFilters)
   }, [location.search])
 
   // Sync filters TO URL when filters change
   useEffect(() => {
-    // Skip on initial mount to avoid duplicate navigation
-    if (isInitialMount.current) {
-      isInitialMount.current = false
+    // Skip if this update came from URL sync
+    if (isSyncingFromURL.current) {
+      isSyncingFromURL.current = false
       return
     }
 
@@ -148,6 +158,7 @@ export function FiltersProvider({ children }: { children: ReactNode }) {
 
     // Only navigate if the search params actually changed
     if (newSearch !== currentSearch) {
+      lastSyncedSearch.current = newSearch ? `?${newSearch}` : ''
       navigate(
         { pathname: location.pathname, search: newSearch ? `?${newSearch}` : '' },
         { replace: true }

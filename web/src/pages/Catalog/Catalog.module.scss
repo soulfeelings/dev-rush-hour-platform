@@ -1,5 +1,9 @@
 @use '@/styles' as *;
 
+// =====================================
+// PAGE LAYOUT (MAP + LIST)
+// =====================================
+
 .container {
   display: flex;
   flex-direction: column;
@@ -12,15 +16,55 @@
   overflow: hidden;
 }
 
-.desktopLayout {
-  display: none;
+.pageLayout {
+  display: grid;
+  height: 100%;
+  overflow: hidden;
 
-  @media (min-width: $breakpoint-md) {
-    display: block;
-    height: 100%;
+  // Split mode: 45% map / 55% list
+  grid-template-columns: 45fr 55fr;
+  transition: grid-template-columns 300ms ease;
+
+  // MODE: Map fullscreen
+  &[data-layout='map'] {
+    grid-template-columns: 1fr 0fr;
+
+    .listPanel {
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+
+  // MODE: List fullscreen
+  &[data-layout='list'] {
+    grid-template-columns: 0fr 1fr;
+
+    .mapPanel {
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+
+  // Mobile: hidden (use mobileLayout instead)
+  @media (max-width: #{$breakpoint-md - 1px}) {
+    display: none;
   }
 }
 
+.mapPanel {
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.listPanel {
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+// Mobile fallback
 .mobileLayout {
   display: block;
   height: 100%;
@@ -31,13 +75,18 @@
   }
 }
 
+// =====================================
+// CATALOG CONTENT
+// =====================================
+
 .catalogContent {
-  padding: $spacing-4;
+  container-type: inline-size;
+  container-name: catalog;
   height: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  padding: $spacing-4;
+  box-sizing: border-box;
 
   @media (min-width: $breakpoint-md) {
     padding: 0 $spacing-3;
@@ -80,7 +129,7 @@
   flex-direction: row;
   align-items: center;
   font-family: Plus Jakarta Sans;
-  font-style: Regular;
+  font-style: normal;
   font-size: 12px;
   font-weight: 400;
   line-height: 15px;
@@ -120,6 +169,10 @@
   }
 }
 
+// =====================================
+// VIEW CONTAINER (Projects/Lots switch)
+// =====================================
+
 .viewContainer {
   position: relative;
   flex: 1;
@@ -146,15 +199,49 @@
   }
 }
 
+// =====================================
+// RESPONSIVE GRID (Container Queries)
+// =====================================
+
 .grid {
+  display: grid;
+  gap: $spacing-4;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  // Default: 1 column
+  grid-template-columns: 1fr;
+
+  // 2 columns at 600px container width
+  @container catalog (min-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  // 3 columns at 900px container width
+  @container catalog (min-width: 900px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  // 4 columns at 1200px container width
+  @container catalog (min-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// Lots view: always 1 column
+.lotsGrid {
   display: grid;
   grid-template-columns: 1fr;
   gap: $spacing-4;
-  min-width: 0;
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
-  overflow-x: hidden;
 }
+
+// =====================================
+// LOADING & ERROR STATES
+// =====================================
 
 .loading {
   display: flex;
@@ -194,6 +281,10 @@
     }
   }
 }
+
+// =====================================
+// MAP MODAL (Mobile - commented out)
+// =====================================
 
 .mapModalOverlay {
   position: fixed;

@@ -4,34 +4,18 @@ import styles from '../Catalog.module.scss'
 import type { Lot } from '../../../api'
 
 interface LotsViewProps {
-  panelWidth: number
-  screenWidth: number
-  onFavoriteClick: (lotId: string) => void
-  getGridColumns: (catalogWidth: number, screenWidth: number) => number
   lots: Lot[]
   isLoading: boolean
   error: unknown
+  onFavoriteClick: (lotId: string) => void
 }
 
-export default function LotsView({
-  panelWidth,
-  screenWidth,
-  onFavoriteClick,
-  getGridColumns,
-  lots,
-  isLoading,
-  error,
-}: LotsViewProps) {
+export default function LotsView({ lots, isLoading, error, onFavoriteClick }: LotsViewProps) {
   const activeLots = lots.filter(lot => lot.status === 'active')
 
   if (isLoading) {
     return (
-      <div
-        className={styles.grid}
-        style={{
-          gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
-        }}
-      >
+      <div className={styles.lotsGrid}>
         {Array.from({ length: 6 }).map((_, i) => (
           <SkeletonCard key={i} imageHeight={180} />
         ))}
@@ -49,12 +33,7 @@ export default function LotsView({
   }
 
   return (
-    <div
-      className={styles.grid}
-      style={{
-        gridTemplateColumns: `repeat(${getGridColumns(100 - panelWidth, screenWidth)}, 1fr)`,
-      }}
-    >
+    <div className={styles.lotsGrid}>
       {activeLots.map(lot => (
         <LotCard key={lot.id} lot={lot} onFavoriteClick={onFavoriteClick} />
       ))}
