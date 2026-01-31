@@ -25,14 +25,14 @@ const getMarkerConfig = (isRecommended: boolean, zoom: number, isSelected: boole
   }
 
   if (zoom < ZOOM_THRESHOLDS.SMALL) {
-    return { size: 30, isSolid: true }
+    return { size: 10, isSolid: true }
   }
 
   if (zoom < ZOOM_THRESHOLDS.MEDIUM) {
-    return { size: 36, isSolid: false }
+    return { size: 16, isSolid: false }
   }
 
-  return { size: 46, isSolid: false }
+  return { size: 16, isSolid: false }
 }
 
 const getStatusColor = (sale: Property['sale'] | string, isSelected: boolean) => {

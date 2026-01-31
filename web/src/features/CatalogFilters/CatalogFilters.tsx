@@ -1,20 +1,13 @@
 import styles from './CatalogFilters.module.scss'
 import { useMemo } from 'react'
-import { Plane, X, Map, Columns2 } from 'lucide-react'
+import { Plane, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useFilters, type FilterValues } from '../../contexts'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
 import { CatalogFiltersSkeleton } from './CatalogFiltersSkeleton'
 
-export type LayoutMode = 'split' | 'map'
-
-interface CatalogFiltersProps {
-  layoutMode?: LayoutMode
-  onLayoutChange?: (mode: LayoutMode) => void
-}
-
-export const CatalogFilters = ({ layoutMode = 'split', onLayoutChange }: CatalogFiltersProps) => {
+export const CatalogFilters = () => {
   const { t } = useTranslation()
   const { filters, options, updateFilter, resetFilters, isLoading } = useFilters()
 
@@ -88,7 +81,7 @@ export const CatalogFilters = ({ layoutMode = 'split', onLayoutChange }: Catalog
           onChange={value => updateFilter('city', value || null)}
           placeholder={t('filters.location.all')}
           triggerVariant="primary"
-          triggerSize="sm"
+          triggerSize="xs"
           triggerIconLeft={<Plane size={16} />}
           hideChevronRight
         />
@@ -98,6 +91,7 @@ export const CatalogFilters = ({ layoutMode = 'split', onLayoutChange }: Catalog
           value={filters.propertyType}
           onChange={value => updateFilter('propertyType', value as FilterValues['propertyType'])}
           placeholder={t('filters.propertyType.placeholder')}
+          triggerSize="xs"
         />
 
         <Select
@@ -105,6 +99,7 @@ export const CatalogFilters = ({ layoutMode = 'split', onLayoutChange }: Catalog
           value={filters.priceRange}
           onChange={value => updateFilter('priceRange', value as FilterValues['priceRange'])}
           placeholder={t('filters.price.placeholder')}
+          triggerSize="xs"
         />
 
         <Select
@@ -112,6 +107,7 @@ export const CatalogFilters = ({ layoutMode = 'split', onLayoutChange }: Catalog
           value={filters.bedrooms}
           onChange={value => updateFilter('bedrooms', value as FilterValues['bedrooms'])}
           placeholder={t('filters.bedrooms.placeholder')}
+          triggerSize="xs"
         />
 
         <Select
@@ -119,42 +115,19 @@ export const CatalogFilters = ({ layoutMode = 'split', onLayoutChange }: Catalog
           value={filters.status}
           onChange={value => updateFilter('status', value as FilterValues['status'])}
           placeholder={t('filters.status.placeholder')}
+          triggerSize="xs"
         />
 
         <div className={styles.rightActions}>
           {activeFilters.length > 0 && (
             <Button
               variant="secondary"
-              size="sm"
+              size="xs"
               iconLeft={<X size={14} />}
               onClick={clearAllFilters}
             >
               {t('filters.clearFilters.button')}
             </Button>
-          )}
-
-          {/* Layout mode switcher */}
-          {onLayoutChange && (
-            <div className={styles.layoutSwitcher}>
-              <button
-                className={`${styles.layoutButton} ${layoutMode === 'map' ? styles.active : ''}`}
-                onClick={() => onLayoutChange('map')}
-                aria-pressed={layoutMode === 'map'}
-                type="button"
-                title="Map view"
-              >
-                <Map size={16} />
-              </button>
-              <button
-                className={`${styles.layoutButton} ${layoutMode === 'split' ? styles.active : ''}`}
-                onClick={() => onLayoutChange('split')}
-                aria-pressed={layoutMode === 'split'}
-                type="button"
-                title="Split view"
-              >
-                <Columns2 size={16} />
-              </button>
-            </div>
           )}
         </div>
       </div>

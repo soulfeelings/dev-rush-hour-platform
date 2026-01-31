@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Map, LayoutGrid, ChevronRight } from 'lucide-react'
 import { Select } from '../../ui/Select'
 import { Toggle } from '../../ui/Toggle'
-import { CatalogFilters, type LayoutMode } from '@/features/CatalogFilters/CatalogFilters'
+import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
 import PropertyMap from '../../components/PropertyMap'
 import { useListProjects, useListLots } from '../../api'
 import { apiProjectsToProperties, apiLotsToPropertiesForMap } from '../../utils/apiAdapters'
@@ -29,8 +29,9 @@ const LAYOUT_MODE_KEY = 'catalog-layout-mode'
 const MOBILE_VIEW_KEY = 'catalog-mobile-view'
 
 type MobileView = 'list' | 'map'
+type DesktopView = 'split' | 'map'
 
-const loadLayoutMode = (): LayoutMode => {
+const loadLayoutMode = (): DesktopView => {
   try {
     const saved = localStorage.getItem(LAYOUT_MODE_KEY)
     if (saved === 'split' || saved === 'map') {
@@ -42,7 +43,7 @@ const loadLayoutMode = (): LayoutMode => {
   return 'split'
 }
 
-const saveLayoutMode = (mode: LayoutMode) => {
+const saveLayoutMode = (mode: DesktopView) => {
   try {
     localStorage.setItem(LAYOUT_MODE_KEY, mode)
   } catch (error) {
@@ -122,7 +123,7 @@ export default function Catalog() {
   const navigate = useNavigate()
   const { filters, updateFilter } = useFilters()
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>(loadLayoutMode)
+  const [layoutMode, setLayoutMode] = useState<DesktopView>(loadLayoutMode)
   const [mobileView, setMobileView] = useState<MobileView>(loadMobileView)
   const mapRef = useRef<PropertyMapRef | null>(null)
   const isDesktop = useIsDesktop()
@@ -319,7 +320,7 @@ export default function Catalog() {
   }, [lotsData, viewMode, lots, projectsForMap])
 
   // Desktop layout mode change handler
-  const handleLayoutChange = useCallback((mode: LayoutMode) => {
+  const handleLayoutChange = useCallback((mode: DesktopView) => {
     setLayoutMode(mode)
     saveLayoutMode(mode)
 
@@ -423,7 +424,7 @@ export default function Catalog() {
 
   return (
     <div className={styles.container}>
-      <CatalogFilters layoutMode={layoutMode} onLayoutChange={handleLayoutChange} />
+      <CatalogFilters />
       <div className={styles.contentWrapper}>
         {isDesktop ? (
           /* Desktop: CSS Grid layout with mode switching (≥1024px) */
