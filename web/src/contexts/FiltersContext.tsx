@@ -19,13 +19,14 @@ export type FilterValues = {
   developer: string | null
   project: string | null
   propertyType: 'all' | 'apartment' | 'villa' | 'townhouse' | 'penthouse' | 'duplex'
-  bedrooms: 'all' | 'studio' | '1' | '2' | '3' | '4+'
-  bathrooms: 'all' | '1' | '2' | '3' | '4+'
+  bedrooms: string[]
+  bathrooms: string[]
   priceRange: 'all' | '0-1m' | '1-2m' | '2-5m' | '5m+'
   minPrice: string
   maxPrice: string
   status: 'all' | 'ready' | 'construction' | 'planning'
   sort: string
+  search: string
 }
 
 type FiltersContextType = {
@@ -47,13 +48,14 @@ const defaultFilters: FilterValues = {
   developer: null,
   project: null,
   propertyType: 'all',
-  bedrooms: 'all',
-  bathrooms: 'all',
+  bedrooms: [],
+  bathrooms: [],
   priceRange: 'all',
   minPrice: '',
   maxPrice: '',
   status: 'all',
   sort: 'default',
+  search: '',
 }
 
 // Helper to parse filters from URL
@@ -72,13 +74,23 @@ const parseFiltersFromURL = (search: string): FilterValues => {
   }
 
   const beds = params.get('bedrooms')
-  if (beds && ['studio', '1', '2', '3', '4+'].includes(beds)) {
-    filters.bedrooms = beds as FilterValues['bedrooms']
+  if (beds) {
+    const bedsArray = beds
+      .split(',')
+      .filter(b => ['studio', '1', '2', '3', '4', '5', '6', '7', '7+'].includes(b))
+    if (bedsArray.length > 0) {
+      filters.bedrooms = bedsArray
+    }
   }
 
   const baths = params.get('bathrooms')
-  if (baths && ['1', '2', '3', '4+'].includes(baths)) {
-    filters.bathrooms = baths as FilterValues['bathrooms']
+  if (baths) {
+    const bathsArray = baths
+      .split(',')
+      .filter(b => ['1', '2', '3', '4', '5', '6', '7', '7+'].includes(b))
+    if (bathsArray.length > 0) {
+      filters.bathrooms = bathsArray
+    }
   }
 
   const priceRange = params.get('priceRange')
@@ -97,6 +109,9 @@ const parseFiltersFromURL = (search: string): FilterValues => {
   const sort = params.get('sort')
   if (sort) filters.sort = sort
 
+  const searchQuery = params.get('search')
+  if (searchQuery) filters.search = searchQuery
+
   return filters
 }
 
@@ -109,13 +124,14 @@ const buildURLParams = (filters: FilterValues): URLSearchParams => {
   if (filters.developer) params.set('developer', filters.developer)
   if (filters.project) params.set('project', filters.project)
   if (filters.propertyType !== 'all') params.set('type', filters.propertyType)
-  if (filters.bedrooms !== 'all') params.set('bedrooms', filters.bedrooms)
-  if (filters.bathrooms !== 'all') params.set('bathrooms', filters.bathrooms)
+  if (filters.bedrooms.length > 0) params.set('bedrooms', filters.bedrooms.join(','))
+  if (filters.bathrooms.length > 0) params.set('bathrooms', filters.bathrooms.join(','))
   if (filters.priceRange !== 'all') params.set('priceRange', filters.priceRange)
   if (filters.minPrice) params.set('minPrice', filters.minPrice)
   if (filters.maxPrice) params.set('maxPrice', filters.maxPrice)
   if (filters.status !== 'all') params.set('status', filters.status)
   if (filters.sort !== 'default') params.set('sort', filters.sort)
+  if (filters.search) params.set('search', filters.search)
 
   return params
 }

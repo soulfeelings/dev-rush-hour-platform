@@ -99,9 +99,9 @@ export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: S
               onClose?.()
             }}
             className={styles.logoutButton}
+            iconLeft={<LogOut size={16} />}
             fullWidth
           >
-            <LogOut size={16} />
             Logout
           </Button>
         </div>

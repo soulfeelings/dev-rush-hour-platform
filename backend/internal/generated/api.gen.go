@@ -205,6 +205,13 @@ const (
 	ListLotsParamsSortPriceDesc ListLotsParamsSort = "price_desc"
 )
 
+// Defines values for ListProjectsParamsStatus.
+const (
+	Construction ListProjectsParamsStatus = "construction"
+	Planning     ListProjectsParamsStatus = "planning"
+	Ready        ListProjectsParamsStatus = "ready"
+)
+
 // Defines values for ListProjectsParamsSort.
 const (
 	ListProjectsParamsSortNameAsc   ListProjectsParamsSort = "name_asc"
@@ -842,8 +849,11 @@ type ListLotsParams struct {
 	// Type Тип лота
 	Type *LotType `form:"type,omitempty" json:"type,omitempty"`
 
-	// Bedrooms Количество спален
-	Bedrooms *int `form:"bedrooms,omitempty" json:"bedrooms,omitempty"`
+	// Bedrooms Фильтр по количеству спален (comma-separated, например "1,2,3" или "studio")
+	Bedrooms *string `form:"bedrooms,omitempty" json:"bedrooms,omitempty"`
+
+	// Bathrooms Фильтр по количеству ванных (comma-separated, например "1,2,3")
+	Bathrooms *string `form:"bathrooms,omitempty" json:"bathrooms,omitempty"`
 
 	// PriceMin Минимальная цена
 	PriceMin *float32 `form:"priceMin,omitempty" json:"priceMin,omitempty"`
@@ -875,14 +885,20 @@ type ListLotsParamsSort string
 
 // ListProjectsParams defines parameters for ListProjects.
 type ListProjectsParams struct {
+	// City Фильтр по slug города
+	City *string `form:"city,omitempty" json:"city,omitempty"`
+
 	// Area Фильтр по slug района
 	Area *string `form:"area,omitempty" json:"area,omitempty"`
 
 	// Developer Фильтр по slug застройщика
 	Developer *string `form:"developer,omitempty" json:"developer,omitempty"`
 
-	// Bedrooms Фильтр по количеству спален (минимум)
-	Bedrooms *int `form:"bedrooms,omitempty" json:"bedrooms,omitempty"`
+	// Bedrooms Фильтр по количеству спален (comma-separated, например "1,2,3" или "studio")
+	Bedrooms *string `form:"bedrooms,omitempty" json:"bedrooms,omitempty"`
+
+	// Bathrooms Фильтр по количеству ванных (comma-separated, например "1,2,3")
+	Bathrooms *string `form:"bathrooms,omitempty" json:"bathrooms,omitempty"`
 
 	// PriceMin Минимальная цена
 	PriceMin *float32 `form:"priceMin,omitempty" json:"priceMin,omitempty"`
@@ -890,9 +906,18 @@ type ListProjectsParams struct {
 	// PriceMax Максимальная цена
 	PriceMax *float32 `form:"priceMax,omitempty" json:"priceMax,omitempty"`
 
+	// Status Фильтр по статусу проекта
+	Status *ListProjectsParamsStatus `form:"status,omitempty" json:"status,omitempty"`
+
+	// Search Поиск по названию проекта
+	Search *string `form:"search,omitempty" json:"search,omitempty"`
+
 	// Sort Сортировка
 	Sort *ListProjectsParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
 }
+
+// ListProjectsParamsStatus defines parameters for ListProjects.
+type ListProjectsParamsStatus string
 
 // ListProjectsParamsSort defines parameters for ListProjects.
 type ListProjectsParamsSort string
@@ -1818,6 +1843,13 @@ func (siw *ServerInterfaceWrapper) ListLots(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter bedrooms: %w", err).Error())
 	}
 
+	// ------------- Optional query parameter "bathrooms" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "bathrooms", query, &params.Bathrooms)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter bathrooms: %w", err).Error())
+	}
+
 	// ------------- Optional query parameter "priceMin" -------------
 
 	err = runtime.BindQueryParameter("form", true, false, "priceMin", query, &params.PriceMin)
@@ -1907,6 +1939,13 @@ func (siw *ServerInterfaceWrapper) ListProjects(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for query string: %w", err).Error())
 	}
 
+	// ------------- Optional query parameter "city" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "city", query, &params.City)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter city: %w", err).Error())
+	}
+
 	// ------------- Optional query parameter "area" -------------
 
 	err = runtime.BindQueryParameter("form", true, false, "area", query, &params.Area)
@@ -1928,6 +1967,13 @@ func (siw *ServerInterfaceWrapper) ListProjects(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter bedrooms: %w", err).Error())
 	}
 
+	// ------------- Optional query parameter "bathrooms" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "bathrooms", query, &params.Bathrooms)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter bathrooms: %w", err).Error())
+	}
+
 	// ------------- Optional query parameter "priceMin" -------------
 
 	err = runtime.BindQueryParameter("form", true, false, "priceMin", query, &params.PriceMin)
@@ -1940,6 +1986,20 @@ func (siw *ServerInterfaceWrapper) ListProjects(c *fiber.Ctx) error {
 	err = runtime.BindQueryParameter("form", true, false, "priceMax", query, &params.PriceMax)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter priceMax: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "status" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "status", query, &params.Status)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter status: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "search" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "search", query, &params.Search)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter search: %w", err).Error())
 	}
 
 	// ------------- Optional query parameter "sort" -------------

@@ -5,9 +5,14 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
+import type { ListProjectsStatus } from './listProjectsStatus'
 import type { ListProjectsSort } from './listProjectsSort'
 
 export type ListProjectsParams = {
+  /**
+   * Фильтр по slug города
+   */
+  city?: string
   /**
    * Фильтр по slug района
    */
@@ -17,9 +22,13 @@ export type ListProjectsParams = {
    */
   developer?: string
   /**
-   * Фильтр по количеству спален (минимум)
+   * Фильтр по количеству спален (comma-separated, например "1,2,3" или "studio")
    */
-  bedrooms?: number
+  bedrooms?: string
+  /**
+   * Фильтр по количеству ванных (comma-separated, например "1,2,3")
+   */
+  bathrooms?: string
   /**
    * Минимальная цена
    */
@@ -28,6 +37,14 @@ export type ListProjectsParams = {
    * Максимальная цена
    */
   priceMax?: number
+  /**
+   * Фильтр по статусу проекта
+   */
+  status?: ListProjectsStatus
+  /**
+   * Поиск по названию проекта
+   */
+  search?: string
   /**
    * Сортировка
    */

@@ -1,1 +1,1 @@
-export { CatalogFilters, type LayoutMode } from './CatalogFilters'
+export { CatalogFilters } from './CatalogFilters'

@@ -11,6 +11,7 @@ menu:
 	@echo "  \033[33m4)\033[0m Run with Docker Compose (prod)"
 	@echo "  \033[33m5)\033[0m Railway"
 	@echo "  \033[33m6)\033[0m Reset Dev Environment (with seed)"
+	@echo "  \033[33m7)\033[0m Rebuild Web Dependencies"
 	@echo ""
 	@read -p "Select option: " choice; \
 	case $$choice in \
@@ -20,10 +21,11 @@ menu:
 		4) $(MAKE) up ;; \
 		5) $(MAKE) railway-menu ;; \
 		6) $(MAKE) reset-dev ;; \
+		7) $(MAKE) web-deps ;; \
 		*) echo "Invalid option" ;; \
 	esac
 
-.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-migrate railway-seed
+.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-migrate railway-seed web-deps
 
 up:
 	@echo "\033[1;32mStarting services with Docker Compose (production)...\033[0m"
@@ -62,6 +64,14 @@ logs:
 
 logs-dev:
 	docker compose -f docker-compose.dev.yml logs -f
+
+web-deps:
+	@echo "\033[1;33m📦 Rebuilding web dependencies...\033[0m"
+	docker compose -f docker-compose.dev.yml stop web
+	docker volume rm -f dev-rush-hour-platform_web_node_modules 2>/dev/null || true
+	docker compose -f docker-compose.dev.yml up -d --build web
+	@echo "\033[1;32m✅ Web dependencies rebuilt!\033[0m"
+	@echo "  Frontend: http://localhost:5173"
 
 seed-dev:
 	@echo "\033[1;32mSeeding development database...\033[0m"

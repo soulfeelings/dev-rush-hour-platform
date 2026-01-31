@@ -2,12 +2,34 @@ import { useEffect, useRef, useCallback, useState, useImperativeHandle, forwardR
 import { useNavigate } from 'react-router-dom'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+
+// Extend L namespace with markercluster types
+declare module 'leaflet' {
+  interface MarkerCluster extends L.Marker {
+    getChildCount(): number
+    getAllChildMarkers(): L.Marker[]
+  }
+  interface MarkerClusterGroupOptions extends L.LayerOptions {
+    maxClusterRadius?: number | ((zoom: number) => number)
+    iconCreateFunction?: (cluster: MarkerCluster) => L.Icon<L.IconOptions> | L.DivIcon
+    spiderfyOnMaxZoom?: boolean
+    showCoverageOnHover?: boolean
+    zoomToBoundsOnClick?: boolean
+    disableClusteringAtZoom?: number
+  }
+  interface MarkerClusterGroup extends L.FeatureGroup {
+    clearLayers(): this
+    addLayer(layer: L.Layer): this
+  }
+  function markerClusterGroup(options?: MarkerClusterGroupOptions): MarkerClusterGroup
+}
 import styles from './PropertyMap.module.scss'
 import { createMarkerPopupElement } from './MarkerPopup'
 import type { Property } from '../../types/property'
-import { developerLogos } from '../../data/mockProperties'
 import { districts } from '../../data/dubai_districts_data'
-import { createPropertyMarkerIcon, getMarkerConfig } from './markerIcon'
+import { createPropertyMarkerIcon } from './markerIcon'
 import { createDistrictPopupHTML } from './districtPopup'
 import { getProjectDetailRoute, getAreaDetailRoute } from '../../constants/routes'
 
@@ -18,6 +40,34 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 })
+
+// Custom cluster icon matching our marker design
+const createClusterIcon = (cluster: { getChildCount(): number }) => {
+  const count = cluster.getChildCount()
+  const size = count < 10 ? 28 : count < 100 ? 32 : 36
+
+  return L.divIcon({
+    html: `<div style="
+      width: ${size}px;
+      height: ${size}px;
+      background: #1C1C1E;
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: system-ui, -apple-system, sans-serif;
+      cursor: pointer;
+    ">${count}</div>`,
+    className: '',
+    iconSize: L.point(size, size),
+    iconAnchor: L.point(size / 2, size / 2),
+  })
+}
 
 interface PropertyMapProps {
   properties: Property[]
@@ -35,7 +85,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
   ({ properties, selectedPropertyId, onPropertyClick, showDistrictFilter = true }, ref) => {
     const navigate = useNavigate()
     const mapRef = useRef<L.Map | null>(null)
-    const markersRef = useRef<L.Marker[]>([])
+    const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null)
     const districtLayersRef = useRef<L.Polygon[]>([])
     const [showDistricts, setShowDistricts] = useState(false)
     const popupCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -52,20 +102,27 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
       if (!mapRef.current) return
 
       const map = mapRef.current
-      const currentZoom = map.getZoom()
 
-      markersRef.current.forEach(marker => marker.remove())
-      markersRef.current = []
+      // Clear existing cluster group
+      if (clusterGroupRef.current) {
+        clusterGroupRef.current.clearLayers()
+      } else {
+        // Create cluster group with custom icon
+        clusterGroupRef.current = L.markerClusterGroup({
+          iconCreateFunction: createClusterIcon,
+          maxClusterRadius: 50,
+          spiderfyOnMaxZoom: true,
+          showCoverageOnHover: false,
+          zoomToBoundsOnClick: true,
+          disableClusteringAtZoom: 15,
+        })
+        map.addLayer(clusterGroupRef.current)
+      }
 
       properties.forEach(property => {
-        const isRecommended = property.isRecommended || false
-        const isSelected = property.id === selectedPropertyId
-        const logoUrl = property.logoUrl || developerLogos[property.developer]
-        const { size } = getMarkerConfig(isRecommended, currentZoom, isSelected)
-
         const marker = L.marker(property.coordinates, {
-          icon: createPropertyMarkerIcon(false, 'sale', logoUrl, currentZoom, false),
-        }).addTo(map)
+          icon: createPropertyMarkerIcon(),
+        })
 
         const popupElement = createMarkerPopupElement(property, {
           onMouseEnter: () => {
@@ -86,12 +143,11 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         marker.on('mouseover', () => {
           clearPopupTimeout()
 
-          // Calculate smart popup position based on marker location in viewport
           const markerPoint = map.latLngToContainerPoint(property.coordinates)
           const mapSize = map.getSize()
           const popupWidth = 290
           const popupHeight = 400
-          const markerSize = size || 32
+          const markerSize = 12
           const gap = 12
 
           const spaceAbove = markerPoint.y
@@ -99,35 +155,27 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           const spaceLeft = markerPoint.x
           const spaceRight = mapSize.x - markerPoint.x
 
-          // Leaflet popup anchor is at bottom-center by default
-          // offset [x, y]: positive y = move popup down, positive x = move popup right
           let offsetX = 0
           let offsetY = 0
+          let popupDirection = 'top'
 
-          // Check available space and position accordingly
-          let popupDirection = 'top' // default: popup above marker, arrow points down
           if (spaceAbove > popupHeight + markerSize / 2 + gap) {
-            // Enough space above - show popup above marker (default)
             offsetX = 0
             offsetY = -(markerSize / 2 + gap)
             popupDirection = 'top'
           } else if (spaceBelow > popupHeight + markerSize / 2 + gap) {
-            // Show below - need to offset by popup height since anchor is at bottom
             offsetX = 0
             offsetY = markerSize / 2 + gap + popupHeight
             popupDirection = 'bottom'
           } else if (spaceRight > popupWidth / 2 + markerSize / 2 + gap) {
-            // Show to the right
             offsetX = markerSize / 2 + gap + popupWidth / 2
             offsetY = popupHeight / 2
             popupDirection = 'right'
           } else if (spaceLeft > popupWidth / 2 + markerSize / 2 + gap) {
-            // Show to the left
             offsetX = -(markerSize / 2 + gap + popupWidth / 2)
             offsetY = popupHeight / 2
             popupDirection = 'left'
           } else {
-            // Not enough space anywhere - show above anyway and let it clip
             offsetX = 0
             offsetY = -(markerSize / 2 + gap)
             popupDirection = 'top'
@@ -153,9 +201,9 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           }, 150)
         })
 
-        markersRef.current.push(marker)
+        clusterGroupRef.current?.addLayer(marker)
       })
-    }, [properties, selectedPropertyId, onPropertyClick, navigate, clearPopupTimeout])
+    }, [properties, onPropertyClick, navigate, clearPopupTimeout])
 
     useImperativeHandle(ref, () => ({
       invalidateSize: () => {
@@ -167,7 +215,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         if (mapRef.current) {
           mapRef.current.invalidateSize()
           updateMarkers()
-          // Если районы показываются, обновляем их тоже
           if (showDistricts) {
             districtLayersRef.current.forEach(layer => layer.remove())
             districtLayersRef.current = []
@@ -283,21 +330,17 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         ).addTo(mapRef.current)
       }
 
-      const map = mapRef.current
-      map.on('zoomend', updateMarkers)
-
       updateMarkers()
 
       if (properties.length > 0 && mapRef.current) {
         const bounds = L.latLngBounds(properties.map(p => p.coordinates))
-        map.fitBounds(bounds, { padding: [50, 50] })
+        mapRef.current.fitBounds(bounds, { padding: [50, 50] })
       }
 
       return () => {
-        if (mapRef.current) {
-          mapRef.current.off('zoomend', updateMarkers)
+        if (clusterGroupRef.current) {
+          clusterGroupRef.current.clearLayers()
         }
-        markersRef.current.forEach(marker => marker.remove())
         districtLayersRef.current.forEach(layer => layer.remove())
         clearPopupTimeout()
       }

@@ -8,6 +8,8 @@ import (
 	"rush-hour-platform/backend/internal/mappers"
 	"rush-hour-platform/backend/internal/repo"
 	"rush-hour-platform/backend/internal/services"
+	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -26,6 +28,72 @@ func NewLotsHandler(lotsService *services.LotsService) *LotsHandler {
 	}
 }
 
+// parseLotsBedroomsParam parses comma-separated bedroom values for lots (e.g., "1,2,3" or "studio,1,2")
+func parseLotsBedroomsParam(bedroomsStr *string) []int {
+	if bedroomsStr == nil || *bedroomsStr == "" {
+		return nil
+	}
+
+	parts := strings.Split(*bedroomsStr, ",")
+	result := make([]int, 0, len(parts))
+
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+
+		// Handle "studio" as 0 bedrooms
+		if strings.ToLower(part) == "studio" {
+			result = append(result, 0)
+			continue
+		}
+
+		// Handle "7+" as 7
+		if part == "7+" {
+			result = append(result, 7)
+			continue
+		}
+
+		// Parse numeric value
+		if num, err := strconv.Atoi(part); err == nil && num >= 0 {
+			result = append(result, num)
+		}
+	}
+
+	return result
+}
+
+// parseLotsBathroomsParam parses comma-separated bathroom values for lots (e.g., "1,2,3")
+func parseLotsBathroomsParam(bathroomsStr *string) []int {
+	if bathroomsStr == nil || *bathroomsStr == "" {
+		return nil
+	}
+
+	parts := strings.Split(*bathroomsStr, ",")
+	result := make([]int, 0, len(parts))
+
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+
+		// Handle "7+" as 7
+		if part == "7+" {
+			result = append(result, 7)
+			continue
+		}
+
+		// Parse numeric value
+		if num, err := strconv.Atoi(part); err == nil && num >= 0 {
+			result = append(result, num)
+		}
+	}
+
+	return result
+}
+
 func (h *LotsHandler) ListLots(c *fiber.Ctx, params generated.ListLotsParams) error {
 	h.logger.Info("list_lots_started",
 		"area", params.Area,
@@ -37,7 +105,9 @@ func (h *LotsHandler) ListLots(c *fiber.Ctx, params generated.ListLotsParams) er
 	)
 
 	filters := repo.LotFilters{
-		Status: domain.LotStatusActive,
+		Status:    domain.LotStatusActive,
+		Bedrooms:  parseLotsBedroomsParam(params.Bedrooms),
+		Bathrooms: parseLotsBathroomsParam(params.Bathrooms),
 	}
 
 	if params.Area != nil {
@@ -49,10 +119,6 @@ func (h *LotsHandler) ListLots(c *fiber.Ctx, params generated.ListLotsParams) er
 	if params.Type != nil {
 		lotType := domain.LotType(*params.Type)
 		filters.Type = &lotType
-	}
-	if params.Bedrooms != nil {
-		bedrooms := int(*params.Bedrooms)
-		filters.Bedrooms = &bedrooms
 	}
 	if params.PriceMin != nil {
 		priceMin := float64(*params.PriceMin)

@@ -2,6 +2,7 @@
 @use 'sass:color';
 
 .filtersWrapper {
+  position: relative;
   width: 100%;
   margin: 0 auto;
   padding: $spacing-0 $spacing-4;
@@ -9,6 +10,26 @@
   box-sizing: border-box;
   flex-shrink: 0;
   margin-bottom: $spacing-3;
+}
+
+.searchOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .filtersBar {
@@ -25,6 +46,72 @@
 
   @media (max-width: $breakpoint-md) {
     padding: $spacing-3;
+  }
+
+  // Apply semibold font weight to filter buttons
+  :global(button) {
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  z-index: 1;
+  transition: z-index 0s;
+
+  &.searchFocused {
+    z-index: 100;
+
+    .searchInput {
+      width: 400px;
+      background: $color-bg-card;
+      border-color: $color-charcoal-grey-30;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+      @media (max-width: $breakpoint-md) {
+        width: calc(100vw - 48px);
+      }
+    }
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  left: $spacing-3;
+  color: $color-text-secondary;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.searchInput {
+  height: 36px;
+  width: 200px;
+  padding: $spacing-2 $spacing-3 $spacing-2 $spacing-8;
+  border: 1px solid $color-border;
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-family: inherit;
+  background: transparent;
+  color: $color-text;
+  transition:
+    width 0.2s ease-out,
+    border-color $transition-fast,
+    box-shadow 0.2s ease-out,
+    background 0.2s ease-out;
+
+  &::placeholder {
+    color: $color-text-secondary;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    width: 160px;
   }
 }
 

@@ -2,8 +2,10 @@ import { useState, useRef, useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { ChevronUp } from 'lucide-react'
+import { ChevronUp, X } from 'lucide-react'
 import styles from './PriceSelect.module.scss'
+
+type TriggerSize = 'xs' | 'sm' | 'md' | 'lg'
 
 interface PriceSelectProps {
   minPrice: string
@@ -14,6 +16,8 @@ interface PriceSelectProps {
   icon?: React.ReactNode
   fullWidth?: boolean
   fullHeight?: boolean
+  size?: TriggerSize
+  clearable?: boolean
 }
 
 export function PriceSelect({
@@ -25,6 +29,8 @@ export function PriceSelect({
   icon,
   fullWidth = false,
   fullHeight = false,
+  size = 'md',
+  clearable = false,
 }: PriceSelectProps) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
@@ -141,6 +147,16 @@ export function PriceSelect({
     setIsOpen(!isOpen)
   }
 
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setLocalMinPrice('')
+    setLocalMaxPrice('')
+    onMinPriceChange('')
+    onMaxPriceChange('')
+  }
+
+  const isActive = minPrice !== '' || maxPrice !== ''
+
   return (
     <div
       className={`${styles.formGroup} ${fullWidth ? styles['formGroup--fullWidth'] : ''} ${fullHeight ? styles['formGroup--fullHeight'] : ''}`}
@@ -153,10 +169,16 @@ export function PriceSelect({
           type="button"
           id={buttonId}
           ref={triggerRef}
-          className={`${styles.trigger} ${isOpen ? styles['trigger--open'] : ''} ${fullWidth ? styles['trigger--fullWidth'] : ''} ${fullHeight ? styles['trigger--fullHeight'] : ''}`}
+          className={`${styles.trigger} ${styles[`trigger--${size}`]} ${isOpen ? styles['trigger--open'] : ''} ${isActive ? styles['trigger--active'] : ''} ${fullWidth ? styles['trigger--fullWidth'] : ''} ${fullHeight ? styles['trigger--fullHeight'] : ''}`}
           onClick={handleToggle}
         >
-          {icon && <span className={styles.icon}>{icon}</span>}
+          {clearable && isActive ? (
+            <span className={styles.clearIcon} onClick={handleClear}>
+              <X size={14} />
+            </span>
+          ) : (
+            icon && <span className={styles.icon}>{icon}</span>
+          )}
           <span className={!minPrice && !maxPrice ? styles.placeholder : ''}>
             {getDisplayText()}
           </span>

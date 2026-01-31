@@ -22,9 +22,13 @@ export type ListLotsParams = {
    */
   type?: LotType
   /**
-   * Количество спален
+   * Фильтр по количеству спален (comma-separated, например "1,2,3" или "studio")
    */
-  bedrooms?: number
+  bedrooms?: string
+  /**
+   * Фильтр по количеству ванных (comma-separated, например "1,2,3")
+   */
+  bathrooms?: string
   /**
    * Минимальная цена
    */

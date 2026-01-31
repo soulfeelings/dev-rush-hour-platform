@@ -36,6 +36,7 @@
   padding: $spacing-2 $spacing-4;
   font-family: inherit;
   font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
   color: $color-text-secondary;
   background: $color-bg-card;
   border: 1px solid $color-border;
@@ -45,10 +46,31 @@
   position: relative;
   text-align: left;
   white-space: nowrap;
-  height: 36px;
+  height: 40px;
   min-width: 0;
 
-  > span:not(.icon):not(.arrow) {
+  &--xs {
+    height: 31px;
+    padding: $spacing-2 $spacing-4;
+  }
+
+  &--sm {
+    height: 36px;
+    padding: $spacing-2 $spacing-4;
+  }
+
+  &--md {
+    height: 40px;
+    padding: $spacing-2 $spacing-5;
+  }
+
+  &--lg {
+    height: 48px;
+    padding: $spacing-3 $spacing-6;
+    font-size: $font-size-md;
+  }
+
+  > span:not(.icon):not(.arrow):not(.clearIcon) {
     flex: 1;
     min-width: 0;
     overflow: hidden;
@@ -73,6 +95,30 @@
   &--open {
     border-color: $color-yellow;
     color: $color-text;
+  }
+
+  &--active {
+    background: $color-yellow;
+    border-color: $color-yellow;
+    color: $color-charcoal-black;
+
+    &:hover:not(:disabled) {
+      background: $color-yellow-hover;
+      border-color: $color-yellow-hover;
+    }
+  }
+}
+
+.clearIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity $transition-fast;
+
+  &:hover {
+    opacity: 1;
   }
 }
 

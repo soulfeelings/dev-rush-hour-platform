@@ -97,6 +97,11 @@ paths:
       tags:
         - Projects
       parameters:
+        - name: city
+          in: query
+          schema:
+            type: string
+          description: Фильтр по slug города
         - name: area
           in: query
           schema:
@@ -110,8 +115,13 @@ paths:
         - name: bedrooms
           in: query
           schema:
-            type: integer
-          description: Фильтр по количеству спален (минимум)
+            type: string
+          description: Фильтр по количеству спален (comma-separated, например "1,2,3" или "studio")
+        - name: bathrooms
+          in: query
+          schema:
+            type: string
+          description: Фильтр по количеству ванных (comma-separated, например "1,2,3")
         - name: priceMin
           in: query
           schema:
@@ -122,6 +132,17 @@ paths:
           schema:
             type: number
           description: Максимальная цена
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ready, construction, planning]
+          description: Фильтр по статусу проекта
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Поиск по названию проекта
         - name: sort
           in: query
           schema:
@@ -196,8 +217,13 @@ paths:
         - name: bedrooms
           in: query
           schema:
-            type: integer
-          description: Количество спален
+            type: string
+          description: Фильтр по количеству спален (comma-separated, например "1,2,3" или "studio")
+        - name: bathrooms
+          in: query
+          schema:
+            type: string
+          description: Фильтр по количеству ванных (comma-separated, например "1,2,3")
         - name: priceMin
           in: query
           schema:

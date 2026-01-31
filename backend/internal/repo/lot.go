@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"rush-hour-platform/backend/internal/domain"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -24,16 +25,17 @@ func NewLotRepo(db *sql.DB) *LotRepo {
 }
 
 type LotFilters struct {
-	AreaSlug   *string
+	AreaSlug    *string
 	ProjectSlug *string
-	Type       *domain.LotType
-	Bedrooms   *int
-	PriceMin   *float64
-	PriceMax   *float64
-	AreaMin    *float64
-	AreaMax    *float64
-	BonusKey   *string
-	Status     domain.LotStatus
+	Type        *domain.LotType
+	Bedrooms    []int // Array for multi-select (e.g., [1, 2, 3])
+	Bathrooms   []int // Array for multi-select
+	PriceMin    *float64
+	PriceMax    *float64
+	AreaMin     *float64
+	AreaMax     *float64
+	BonusKey    *string
+	Status      domain.LotStatus
 }
 
 type LotSort string
@@ -289,11 +291,30 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		argPos++
 	}
 
-	if filters.Bedrooms != nil {
-		query += fmt.Sprintf(` AND bedrooms = $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND bedrooms = $%d`, argPos)
-		args = append(args, *filters.Bedrooms)
-		argPos++
+	// Filter by bedrooms - match if lot bedrooms is in the selected array
+	if len(filters.Bedrooms) > 0 {
+		placeholders := make([]string, len(filters.Bedrooms))
+		for i, bed := range filters.Bedrooms {
+			placeholders[i] = fmt.Sprintf("$%d", argPos)
+			args = append(args, bed)
+			argPos++
+		}
+		inClause := strings.Join(placeholders, ", ")
+		query += fmt.Sprintf(` AND bedrooms IN (%s)`, inClause)
+		countQuery += fmt.Sprintf(` AND bedrooms IN (%s)`, inClause)
+	}
+
+	// Filter by bathrooms - match if lot bathrooms is in the selected array
+	if len(filters.Bathrooms) > 0 {
+		placeholders := make([]string, len(filters.Bathrooms))
+		for i, bath := range filters.Bathrooms {
+			placeholders[i] = fmt.Sprintf("$%d", argPos)
+			args = append(args, bath)
+			argPos++
+		}
+		inClause := strings.Join(placeholders, ", ")
+		query += fmt.Sprintf(` AND bathrooms IN (%s)`, inClause)
+		countQuery += fmt.Sprintf(` AND bathrooms IN (%s)`, inClause)
 	}
 
 	if filters.PriceMin != nil {

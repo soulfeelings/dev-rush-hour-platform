@@ -105,7 +105,7 @@ services:
       - SKIP_LEFTHOOK=1
     volumes:
       - ./web:/app
-      - /app/node_modules
+      - web_node_modules:/app/node_modules
     command: pnpm dev --host 0.0.0.0
     depends_on:
       - backend
@@ -124,3 +124,4 @@ services:
 
 volumes:
   postgres_data:
+  web_node_modules:

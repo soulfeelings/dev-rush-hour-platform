@@ -37,22 +37,14 @@ export default function HeroFilters() {
       ]
     : [{ value: 'all', label: t('filters.project.all') }]
 
-  const propertyTypeOptions = options?.propertyTypes
-    ? options.propertyTypes.map(pt => ({ value: pt.value || '', label: pt.label || '' }))
-    : [
-        { value: 'all', label: t('filters.propertyType.all') },
-        { value: 'apartment', label: t('filters.propertyType.apartment') },
-      ]
-
   const handleSearch = () => {
     const params = new URLSearchParams()
     if (filters.city) params.set('city', filters.city)
     if (filters.area) params.set('area', filters.area)
     if (filters.developer) params.set('developer', filters.developer)
     if (filters.project) params.set('project', filters.project)
-    if (filters.propertyType !== 'all') params.set('type', filters.propertyType)
-    if (filters.bedrooms !== 'all') params.set('bedrooms', filters.bedrooms)
-    if (filters.bathrooms !== 'all') params.set('bathrooms', filters.bathrooms)
+    if (filters.bedrooms.length > 0) params.set('bedrooms', filters.bedrooms.join(','))
+    if (filters.bathrooms.length > 0) params.set('bathrooms', filters.bathrooms.join(','))
     if (filters.minPrice) params.set('minPrice', filters.minPrice)
     if (filters.maxPrice) params.set('maxPrice', filters.maxPrice)
     navigate(`${ROUTES.CATALOG}?${params.toString()}`)
@@ -69,19 +61,16 @@ export default function HeroFilters() {
     const projectLabel =
       projectOptions.find(opt => opt.value === (filters.project || 'all'))?.label ||
       t('filters.project.placeholder')
-    const propertyTypeLabel =
-      propertyTypeOptions.find(opt => opt.value === filters.propertyType)?.label ||
-      t('filters.propertyType.placeholder')
     const bedsLabel =
-      filters.bedrooms === 'all'
+      filters.bedrooms.length === 0
         ? t('filters.bedrooms.all')
-        : filters.bedrooms === 'studio'
+        : filters.bedrooms.includes('studio')
           ? t('filters.bedrooms.studio')
-          : `${filters.bedrooms} ${t('filters.bedrooms.one').replace('1 ', '')}`
+          : `${filters.bedrooms.join(', ')} ${t('filters.bedrooms.one').replace('1 ', '')}`
     const bathsLabel =
-      filters.bathrooms === 'all'
+      filters.bathrooms.length === 0
         ? t('home.properties.baths')
-        : `${filters.bathrooms} ${t('home.properties.baths')}`
+        : `${filters.bathrooms.join(', ')} ${t('home.properties.baths')}`
     const priceLabel =
       filters.minPrice || filters.maxPrice
         ? `${filters.minPrice || '0'} - ${filters.maxPrice || t('filters.price.any')} AED`
@@ -92,7 +81,6 @@ Filters:
 - City: ${cityLabel}
 - Developer: ${developerLabel}
 - Project: ${projectLabel}
-- Property Type: ${propertyTypeLabel}
 - Bedrooms: ${bedsLabel}
 - Bathrooms: ${bathsLabel}
 - Price: ${priceLabel}`
@@ -144,20 +132,6 @@ Filters:
                 fullWidth
                 fullHeight
                 searchable
-                hideAllInTrigger
-              />
-            </div>
-            <div className={styles.selectWrapper}>
-              <Select
-                options={propertyTypeOptions}
-                value={filters.propertyType}
-                onChange={value =>
-                  updateFilter('propertyType', value as FilterValues['propertyType'])
-                }
-                placeholder={t('filters.propertyType.placeholder')}
-                icon={<Home size={18} />}
-                fullWidth
-                fullHeight
                 hideAllInTrigger
               />
             </div>

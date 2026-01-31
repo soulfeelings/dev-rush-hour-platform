@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { createPropertyMarkerIcon } from '../../components/PropertyMap/markerIcon'
-import { developerLogos } from '../../data/mockProperties'
 import ProjectFeatures from '../../components/ProjectFeatures'
 import Model3DViewer from '../../components/Model3DViewer'
 import { Modal } from '../../ui/Modal'
@@ -131,23 +130,12 @@ export default function LotDetail() {
     if (finalProject.lat === undefined || finalProject.lng === undefined) return
 
     const coordinates: [number, number] = [finalProject.lat, finalProject.lng]
-    const isRecommended = Boolean(
-      (finalProject.data as { isRecommended?: boolean } | undefined)?.isRecommended
-    )
-    const saleStatus = finalProject.sale || 'unknown'
-
-    // Логика получения логотипа: используем developer из lot
-    const developerForLogo = lot?.developer
-    const developerData = developerForLogo?.data as { logoUrl?: string } | undefined
-    const logoFromApi = developerData?.logoUrl
-    const logoFallbackKey = developerForLogo?.name || developerForLogo?.id || ''
-    const logoUrl = logoFromApi || developerLogos[logoFallbackKey]
 
     const map = mapRef.current
     map.setView(coordinates, Math.max(map.getZoom(), MAP_ZOOM_DEFAULT))
 
     const applyMarkerIcon = () => {
-      const icon = createPropertyMarkerIcon(isRecommended, saleStatus, logoUrl, map.getZoom())
+      const icon = createPropertyMarkerIcon()
 
       if (!markerRef.current) {
         markerRef.current = L.marker(coordinates, { icon }).addTo(map)
@@ -161,9 +149,7 @@ export default function LotDetail() {
 
     const handleZoomEnd = () => {
       if (!markerRef.current) return
-      markerRef.current.setIcon(
-        createPropertyMarkerIcon(isRecommended, saleStatus, logoUrl, map.getZoom())
-      )
+      markerRef.current.setIcon(createPropertyMarkerIcon())
     }
 
     map.on('zoomend', handleZoomEnd)
