@@ -63,13 +63,13 @@ export default function Header() {
               Rush&nbsp;Hour
             </RouterLink>
             <nav className={styles.nav}>
-              <Link to={ROUTES.PROJECTS} className={styles.navLink}>
+              <Link to={ROUTES.PROJECTS} className={styles.navLink} typographyWeight="semibold">
                 {t('header.nav.projects')}
               </Link>
-              <Link to={ROUTES.APARTMENTS} className={styles.navLink}>
+              <Link to={ROUTES.APARTMENTS} className={styles.navLink} typographyWeight="semibold">
                 {t('header.nav.apartments')}
               </Link>
-              <Link to={ROUTES.ADMIN} className={styles.navLink}>
+              <Link to={ROUTES.ADMIN} className={styles.navLink} typographyWeight="semibold">
                 {t('header.nav.admin')}
               </Link>
             </nav>

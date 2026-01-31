@@ -44,7 +44,8 @@
 .layoutSwitcher {
   display: flex;
   gap: $spacing-1;
-  background: rgba($color-charcoal-grey-10, 0.5);
+  background: transparent;
+  border: 1px solid $color-border;
   border-radius: $radius-full;
   padding: $spacing-1;
 

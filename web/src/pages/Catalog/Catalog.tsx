@@ -1,5 +1,6 @@
-import { useState, useCallback, useRef, useMemo } from 'react'
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Map, LayoutGrid, ChevronRight } from 'lucide-react'
 import { Select } from '../../ui/Select'
 import { Toggle } from '../../ui/Toggle'
 import { CatalogFilters, type LayoutMode } from '@/features/CatalogFilters/CatalogFilters'
@@ -25,11 +26,14 @@ import type { ListLotsParams } from '../../api/generated/schemas/listLotsParams'
 // =====================================
 
 const LAYOUT_MODE_KEY = 'catalog-layout-mode'
+const MOBILE_VIEW_KEY = 'catalog-mobile-view'
+
+type MobileView = 'list' | 'map'
 
 const loadLayoutMode = (): LayoutMode => {
   try {
     const saved = localStorage.getItem(LAYOUT_MODE_KEY)
-    if (saved === 'split' || saved === 'map' || saved === 'list') {
+    if (saved === 'split' || saved === 'map') {
       return saved
     }
   } catch (error) {
@@ -44,6 +48,48 @@ const saveLayoutMode = (mode: LayoutMode) => {
   } catch (error) {
     console.warn('Failed to save layout mode:', error)
   }
+}
+
+const loadMobileView = (): MobileView => {
+  try {
+    const saved = localStorage.getItem(MOBILE_VIEW_KEY)
+    if (saved === 'list' || saved === 'map') {
+      return saved
+    }
+  } catch (error) {
+    console.warn('Failed to load mobile view:', error)
+    return 'list'
+  }
+  return 'list' // Default to list view on mobile
+}
+
+const saveMobileView = (view: MobileView) => {
+  try {
+    localStorage.setItem(MOBILE_VIEW_KEY, view)
+  } catch (error) {
+    console.warn('Failed to save mobile view:', error)
+  }
+  return 'list'
+}
+
+// Breakpoint for desktop layout (matches $breakpoint-lg)
+const DESKTOP_BREAKPOINT = 1024
+
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= DESKTOP_BREAKPOINT : true
+  )
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  return isDesktop
 }
 
 // =====================================
@@ -77,7 +123,9 @@ export default function Catalog() {
   const { filters, updateFilter } = useFilters()
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
   const [layoutMode, setLayoutMode] = useState<LayoutMode>(loadLayoutMode)
+  const [mobileView, setMobileView] = useState<MobileView>(loadMobileView)
   const mapRef = useRef<PropertyMapRef | null>(null)
+  const isDesktop = useIsDesktop()
 
   const sortValue = (filters.sort || 'default') as SortValue
   const viewMode: CatalogViewMode = location.pathname.includes('/apartments') ? 'lots' : 'projects'
@@ -235,24 +283,24 @@ export default function Catalog() {
   const lotPropertiesForMap = useMemo(() => {
     if (viewMode !== 'lots' || !lotsData?.items || !projectsForMap.length) return []
 
-    const lotsByProjectId = new Map<string, (typeof lots)[0][]>()
-    lots.forEach(lot => {
+    const lotsByProjectId = new globalThis.Map<string, Lot[]>()
+    lots.forEach((lot: Lot) => {
       if (lot.projectId) {
         const existing = lotsByProjectId.get(lot.projectId) || []
         lotsByProjectId.set(lot.projectId, [...existing, lot])
       }
     })
 
-    const lotsWithProjects: Array<(typeof lots)[0] & { project?: unknown }> = []
+    const lotsWithProjects: Array<Lot & { project?: unknown }> = []
 
-    lotsByProjectId.forEach((projectLots, projectId) => {
+    lotsByProjectId.forEach((projectLots: Lot[], projectId: string) => {
       const project = projectsForMap.find(p => p.id === projectId)
 
       if (!project) {
         return
       }
 
-      projectLots.forEach(lot => {
+      projectLots.forEach((lot: Lot) => {
         lotsWithProjects.push({
           ...lot,
           project: {
@@ -270,7 +318,7 @@ export default function Catalog() {
     return apiLotsToPropertiesForMap(lotsWithProjects)
   }, [lotsData, viewMode, lots, projectsForMap])
 
-  // Layout mode change handler
+  // Desktop layout mode change handler
   const handleLayoutChange = useCallback((mode: LayoutMode) => {
     setLayoutMode(mode)
     saveLayoutMode(mode)
@@ -280,6 +328,22 @@ export default function Catalog() {
       setTimeout(() => mapRef.current?.refreshMap(), 350)
     }
   }, [])
+
+  // Mobile view toggle handler
+  const handleMobileViewToggle = useCallback(() => {
+    const newView = mobileView === 'list' ? 'map' : 'list'
+    setMobileView(newView)
+    saveMobileView(newView)
+
+    if (newView === 'map') {
+      setTimeout(() => mapRef.current?.refreshMap(), 300)
+    }
+  }, [mobileView])
+
+  // Refresh map when switching between desktop/mobile layouts
+  useEffect(() => {
+    setTimeout(() => mapRef.current?.refreshMap(), 350)
+  }, [isDesktop])
 
   const handlePropertyClick = (propertyId: string) => {
     setSelectedPropertyId(propertyId === selectedPropertyId ? undefined : propertyId)
@@ -361,14 +425,49 @@ export default function Catalog() {
     <div className={styles.container}>
       <CatalogFilters layoutMode={layoutMode} onLayoutChange={handleLayoutChange} />
       <div className={styles.contentWrapper}>
-        {/* Desktop: CSS Grid layout with mode switching */}
-        <div className={styles.pageLayout} data-layout={layoutMode}>
-          <div className={styles.mapPanel}>{mapContent}</div>
-          <div className={styles.listPanel}>{catalogContent}</div>
-        </div>
+        {isDesktop ? (
+          /* Desktop: CSS Grid layout with mode switching (≥1024px) */
+          <div className={styles.pageLayout} data-layout={layoutMode}>
+            <div className={styles.listPanel}>{catalogContent}</div>
+            <button
+              className={styles.panelToggle}
+              onClick={() => handleLayoutChange(layoutMode === 'map' ? 'split' : 'map')}
+              type="button"
+              aria-label={layoutMode === 'map' ? 'Show list' : 'Show map'}
+            >
+              <ChevronRight size={18} />
+            </button>
+            <div className={styles.mapPanel}>{mapContent}</div>
+          </div>
+        ) : (
+          /* Mobile/Tablet: One view at a time with slide (<1024px) */
+          <>
+            <div
+              className={`${styles.mobileLayout} ${mobileView === 'list' ? styles.showList : ''}`}
+            >
+              <div className={styles.mobileListView}>{catalogContent}</div>
+              <div className={styles.mobileMapView}>{mapContent}</div>
+            </div>
 
-        {/* Mobile: List only */}
-        <div className={styles.mobileLayout}>{catalogContent}</div>
+            {/* Floating toggle button */}
+            <button
+              className={styles.floatingToggle}
+              onClick={handleMobileViewToggle}
+              type="button"
+              aria-label={mobileView === 'list' ? 'Show map' : 'Show list'}
+            >
+              {mobileView === 'list' ? (
+                <>
+                  <Map size={18} /> Map
+                </>
+              ) : (
+                <>
+                  <LayoutGrid size={18} /> List
+                </>
+              )}
+            </button>
+          </>
+        )}
       </div>
     </div>
   )

@@ -14,40 +14,51 @@
 .contentWrapper {
   flex: 1;
   overflow: hidden;
+  position: relative;
 }
 
+// =====================================
+// DESKTOP LAYOUT (≥1024px)
+// =====================================
+
 .pageLayout {
-  display: grid;
+  --panel-toggle-width: 32px;
+  display: none;
   height: 100%;
   overflow: hidden;
 
-  // Split mode: 45% map / 55% list
-  grid-template-columns: 45fr 55fr;
-  transition: grid-template-columns 300ms ease;
+  @media (min-width: $breakpoint-lg) {
+    display: grid;
+    transition: grid-template-columns 300ms ease;
 
-  // MODE: Map fullscreen
-  &[data-layout='map'] {
-    grid-template-columns: 1fr 0fr;
+    // MODE: Map fullscreen
+    &[data-layout='map'] {
+      grid-template-columns: 0fr var(--panel-toggle-width) 1fr;
 
-    .listPanel {
-      visibility: hidden;
-      pointer-events: none;
+      .listPanel {
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .panelToggle {
+        svg {
+          transform: rotate(0deg);
+        }
+      }
     }
   }
 
-  // MODE: List fullscreen
-  &[data-layout='list'] {
-    grid-template-columns: 0fr 1fr;
-
-    .mapPanel {
-      visibility: hidden;
-      pointer-events: none;
-    }
+  // Split mode: fixed list width + toggle button + map takes remaining space
+  @media (min-width: 1024px) {
+    grid-template-columns: 400px var(--panel-toggle-width) 1fr;
   }
 
-  // Mobile: hidden (use mobileLayout instead)
-  @media (max-width: #{$breakpoint-md - 1px}) {
-    display: none;
+  @media (min-width: 1440px) {
+    grid-template-columns: 656px var(--panel-toggle-width) 1fr;
+  }
+
+  @media (min-width: 1920px) {
+    grid-template-columns: 768px var(--panel-toggle-width) 1fr;
   }
 }
 
@@ -64,13 +75,113 @@
   overflow: hidden;
 }
 
-// Mobile fallback
-.mobileLayout {
-  display: block;
+.panelToggle {
+  display: none;
+  width: var(--panel-toggle-width, 32px);
   height: 100%;
-  overflow-y: auto;
+  background: $color-bg-card;
+  border: none;
+  border-left: 1px solid $color-border;
+  border-right: 1px solid $color-border;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
 
-  @media (min-width: $breakpoint-md) {
+  @media (min-width: $breakpoint-lg) {
+    display: flex;
+  }
+
+  &:hover {
+    background: $color-bg-card;
+    color: $color-text;
+  }
+
+  svg {
+    flex-shrink: 0;
+    transform: rotate(180deg);
+    transition: transform 300ms ease;
+  }
+}
+
+// =====================================
+// MOBILE/TABLET LAYOUT (<1024px)
+// One view at a time with slide toggle
+// =====================================
+
+.mobileLayout {
+  display: flex;
+  height: 100%;
+  width: 200%;
+  transition: transform 0.3s ease;
+
+  // Default: show map (second panel)
+  transform: translateX(-50%);
+
+  // When showing list, slide to show first panel (from left)
+  &.showList {
+    transform: translateX(0);
+  }
+
+  @media (min-width: $breakpoint-lg) {
+    display: none;
+  }
+}
+
+.mobileListView {
+  width: 50%;
+  height: 100%;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.mobileMapView {
+  width: 50%;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+// =====================================
+// FLOATING TOGGLE (Mobile/Tablet only)
+// =====================================
+
+.floatingToggle {
+  display: flex;
+  position: fixed;
+  bottom: $spacing-6;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001; // Higher than Leaflet controls (1000)
+  background: $color-charcoal-black;
+  color: $color-snow-white;
+  border: none;
+  border-radius: $radius-full;
+  padding: $spacing-3 $spacing-6;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  box-shadow: $shadow-lg;
+  gap: $spacing-2;
+  align-items: center;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $color-charcoal-grey-70;
+    transform: translateX(-50%) scale(1.02);
+  }
+
+  &:active {
+    transform: translateX(-50%) scale(0.98);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  // Hide on desktop
+  @media (min-width: $breakpoint-lg) {
     display: none;
   }
 }
@@ -88,7 +199,7 @@
   padding: $spacing-4;
   box-sizing: border-box;
 
-  @media (min-width: $breakpoint-md) {
+  @media (min-width: $breakpoint-lg) {
     padding: 0 $spacing-3;
   }
 }
@@ -159,7 +270,7 @@
   transition: all $transition-fast;
   white-space: nowrap;
 
-  @media (min-width: $breakpoint-md) {
+  @media (min-width: $breakpoint-lg) {
     display: none;
   }
 
@@ -201,6 +312,7 @@
 
 // =====================================
 // RESPONSIVE GRID (Container Queries)
+// Columns based on container width
 // =====================================
 
 .grid {
@@ -210,21 +322,21 @@
   min-width: 0;
   box-sizing: border-box;
 
-  // Default: 1 column
+  // Default: 1 column (mobile, split mode narrow)
   grid-template-columns: 1fr;
 
-  // 2 columns at 600px container width
-  @container catalog (min-width: 600px) {
+  // 2 columns at 520px container (tablet list, desktop split)
+  @container catalog (min-width: 520px) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  // 3 columns at 900px container width
-  @container catalog (min-width: 900px) {
+  // 3 columns at 780px container (list full on medium screens)
+  @container catalog (min-width: 780px) {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  // 4 columns at 1200px container width
-  @container catalog (min-width: 1200px) {
+  // 4 columns at 1100px container (list full on large screens)
+  @container catalog (min-width: 1100px) {
     grid-template-columns: repeat(4, 1fr);
   }
 }

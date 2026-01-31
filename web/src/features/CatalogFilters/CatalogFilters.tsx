@@ -1,13 +1,13 @@
 import styles from './CatalogFilters.module.scss'
 import { useMemo } from 'react'
-import { Plane, X, Map, Columns2, LayoutGrid } from 'lucide-react'
+import { Plane, X, Map, Columns2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useFilters, type FilterValues } from '../../contexts'
 import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
 import { CatalogFiltersSkeleton } from './CatalogFiltersSkeleton'
 
-export type LayoutMode = 'split' | 'map' | 'list'
+export type LayoutMode = 'split' | 'map'
 
 interface CatalogFiltersProps {
   layoutMode?: LayoutMode
@@ -153,15 +153,6 @@ export const CatalogFilters = ({ layoutMode = 'split', onLayoutChange }: Catalog
                 title="Split view"
               >
                 <Columns2 size={16} />
-              </button>
-              <button
-                className={`${styles.layoutButton} ${layoutMode === 'list' ? styles.active : ''}`}
-                onClick={() => onLayoutChange('list')}
-                aria-pressed={layoutMode === 'list'}
-                type="button"
-                title="List view"
-              >
-                <LayoutGrid size={16} />
               </button>
             </div>
           )}
