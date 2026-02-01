@@ -4,7 +4,7 @@ import styles from './Typography.module.scss'
 
 export type TypographyVariant = 'h1' | 'body'
 export type TypographySize = 'large' | 'regular' | 'small'
-export type TypographyWeight = 'medium' | 'regular'
+export type TypographyWeight = 'medium' | 'regular' | 'semibold' | 'bold'
 export type TypographyColor = 'default' | 'white' | 'inherit'
 
 export type TypographyProps = {
@@ -40,18 +40,16 @@ export const Typography = ({
   children,
   ...rest
 }: TypographyProps) => {
-  const classNames = [styles.typography]
-
-  if (variant === 'h1') {
-    classNames.push(styles['typography--h1'])
-  } else {
-    classNames.push(styles[`typography--body-${size}-${weight}`])
-  }
-
-  classNames.push(styles[`typography--color-${color}`])
+  const classNames = [
+    styles.typography,
+    styles[`weight-${weight}`],
+    styles[`typography--color-${color}`],
+    variant === 'h1' ? styles['typography--h1'] : styles[`typography--body-${size}-${weight}`],
+    className,
+  ]
 
   return (
-    <Component {...rest} className={clsx(classNames, className)}>
+    <Component {...rest} className={clsx(classNames)}>
       {children}
     </Component>
   )

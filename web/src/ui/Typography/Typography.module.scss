@@ -11,6 +11,22 @@
   @include typography-h1;
 }
 
+.weight-semibold {
+  font-weight: $font-weight-semibold;
+}
+
+.weight-bold {
+  font-weight: $font-weight-bold;
+}
+
+.weight-regular {
+  font-weight: $font-weight-regular;
+}
+
+.weight-medium {
+  font-weight: $font-weight-medium;
+}
+
 // Body variants
 .typography--body-large-medium {
   @include typography-body-large-medium;

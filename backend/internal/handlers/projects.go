@@ -6,6 +6,8 @@ import (
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/mappers"
 	"rush-hour-platform/backend/internal/services"
+	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,12 +24,87 @@ func NewProjectsHandler(projectsService *services.ProjectsService) *ProjectsHand
 	}
 }
 
+// parseBedroomsParam parses comma-separated bedroom values (e.g., "1,2,3" or "studio,1,2")
+func parseBedroomsParam(bedroomsStr *string) []int {
+	if bedroomsStr == nil || *bedroomsStr == "" {
+		return nil
+	}
+
+	parts := strings.Split(*bedroomsStr, ",")
+	result := make([]int, 0, len(parts))
+
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+
+		// Handle "studio" as 0 bedrooms
+		if strings.ToLower(part) == "studio" {
+			result = append(result, 0)
+			continue
+		}
+
+		// Handle "7+" as 7
+		if part == "7+" {
+			result = append(result, 7)
+			continue
+		}
+
+		// Parse numeric value
+		if num, err := strconv.Atoi(part); err == nil && num >= 0 {
+			result = append(result, num)
+		}
+	}
+
+	return result
+}
+
+// parseBathroomsParam parses comma-separated bathroom values (e.g., "1,2,3")
+func parseBathroomsParam(bathroomsStr *string) []int {
+	if bathroomsStr == nil || *bathroomsStr == "" {
+		return nil
+	}
+
+	parts := strings.Split(*bathroomsStr, ",")
+	result := make([]int, 0, len(parts))
+
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+
+		// Handle "7+" as 7
+		if part == "7+" {
+			result = append(result, 7)
+			continue
+		}
+
+		// Parse numeric value
+		if num, err := strconv.Atoi(part); err == nil && num >= 0 {
+			result = append(result, num)
+		}
+	}
+
+	return result
+}
+
 func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjectsParams) error {
 	// Build filters from params
 	filters := domain.ProjectFilters{
+		CitySlug:      params.City,
 		AreaSlug:      params.Area,
 		DeveloperSlug: params.Developer,
-		Bedrooms:      params.Bedrooms,
+		Bedrooms:      parseBedroomsParam(params.Bedrooms),
+		Bathrooms:     parseBathroomsParam(params.Bathrooms),
+		Search:        params.Search,
+	}
+
+	// Convert status enum to string
+	if params.Status != nil {
+		status := string(*params.Status)
+		filters.Status = &status
 	}
 
 	// Convert float32 to float64 for price filters

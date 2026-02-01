@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Button, type ButtonVariant, type ButtonSize, type ButtonProps } from '../Button'
 import styles from './Select.module.scss'
 import { Typography } from '../Typography'
-import { ChevronUp } from 'lucide-react'
+import { ChevronUp, X } from 'lucide-react'
 
 export interface SelectOption {
   value: string
@@ -34,6 +34,8 @@ export interface SelectProps {
   triggerFullHeight?: boolean
   triggerAlign?: ButtonProps['align']
   hideChevronRight?: boolean
+  clearable?: boolean
+  defaultValue?: string
 }
 
 export function Select({
@@ -55,6 +57,8 @@ export function Select({
   triggerSelected = false,
   triggerAlign = 'left',
   hideChevronRight = false,
+  clearable = false,
+  defaultValue = 'all',
 }: SelectProps) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
@@ -229,6 +233,13 @@ export function Select({
     }
   }
 
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onChange(defaultValue)
+  }
+
+  const isActive = value !== defaultValue && value !== ''
+
   return (
     <div
       className={`${styles.formGroup} ${fullWidth ? styles['formGroup--fullWidth'] : ''} ${fullHeight ? styles['formGroup--fullHeight'] : ''}`}
@@ -240,7 +251,7 @@ export function Select({
         </label>
       )}
       <div
-        className={`${styles.select} ${disabled ? styles['select--disabled'] : ''} ${fullWidth ? styles['select--fullWidth'] : ''} ${fullHeight ? styles['select--fullHeight'] : ''}`}
+        className={`${styles.select} ${disabled ? styles['select--disabled'] : ''} ${fullWidth ? styles['select--fullWidth'] : ''} ${fullHeight ? styles['select--fullHeight'] : ''} ${isActive ? styles['select--active'] : ''}`}
       >
         <Button
           ref={triggerRef}
@@ -248,7 +259,15 @@ export function Select({
           variant={triggerVariant || 'secondary'}
           size={triggerSize || 'md'}
           fullWidth={fullWidth}
-          iconLeft={triggerIconLeft}
+          iconLeft={
+            clearable && isActive ? (
+              <span className={styles.clearIcon} onClick={handleClear}>
+                <X size={14} />
+              </span>
+            ) : (
+              triggerIconLeft
+            )
+          }
           iconRight={
             !hideChevronRight ? (
               <ChevronUp
@@ -267,6 +286,7 @@ export function Select({
           disabled={disabled}
           align={triggerAlign}
           style={fullHeight ? { height: '100%' } : undefined}
+          className={isActive ? styles.triggerActive : undefined}
         >
           {selectedOption && (!hideAllInTrigger || selectedOption.value !== 'all')
             ? selectedOption.label

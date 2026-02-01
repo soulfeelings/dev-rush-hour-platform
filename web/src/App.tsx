@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { FiltersProvider } from './contexts'
 import Header from './features/Header'
 import Catalog from './pages/Catalog/Catalog'
+import Apartments from './pages/Apartments'
 import Home from './pages/Home'
 import ProjectDetail from './pages/ProjectDetail'
 import LotDetail from './pages/LotDetail'
@@ -23,7 +24,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path={ROUTES.CATALOG} element={<Navigate to={ROUTES.PROJECTS} replace />} />
             <Route path={ROUTES.PROJECTS} element={<Catalog />} />
-            <Route path={ROUTES.APARTMENTS} element={<Catalog />} />
+            <Route path={ROUTES.APARTMENTS} element={<Apartments />} />
             <Route path={ROUTES.PROJECT_DETAIL} element={<ProjectDetail />} />
             <Route path={ROUTES.LOT_DETAIL} element={<LotDetail />} />
             <Route path={ROUTES.AREAS} element={<ProjectArea />} />

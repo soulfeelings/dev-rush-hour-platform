@@ -2,18 +2,22 @@ import { useState, useRef, useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { ChevronUp } from 'lucide-react'
+import { ChevronUp, X } from 'lucide-react'
 import styles from './BedsBathsSelect.module.scss'
 
+type TriggerSize = 'xs' | 'sm' | 'md' | 'lg'
+
 interface BedsBathsSelectProps {
-  bedrooms: string
-  bathrooms: string
-  onBedroomsChange: (value: string) => void
-  onBathroomsChange: (value: string) => void
+  bedrooms: string[]
+  bathrooms: string[]
+  onBedroomsChange: (value: string[]) => void
+  onBathroomsChange: (value: string[]) => void
   placeholder?: string
   icon?: React.ReactNode
   fullWidth?: boolean
   fullHeight?: boolean
+  size?: TriggerSize
+  clearable?: boolean
 }
 
 const bedroomOptions = ['studio', '1', '2', '3', '4', '5', '6', '7', '7+']
@@ -28,6 +32,8 @@ export function BedsBathsSelect({
   icon,
   fullWidth = false,
   fullHeight = false,
+  size = 'md',
+  clearable = false,
 }: BedsBathsSelectProps) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
@@ -38,23 +44,35 @@ export function BedsBathsSelect({
   const generatedId = useId()
   const buttonId = `beds-baths-${generatedId}`
 
+  const formatBedroomLabel = (value: string) => {
+    if (value === 'studio') return t('filters.bedrooms.studio')
+    if (value === '7+') return '7+'
+    return value
+  }
+
+  const formatBathroomLabel = (value: string) => {
+    if (value === '7+') return '7+'
+    return value
+  }
+
   const getDisplayText = () => {
-    if (bedrooms === 'all' && bathrooms === 'all') {
+    if (bedrooms.length === 0 && bathrooms.length === 0) {
       return placeholder
     }
     const parts: string[] = []
-    if (bedrooms !== 'all') {
-      const bedLabel =
-        bedrooms === 'studio'
-          ? t('filters.bedrooms.studio')
-          : bedrooms === '7+'
-            ? '7+'
-            : `${bedrooms} ${t('filters.bedrooms.one').replace('1 ', '')}`
-      parts.push(bedLabel)
+    if (bedrooms.length > 0) {
+      if (bedrooms.length <= 2) {
+        parts.push(bedrooms.map(formatBedroomLabel).join(', '))
+      } else {
+        parts.push(`${bedrooms.length} beds`)
+      }
     }
-    if (bathrooms !== 'all') {
-      const bathLabel = bathrooms === '7+' ? '7+' : `${bathrooms} ${t('home.properties.baths')}`
-      parts.push(bathLabel)
+    if (bathrooms.length > 0) {
+      if (bathrooms.length <= 2) {
+        parts.push(bathrooms.map(formatBathroomLabel).join(', '))
+      } else {
+        parts.push(`${bathrooms.length} baths`)
+      }
     }
     return parts.join(' • ') || placeholder
   }
@@ -121,12 +139,28 @@ export function BedsBathsSelect({
   }
 
   const handleBedroomSelect = (value: string) => {
-    onBedroomsChange(value === bedrooms ? 'all' : value)
+    if (bedrooms.includes(value)) {
+      onBedroomsChange(bedrooms.filter(v => v !== value))
+    } else {
+      onBedroomsChange([...bedrooms, value])
+    }
   }
 
   const handleBathroomSelect = (value: string) => {
-    onBathroomsChange(value === bathrooms ? 'all' : value)
+    if (bathrooms.includes(value)) {
+      onBathroomsChange(bathrooms.filter(v => v !== value))
+    } else {
+      onBathroomsChange([...bathrooms, value])
+    }
   }
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onBedroomsChange([])
+    onBathroomsChange([])
+  }
+
+  const isActive = bedrooms.length > 0 || bathrooms.length > 0
 
   return (
     <div
@@ -140,11 +174,19 @@ export function BedsBathsSelect({
           type="button"
           id={buttonId}
           ref={triggerRef}
-          className={`${styles.trigger} ${isOpen ? styles['trigger--open'] : ''} ${fullWidth ? styles['trigger--fullWidth'] : ''} ${fullHeight ? styles['trigger--fullHeight'] : ''}`}
+          className={`${styles.trigger} ${styles[`trigger--${size}`]} ${isOpen ? styles['trigger--open'] : ''} ${isActive ? styles['trigger--active'] : ''} ${fullWidth ? styles['trigger--fullWidth'] : ''} ${fullHeight ? styles['trigger--fullHeight'] : ''}`}
           onClick={handleToggle}
         >
-          {icon && <span className={styles.icon}>{icon}</span>}
-          <span className={bedrooms === 'all' && bathrooms === 'all' ? styles.placeholder : ''}>
+          {clearable && isActive ? (
+            <span className={styles.clearIcon} onClick={handleClear}>
+              <X size={14} />
+            </span>
+          ) : (
+            icon && <span className={styles.icon}>{icon}</span>
+          )}
+          <span
+            className={bedrooms.length === 0 && bathrooms.length === 0 ? styles.placeholder : ''}
+          >
             {getDisplayText()}
           </span>
           <span className={styles.arrow}>
@@ -178,7 +220,7 @@ export function BedsBathsSelect({
                         <button
                           key={option}
                           type="button"
-                          className={`${styles.optionButton} ${bedrooms === option ? styles['optionButton--selected'] : ''}`}
+                          className={`${styles.optionButton} ${bedrooms.includes(option) ? styles['optionButton--selected'] : ''}`}
                           onClick={() => handleBedroomSelect(option)}
                         >
                           {option === 'studio'
@@ -198,7 +240,7 @@ export function BedsBathsSelect({
                         <button
                           key={option}
                           type="button"
-                          className={`${styles.optionButton} ${bathrooms === option ? styles['optionButton--selected'] : ''}`}
+                          className={`${styles.optionButton} ${bathrooms.includes(option) ? styles['optionButton--selected'] : ''}`}
                           onClick={() => handleBathroomSelect(option)}
                         >
                           {option === '7+' ? '7+' : option}

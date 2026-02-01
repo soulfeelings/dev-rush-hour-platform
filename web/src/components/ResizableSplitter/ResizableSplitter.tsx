@@ -41,7 +41,7 @@ export default function ResizableSplitter({
       setLeftWidth(initialLeftWidth)
       currentWidthRef.current = initialLeftWidth
     }
-  }, [initialLeftWidth])
+  }, [initialLeftWidth, isResizing])
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault()

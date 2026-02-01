@@ -1,5 +1,9 @@
 @use '@/styles' as *;
 
+// =====================================
+// PAGE LAYOUT (MAP + LIST)
+// =====================================
+
 .container {
   display: flex;
   flex-direction: column;
@@ -10,43 +14,194 @@
 .contentWrapper {
   flex: 1;
   overflow: hidden;
+  position: relative;
 }
 
-.desktopLayout {
-  display: none;
+// =====================================
+// DESKTOP LAYOUT (≥1024px)
+// =====================================
 
-  @media (min-width: $breakpoint-md) {
-    display: block;
-    height: 100%;
+.pageLayout {
+  --panel-toggle-width: 32px;
+  display: none;
+  height: 100%;
+  overflow: hidden;
+
+  @media (min-width: $breakpoint-lg) {
+    display: grid;
+    transition: grid-template-columns 300ms ease;
+
+    // MODE: Map fullscreen
+    &[data-layout='map'] {
+      grid-template-columns: 0fr var(--panel-toggle-width) 1fr;
+
+      .listPanel {
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .panelToggle {
+        svg {
+          transform: rotate(0deg);
+        }
+      }
+    }
+  }
+
+  // Split mode: fixed list width + toggle button + map takes remaining space
+  @media (min-width: 1024px) {
+    grid-template-columns: 400px var(--panel-toggle-width) 1fr;
+  }
+
+  @media (min-width: 1440px) {
+    grid-template-columns: 656px var(--panel-toggle-width) 1fr;
+  }
+
+  @media (min-width: 1920px) {
+    grid-template-columns: 768px var(--panel-toggle-width) 1fr;
   }
 }
 
-.mobileLayout {
-  display: block;
+.mapPanel {
+  min-width: 0;
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
+  position: relative;
+}
 
-  @media (min-width: $breakpoint-md) {
+.listPanel {
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.panelToggle {
+  display: none;
+  width: var(--panel-toggle-width, 32px);
+  height: 100%;
+  background: $color-bg-card;
+  border: none;
+  border-left: 1px solid $color-border;
+  border-right: 1px solid $color-border;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
+
+  @media (min-width: $breakpoint-lg) {
+    display: flex;
+  }
+
+  &:hover {
+    background: $color-bg-card;
+    color: $color-text;
+  }
+
+  svg {
+    flex-shrink: 0;
+    transform: rotate(180deg);
+    transition: transform 300ms ease;
+  }
+}
+
+// =====================================
+// MOBILE/TABLET LAYOUT (<1024px)
+// One view at a time with slide toggle
+// =====================================
+
+.mobileLayout {
+  display: flex;
+  height: 100%;
+  width: 200%;
+  transition: transform 0.3s ease;
+
+  // Default: show map (second panel)
+  transform: translateX(-50%);
+
+  // When showing list, slide to show first panel (from left)
+  &.showList {
+    transform: translateX(0);
+  }
+
+  @media (min-width: $breakpoint-lg) {
     display: none;
   }
 }
 
-.catalogContent {
-  padding: $spacing-4;
+.mobileListView {
+  width: 50%;
   height: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
 
-  @media (min-width: $breakpoint-md) {
-    padding: 0 $spacing-3;
+.mobileMapView {
+  width: 50%;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+// =====================================
+// FLOATING TOGGLE (Mobile/Tablet only)
+// =====================================
+
+.floatingToggle {
+  display: flex;
+  position: fixed;
+  bottom: $spacing-6;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001; // Higher than Leaflet controls (1000)
+  background: $color-charcoal-black;
+  color: $color-snow-white;
+  border: none;
+  border-radius: $radius-full;
+  padding: $spacing-3 $spacing-6;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  box-shadow: $shadow-lg;
+  gap: $spacing-2;
+  align-items: center;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $color-charcoal-grey-70;
+    transform: translateX(-50%) scale(1.02);
+  }
+
+  &:active {
+    transform: translateX(-50%) scale(0.98);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  // Hide on desktop
+  @media (min-width: $breakpoint-lg) {
+    display: none;
   }
 }
 
-.viewModeToggle {
-  margin-bottom: $spacing-3;
-  flex-shrink: 0;
+// =====================================
+// CATALOG CONTENT
+// =====================================
+
+.catalogContent {
+  container-type: inline-size;
+  container-name: catalog;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-4;
+  box-sizing: border-box;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: 0 $spacing-3;
+  }
 }
 
 .resultsHeader {
@@ -80,7 +235,7 @@
   flex-direction: row;
   align-items: center;
   font-family: Plus Jakarta Sans;
-  font-style: Regular;
+  font-style: normal;
   font-size: 12px;
   font-weight: 400;
   line-height: 15px;
@@ -93,6 +248,12 @@
   display: flex;
   gap: $spacing-2;
   align-items: center;
+}
+
+.sortLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  white-space: nowrap;
 }
 
 .mapButton {
@@ -110,7 +271,7 @@
   transition: all $transition-fast;
   white-space: nowrap;
 
-  @media (min-width: $breakpoint-md) {
+  @media (min-width: $breakpoint-lg) {
     display: none;
   }
 
@@ -120,41 +281,51 @@
   }
 }
 
+// =====================================
+// VIEW CONTAINER
+// =====================================
+
 .viewContainer {
-  position: relative;
   flex: 1;
   min-height: 0;
-}
-
-.viewPanel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.3s ease,
-    visibility 0.3s ease;
   overflow-y: auto;
   overflow-x: hidden;
-
-  &.active {
-    opacity: 1;
-    visibility: visible;
-  }
 }
+
+// =====================================
+// RESPONSIVE GRID (Container Queries)
+// Columns based on container width
+// =====================================
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
   gap: $spacing-4;
-  min-width: 0;
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
-  overflow-x: hidden;
+
+  // Default: 1 column (mobile, split mode narrow)
+  grid-template-columns: 1fr;
+
+  // 2 columns at 520px container (tablet list, desktop split)
+  @container catalog (min-width: 520px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  // 3 columns at 780px container (list full on medium screens)
+  @container catalog (min-width: 780px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  // 4 columns at 1100px container (list full on large screens)
+  @container catalog (min-width: 1100px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
+
+// =====================================
+// LOADING & ERROR STATES
+// =====================================
 
 .loading {
   display: flex;
@@ -194,6 +365,10 @@
     }
   }
 }
+
+// =====================================
+// MAP MODAL (Mobile - commented out)
+// =====================================
 
 .mapModalOverlay {
   position: fixed;

@@ -30,6 +30,9 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: true,
     },
+    optimizeDeps: {
+      include: ['leaflet.markercluster'],
+    },
     server: {
       watch: {
         usePolling: true,

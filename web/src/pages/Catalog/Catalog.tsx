@@ -1,77 +1,93 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import { Map, LayoutGrid, ChevronRight } from 'lucide-react'
 import { Select } from '../../ui/Select'
-import { Toggle } from '../../ui/Toggle'
 import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
 import PropertyMap from '../../components/PropertyMap'
-import ResizableSplitter from '../../components/ResizableSplitter'
-import { useListProjects, useListLots } from '../../api'
-import { apiProjectsToProperties, apiLotsToPropertiesForMap } from '../../utils/apiAdapters'
-import type { CatalogViewMode } from '../../utils/catalogViewMode'
-import { ROUTES } from '../../constants/routes'
+import { useListProjects } from '../../api'
+import { apiProjectsToProperties } from '../../utils/apiAdapters'
 import { useFilters } from '../../contexts'
 import styles from './Catalog.module.scss'
 import type { PropertyMapRef } from '../../components/PropertyMap/PropertyMap'
-import type { Lot } from '../../api'
 import ProjectsView from './components/ProjectsView'
-import LotsView from './components/LotsView'
-import { LotType } from '../../api/generated/schemas/lotType'
 import { ListProjectsSort } from '../../api/generated/schemas/listProjectsSort'
-import { ListLotsSort } from '../../api/generated/schemas/listLotsSort'
 import type { ListProjectsParams } from '../../api/generated/schemas/listProjectsParams'
-import type { ListLotsParams } from '../../api/generated/schemas/listLotsParams'
 
-// Sort option type - 'default' or API sort values
-type SortValue = 'default' | ListProjectsSort | ListLotsSort
+// =====================================
+// LAYOUT MODE PERSISTENCE
+// =====================================
 
-// Type guards for sort values
-const isProjectsSort = (value: SortValue): value is ListProjectsSort => {
-  return Object.values(ListProjectsSort).includes(value as ListProjectsSort)
-}
+const LAYOUT_MODE_KEY = 'catalog-layout-mode'
+const MOBILE_VIEW_KEY = 'catalog-mobile-view'
 
-const isLotsSort = (value: SortValue): value is ListLotsSort => {
-  return Object.values(ListLotsSort).includes(value as ListLotsSort)
-}
+type MobileView = 'list' | 'map'
+type DesktopView = 'split' | 'map'
 
-// Константы для размеров и брейкпоинтов
-const GRID_CONSTANTS = {
-  // Брейкпоинты экрана (в пикселях)
-  BREAKPOINT_MD: 768,
-  BREAKPOINT_XL: 1280,
-
-  // Границы ширины панели для определения количества колонок (%)
-  PANEL_WIDTH_BREAKPOINT_1: 40, // < 40% - 1 колонка
-  PANEL_WIDTH_BREAKPOINT_2: 60, // 40-70% - 2 колонки, > 70% - 3 колонки
-
-  // Размеры панелей ResizableSplitter (%)
-  INITIAL_LEFT_WIDTH: 40,
-  MIN_LEFT_WIDTH: 30,
-  MIN_RIGHT_WIDTH: 20,
-} as const
-
-// Ключ для localStorage
-const SPLITTER_POSITION_KEY = 'catalog-splitter-position'
-
-// Функции для работы с localStorage
-const saveSplitterPosition = (position: number) => {
+const loadLayoutMode = (): DesktopView => {
   try {
-    localStorage.setItem(SPLITTER_POSITION_KEY, position.toString())
+    const saved = localStorage.getItem(LAYOUT_MODE_KEY)
+    if (saved === 'split' || saved === 'map') {
+      return saved
+    }
   } catch (error) {
-    console.warn('Failed to save splitter position:', error)
+    console.warn('Failed to load layout mode:', error)
+  }
+  return 'split'
+}
+
+const saveLayoutMode = (mode: DesktopView) => {
+  try {
+    localStorage.setItem(LAYOUT_MODE_KEY, mode)
+  } catch (error) {
+    console.warn('Failed to save layout mode:', error)
   }
 }
 
-const loadSplitterPosition = (): number => {
+const loadMobileView = (): MobileView => {
   try {
-    const saved = localStorage.getItem(SPLITTER_POSITION_KEY)
-    return saved ? parseFloat(saved) : GRID_CONSTANTS.INITIAL_LEFT_WIDTH
+    const saved = localStorage.getItem(MOBILE_VIEW_KEY)
+    if (saved === 'list' || saved === 'map') {
+      return saved
+    }
   } catch (error) {
-    console.warn('Failed to load splitter position:', error)
-    return GRID_CONSTANTS.INITIAL_LEFT_WIDTH
+    console.warn('Failed to load mobile view:', error)
+  }
+  return 'list'
+}
+
+const saveMobileView = (view: MobileView) => {
+  try {
+    localStorage.setItem(MOBILE_VIEW_KEY, view)
+  } catch (error) {
+    console.warn('Failed to save mobile view:', error)
   }
 }
 
-// Sort options using API constants for type safety
+// Breakpoint for desktop layout (matches $breakpoint-lg)
+const DESKTOP_BREAKPOINT = 1024
+
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= DESKTOP_BREAKPOINT : true
+  )
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  return isDesktop
+}
+
+// =====================================
+// SORT OPTIONS
+// =====================================
+
+type SortValue = 'default' | ListProjectsSort
+
 const sortOptions: Array<{ value: SortValue; label: string }> = [
   { value: 'default', label: 'Default' },
   { value: ListProjectsSort.price_asc, label: 'Price: Low to High' },
@@ -79,20 +95,19 @@ const sortOptions: Array<{ value: SortValue; label: string }> = [
   { value: ListProjectsSort.newest, label: 'Date: Newest First' },
 ]
 
+// =====================================
+// CATALOG COMPONENT (PROJECTS ONLY)
+// =====================================
+
 export default function Catalog() {
-  const location = useLocation()
-  const navigate = useNavigate()
   const { filters, updateFilter } = useFilters()
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
-  const [panelWidth, setPanelWidth] = useState(loadSplitterPosition())
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth)
+  const [layoutMode, setLayoutMode] = useState<DesktopView>(loadLayoutMode)
+  const [mobileView, setMobileView] = useState<MobileView>(loadMobileView)
   const mapRef = useRef<PropertyMapRef | null>(null)
+  const isDesktop = useIsDesktop()
 
-  // Get sort value from filters context (synced with URL)
   const sortValue = (filters.sort || 'default') as SortValue
-
-  // Определяем viewMode из URL
-  const viewMode: CatalogViewMode = location.pathname.includes('/apartments') ? 'lots' : 'projects'
 
   // Helper to convert priceRange to min/max values
   const getPriceRange = (priceRange: string): { min?: number; max?: number } => {
@@ -110,32 +125,31 @@ export default function Catalog() {
     }
   }
 
-  // Подготавливаем параметры для API запросов
+  // Prepare API params for projects
   const projectsParams = useMemo((): ListProjectsParams => {
     const params: ListProjectsParams = {}
 
+    // Location filters
+    if (filters.city) params.city = filters.city
     if (filters.area) params.area = filters.area
     if (filters.developer) params.developer = filters.developer
 
-    // Handle bedrooms filter
-    if (filters.bedrooms !== 'all') {
-      const bedsNum =
-        filters.bedrooms === 'studio'
-          ? 0
-          : filters.bedrooms === '4+'
-            ? 4
-            : parseInt(filters.bedrooms)
-      if (!isNaN(bedsNum)) params.bedrooms = bedsNum
+    // Send bedrooms as comma-separated string for multi-select
+    if (filters.bedrooms.length > 0) {
+      params.bedrooms = filters.bedrooms.join(',')
     }
 
-    // Handle price range preset
+    // Send bathrooms as comma-separated string for multi-select
+    if (filters.bathrooms.length > 0) {
+      params.bathrooms = filters.bathrooms.join(',')
+    }
+
+    // Price filters
     if (filters.priceRange !== 'all') {
       const { min, max } = getPriceRange(filters.priceRange)
       if (min !== undefined) params.priceMin = min
       if (max !== undefined) params.priceMax = max
     }
-
-    // Handle custom min/max prices (override preset if specified)
     if (filters.minPrice) {
       const minPriceNum = parseFloat(filters.minPrice)
       if (!isNaN(minPriceNum)) params.priceMin = minPriceNum
@@ -145,247 +159,91 @@ export default function Catalog() {
       if (!isNaN(maxPriceNum)) params.priceMax = maxPriceNum
     }
 
-    // Handle sorting - only set if not default
-    if (sortValue !== 'default' && isProjectsSort(sortValue)) {
+    // Status filter (ready, construction, planning)
+    if (filters.status !== 'all') {
+      params.status = filters.status as ListProjectsParams['status']
+    }
+
+    // Search filter
+    if (filters.search) {
+      params.search = filters.search
+    }
+
+    // Sort
+    if (sortValue !== 'default') {
       params.sort = sortValue
     }
 
     return params
   }, [
+    filters.city,
     filters.area,
     filters.developer,
     filters.bedrooms,
+    filters.bathrooms,
     filters.priceRange,
     filters.minPrice,
     filters.maxPrice,
+    filters.status,
+    filters.search,
     sortValue,
   ])
 
-  const lotsParams = useMemo((): ListLotsParams => {
-    const params: ListLotsParams = {}
-
-    if (filters.area) params.area = filters.area
-    if (filters.project) params.project = filters.project
-
-    // Handle property type filter
-    if (filters.propertyType !== 'all') {
-      // Map propertyType to API type (only 'apartment' is supported in API)
-      if (filters.propertyType === 'apartment') {
-        params.type = LotType.apartment
-      }
-    }
-
-    // Handle bedrooms filter
-    if (filters.bedrooms !== 'all') {
-      const bedsNum =
-        filters.bedrooms === 'studio'
-          ? 0
-          : filters.bedrooms === '4+'
-            ? 4
-            : parseInt(filters.bedrooms)
-      if (!isNaN(bedsNum)) params.bedrooms = bedsNum
-    }
-
-    // Handle price range preset
-    if (filters.priceRange !== 'all') {
-      const { min, max } = getPriceRange(filters.priceRange)
-      if (min !== undefined) params.priceMin = min
-      if (max !== undefined) params.priceMax = max
-    }
-
-    // Handle custom min/max prices (override preset if specified)
-    if (filters.minPrice) {
-      const minPriceNum = parseFloat(filters.minPrice)
-      if (!isNaN(minPriceNum)) params.priceMin = minPriceNum
-    }
-    if (filters.maxPrice) {
-      const maxPriceNum = parseFloat(filters.maxPrice)
-      if (!isNaN(maxPriceNum)) params.priceMax = maxPriceNum
-    }
-
-    // Handle sorting - only set if it's a valid lots sort value
-    if (sortValue !== 'default' && isLotsSort(sortValue)) {
-      params.sort = sortValue
-    }
-
-    return params
-  }, [filters, sortValue])
-
-  // Загружаем проекты только если открыта вкладка проектов
+  // Load projects
   const {
     data: projectsData,
     isLoading: projectsLoading,
     error: projectsError,
-  } = useListProjects(projectsParams, {
-    query: {
-      enabled: viewMode === 'projects',
-    },
-  })
+  } = useListProjects(projectsParams)
+
   const projects = useMemo(() => {
     if (!projectsData) return []
     return apiProjectsToProperties(projectsData)
   }, [projectsData])
 
-  // Загружаем лоты только если открыта вкладка лотов
-  const {
-    data: lotsData,
-    isLoading: lotsLoading,
-    error: lotsError,
-  } = useListLots(lotsParams, {
-    query: {
-      enabled: viewMode === 'lots',
-    },
-  })
+  // Desktop layout mode change handler
+  const handleLayoutChange = useCallback((mode: DesktopView) => {
+    setLayoutMode(mode)
+    saveLayoutMode(mode)
 
-  const lots = useMemo(() => {
-    if (!lotsData?.items) return []
-    return lotsData.items as Lot[]
-  }, [lotsData])
-
-  // Преобразуем лоты в Property для карты (используя координаты проектов)
-  // Для карты нужно загружать проекты даже если открыта вкладка лотов
-  const { data: projectsDataForMap } = useListProjects(projectsParams, {
-    query: {
-      enabled: viewMode === 'lots',
-    },
-  })
-  const projectsForMap = useMemo(() => {
-    if (!projectsDataForMap) return []
-    return apiProjectsToProperties(projectsDataForMap)
-  }, [projectsDataForMap])
-
-  const lotPropertiesForMap = useMemo(() => {
-    if (viewMode !== 'lots' || !lotsData?.items || !projectsForMap.length) return []
-
-    // Группируем лоты по projectId для отображения одного маркера на проект
-    const lotsByProjectId = new Map<string, (typeof lots)[0][]>()
-    lots.forEach(lot => {
-      if (lot.projectId) {
-        const existing = lotsByProjectId.get(lot.projectId) || []
-        lotsByProjectId.set(lot.projectId, [...existing, lot])
-      }
-    })
-
-    // Преобразуем лоты, добавляя данные проектов из уже загруженных проектов
-    const lotsWithProjects: Array<(typeof lots)[0] & { project?: unknown }> = []
-
-    lotsByProjectId.forEach((projectLots, projectId) => {
-      // Ищем проект в уже загруженных проектах
-      // projectId может быть UUID, а id проекта может быть slug
-      // Пока используем простую проверку по id
-      const project = projectsForMap.find(p => p.id === projectId)
-
-      if (!project) {
-        // Если проект не найден, пропускаем эти лоты для карты
-        return
-      }
-
-      // Для каждого лота добавляем данные проекта
-      projectLots.forEach(lot => {
-        lotsWithProjects.push({
-          ...lot,
-          project: {
-            name: project.title,
-            slug: project.id,
-            lat: project.coordinates[0],
-            lng: project.coordinates[1],
-            sale: project.sale,
-            status: project.status === 'active' ? 'active' : 'archived',
-          },
-        })
-      })
-    })
-
-    return apiLotsToPropertiesForMap(lotsWithProjects)
-  }, [lotsData, viewMode, lots, projectsForMap])
-
-  useEffect(() => {
-    const handleResize = () => setScreenWidth(window.innerWidth)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    if (mode === 'split' || mode === 'map') {
+      setTimeout(() => mapRef.current?.refreshMap(), 350)
+    }
   }, [])
 
-  const getGridColumns = (
-    catalogWidth: number,
-    screenWidth: number,
-    isLotsMode: boolean = false
-  ) => {
-    // Для лотов всегда 1 колонка
-    if (isLotsMode) {
-      return 1
+  // Mobile view toggle handler
+  const handleMobileViewToggle = useCallback(() => {
+    const newView = mobileView === 'list' ? 'map' : 'list'
+    setMobileView(newView)
+    saveMobileView(newView)
+
+    if (newView === 'map') {
+      setTimeout(() => mapRef.current?.refreshMap(), 300)
     }
+  }, [mobileView])
 
-    // Определяем максимальное количество колонок на основе размера экрана
-    const maxColumnsByScreen =
-      screenWidth >= GRID_CONSTANTS.BREAKPOINT_XL
-        ? 3
-        : screenWidth >= GRID_CONSTANTS.BREAKPOINT_MD
-          ? 2
-          : 1
-
-    // Определяем желаемое количество колонок на основе ширины каталога
-    let desiredColumnsByWidth = 1
-    if (
-      catalogWidth >= GRID_CONSTANTS.PANEL_WIDTH_BREAKPOINT_1 &&
-      catalogWidth < GRID_CONSTANTS.PANEL_WIDTH_BREAKPOINT_2
-    ) {
-      desiredColumnsByWidth = 2
-    } else if (catalogWidth >= GRID_CONSTANTS.PANEL_WIDTH_BREAKPOINT_2) {
-      desiredColumnsByWidth = 3
-    }
-
-    // Возвращаем минимальное значение из двух расчетов
-    return Math.min(maxColumnsByScreen, desiredColumnsByWidth)
-  }
+  // Refresh map when switching between desktop/mobile layouts
+  useEffect(() => {
+    setTimeout(() => mapRef.current?.refreshMap(), 350)
+  }, [isDesktop])
 
   const handlePropertyClick = (propertyId: string) => {
     setSelectedPropertyId(propertyId === selectedPropertyId ? undefined : propertyId)
   }
 
-  const handleLotFavoriteClick = (lotId: string) => {
-    console.log('Lot favorite clicked:', lotId)
-  }
-
-  const handleViewModeChange = useCallback(
-    (mode: CatalogViewMode) => {
-      const route = mode === 'lots' ? ROUTES.APARTMENTS : ROUTES.PROJECTS
-      navigate(route)
-    },
-    [navigate]
-  )
-
-  const handleFinishResizing = useCallback((width: number) => {
-    saveSplitterPosition(width)
-    // Обновляем карту после изменения размера
-    mapRef.current?.refreshMap()
-  }, [])
-
   const activeProperties = projects.filter(p => p.status === 'active')
-  const regularProperties = activeProperties.filter(p => !p.isFeatured)
-  const activeLots = lots.filter(lot => lot.status === 'active')
-
-  const totalResults = viewMode === 'projects' ? activeProperties.length : activeLots.length
-  const displayedResults = viewMode === 'projects' ? regularProperties.length : activeLots.length
+  const totalResults = activeProperties.length
+  const displayedResults = activeProperties.filter(p => !p.isFeatured).length
 
   const catalogContent = (
     <div className={styles.catalogContent}>
-      {/* <FeaturedPropertyCarousel properties={featuredProperties} /> */}
-      <Toggle
-        options={[
-          { value: 'projects', label: 'Projects' },
-          { value: 'lots', label: 'Lots' },
-        ]}
-        value={viewMode}
-        onChange={handleViewModeChange}
-        className={styles.viewModeToggle}
-      />
       <div className={styles.resultsHeader}>
         <span className={styles.resultsCount}>
-          {displayedResults} of {totalResults} results
+          {displayedResults} of {totalResults} projects
         </span>
         <div className={styles.headerActions}>
           <div className={styles.sortContainer}>
-            Sorting
+            <span className={styles.sortLabel}>Sort by</span>
             <Select
               options={sortOptions}
               value={sortValue}
@@ -397,29 +255,7 @@ export default function Catalog() {
         </div>
       </div>
       <div className={styles.viewContainer}>
-        <div className={`${styles.viewPanel} ${viewMode === 'projects' ? styles.active : ''}`}>
-          <ProjectsView
-            panelWidth={panelWidth}
-            screenWidth={screenWidth}
-            getGridColumns={getGridColumns}
-            properties={projects}
-            isLoading={projectsLoading}
-            error={projectsError}
-          />
-        </div>
-        <div className={`${styles.viewPanel} ${viewMode === 'lots' ? styles.active : ''}`}>
-          <LotsView
-            panelWidth={panelWidth}
-            screenWidth={screenWidth}
-            onFavoriteClick={handleLotFavoriteClick}
-            getGridColumns={(catalogWidth, screenWidth) =>
-              getGridColumns(catalogWidth, screenWidth, true)
-            }
-            lots={lots}
-            isLoading={lotsLoading}
-            error={lotsError}
-          />
-        </div>
+        <ProjectsView properties={projects} isLoading={projectsLoading} error={projectsError} />
       </div>
     </div>
   )
@@ -427,7 +263,7 @@ export default function Catalog() {
   const mapContent = (
     <PropertyMap
       ref={mapRef}
-      properties={viewMode === 'projects' ? activeProperties : lotPropertiesForMap}
+      properties={activeProperties}
       selectedPropertyId={selectedPropertyId}
       onPropertyClick={handlePropertyClick}
     />
@@ -437,33 +273,50 @@ export default function Catalog() {
     <div className={styles.container}>
       <CatalogFilters />
       <div className={styles.contentWrapper}>
-        <div className={styles.desktopLayout}>
-          <ResizableSplitter
-            leftPanel={mapContent}
-            rightPanel={catalogContent}
-            initialLeftWidth={panelWidth}
-            minLeftWidth={GRID_CONSTANTS.MIN_LEFT_WIDTH}
-            minRightWidth={GRID_CONSTANTS.MIN_RIGHT_WIDTH}
-            onWidthChange={setPanelWidth}
-            onFinishResizing={handleFinishResizing}
-          />
-        </div>
-        <div className={styles.mobileLayout}>{catalogContent}</div>
-      </div>
-      {/* {isMapOpen && (
-        <div className={styles.mapModalOverlay} onClick={() => setIsMapOpen(false)}>
-          <div className={styles.mapModal} onClick={e => e.stopPropagation()}>
+        {isDesktop ? (
+          /* Desktop: CSS Grid layout with mode switching (>=1024px) */
+          <div className={styles.pageLayout} data-layout={layoutMode}>
+            <div className={styles.listPanel}>{catalogContent}</div>
             <button
-              className={styles.mapCloseButton}
-              onClick={() => setIsMapOpen(false)}
+              className={styles.panelToggle}
+              onClick={() => handleLayoutChange(layoutMode === 'map' ? 'split' : 'map')}
               type="button"
+              aria-label={layoutMode === 'map' ? 'Show list' : 'Show map'}
             >
-              ×
+              <ChevronRight size={18} />
             </button>
-            <div className={styles.mapModalContent}>{mapContent}</div>
+            <div className={styles.mapPanel}>{mapContent}</div>
           </div>
-        </div>
-      )} */}
+        ) : (
+          /* Mobile/Tablet: One view at a time with slide (<1024px) */
+          <>
+            <div
+              className={`${styles.mobileLayout} ${mobileView === 'list' ? styles.showList : ''}`}
+            >
+              <div className={styles.mobileListView}>{catalogContent}</div>
+              <div className={styles.mobileMapView}>{mapContent}</div>
+            </div>
+
+            {/* Floating toggle button */}
+            <button
+              className={styles.floatingToggle}
+              onClick={handleMobileViewToggle}
+              type="button"
+              aria-label={mobileView === 'list' ? 'Show map' : 'Show list'}
+            >
+              {mobileView === 'list' ? (
+                <>
+                  <Map size={18} /> Map
+                </>
+              ) : (
+                <>
+                  <LayoutGrid size={18} /> List
+                </>
+              )}
+            </button>
+          </>
+        )}
+      </div>
     </div>
   )
 }

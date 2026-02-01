@@ -172,20 +172,12 @@ export default function ProjectDetail() {
     if (!mapRef.current || !project || !hasCoordinates) return
 
     const coordinates: [number, number] = [project.lat!, project.lng!]
-    const isRecommended = Boolean(
-      (project.data as { isRecommended?: boolean } | undefined)?.isRecommended
-    )
-    const saleStatus = project.sale || 'unknown'
-    const developerData = project.developer?.data as { logoUrl?: string } | undefined
-    const logoFromApi = developerData?.logoUrl
-    const logoFallbackKey = project.developer?.name || project.developerId || ''
-    const logoUrl = logoFromApi || developerLogos[logoFallbackKey]
 
     const map = mapRef.current
     map.setView(coordinates, Math.max(map.getZoom(), MAP_ZOOM_DEFAULT))
 
     const applyMarkerIcon = () => {
-      const icon = createPropertyMarkerIcon(isRecommended, saleStatus, logoUrl, map.getZoom())
+      const icon = createPropertyMarkerIcon()
 
       if (!markerRef.current) {
         markerRef.current = L.marker(coordinates, { icon }).addTo(map)
@@ -199,9 +191,7 @@ export default function ProjectDetail() {
 
     const handleZoomEnd = () => {
       if (!markerRef.current) return
-      markerRef.current.setIcon(
-        createPropertyMarkerIcon(isRecommended, saleStatus, logoUrl, map.getZoom())
-      )
+      markerRef.current.setIcon(createPropertyMarkerIcon())
     }
 
     map.on('zoomend', handleZoomEnd)

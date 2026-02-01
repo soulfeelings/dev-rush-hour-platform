@@ -66,10 +66,14 @@ const (
 )
 
 type ProjectFilters struct {
-	AreaSlug      *string
-	DeveloperSlug *string
-	Bedrooms      *int
+	CitySlug      *string  // Filter by city slug
+	AreaSlug      *string  // Filter by area slug
+	DeveloperSlug *string  // Filter by developer slug
+	Bedrooms      []int    // Array for multi-select (e.g., [1, 2, 3])
+	Bathrooms     []int    // Array for multi-select
 	PriceMin      *float64
 	PriceMax      *float64
+	Status        *string  // Filter by project status (ready, construction, planning)
+	Search        *string  // Search by project name
 }
 

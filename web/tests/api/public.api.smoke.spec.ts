@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 const endpoints = [
-  { path: '/api/admin/projects', type: 'array' as const },
-  { path: '/api/admin/cities', type: 'array' as const },
-  { path: '/api/admin/developers', type: 'array' as const },
-  { path: '/api/admin/areas', type: 'array' as const },
+  { path: '/api/projects', type: 'array' as const},
+  { path: '/api/lots', type: 'object' as const },
   { path: '/api/filters/options', type: 'object' as const }
 ];
 

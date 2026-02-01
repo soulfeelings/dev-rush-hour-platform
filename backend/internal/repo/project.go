@@ -149,6 +149,13 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 	argPos := 1
 	whereClauses := []string{"p.status = 'active'", "p.deleted_at IS NULL"}
 
+	// Filter by city (via area's city field)
+	if filters.CitySlug != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("a.city = $%d", argPos))
+		args = append(args, *filters.CitySlug)
+		argPos++
+	}
+
 	if filters.AreaSlug != nil {
 		whereClauses = append(whereClauses, fmt.Sprintf("a.slug = $%d", argPos))
 		args = append(args, *filters.AreaSlug)
@@ -161,9 +168,46 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 		argPos++
 	}
 
-	if filters.Bedrooms != nil {
-		whereClauses = append(whereClauses, fmt.Sprintf("p.data->'specs'->>'bedrooms' IS NOT NULL AND p.data->'specs'->>'bedrooms' != '' AND (p.data->'specs'->>'bedrooms')::int >= $%d", argPos))
-		args = append(args, *filters.Bedrooms)
+	// Filter by project status (ready, construction, planning - stored in sale field or data)
+	if filters.Status != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("p.sale = $%d", argPos))
+		args = append(args, *filters.Status)
+		argPos++
+	}
+
+	// Filter by bedrooms - match if project bedrooms is in the selected array
+	if len(filters.Bedrooms) > 0 {
+		// Build IN clause for bedrooms
+		placeholders := make([]string, len(filters.Bedrooms))
+		for i, bed := range filters.Bedrooms {
+			placeholders[i] = fmt.Sprintf("$%d", argPos)
+			args = append(args, bed)
+			argPos++
+		}
+		whereClauses = append(whereClauses, fmt.Sprintf(
+			"p.data->'specs'->>'bedrooms' IS NOT NULL AND p.data->'specs'->>'bedrooms' != '' AND (p.data->'specs'->>'bedrooms')::int IN (%s)",
+			strings.Join(placeholders, ", "),
+		))
+	}
+
+	// Filter by bathrooms - match if project bathrooms is in the selected array
+	if len(filters.Bathrooms) > 0 {
+		placeholders := make([]string, len(filters.Bathrooms))
+		for i, bath := range filters.Bathrooms {
+			placeholders[i] = fmt.Sprintf("$%d", argPos)
+			args = append(args, bath)
+			argPos++
+		}
+		whereClauses = append(whereClauses, fmt.Sprintf(
+			"p.data->'specs'->>'bathrooms' IS NOT NULL AND p.data->'specs'->>'bathrooms' != '' AND (p.data->'specs'->>'bathrooms')::int IN (%s)",
+			strings.Join(placeholders, ", "),
+		))
+	}
+
+	// Search by project name (case-insensitive)
+	if filters.Search != nil && *filters.Search != "" {
+		whereClauses = append(whereClauses, fmt.Sprintf("LOWER(p.name) LIKE LOWER($%d)", argPos))
+		args = append(args, "%"+*filters.Search+"%")
 		argPos++
 	}
 
