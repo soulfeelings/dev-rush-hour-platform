@@ -30,10 +30,11 @@
 
 ### Запуск (из папки web)
 
-- pnpm test:e2e - все тесты
 - pnpm test:ui - только UI тесты
 - pnpm test:api - только API тесты
-- pnpm test:e2e:ui - Playwright UI режим для UI тестов
+- pnpm test:api:smoke - быстрый smoke (public)
+- pnpm test:api:smoke:admin - быстрый smoke (admin)
+- pnpm test:api:regress - полный прогон всех API GET
 
 ### Локально
 

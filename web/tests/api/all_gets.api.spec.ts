@@ -6,7 +6,31 @@ type Endpoint = {
   // for detail endpoints provide listPath and param (e.g. 'id' or 'slug')
   listPath?: string;
   paramName?: string;
+  // optional: where to take list from if list response is wrapped (e.g. { items: [] } or { data: [] })
+  listSelector?: (body: any) => any[];
 };
+
+const asListDefault = (body: any): any[] => {
+  if (Array.isArray(body)) return body;
+  if (Array.isArray(body?.items)) return body.items;
+  if (Array.isArray(body?.data)) return body.data;
+  if (Array.isArray(body?.results)) return body.results;
+  return [];
+};
+
+const skipNoListDataMessage = (listPath: string, detailPath: string, paramName: string) =>
+  [
+    `Тестовый случай не сообщил никаких выходных данных: список "${listPath}" вернул 0 элементов.`,
+    `Скорее всего, в базе данных нет записей для данного ресурса, поэтому невозможно получить параметр "{${paramName}}"`,
+    `и выполнить проверку детального эндпоинта "${detailPath}".`,
+    `Чтобы тест выполнялся, необходимо предварительно создать запись (через API или напрямую в БД).`,
+  ].join(' ');
+
+const skipNoParamMessage = (listPath: string, detailPath: string, paramName: string) =>
+  [
+    `Тестовый случай не сообщил корректных выходных данных: первый элемент из "${listPath}" не содержит поле "${paramName}".`,
+    `Невозможно сформировать запрос к "${detailPath}". Проверь название поля (id/_id/uuid/slug) или формат ответа.`,
+  ].join(' ');
 
 const endpoints: Endpoint[] = [
   // public collection endpoints
@@ -14,20 +38,24 @@ const endpoints: Endpoint[] = [
   { path: '/api/cities', type: 'array' },
   { path: '/api/filters/options', type: 'object' },
   { path: '/api/projects', type: 'array' },
+  // NOTE: /api/lots often returns wrapped object; keep 'object' + selector if needed
   { path: '/api/lots', type: 'object' },
   { path: '/api/developers', type: 'array' },
 
   // public detail endpoints (resolved from collection)
   { path: '/api/areas/{slug}', type: 'object', listPath: '/api/areas', paramName: 'slug' },
   { path: '/api/projects/{slug}', type: 'object', listPath: '/api/projects', paramName: 'slug' },
-  { path: '/api/lots/{id}', type: 'object', listPath: '/api/lots', paramName: 'id' },
 
-  // admin collections (included for local testing; will work without key in local dev)
+  // If /api/lots returns { items: [...] } (or { data: [...] }) — this will work.
+  // If it returns plain array — also works (asListDefault handles both).
+  { path: '/api/lots/{id}', type: 'object', listPath: '/api/lots', paramName: 'id', listSelector: asListDefault },
+
+  // admin collections
   { path: '/api/admin/developers', type: 'array' },
   { path: '/api/admin/areas', type: 'array' },
   { path: '/api/admin/cities', type: 'array' },
   { path: '/api/admin/projects', type: 'array' },
-  { path: '/api/admin/lots', type: 'array' },
+  { path: '/api/admin/lots', type: 'object' },
   { path: '/api/admin/leads', type: 'array' },
   { path: '/api/admin/badges', type: 'array' },
 
@@ -36,48 +64,74 @@ const endpoints: Endpoint[] = [
   { path: '/api/admin/areas/{id}', type: 'object', listPath: '/api/admin/areas', paramName: 'id' },
   { path: '/api/admin/cities/{id}', type: 'object', listPath: '/api/admin/cities', paramName: 'id' },
   { path: '/api/admin/projects/{id}', type: 'object', listPath: '/api/admin/projects', paramName: 'id' },
-  { path: '/api/admin/lots/{id}', type: 'object', listPath: '/api/admin/lots', paramName: 'id' },
+
+  // /api/admin/lots may be wrapped too — selector helps
+  { path: '/api/admin/lots/{id}', type: 'object', listPath: '/api/admin/lots', paramName: 'id', listSelector: asListDefault },
+
   { path: '/api/admin/leads/{id}', type: 'object', listPath: '/api/admin/leads', paramName: 'id' },
   { path: '/api/admin/badges/{id}', type: 'object', listPath: '/api/admin/badges', paramName: 'id' },
 ];
 
-for (const e of endpoints) {
-  if (e.listPath && e.paramName) {
-    test(`GET ${e.path}`, async ({ request }) => {
-      // get list to resolve parameter
-      const listResp = await request.get(e.listPath!);
-      expect(listResp.status()).toBe(200);
-      const listBody = await listResp.json();
+test.describe('API regress (all GETs)', () => {
+  for (const e of endpoints) {
+    // Detail endpoints: resolve param from list endpoint
+    if (e.listPath && e.paramName) {
+      test(`GET ${e.path}`, async ({ request }, testInfo) => {
+        const listResp = await request.get(e.listPath!);
+        expect(listResp.ok(), `list ${e.listPath} should be OK`).toBeTruthy();
 
-      if (!Array.isArray(listBody) || listBody.length === 0) {
-        test.skip(true, `no items in ${e.listPath} to test ${e.path}`);
-      }
+        const listBody = await listResp.json();
+        const list = (e.listSelector ?? asListDefault)(listBody);
 
-      const first = listBody[0];
-      const param = first[e.paramName!];
-      if (!param) {
-        test.skip(true, `first item from ${e.listPath} doesn't contain param ${e.paramName}`);
-      }
+        // If no data to resolve {param} -> skip with clear reason
+        if (list.length === 0) {
+          testInfo.skip(true, skipNoListDataMessage(e.listPath!, e.path, e.paramName!));
+        }
 
-      const path = e.path.replace(`{${e.paramName}}`, encodeURIComponent(String(param)));
-      const resp = await request.get(path);
-      expect(resp.status()).toBe(200);
-      const body = await resp.json();
-      expect(body).toBeTruthy();
-      expect(typeof body).toBe('object');
-    });
-  } else {
+        const first = list[0];
+        const param = first?.[e.paramName!];
+
+        // If list has items but field is missing -> skip with clear reason
+        if (param === undefined || param === null || param === '') {
+          testInfo.skip(true, skipNoParamMessage(e.listPath!, e.path, e.paramName!));
+        }
+
+        const resolvedPath = e.path.replace(
+          `{${e.paramName}}`,
+          encodeURIComponent(String(param))
+        );
+
+        const resp = await request.get(resolvedPath);
+        expect(resp.ok(), `${resolvedPath} should be OK`).toBeTruthy();
+
+        const body = await resp.json();
+
+        if (e.type === 'array') {
+          expect(Array.isArray(body), `${resolvedPath} should return array`).toBe(true);
+        } else {
+          expect(body, `${resolvedPath} should return body`).toBeTruthy();
+          expect(Array.isArray(body), `${resolvedPath} should not return array`).toBe(false);
+          expect(typeof body, `${resolvedPath} should return object`).toBe('object');
+        }
+      });
+
+      continue;
+    }
+
+    // Collection endpoints: simple validation by declared type
     test(`GET ${e.path}`, async ({ request }) => {
       const resp = await request.get(e.path);
-      expect(resp.status()).toBe(200);
+      expect(resp.ok(), `${e.path} should be OK`).toBeTruthy();
+
       const body = await resp.json();
+
       if (e.type === 'array') {
-        expect(Array.isArray(body)).toBe(true);
+        expect(Array.isArray(body), `${e.path} should return array`).toBe(true);
       } else {
-        expect(body).toBeTruthy();
-        expect(Array.isArray(body)).toBe(false);
-        expect(typeof body).toBe('object');
+        expect(body, `${e.path} should return body`).toBeTruthy();
+        expect(Array.isArray(body), `${e.path} should not return array`).toBe(false);
+        expect(typeof body, `${e.path} should return object`).toBe('object');
       }
     });
   }
-}
+});

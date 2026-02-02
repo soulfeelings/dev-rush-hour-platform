@@ -19,6 +19,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui --project=ui",
     "test:api": "playwright test --project=api",
+    "test:api:smoke": "playwright test --project=api tests/api/smoke.api.spec.ts",
+    "test:api:smoke:admin": "playwright test --project=api tests/api/smoke.admin.api.spec.ts",
+    "test:api:regress": "playwright test --project=api tests/api/all_gets.api.spec.ts",
     "test:ui": "playwright test --project=ui"
   },
   "dependencies": {
