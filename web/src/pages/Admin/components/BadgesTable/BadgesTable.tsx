@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Pencil } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button } from '../../../../ui'
+import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { Badge } from '../../../../api/generated/schemas/badge'
 import { TableSkeleton } from '../TableSkeleton'
 import styles from './BadgesTable.module.scss'
@@ -11,10 +11,20 @@ const { useAdminListBadges } = AdminApi
 type BadgesTableProps = {
   onNewClick: () => void
   onEditClick: (badge: Badge) => void
+  onDelete: (ids: string[]) => void
+  deleteLoading?: boolean
 }
 
-export function BadgesTable({ onNewClick, onEditClick }: BadgesTableProps) {
+export function BadgesTable({
+  onNewClick,
+  onEditClick,
+  onDelete,
+  deleteLoading,
+}: BadgesTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [badgesToDelete, setBadgesToDelete] = useState<string[]>([])
   const {
     data: badges,
     isLoading,
@@ -22,6 +32,50 @@ export function BadgesTable({ onNewClick, onEditClick }: BadgesTableProps) {
   } = useAdminListBadges({
     query: { enabled: true },
   })
+
+  const badgesList = badges || []
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === badgesList.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(badgesList.map(b => b.id).filter((id): id is string => !!id)))
+    }
+  }
+
+  const handleSelectOne = (id: string) => {
+    const newSelected = new Set(selectedIds)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedIds(newSelected)
+  }
+
+  const handleDeleteClick = (ids: string[]) => {
+    setBadgesToDelete(ids)
+    setDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    onDelete(badgesToDelete)
+    setDeleteModalOpen(false)
+    setBadgesToDelete([])
+    setSelectedIds(new Set())
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false)
+    setBadgesToDelete([])
+  }
+
+  const isAllSelected = badgesList.length > 0 && selectedIds.size === badgesList.length
+  const isSomeSelected = selectedIds.size > 0
+
+  const getBadgeNamesToDelete = () => {
+    return badgesToDelete.map(id => badgesList.find(b => b.id === id)?.name || id).join(', ')
+  }
 
   if (isLoading) {
     return (
@@ -31,9 +85,17 @@ export function BadgesTable({ onNewClick, onEditClick }: BadgesTableProps) {
           <Button onClick={onNewClick}>New</Button>
         </div>
         <TableSkeleton
-          headers={['', 'Preview', 'Name', 'Slug', 'Status', 'Sort Order']}
-          columns={[{ isActions: true, width: '50px' }, { width: '150px' }, {}, {}, {}, {}]}
-          minWidth="700px"
+          headers={['', '', 'Preview', 'Name', 'Slug', 'Status', 'Sort Order']}
+          columns={[
+            { width: '40px' },
+            { isActions: true, width: '50px' },
+            { width: '150px' },
+            {},
+            {},
+            {},
+            {},
+          ]}
+          minWidth="750px"
         />
       </div>
     )
@@ -43,13 +105,23 @@ export function BadgesTable({ onNewClick, onEditClick }: BadgesTableProps) {
     return <div className={styles.error}>Error loading badges</div>
   }
 
-  const badgesList = badges || []
-
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.header}>
         <h2 className={styles.title}>Badges</h2>
-        <Button onClick={onNewClick}>New</Button>
+        <div className={styles.headerActions}>
+          {isSomeSelected && (
+            <Button
+              variant="secondary"
+              onClick={() => handleDeleteClick(Array.from(selectedIds))}
+              disabled={deleteLoading}
+              iconLeft={<Trash2 size={16} />}
+            >
+              Delete ({selectedIds.size})
+            </Button>
+          )}
+          <Button onClick={onNewClick}>New</Button>
+        </div>
       </div>
       {badgesList.length === 0 ? (
         <div className={styles.empty}>No badges</div>
@@ -57,6 +129,13 @@ export function BadgesTable({ onNewClick, onEditClick }: BadgesTableProps) {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th className={styles.checkboxCell}>
+                <Checkbox
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  aria-label="Select all badges"
+                />
+              </th>
               <th></th>
               <th>Preview</th>
               <th>Name</th>
@@ -71,17 +150,36 @@ export function BadgesTable({ onNewClick, onEditClick }: BadgesTableProps) {
                 key={badge.id}
                 onMouseEnter={() => setHoveredRowId(badge.id)}
                 onMouseLeave={() => setHoveredRowId(undefined)}
+                className={badge.id && selectedIds.has(badge.id) ? styles.selectedRow : ''}
               >
+                <td className={styles.checkboxCell}>
+                  <Checkbox
+                    checked={!!badge.id && selectedIds.has(badge.id)}
+                    onChange={() => badge.id && handleSelectOne(badge.id)}
+                    aria-label={`Select ${badge.name}`}
+                  />
+                </td>
                 <td className={styles.actionsCell}>
                   {hoveredRowId === badge.id && (
-                    <button
-                      type="button"
-                      className={styles.editButton}
-                      onClick={() => onEditClick(badge)}
-                      aria-label="Edit badge"
-                    >
-                      <Pencil size={16} />
-                    </button>
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        className={styles.editButton}
+                        onClick={() => onEditClick(badge)}
+                        aria-label="Edit badge"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteButton}
+                        onClick={() => badge.id && handleDeleteClick([badge.id])}
+                        aria-label="Delete badge"
+                        disabled={deleteLoading}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   )}
                 </td>
                 <td>
@@ -104,6 +202,25 @@ export function BadgesTable({ onNewClick, onEditClick }: BadgesTableProps) {
           </tbody>
         </table>
       )}
+
+      <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">
+        <ModalBody>
+          <p>
+            Are you sure you want to delete{' '}
+            {badgesToDelete.length === 1 ? 'this badge' : `${badgesToDelete.length} badges`}?
+          </p>
+          <p className={styles.deleteItemNames}>{getBadgeNamesToDelete()}</p>
+          <p className={styles.deleteWarning}>This action cannot be undone.</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="secondary" onClick={handleCancelDelete} disabled={deleteLoading}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleConfirmDelete} disabled={deleteLoading}>
+            {deleteLoading ? 'Deleting...' : 'Delete'}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   )
 }

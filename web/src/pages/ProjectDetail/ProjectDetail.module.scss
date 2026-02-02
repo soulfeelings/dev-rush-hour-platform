@@ -311,13 +311,30 @@
 .timelineList {
   display: flex;
   flex-direction: column;
-  gap: $spacing-3;
+  gap: 0;
+  position: relative;
 }
 
 .timelineItem {
   display: flex;
   align-items: flex-start;
   gap: $spacing-3;
+  padding-bottom: $spacing-3;
+  position: relative;
+
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 24px;
+    width: 2px;
+    height: calc(100% - 12px);
+    background: $color-border;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+  }
 }
 
 .timelineDot {
@@ -330,6 +347,8 @@
   justify-content: center;
   color: $color-charcoal-black;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .timelineContent {
@@ -399,20 +418,16 @@
   }
 }
 
-// Action Buttons
-.actionButtons {
-  display: flex;
-  gap: $spacing-4;
-  margin-bottom: $spacing-8;
-
-  @media (max-width: $breakpoint-sm) {
-    flex-direction: column;
-  }
-}
-
 // Apartments Section
 .apartmentsSection {
   margin-bottom: $spacing-8;
+}
+
+.allUnitsLabel {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-1;
 }
 
 .apartmentsHeader {
@@ -654,12 +669,17 @@
   }
 }
 
+.specLabel {
+  color: $color-text;
+  font-weight: $font-weight-medium;
+}
+
 .whatsappBtn {
-  background: #25d366 !important;
-  color: white !important;
+  background: $color-yellow !important;
+  color: $color-charcoal-black !important;
 
   &:hover {
-    background: #128c7e !important;
+    background: $color-yellow-hover !important;
   }
 }
 

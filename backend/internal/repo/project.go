@@ -480,19 +480,21 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 	r.logger.Info("project_repo_get_by_id_started",
 		"project_id", id,
+		"project_id_string", id.String(),
 	)
 
 	var project domain.Project
 	var dataJSON []byte
 	var developerID, areaID sql.NullString
 	var lat, lng sql.NullFloat64
+	var sale sql.NullString
 
 	err := r.db.QueryRow(`
 		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
 		FROM projects
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id).Scan(
-		&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
+		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 		&developerID, &areaID, &lat, &lng, &dataJSON,
 		&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
 	)
@@ -511,6 +513,9 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		return nil, err
 	}
 
+	if sale.Valid {
+		project.Sale = sale.String
+	}
 	if developerID.Valid {
 		id := uuid.MustParse(developerID.String)
 		project.DeveloperID = &id

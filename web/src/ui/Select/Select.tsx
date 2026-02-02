@@ -254,6 +254,7 @@ export function Select({
         className={`${styles.select} ${disabled ? styles['select--disabled'] : ''} ${fullWidth ? styles['select--fullWidth'] : ''} ${fullHeight ? styles['select--fullHeight'] : ''} ${isActive ? styles['select--active'] : ''}`}
       >
         <Button
+          type="button"
           ref={triggerRef}
           id={buttonId}
           variant={triggerVariant || 'secondary'}

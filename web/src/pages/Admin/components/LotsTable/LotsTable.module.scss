@@ -10,6 +10,12 @@
   margin-bottom: 1.5rem;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -65,13 +71,27 @@
   border-bottom: none;
 }
 
-.actionsCell {
-  width: 50px;
+.checkboxCell {
+  width: 40px;
   padding: 0.5rem !important;
   text-align: center;
 }
 
-.editButton {
+.actionsCell {
+  width: 70px;
+  padding: 0.5rem !important;
+  text-align: center;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.editButton,
+.deleteButton {
   background: none;
   border: none;
   cursor: pointer;
@@ -91,6 +111,34 @@
   &:active {
     background: #d0d0d0;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.deleteButton {
+  &:hover {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+}
+
+.selectedRow {
+  background: #fef9c3 !important;
+}
+
+.deleteItemNames {
+  font-weight: 500;
+  color: #333;
+  word-break: break-word;
+}
+
+.deleteWarning {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
 }
 
 .imageCell {

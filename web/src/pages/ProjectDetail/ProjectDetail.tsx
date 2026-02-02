@@ -479,19 +479,10 @@ export default function ProjectDetail() {
         </section>
       )}
 
-      {/* Action Buttons */}
-      <div className={styles.actionButtons}>
-        <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
-          View Apartments in 3D
-        </Button>
-        <Button onClick={() => setIsFloorPlanModalOpen(true)} variant="secondary" size="lg">
-          View Building Plan
-        </Button>
-      </div>
-
       {/* Apartments Sections by Bedroom Count */}
       {groupedLots.map(group => (
         <section key={group.bedrooms} className={styles.apartmentsSection}>
+          <span className={styles.allUnitsLabel}>All Units</span>
           <div className={styles.apartmentsHeader}>
             <h2>Apartments</h2>
             <div className={styles.apartmentsStats}>
@@ -590,7 +581,7 @@ export default function ProjectDetail() {
                     </div>
 
                     <div className={styles.apartmentCardSpecs}>
-                      <span>Apartments</span>
+                      <span className={styles.specLabel}>Apartments</span>
                       <span>
                         <IconBed /> {lot.bedrooms ?? '-'}
                       </span>

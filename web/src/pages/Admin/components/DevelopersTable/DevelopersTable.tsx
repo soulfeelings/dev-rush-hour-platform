@@ -2,44 +2,44 @@ import { useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
-import type { Project } from '../../../../api/generated/schemas/project'
+import type { Developer } from '../../../../api/generated/schemas/developer'
 import { TableSkeleton } from '../TableSkeleton'
-import styles from './ProjectsTable.module.scss'
+import styles from './DevelopersTable.module.scss'
 
-const { useAdminListProjects } = AdminApi
+const { useAdminListDevelopers } = AdminApi
 
-type ProjectsTableProps = {
+type DevelopersTableProps = {
   onNewClick: () => void
-  onEditClick: (project: Project) => void
+  onEditClick: (developer: Developer) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
 }
 
-export function ProjectsTable({
+export function DevelopersTable({
   onNewClick,
   onEditClick,
   onDelete,
   deleteLoading,
-}: ProjectsTableProps) {
+}: DevelopersTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [projectsToDelete, setProjectsToDelete] = useState<string[]>([])
+  const [developersToDelete, setDevelopersToDelete] = useState<string[]>([])
   const {
-    data: projects,
+    data: developers,
     isLoading,
     error,
-  } = useAdminListProjects({
+  } = useAdminListDevelopers({
     query: { enabled: true },
   })
 
-  const projectsList = projects || []
+  const developersList = developers || []
 
   const handleSelectAll = () => {
-    if (selectedIds.size === projectsList.length) {
+    if (selectedIds.size === developersList.length) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(projectsList.map(p => p.id).filter((id): id is string => !!id)))
+      setSelectedIds(new Set(developersList.map(d => d.id).filter((id): id is string => !!id)))
     }
   }
 
@@ -54,73 +54,55 @@ export function ProjectsTable({
   }
 
   const handleDeleteClick = (ids: string[]) => {
-    setProjectsToDelete(ids)
+    setDevelopersToDelete(ids)
     setDeleteModalOpen(true)
   }
 
   const handleConfirmDelete = () => {
-    onDelete(projectsToDelete)
+    onDelete(developersToDelete)
     setDeleteModalOpen(false)
-    setProjectsToDelete([])
+    setDevelopersToDelete([])
     setSelectedIds(new Set())
   }
 
   const handleCancelDelete = () => {
     setDeleteModalOpen(false)
-    setProjectsToDelete([])
+    setDevelopersToDelete([])
   }
 
-  const isAllSelected = projectsList.length > 0 && selectedIds.size === projectsList.length
+  const isAllSelected = developersList.length > 0 && selectedIds.size === developersList.length
   const isSomeSelected = selectedIds.size > 0
 
-  const getProjectImageUrl = (project: (typeof projectsList)[0]) => {
-    if (project.data?.media?.cover?.url) {
-      return project.data.media.cover.url
-    }
-    if (project.data?.media?.gallery && project.data.media.gallery.length > 0) {
-      return project.data.media.gallery[0]?.url
-    }
-    return null
-  }
-
-  const getProjectNamesToDelete = () => {
-    return projectsToDelete.map(id => projectsList.find(p => p.id === id)?.name || id).join(', ')
+  const getDeveloperNamesToDelete = () => {
+    return developersToDelete
+      .map(id => developersList.find(d => d.id === id)?.name || id)
+      .join(', ')
   }
 
   if (isLoading) {
     return (
       <div className={styles.tableWrapper}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Projects</h2>
+          <h2 className={styles.title}>Developers</h2>
           <Button onClick={onNewClick}>New</Button>
         </div>
         <TableSkeleton
-          headers={['', '', 'Image', 'ID', 'Name', 'Slug', 'Status', 'Sale', 'Created At']}
-          columns={[
-            { width: '40px' },
-            { isActions: true, width: '50px' },
-            { isImage: true, width: '80px' },
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-          ]}
-          minWidth="850px"
+          headers={['', '', 'ID', 'Name', 'Slug', 'Status', 'Created At']}
+          columns={[{ width: '40px' }, { isActions: true, width: '50px' }, {}, {}, {}, {}, {}]}
+          minWidth="750px"
         />
       </div>
     )
   }
 
   if (error) {
-    return <div className={styles.error}>Error loading projects</div>
+    return <div className={styles.error}>Error loading developers</div>
   }
 
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Projects</h2>
+        <h2 className={styles.title}>Developers</h2>
         <div className={styles.headerActions}>
           {isSomeSelected && (
             <Button
@@ -135,8 +117,8 @@ export function ProjectsTable({
           <Button onClick={onNewClick}>New</Button>
         </div>
       </div>
-      {projectsList.length === 0 ? (
-        <div className={styles.empty}>No projects</div>
+      {developersList.length === 0 ? (
+        <div className={styles.empty}>No developers</div>
       ) : (
         <table className={styles.table}>
           <thead>
@@ -145,50 +127,48 @@ export function ProjectsTable({
                 <Checkbox
                   checked={isAllSelected}
                   onChange={handleSelectAll}
-                  aria-label="Select all projects"
+                  aria-label="Select all developers"
                 />
               </th>
               <th></th>
-              <th>Image</th>
               <th>ID</th>
               <th>Name</th>
               <th>Slug</th>
               <th>Status</th>
-              <th>Sale</th>
               <th>Created At</th>
             </tr>
           </thead>
           <tbody>
-            {projectsList.map(project => (
+            {developersList.map(developer => (
               <tr
-                key={project.id}
-                onMouseEnter={() => setHoveredRowId(project.id)}
+                key={developer.id}
+                onMouseEnter={() => setHoveredRowId(developer.id)}
                 onMouseLeave={() => setHoveredRowId(undefined)}
-                className={project.id && selectedIds.has(project.id) ? styles.selectedRow : ''}
+                className={developer.id && selectedIds.has(developer.id) ? styles.selectedRow : ''}
               >
                 <td className={styles.checkboxCell}>
                   <Checkbox
-                    checked={!!project.id && selectedIds.has(project.id)}
-                    onChange={() => project.id && handleSelectOne(project.id)}
-                    aria-label={`Select ${project.name}`}
+                    checked={!!developer.id && selectedIds.has(developer.id)}
+                    onChange={() => developer.id && handleSelectOne(developer.id)}
+                    aria-label={`Select ${developer.name}`}
                   />
                 </td>
                 <td className={styles.actionsCell}>
-                  {hoveredRowId === project.id && (
+                  {hoveredRowId === developer.id && (
                     <div className={styles.actionButtons}>
                       <button
                         type="button"
                         className={styles.editButton}
-                        onClick={() => onEditClick(project)}
-                        aria-label="Edit project"
+                        onClick={() => onEditClick(developer)}
+                        aria-label="Edit developer"
                       >
                         <Pencil size={16} />
                       </button>
                       <button
                         type="button"
                         className={styles.deleteButton}
-                        onClick={() => project.id && handleDeleteClick([project.id])}
-                        aria-label="Delete project"
+                        onClick={() => developer.id && handleDeleteClick([developer.id])}
+                        aria-label="Delete developer"
                         disabled={deleteLoading}
                       >
                         <Trash2 size={16} />
@@ -196,25 +176,13 @@ export function ProjectsTable({
                     </div>
                   )}
                 </td>
-                <td className={styles.imageCell}>
-                  {getProjectImageUrl(project) ? (
-                    <img
-                      src={getProjectImageUrl(project) || ''}
-                      alt={project.name || 'Project'}
-                      className={styles.image}
-                    />
-                  ) : (
-                    <div className={styles.noImage}>-</div>
-                  )}
-                </td>
-                <td>{project.id}</td>
-                <td>{project.name || '-'}</td>
-                <td>{project.slug || '-'}</td>
-                <td>{project.status || '-'}</td>
-                <td>{project.sale || '-'}</td>
+                <td>{developer.id}</td>
+                <td>{developer.name || '-'}</td>
+                <td>{developer.slug || '-'}</td>
+                <td>{developer.status || '-'}</td>
                 <td>
-                  {project.createdAt
-                    ? new Date(project.createdAt).toLocaleDateString('en-US')
+                  {developer.createdAt
+                    ? new Date(developer.createdAt).toLocaleDateString('en-US')
                     : '-'}
                 </td>
               </tr>
@@ -227,10 +195,12 @@ export function ProjectsTable({
         <ModalBody>
           <p>
             Are you sure you want to delete{' '}
-            {projectsToDelete.length === 1 ? 'this project' : `${projectsToDelete.length} projects`}
+            {developersToDelete.length === 1
+              ? 'this developer'
+              : `${developersToDelete.length} developers`}
             ?
           </p>
-          <p className={styles.deleteProjectNames}>{getProjectNamesToDelete()}</p>
+          <p className={styles.deleteItemNames}>{getDeveloperNamesToDelete()}</p>
           <p className={styles.deleteWarning}>This action cannot be undone.</p>
         </ModalBody>
         <ModalFooter>
