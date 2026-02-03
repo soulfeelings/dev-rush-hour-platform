@@ -831,3 +831,275 @@ func (r *LotRepo) Delete(id uuid.UUID) error {
 
 	return nil
 }
+
+func (r *LotRepo) ListAll() ([]domain.Lot, error) {
+	r.logger.Info("lot_repo_list_all_started")
+
+	rows, err := r.db.Query(`
+		SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
+		       area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at, deleted_at
+		FROM lots
+		WHERE deleted_at IS NULL
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		r.logger.Error("lot_repo_list_all_query_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+	defer rows.Close()
+
+	lots := []domain.Lot{}
+	for rows.Next() {
+		var lot domain.Lot
+		var dataJSON []byte
+		var projectID, developerID, areaID sql.NullString
+		var bedrooms, bathrooms, floor sql.NullInt64
+		var areaSqm sql.NullFloat64
+		var bonusKeys pq.StringArray
+
+		if err := rows.Scan(
+			&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
+			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
+			&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+			&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		if projectID.Valid {
+			id := uuid.MustParse(projectID.String)
+			lot.ProjectID = &id
+		}
+		if developerID.Valid {
+			id := uuid.MustParse(developerID.String)
+			lot.DeveloperID = &id
+		}
+		if areaID.Valid {
+			id := uuid.MustParse(areaID.String)
+			lot.AreaID = &id
+		}
+		if bedrooms.Valid {
+			b := int(bedrooms.Int64)
+			lot.Bedrooms = &b
+		}
+		if bathrooms.Valid {
+			b := int(bathrooms.Int64)
+			lot.Bathrooms = &b
+		}
+		if areaSqm.Valid {
+			lot.AreaSqm = &areaSqm.Float64
+		}
+		if floor.Valid {
+			f := int(floor.Int64)
+			lot.Floor = &f
+		}
+		lot.BonusKeys = []string(bonusKeys)
+
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+				return nil, err
+			}
+		} else {
+			lot.Data = domain.LotData{}
+		}
+
+		lots = append(lots, lot)
+	}
+
+	r.logger.Info("lot_repo_list_all_completed",
+		"count", len(lots),
+	)
+
+	return lots, nil
+}
+
+func (r *LotRepo) ListDeleted() ([]domain.Lot, error) {
+	r.logger.Info("lot_repo_list_deleted_started")
+
+	rows, err := r.db.Query(`
+		SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
+		       area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at, deleted_at
+		FROM lots
+		WHERE deleted_at IS NOT NULL
+		ORDER BY deleted_at DESC
+	`)
+	if err != nil {
+		r.logger.Error("lot_repo_list_deleted_query_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+	defer rows.Close()
+
+	lots := []domain.Lot{}
+	for rows.Next() {
+		var lot domain.Lot
+		var dataJSON []byte
+		var projectID, developerID, areaID sql.NullString
+		var bedrooms, bathrooms, floor sql.NullInt64
+		var areaSqm sql.NullFloat64
+		var bonusKeys pq.StringArray
+
+		if err := rows.Scan(
+			&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
+			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
+			&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+			&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
+		); err != nil {
+			r.logger.Error("lot_repo_list_deleted_scan_failed",
+				"error", err.Error(),
+			)
+			return nil, err
+		}
+
+		if projectID.Valid {
+			id := uuid.MustParse(projectID.String)
+			lot.ProjectID = &id
+		}
+		if developerID.Valid {
+			id := uuid.MustParse(developerID.String)
+			lot.DeveloperID = &id
+		}
+		if areaID.Valid {
+			id := uuid.MustParse(areaID.String)
+			lot.AreaID = &id
+		}
+		if bedrooms.Valid {
+			b := int(bedrooms.Int64)
+			lot.Bedrooms = &b
+		}
+		if bathrooms.Valid {
+			b := int(bathrooms.Int64)
+			lot.Bathrooms = &b
+		}
+		if areaSqm.Valid {
+			lot.AreaSqm = &areaSqm.Float64
+		}
+		if floor.Valid {
+			f := int(floor.Int64)
+			lot.Floor = &f
+		}
+		lot.BonusKeys = []string(bonusKeys)
+
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+				r.logger.Error("lot_repo_list_deleted_unmarshal_failed",
+					"lot_id", lot.ID,
+					"error", err.Error(),
+				)
+				return nil, err
+			}
+		} else {
+			lot.Data = domain.LotData{}
+		}
+
+		lots = append(lots, lot)
+	}
+
+	r.logger.Info("lot_repo_list_deleted_completed",
+		"count", len(lots),
+	)
+
+	return lots, nil
+}
+
+func (r *LotRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Lot, error) {
+	var lot domain.Lot
+	var dataJSON []byte
+	var projectID, developerID, areaID sql.NullString
+	var bedrooms, bathrooms, floor sql.NullInt64
+	var areaSqm sql.NullFloat64
+	var bonusKeys pq.StringArray
+
+	err := r.db.QueryRow(`
+		SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
+		       area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at, deleted_at
+		FROM lots
+		WHERE id = $1
+	`, id).Scan(
+		&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
+		&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
+		&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+		&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if projectID.Valid {
+		id := uuid.MustParse(projectID.String)
+		lot.ProjectID = &id
+	}
+	if developerID.Valid {
+		id := uuid.MustParse(developerID.String)
+		lot.DeveloperID = &id
+	}
+	if areaID.Valid {
+		id := uuid.MustParse(areaID.String)
+		lot.AreaID = &id
+	}
+	if bedrooms.Valid {
+		b := int(bedrooms.Int64)
+		lot.Bedrooms = &b
+	}
+	if bathrooms.Valid {
+		b := int(bathrooms.Int64)
+		lot.Bathrooms = &b
+	}
+	if areaSqm.Valid {
+		lot.AreaSqm = &areaSqm.Float64
+	}
+	if floor.Valid {
+		f := int(floor.Int64)
+		lot.Floor = &f
+	}
+	lot.BonusKeys = []string(bonusKeys)
+
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		lot.Data = domain.LotData{}
+	}
+
+	return &lot, nil
+}
+
+func (r *LotRepo) Restore(id uuid.UUID) error {
+	r.logger.Info("lot_repo_restore_started", "lot_id", id)
+
+	_, err := r.db.Exec(`
+		UPDATE lots
+		SET deleted_at = NULL
+		WHERE id = $1 AND deleted_at IS NOT NULL
+	`, id)
+
+	if err != nil {
+		r.logger.Error("lot_repo_restore_failed", "lot_id", id, "error", err.Error())
+		return err
+	}
+
+	r.logger.Info("lot_repo_restore_completed", "lot_id", id)
+	return nil
+}
+
+func (r *LotRepo) HardDelete(id uuid.UUID) error {
+	r.logger.Info("lot_repo_hard_delete_started", "lot_id", id)
+
+	_, err := r.db.Exec(`DELETE FROM lots WHERE id = $1`, id)
+
+	if err != nil {
+		r.logger.Error("lot_repo_hard_delete_failed", "lot_id", id, "error", err.Error())
+		return err
+	}
+
+	r.logger.Info("lot_repo_hard_delete_completed", "lot_id", id)
+	return nil
+}

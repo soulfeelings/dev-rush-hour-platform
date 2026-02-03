@@ -219,3 +219,77 @@ func (s *CitiesService) ListAll() ([]domain.City, error) {
 
 	return cities, nil
 }
+
+func (s *CitiesService) ListDeleted() ([]domain.City, error) {
+	s.logger.Info("city_service_list_deleted_started")
+
+	cities, err := s.cityRepo.ListDeleted()
+	if err != nil {
+		s.logger.Error("city_service_list_deleted_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	s.logger.Info("city_service_list_deleted_completed",
+		"count", len(cities),
+	)
+
+	return cities, nil
+}
+
+func (s *CitiesService) Restore(id uuid.UUID) error {
+	s.logger.Info("city_service_restore_started", "city_id", id)
+
+	existing, err := s.cityRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("city_service_restore_get_existing_failed",
+			"city_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get city: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("city_service_restore_not_found", "city_id", id)
+		return ErrCityNotFound
+	}
+	if existing.DeletedAt == nil {
+		s.logger.Warn("city_service_restore_not_deleted", "city_id", id)
+		return fmt.Errorf("city is not deleted")
+	}
+
+	err = s.cityRepo.Restore(id)
+	if err != nil {
+		s.logger.Error("city_service_restore_failed", "city_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("city_service_restore_completed", "city_id", id)
+	return nil
+}
+
+func (s *CitiesService) HardDelete(id uuid.UUID) error {
+	s.logger.Info("city_service_hard_delete_started", "city_id", id)
+
+	existing, err := s.cityRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("city_service_hard_delete_get_existing_failed",
+			"city_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get city: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("city_service_hard_delete_not_found", "city_id", id)
+		return ErrCityNotFound
+	}
+
+	err = s.cityRepo.HardDelete(id)
+	if err != nil {
+		s.logger.Error("city_service_hard_delete_failed", "city_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("city_service_hard_delete_completed", "city_id", id)
+	return nil
+}

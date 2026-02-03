@@ -19,6 +19,12 @@ import {
   getAdminListCitiesQueryKey,
   getAdminListBadgesQueryKey,
   getAdminListDevelopersQueryKey,
+  getAdminListDeletedDevelopersQueryKey,
+  getAdminListDeletedProjectsQueryKey,
+  getAdminListDeletedLotsQueryKey,
+  getAdminListDeletedAreasQueryKey,
+  getAdminListDeletedCitiesQueryKey,
+  getAdminListDeletedBadgesQueryKey,
 } from '../../api'
 import type { Badge } from '../../api/generated/schemas/badge'
 import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreateRequest'
@@ -37,12 +43,20 @@ import { CityForm } from './components/CityForm'
 import { BadgesTable } from './components/BadgesTable'
 import { BadgeForm } from './components/BadgeForm'
 import { DevelopersTable } from './components/DevelopersTable'
+import { DeletedDevelopersTable } from './components/DeletedDevelopersTable'
+import { DeletedProjectsTable } from './components/DeletedProjectsTable'
+import { DeletedLotsTable } from './components/DeletedLotsTable'
+import { DeletedAreasTable } from './components/DeletedAreasTable'
+import { DeletedCitiesTable } from './components/DeletedCitiesTable'
+import { DeletedBadgesTable } from './components/DeletedBadgesTable'
 import { ADMIN_ROUTES, ADMIN_ROUTE_SEGMENTS, ADMIN_API_ENDPOINTS } from './constants'
 
 const {
   useAdminListDevelopers,
   useAdminListAreas,
   useAdminListProjects,
+  useAdminListBadges,
+  useAdminListInfrastructures,
   useAdminCreateDeveloper,
   useAdminCreateProject,
   useAdminCreateLot,
@@ -59,6 +73,18 @@ const {
   useAdminSoftDeleteCity,
   useAdminSoftDeleteBadge,
   useAdminSoftDeleteDeveloper,
+  useAdminRestoreDeveloper,
+  useAdminHardDeleteDeveloper,
+  useAdminRestoreProject,
+  useAdminHardDeleteProject,
+  useAdminRestoreLot,
+  useAdminHardDeleteLot,
+  useAdminRestoreArea,
+  useAdminHardDeleteArea,
+  useAdminRestoreCity,
+  useAdminHardDeleteCity,
+  useAdminRestoreBadge,
+  useAdminHardDeleteBadge,
 } = AdminApi
 import styles from './Admin.module.scss'
 
@@ -88,10 +114,18 @@ export default function Admin() {
   const { data: projectsData } = useAdminListProjects({
     query: { enabled: isAuthenticated },
   })
+  const { data: badgesData } = useAdminListBadges({
+    query: { enabled: isAuthenticated },
+  })
+  const { data: infrastructuresData } = useAdminListInfrastructures({
+    query: { enabled: isAuthenticated },
+  })
 
   const developers = developersData || []
   const areas = areasData || []
   const projects = projectsData || []
+  const badges = badgesData || []
+  const infrastructures = infrastructuresData || []
 
   const createDeveloperMutation = useAdminCreateDeveloper({
     mutation: {
@@ -259,6 +293,7 @@ export default function Admin() {
         queryClient.setQueryData<Project[]>(getAdminListProjectsQueryKey(), oldData =>
           oldData ? oldData.filter(item => item.id !== variables.id) : []
         )
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedProjectsQueryKey() })
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to delete project')
@@ -272,6 +307,7 @@ export default function Admin() {
         queryClient.setQueryData<LotListItem[]>(getAdminListLotsQueryKey(), oldData =>
           oldData ? oldData.filter(item => item.id !== variables.id) : []
         )
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to delete lot')
@@ -285,6 +321,7 @@ export default function Admin() {
         queryClient.setQueryData<Area[]>(getAdminListAreasQueryKey(), oldData =>
           oldData ? oldData.filter(item => item.id !== variables.id) : []
         )
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedAreasQueryKey() })
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to delete area')
@@ -298,6 +335,7 @@ export default function Admin() {
         queryClient.setQueryData<City[]>(getAdminListCitiesQueryKey(), oldData =>
           oldData ? oldData.filter(item => item.id !== variables.id) : []
         )
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedCitiesQueryKey() })
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to delete city')
@@ -311,6 +349,7 @@ export default function Admin() {
         queryClient.setQueryData<Badge[]>(getAdminListBadgesQueryKey(), oldData =>
           oldData ? oldData.filter(item => item.id !== variables.id) : []
         )
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedBadgesQueryKey() })
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to delete badge')
@@ -324,6 +363,7 @@ export default function Admin() {
         queryClient.setQueryData<Developer[]>(getAdminListDevelopersQueryKey(), oldData =>
           oldData ? oldData.filter(item => item.id !== variables.id) : []
         )
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedDevelopersQueryKey() })
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to delete developer')
@@ -331,7 +371,147 @@ export default function Admin() {
     },
   })
 
+  const restoreDeveloperMutation = useAdminRestoreDeveloper({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.DEVELOPERS] })
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedDevelopersQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to restore developer')
+      },
+    },
+  })
+
+  const hardDeleteDeveloperMutation = useAdminHardDeleteDeveloper({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedDevelopersQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to permanently delete developer')
+      },
+    },
+  })
+
+  const restoreProjectMutation = useAdminRestoreProject({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.PROJECTS] })
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedProjectsQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to restore project')
+      },
+    },
+  })
+
+  const hardDeleteProjectMutation = useAdminHardDeleteProject({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedProjectsQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to permanently delete project')
+      },
+    },
+  })
+
+  const restoreLotMutation = useAdminRestoreLot({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.LOTS] })
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to restore lot')
+      },
+    },
+  })
+
+  const hardDeleteLotMutation = useAdminHardDeleteLot({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to permanently delete lot')
+      },
+    },
+  })
+
+  const restoreAreaMutation = useAdminRestoreArea({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.AREAS] })
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedAreasQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to restore area')
+      },
+    },
+  })
+
+  const hardDeleteAreaMutation = useAdminHardDeleteArea({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedAreasQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to permanently delete area')
+      },
+    },
+  })
+
+  const restoreCityMutation = useAdminRestoreCity({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.CITIES] })
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedCitiesQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to restore city')
+      },
+    },
+  })
+
+  const hardDeleteCityMutation = useAdminHardDeleteCity({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedCitiesQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to permanently delete city')
+      },
+    },
+  })
+
+  const restoreBadgeMutation = useAdminRestoreBadge({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.BADGES] })
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedBadgesQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to restore badge')
+      },
+    },
+  })
+
+  const hardDeleteBadgeMutation = useAdminHardDeleteBadge({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getAdminListDeletedBadgesQueryKey() })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to permanently delete badge')
+      },
+    },
+  })
+
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [restoreLoading, setRestoreLoading] = useState(false)
+  const [hardDeleteLoading, setHardDeleteLoading] = useState(false)
 
   const loading =
     createDeveloperMutation.isPending ||
@@ -402,12 +582,12 @@ export default function Admin() {
       | 'developers-list'
   ) => {
     const pathMap: Record<typeof tab, string> = {
+      'developers-list': ADMIN_ROUTE_SEGMENTS.DEVELOPERS,
       'projects-list': ADMIN_ROUTE_SEGMENTS.PROJECTS,
       'lots-list': ADMIN_ROUTE_SEGMENTS.LOTS,
       'areas-list': ADMIN_ROUTE_SEGMENTS.AREAS,
       'cities-list': ADMIN_ROUTE_SEGMENTS.CITIES,
       'badges-list': ADMIN_ROUTE_SEGMENTS.BADGES,
-      'developers-list': ADMIN_ROUTE_SEGMENTS.DEVELOPERS,
     }
     navigate(`${ADMIN_ROUTES.BASE}/${pathMap[tab]}`)
     setRightSidebarOpen(false)
@@ -614,6 +794,252 @@ export default function Admin() {
     }
   }
 
+  const handleRestoreDevelopers = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setRestoreLoading(true)
+
+    try {
+      for (const id of ids) {
+        await restoreDeveloperMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Developer restored successfully!'
+          : `${ids.length} developers restored successfully!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setRestoreLoading(false)
+    }
+  }
+
+  const handleHardDeleteDevelopers = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setHardDeleteLoading(true)
+
+    try {
+      for (const id of ids) {
+        await hardDeleteDeveloperMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Developer permanently deleted!'
+          : `${ids.length} developers permanently deleted!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setHardDeleteLoading(false)
+    }
+  }
+
+  const handleRestoreProjects = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setRestoreLoading(true)
+
+    try {
+      for (const id of ids) {
+        await restoreProjectMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Project restored successfully!'
+          : `${ids.length} projects restored successfully!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setRestoreLoading(false)
+    }
+  }
+
+  const handleHardDeleteProjects = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setHardDeleteLoading(true)
+
+    try {
+      for (const id of ids) {
+        await hardDeleteProjectMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Project permanently deleted!'
+          : `${ids.length} projects permanently deleted!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setHardDeleteLoading(false)
+    }
+  }
+
+  const handleRestoreLots = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setRestoreLoading(true)
+
+    try {
+      for (const id of ids) {
+        await restoreLotMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Lot restored successfully!'
+          : `${ids.length} lots restored successfully!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setRestoreLoading(false)
+    }
+  }
+
+  const handleHardDeleteLots = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setHardDeleteLoading(true)
+
+    try {
+      for (const id of ids) {
+        await hardDeleteLotMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1 ? 'Lot permanently deleted!' : `${ids.length} lots permanently deleted!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setHardDeleteLoading(false)
+    }
+  }
+
+  const handleRestoreAreas = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setRestoreLoading(true)
+
+    try {
+      for (const id of ids) {
+        await restoreAreaMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Area restored successfully!'
+          : `${ids.length} areas restored successfully!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setRestoreLoading(false)
+    }
+  }
+
+  const handleHardDeleteAreas = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setHardDeleteLoading(true)
+
+    try {
+      for (const id of ids) {
+        await hardDeleteAreaMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1 ? 'Area permanently deleted!' : `${ids.length} areas permanently deleted!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setHardDeleteLoading(false)
+    }
+  }
+
+  const handleRestoreCities = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setRestoreLoading(true)
+
+    try {
+      for (const id of ids) {
+        await restoreCityMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'City restored successfully!'
+          : `${ids.length} cities restored successfully!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setRestoreLoading(false)
+    }
+  }
+
+  const handleHardDeleteCities = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setHardDeleteLoading(true)
+
+    try {
+      for (const id of ids) {
+        await hardDeleteCityMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1 ? 'City permanently deleted!' : `${ids.length} cities permanently deleted!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setHardDeleteLoading(false)
+    }
+  }
+
+  const handleRestoreBadges = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setRestoreLoading(true)
+
+    try {
+      for (const id of ids) {
+        await restoreBadgeMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Badge restored successfully!'
+          : `${ids.length} badges restored successfully!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setRestoreLoading(false)
+    }
+  }
+
+  const handleHardDeleteBadges = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setHardDeleteLoading(true)
+
+    try {
+      for (const id of ids) {
+        await hardDeleteBadgeMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Badge permanently deleted!'
+          : `${ids.length} badges permanently deleted!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setHardDeleteLoading(false)
+    }
+  }
+
   if (!isAuthenticated) {
     return (
       <div className={styles.admin}>
@@ -651,71 +1077,120 @@ export default function Admin() {
       <div className={styles.content}>
         <Routes>
           <Route
+            path={ADMIN_ROUTE_SEGMENTS.DEVELOPERS}
+            element={
+              <>
+                <DevelopersTable
+                  onNewClick={() => handleNewClick('developer')}
+                  onEditClick={developer => handleEditClick(developer, 'developer')}
+                  onDelete={handleDeleteDevelopers}
+                  deleteLoading={deleteLoading}
+                />
+                <DeletedDevelopersTable
+                  onRestore={handleRestoreDevelopers}
+                  onHardDelete={handleHardDeleteDevelopers}
+                  restoreLoading={restoreLoading}
+                  hardDeleteLoading={hardDeleteLoading}
+                />
+              </>
+            }
+          />
+          <Route
             path={ADMIN_ROUTE_SEGMENTS.PROJECTS}
             element={
-              <ProjectsTable
-                onNewClick={() => handleNewClick('project')}
-                onEditClick={project => handleEditClick(project, 'project')}
-                onDelete={handleDeleteProjects}
-                deleteLoading={deleteLoading}
-              />
+              <>
+                <ProjectsTable
+                  onNewClick={() => handleNewClick('project')}
+                  onEditClick={project => handleEditClick(project, 'project')}
+                  onDelete={handleDeleteProjects}
+                  deleteLoading={deleteLoading}
+                />
+                <DeletedProjectsTable
+                  onRestore={handleRestoreProjects}
+                  onHardDelete={handleHardDeleteProjects}
+                  restoreLoading={restoreLoading}
+                  hardDeleteLoading={hardDeleteLoading}
+                />
+              </>
             }
           />
           <Route
             path={ADMIN_ROUTE_SEGMENTS.LOTS}
             element={
-              <LotsTable
-                onNewClick={() => handleNewClick('lot')}
-                onEditClick={lot => handleEditClick(lot, 'lot')}
-                onDelete={handleDeleteLots}
-                deleteLoading={deleteLoading}
-              />
+              <>
+                <LotsTable
+                  onNewClick={() => handleNewClick('lot')}
+                  onEditClick={lot => handleEditClick(lot, 'lot')}
+                  onDelete={handleDeleteLots}
+                  deleteLoading={deleteLoading}
+                />
+                <DeletedLotsTable
+                  onRestore={handleRestoreLots}
+                  onHardDelete={handleHardDeleteLots}
+                  restoreLoading={restoreLoading}
+                  hardDeleteLoading={hardDeleteLoading}
+                />
+              </>
             }
           />
           <Route
             path={ADMIN_ROUTE_SEGMENTS.AREAS}
             element={
-              <AreasTable
-                onNewClick={() => handleNewClick('developer')}
-                onEditClick={area => handleEditClick(area, 'developer')}
-                onDelete={handleDeleteAreas}
-                deleteLoading={deleteLoading}
-              />
+              <>
+                <AreasTable
+                  onNewClick={() => handleNewClick('developer')}
+                  onEditClick={area => handleEditClick(area, 'developer')}
+                  onDelete={handleDeleteAreas}
+                  deleteLoading={deleteLoading}
+                />
+                <DeletedAreasTable
+                  onRestore={handleRestoreAreas}
+                  onHardDelete={handleHardDeleteAreas}
+                  restoreLoading={restoreLoading}
+                  hardDeleteLoading={hardDeleteLoading}
+                />
+              </>
             }
           />
           <Route
             path={ADMIN_ROUTE_SEGMENTS.CITIES}
             element={
-              <CitiesTable
-                onNewClick={() => handleNewClick('city')}
-                onEditClick={city => handleEditClick(city, 'city')}
-                onDelete={handleDeleteCities}
-                deleteLoading={deleteLoading}
-              />
+              <>
+                <CitiesTable
+                  onNewClick={() => handleNewClick('city')}
+                  onEditClick={city => handleEditClick(city, 'city')}
+                  onDelete={handleDeleteCities}
+                  deleteLoading={deleteLoading}
+                />
+                <DeletedCitiesTable
+                  onRestore={handleRestoreCities}
+                  onHardDelete={handleHardDeleteCities}
+                  restoreLoading={restoreLoading}
+                  hardDeleteLoading={hardDeleteLoading}
+                />
+              </>
             }
           />
           <Route
             path={ADMIN_ROUTE_SEGMENTS.BADGES}
             element={
-              <BadgesTable
-                onNewClick={() => handleNewClick('badge')}
-                onEditClick={badge => handleEditClick(badge, 'badge')}
-                onDelete={handleDeleteBadges}
-                deleteLoading={deleteLoading}
-              />
+              <>
+                <BadgesTable
+                  onNewClick={() => handleNewClick('badge')}
+                  onEditClick={badge => handleEditClick(badge, 'badge')}
+                  onDelete={handleDeleteBadges}
+                  deleteLoading={deleteLoading}
+                />
+                <DeletedBadgesTable
+                  onRestore={handleRestoreBadges}
+                  onHardDelete={handleHardDeleteBadges}
+                  restoreLoading={restoreLoading}
+                  hardDeleteLoading={hardDeleteLoading}
+                />
+              </>
             }
           />
-          <Route
-            path={ADMIN_ROUTE_SEGMENTS.DEVELOPERS}
-            element={
-              <DevelopersTable
-                onNewClick={() => handleNewClick('developer')}
-                onEditClick={developer => handleEditClick(developer, 'developer')}
-                onDelete={handleDeleteDevelopers}
-                deleteLoading={deleteLoading}
-              />
-            }
-          />
+
           <Route path="*" element={<Navigate to={ADMIN_ROUTES.PROJECTS} replace />} />
         </Routes>
       </div>
@@ -741,6 +1216,8 @@ export default function Admin() {
             key={formKey}
             developers={developers}
             areas={areas}
+            badges={badges}
+            infrastructures={infrastructures}
             onSubmit={handleProjectSubmit}
             loading={loading}
             initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as Project) : null}

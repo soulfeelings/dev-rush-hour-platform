@@ -8,6 +8,10 @@ import styles from './DevelopersTable.module.scss'
 
 const { useAdminListDevelopers } = AdminApi
 
+type DeveloperDataFields = {
+  logoUrl?: string
+}
+
 type DevelopersTableProps = {
   onNewClick: () => void
   onEditClick: (developer: Developer) => void
@@ -87,9 +91,18 @@ export function DevelopersTable({
           <Button onClick={onNewClick}>New</Button>
         </div>
         <TableSkeleton
-          headers={['', '', 'ID', 'Name', 'Slug', 'Status', 'Created At']}
-          columns={[{ width: '40px' }, { isActions: true, width: '50px' }, {}, {}, {}, {}, {}]}
-          minWidth="750px"
+          headers={['', '', 'Logo', 'ID', 'Name', 'Slug', 'Status', 'Created At']}
+          columns={[
+            { width: '40px' },
+            { isActions: true, width: '50px' },
+            { width: '60px' },
+            {},
+            {},
+            {},
+            {},
+            {},
+          ]}
+          minWidth="850px"
         />
       </div>
     )
@@ -131,6 +144,7 @@ export function DevelopersTable({
                 />
               </th>
               <th></th>
+              <th>Logo</th>
               <th>ID</th>
               <th>Name</th>
               <th>Slug</th>
@@ -174,6 +188,17 @@ export function DevelopersTable({
                         <Trash2 size={16} />
                       </button>
                     </div>
+                  )}
+                </td>
+                <td className={styles.logoCell}>
+                  {(developer.data as DeveloperDataFields)?.logoUrl ? (
+                    <img
+                      src={(developer.data as DeveloperDataFields).logoUrl}
+                      alt={`${developer.name} logo`}
+                      className={styles.logoImage}
+                    />
+                  ) : (
+                    <span className={styles.noLogo}>-</span>
                   )}
                 </td>
                 <td>{developer.id}</td>

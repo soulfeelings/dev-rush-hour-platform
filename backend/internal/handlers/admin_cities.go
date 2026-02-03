@@ -253,3 +253,86 @@ func (h *AdminCitiesHandler) SoftDeleteCity(c *fiber.Ctx, id openapi_types.UUID)
 
 	return c.SendStatus(fiber.StatusNoContent)
 }
+
+func (h *AdminCitiesHandler) ListDeletedCities(c *fiber.Ctx) error {
+	cities, err := h.citiesService.ListDeleted()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	result := make([]generated.City, len(cities))
+	for i := range cities {
+		result[i] = *mappers.DomainCityToGenerated(&cities[i])
+	}
+
+	return c.JSON(result)
+}
+
+func (h *AdminCitiesHandler) RestoreCity(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.citiesService.Restore(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrCityNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *AdminCitiesHandler) HardDeleteCity(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.citiesService.HardDelete(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrCityNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}

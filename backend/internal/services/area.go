@@ -238,3 +238,77 @@ func (s *AreasService) Delete(id uuid.UUID) error {
 	return nil
 }
 
+func (s *AreasService) ListDeleted() ([]domain.Area, error) {
+	s.logger.Info("area_service_list_deleted_started")
+
+	areas, err := s.areaRepo.ListDeleted()
+	if err != nil {
+		s.logger.Error("area_service_list_deleted_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	s.logger.Info("area_service_list_deleted_completed",
+		"count", len(areas),
+	)
+
+	return areas, nil
+}
+
+func (s *AreasService) Restore(id uuid.UUID) error {
+	s.logger.Info("area_service_restore_started", "area_id", id)
+
+	existing, err := s.areaRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("area_service_restore_get_existing_failed",
+			"area_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get area: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("area_service_restore_not_found", "area_id", id)
+		return ErrAreaNotFound
+	}
+	if existing.DeletedAt == nil {
+		s.logger.Warn("area_service_restore_not_deleted", "area_id", id)
+		return fmt.Errorf("area is not deleted")
+	}
+
+	err = s.areaRepo.Restore(id)
+	if err != nil {
+		s.logger.Error("area_service_restore_failed", "area_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("area_service_restore_completed", "area_id", id)
+	return nil
+}
+
+func (s *AreasService) HardDelete(id uuid.UUID) error {
+	s.logger.Info("area_service_hard_delete_started", "area_id", id)
+
+	existing, err := s.areaRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("area_service_hard_delete_get_existing_failed",
+			"area_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get area: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("area_service_hard_delete_not_found", "area_id", id)
+		return ErrAreaNotFound
+	}
+
+	err = s.areaRepo.HardDelete(id)
+	if err != nil {
+		s.logger.Error("area_service_hard_delete_failed", "area_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("area_service_hard_delete_completed", "area_id", id)
+	return nil
+}
+

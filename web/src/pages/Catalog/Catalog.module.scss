@@ -22,7 +22,6 @@
 // =====================================
 
 .pageLayout {
-  --panel-toggle-width: 32px;
   display: none;
   height: 100%;
   overflow: hidden;
@@ -31,9 +30,9 @@
     display: grid;
     transition: grid-template-columns 300ms ease;
 
-    // MODE: Map fullscreen
+    // MODE: Map fullscreen (list hidden)
     &[data-layout='map'] {
-      grid-template-columns: 0fr var(--panel-toggle-width) 1fr;
+      grid-template-columns: 1fr 0fr;
 
       .listPanel {
         visibility: hidden;
@@ -42,23 +41,23 @@
 
       .panelToggle {
         svg {
-          transform: rotate(0deg);
+          transform: rotate(180deg);
         }
       }
     }
   }
 
-  // Split mode: fixed list width + toggle button + map takes remaining space
+  // Split mode: map takes remaining space + fixed list width
   @media (min-width: 1024px) {
-    grid-template-columns: 400px var(--panel-toggle-width) 1fr;
+    grid-template-columns: 1fr 400px;
   }
 
   @media (min-width: 1440px) {
-    grid-template-columns: 656px var(--panel-toggle-width) 1fr;
+    grid-template-columns: 1fr 656px;
   }
 
   @media (min-width: 1920px) {
-    grid-template-columns: 768px var(--panel-toggle-width) 1fr;
+    grid-template-columns: 1fr 768px;
   }
 }
 
@@ -77,30 +76,36 @@
 
 .panelToggle {
   display: none;
-  width: var(--panel-toggle-width, 32px);
-  height: 100%;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 64px;
   background: $color-bg-card;
   border: none;
-  border-left: 1px solid $color-border;
-  border-right: 1px solid $color-border;
+  border-radius: $radius-md 0 0 $radius-md;
+  box-shadow: $shadow-sm;
   cursor: pointer;
   align-items: center;
   justify-content: center;
   color: $color-text-secondary;
+  opacity: 0.5;
   transition: all $transition-fast;
+  z-index: 1000;
 
   @media (min-width: $breakpoint-lg) {
     display: flex;
   }
 
   &:hover {
-    background: $color-bg-card;
+    opacity: 1;
     color: $color-text;
   }
 
   svg {
     flex-shrink: 0;
-    transform: rotate(180deg);
+    transform: rotate(0deg);
     transition: transform 300ms ease;
   }
 }
@@ -116,12 +121,12 @@
   width: 200%;
   transition: transform 0.3s ease;
 
-  // Default: show map (second panel)
-  transform: translateX(-50%);
+  // Default: show map (first panel)
+  transform: translateX(0);
 
-  // When showing list, slide to show first panel (from left)
+  // When showing list, slide to show second panel (list on right)
   &.showList {
-    transform: translateX(0);
+    transform: translateX(-50%);
   }
 
   @media (min-width: $breakpoint-lg) {

@@ -250,3 +250,95 @@ func (s *LotsService) Delete(id uuid.UUID) error {
 
 	return nil
 }
+
+func (s *LotsService) ListAll() ([]domain.Lot, error) {
+	s.logger.Info("lot_service_list_all_started")
+
+	lots, err := s.lotRepo.ListAll()
+	if err != nil {
+		s.logger.Error("lot_service_list_all_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	s.logger.Info("lot_service_list_all_completed",
+		"count", len(lots),
+	)
+
+	return lots, nil
+}
+
+func (s *LotsService) ListDeleted() ([]domain.Lot, error) {
+	s.logger.Info("lot_service_list_deleted_started")
+
+	lots, err := s.lotRepo.ListDeleted()
+	if err != nil {
+		s.logger.Error("lot_service_list_deleted_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	s.logger.Info("lot_service_list_deleted_completed",
+		"count", len(lots),
+	)
+
+	return lots, nil
+}
+
+func (s *LotsService) Restore(id uuid.UUID) error {
+	s.logger.Info("lot_service_restore_started", "lot_id", id)
+
+	existing, err := s.lotRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("lot_service_restore_get_existing_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get lot: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("lot_service_restore_not_found", "lot_id", id)
+		return ErrLotNotFound
+	}
+	if existing.DeletedAt == nil {
+		s.logger.Warn("lot_service_restore_not_deleted", "lot_id", id)
+		return fmt.Errorf("lot is not deleted")
+	}
+
+	err = s.lotRepo.Restore(id)
+	if err != nil {
+		s.logger.Error("lot_service_restore_failed", "lot_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("lot_service_restore_completed", "lot_id", id)
+	return nil
+}
+
+func (s *LotsService) HardDelete(id uuid.UUID) error {
+	s.logger.Info("lot_service_hard_delete_started", "lot_id", id)
+
+	existing, err := s.lotRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("lot_service_hard_delete_get_existing_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get lot: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("lot_service_hard_delete_not_found", "lot_id", id)
+		return ErrLotNotFound
+	}
+
+	err = s.lotRepo.HardDelete(id)
+	if err != nil {
+		s.logger.Error("lot_service_hard_delete_failed", "lot_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("lot_service_hard_delete_completed", "lot_id", id)
+	return nil
+}

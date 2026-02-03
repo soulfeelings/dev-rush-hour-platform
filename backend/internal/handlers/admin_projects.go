@@ -362,3 +362,86 @@ func (h *AdminProjectsHandler) SoftDeleteProject(c *fiber.Ctx, id openapi_types.
 
 	return c.SendStatus(fiber.StatusNoContent)
 }
+
+func (h *AdminProjectsHandler) ListDeletedProjects(c *fiber.Ctx) error {
+	projects, err := h.projectsService.ListDeleted()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	result := make([]generated.Project, len(projects))
+	for i := range projects {
+		result[i] = *mappers.DomainProjectToGenerated(&projects[i])
+	}
+
+	return c.JSON(result)
+}
+
+func (h *AdminProjectsHandler) RestoreProject(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.projectsService.Restore(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrProjectNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *AdminProjectsHandler) HardDeleteProject(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.projectsService.HardDelete(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrProjectNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}

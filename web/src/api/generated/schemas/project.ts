@@ -12,6 +12,7 @@ import type { Developer } from './developer'
 import type { Area } from './area'
 import type { Lot } from './lot'
 import type { Badge } from './badge'
+import type { Infrastructure } from './infrastructure'
 
 export interface Project {
   id?: string
@@ -39,4 +40,6 @@ export interface Project {
   lots?: Lot[]
   /** Бейджи проекта */
   badges?: Badge[]
+  /** Инфраструктура комплекса */
+  infrastructures?: Infrastructure[]
 }

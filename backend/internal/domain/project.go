@@ -47,8 +47,9 @@ type ProjectTimeline struct {
 }
 
 type Media struct {
-	Cover   *MediaItem   `json:"cover,omitempty"`
-	Gallery []MediaItem  `json:"gallery,omitempty"`
+	Cover   *MediaItem  `json:"cover,omitempty"`
+	Hover   *MediaItem  `json:"hover,omitempty"`
+	Gallery []MediaItem `json:"gallery,omitempty"`
 }
 
 type MediaItem struct {

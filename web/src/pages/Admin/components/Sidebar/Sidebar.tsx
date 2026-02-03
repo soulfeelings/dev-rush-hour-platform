@@ -61,6 +61,13 @@ export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: S
           <div className={styles.navSection}>
             <button
               type="button"
+              className={`${styles.navItem} ${activeTab === 'developers-list' ? styles.active : ''}`}
+              onClick={() => onTabChange('developers-list')}
+            >
+              <span>Developers</span>
+            </button>
+            <button
+              type="button"
               className={`${styles.navItem} ${activeTab === 'projects-list' ? styles.active : ''}`}
               onClick={() => onTabChange('projects-list')}
             >
@@ -93,13 +100,6 @@ export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: S
               onClick={() => onTabChange('badges-list')}
             >
               <span>Badges</span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'developers-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('developers-list')}
-            >
-              <span>Developers</span>
             </button>
           </div>
         </nav>

@@ -1,0 +1,1 @@
+export { DeletedLotsTable } from './DeletedLotsTable'

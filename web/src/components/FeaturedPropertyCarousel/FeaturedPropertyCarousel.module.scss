@@ -142,27 +142,64 @@
 
 .navButtons {
   display: flex;
-  gap: $spacing-2;
+  gap: $spacing-3;
 }
 
 .navButton {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: $color-bg-card;
-  border: 1px solid $color-border;
+  background: linear-gradient(135deg, $color-bg-card 0%, darken($color-bg-card, 2%) 100%);
+  border: 1px solid rgba($color-border, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all $transition-fast;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, $color-yellow 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
   &:hover {
-    background: $color-yellow-light;
+    transform: translateY(-2px) scale(1.05);
+    background: linear-gradient(135deg, $color-bg-card 0%, $color-yellow-light 100%);
     border-color: $color-yellow;
+    box-shadow:
+      0 8px 20px rgba($color-yellow, 0.25),
+      0 4px 8px rgba(0, 0, 0, 0.08);
+
+    &::before {
+      opacity: 0.15;
+    }
+
+    svg {
+      color: darken($color-yellow, 15%);
+    }
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow:
+      0 2px 6px rgba($color-yellow, 0.2),
+      0 1px 2px rgba(0, 0, 0, 0.06);
   }
 
   svg {
-    color: $color-text;
+    color: $color-text-secondary;
+    transition: all 0.25s ease;
+    position: relative;
+    z-index: 1;
   }
 }

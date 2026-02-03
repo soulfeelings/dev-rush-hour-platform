@@ -23,11 +23,23 @@
   overflow: hidden;
   padding: $spacing-2;
 
-  &:hover {
+  // On mobile, always show expanded state (no hover capability)
+  @include max-md {
     .additionalInfo {
       max-height: 500px;
       opacity: 1;
       padding: $spacing-3 $spacing-4;
+    }
+  }
+
+  // On desktop, show on hover
+  @include md {
+    &:hover {
+      .additionalInfo {
+        max-height: 500px;
+        opacity: 1;
+        padding: $spacing-3 $spacing-4;
+      }
     }
   }
 }
@@ -68,8 +80,8 @@
   }
 }
 
-// Контейнер для второй картинки (появляется при hover)
-.secondaryImageContainer {
+// Контейнер для hover картинки (появляется при hover только на первом слайде)
+.hoverImageContainer {
   position: absolute;
   top: 0;
   left: 0;
@@ -86,9 +98,98 @@
     object-fit: cover;
   }
 
-  .card:hover & {
+  // On mobile, always show hover image (no hover capability)
+  @include max-md {
     opacity: 1;
   }
+
+  // On desktop, show on hover
+  @include md {
+    .card:hover & {
+      opacity: 1;
+    }
+  }
+}
+
+// Navigation arrows for gallery
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  cursor: pointer;
+  z-index: 3;
+  transition:
+    opacity $transition-fast,
+    background $transition-fast;
+  @include flex-center;
+
+  // On mobile, always show arrows (no hover capability)
+  @include max-md {
+    opacity: 1;
+  }
+
+  // On desktop, hidden by default, show on hover
+  @include md {
+    opacity: 0;
+
+    .card:hover & {
+      opacity: 1;
+    }
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+  }
+
+  svg {
+    color: $color-charcoal-black;
+  }
+}
+
+.navButtonPrev {
+  left: 12px;
+}
+
+.navButtonNext {
+  right: 12px;
+}
+
+// Navigation dots
+.dotsContainer {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 3;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background $transition-fast,
+    transform $transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+  }
+}
+
+.dotActive {
+  background: rgba(255, 255, 255, 1);
 }
 
 // Бейджи
@@ -328,6 +429,11 @@
   background: $color-bg-card;
   padding: 0 $spacing-4;
   border-top: 0.5px solid $color-charcoal-grey-10;
+
+  // Style for the WhatsApp button
+  > button {
+    margin-bottom: $spacing-2;
+  }
 }
 
 .additionalInfoGrid {
@@ -349,22 +455,6 @@
 
 .additionalInfoValue {
   color: $color-charcoal-black;
-}
-
-// Кнопка WhatsApp
-.whatsappButton {
-  width: 100%;
-  padding: $spacing-3;
-  border: none;
-  border-radius: $radius-md;
-  background: #25d366;
-  cursor: pointer;
-  transition: all $transition-fast;
-  margin-bottom: $spacing-2;
-
-  &:hover {
-    background: darken(#25d366, 5%);
-  }
 }
 
 .disclaimer {

@@ -254,3 +254,86 @@ func (h *AdminBadgesHandler) SoftDeleteBadge(c *fiber.Ctx, id openapi_types.UUID
 
 	return c.SendStatus(fiber.StatusNoContent)
 }
+
+func (h *AdminBadgesHandler) ListDeletedBadges(c *fiber.Ctx) error {
+	badges, err := h.badgesService.ListDeleted()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	result := make([]generated.Badge, len(badges))
+	for i := range badges {
+		result[i] = *mappers.DomainBadgeToGenerated(&badges[i])
+	}
+
+	return c.JSON(result)
+}
+
+func (h *AdminBadgesHandler) RestoreBadge(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.badgesService.Restore(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrBadgeNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *AdminBadgesHandler) HardDeleteBadge(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.badgesService.HardDelete(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrBadgeNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}

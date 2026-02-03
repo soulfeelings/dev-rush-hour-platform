@@ -8,6 +8,7 @@ import ProjectDetail from './pages/ProjectDetail'
 import LotDetail from './pages/LotDetail'
 import ProjectArea from './pages/ProjectArea'
 import DistrictDetail from './pages/DistrictDetail'
+import DeveloperDetail from './pages/DeveloperDetail'
 import DesignDemo from './design-demo/DesignDemo'
 import Admin from './pages/Admin'
 import { ADMIN_ROUTES } from './pages/Admin/constants'
@@ -29,6 +30,7 @@ function App() {
             <Route path={ROUTES.LOT_DETAIL} element={<LotDetail />} />
             <Route path={ROUTES.AREAS} element={<ProjectArea />} />
             <Route path={ROUTES.AREA_DETAIL} element={<DistrictDetail />} />
+            <Route path={ROUTES.DEVELOPER_DETAIL} element={<DeveloperDetail />} />
             <Route path={ROUTES.DESIGN_DEMO} element={<DesignDemo />} />
             <Route
               path={ADMIN_ROUTES.BASE}

@@ -1,0 +1,1 @@
+export { DeletedAreasTable } from './DeletedAreasTable'

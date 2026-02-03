@@ -1,13 +1,26 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Button, Input, Select } from '../../../../ui'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { Button, Input } from '../../../../ui'
 import { type DeveloperCreateRequest, type Developer } from '../../../../api'
+import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './DeveloperForm.module.scss'
+
+const STORAGE_KEY = 'admin_developer_form_draft'
 
 type DeveloperFormProps = {
   onSubmit: (data: DeveloperCreateRequest) => void
   loading: boolean
   initialData?: Developer | null
   isEditMode?: boolean
+}
+
+type DeveloperDataFields = {
+  logoUrl?: string
+}
+
+type FormData = {
+  slug: string
+  name: string
+  logoUrl: string
 }
 
 export function DeveloperForm({
@@ -20,21 +33,33 @@ export function DeveloperForm({
     () => ({
       slug: '',
       name: '',
-      status: 'active',
+      logoUrl: '',
     }),
     []
   )
 
   const initialForm = useMemo(() => {
     if (initialData) {
+      const dataFields = initialData.data as DeveloperDataFields | undefined
       return {
         slug: initialData.slug || '',
         name: initialData.name || '',
-        status: (initialData.status as string) || 'active',
+        logoUrl: dataFields?.logoUrl || '',
+      }
+    }
+    // Load from localStorage for new forms
+    if (!isEditMode) {
+      try {
+        const cached = localStorage.getItem(STORAGE_KEY)
+        if (cached) {
+          return JSON.parse(cached) as FormData
+        }
+      } catch {
+        // Ignore parse errors
       }
     }
     return defaultForm
-  }, [initialData, defaultForm])
+  }, [initialData, defaultForm, isEditMode])
 
   const [form, setForm] = useState(initialForm)
 
@@ -42,12 +67,24 @@ export function DeveloperForm({
     setForm(initialForm)
   }, [initialForm])
 
+  // Cache form data to localStorage for new forms
+  useEffect(() => {
+    if (!isEditMode) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
+    }
+  }, [form, isEditMode])
+
+  const clearCache = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY)
+  }, [])
+
   const initialFormData = useMemo(() => {
     if (!initialData) return null
+    const dataFields = initialData.data as DeveloperDataFields | undefined
     return {
       slug: initialData.slug || '',
       name: initialData.name || '',
-      status: (initialData.status as string) || 'active',
+      logoUrl: dataFields?.logoUrl || '',
     }
   }, [initialData])
 
@@ -56,7 +93,7 @@ export function DeveloperForm({
     return (
       form.slug !== initialFormData.slug ||
       form.name !== initialFormData.name ||
-      form.status !== initialFormData.status
+      form.logoUrl !== initialFormData.logoUrl
     )
   }, [form, initialFormData, isEditMode])
 
@@ -65,7 +102,13 @@ export function DeveloperForm({
     const payload: DeveloperCreateRequest = {
       slug: form.slug,
       name: form.name,
-      status: form.status as 'active' | 'inactive',
+      status: 'active',
+      data: {
+        logoUrl: form.logoUrl || undefined,
+      },
+    }
+    if (!isEditMode) {
+      clearCache()
     }
     onSubmit(payload)
   }
@@ -73,26 +116,34 @@ export function DeveloperForm({
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
       <Input
-        label="Slug"
-        value={form.slug}
-        onChange={e => setForm({ ...form, slug: e.target.value })}
-        required
-      />
-      <Input
         label="Name"
         value={form.name}
-        onChange={e => setForm({ ...form, name: e.target.value })}
+        onChange={e => {
+          const newName = e.target.value
+          setForm({ ...form, name: newName, slug: generateSlug(newName) })
+        }}
         required
       />
-      <Select
-        label="Status"
-        options={[
-          { value: 'active', label: 'Active' },
-          { value: 'inactive', label: 'Inactive' },
-        ]}
-        value={form.status}
-        onChange={value => setForm({ ...form, status: value })}
+      <Input label="Slug" value={form.slug} disabled />
+      <Input
+        label="Logo URL"
+        value={form.logoUrl}
+        onChange={e => setForm({ ...form, logoUrl: e.target.value })}
+        placeholder="https://example.com/logo.png"
       />
+      {form.logoUrl && (
+        <div className={styles.logoPreview}>
+          <span className={styles.logoPreviewLabel}>Logo Preview:</span>
+          <img
+            src={form.logoUrl}
+            alt="Developer logo preview"
+            className={styles.logoPreviewImage}
+            onError={e => {
+              ;(e.target as HTMLImageElement).style.display = 'none'
+            }}
+          />
+        </div>
+      )}
       <Button
         type="submit"
         disabled={loading || (isEditMode && !hasChanges)}

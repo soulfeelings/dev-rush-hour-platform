@@ -299,3 +299,77 @@ func (s *ProjectsService) Delete(id uuid.UUID) error {
 
 	return nil
 }
+
+func (s *ProjectsService) ListDeleted() ([]domain.Project, error) {
+	s.logger.Info("project_service_list_deleted_started")
+
+	projects, err := s.projectRepo.ListDeleted()
+	if err != nil {
+		s.logger.Error("project_service_list_deleted_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	s.logger.Info("project_service_list_deleted_completed",
+		"count", len(projects),
+	)
+
+	return projects, nil
+}
+
+func (s *ProjectsService) Restore(id uuid.UUID) error {
+	s.logger.Info("project_service_restore_started", "project_id", id)
+
+	existing, err := s.projectRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("project_service_restore_get_existing_failed",
+			"project_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get project: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("project_service_restore_not_found", "project_id", id)
+		return ErrProjectNotFound
+	}
+	if existing.DeletedAt == nil {
+		s.logger.Warn("project_service_restore_not_deleted", "project_id", id)
+		return fmt.Errorf("project is not deleted")
+	}
+
+	err = s.projectRepo.Restore(id)
+	if err != nil {
+		s.logger.Error("project_service_restore_failed", "project_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("project_service_restore_completed", "project_id", id)
+	return nil
+}
+
+func (s *ProjectsService) HardDelete(id uuid.UUID) error {
+	s.logger.Info("project_service_hard_delete_started", "project_id", id)
+
+	existing, err := s.projectRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("project_service_hard_delete_get_existing_failed",
+			"project_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get project: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("project_service_hard_delete_not_found", "project_id", id)
+		return ErrProjectNotFound
+	}
+
+	err = s.projectRepo.HardDelete(id)
+	if err != nil {
+		s.logger.Error("project_service_hard_delete_failed", "project_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("project_service_hard_delete_completed", "project_id", id)
+	return nil
+}

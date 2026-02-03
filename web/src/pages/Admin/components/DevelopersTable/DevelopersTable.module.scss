@@ -140,3 +140,22 @@
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
+
+.logoCell {
+  width: 60px;
+  padding: 0.5rem !important;
+  text-align: center;
+}
+
+.logoImage {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #f5f5f5;
+  padding: 4px;
+}
+
+.noLogo {
+  color: #999;
+}

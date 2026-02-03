@@ -141,6 +141,76 @@ func (s *DevelopersService) List() ([]domain.Developer, error) {
 	return developers, nil
 }
 
+func (s *DevelopersService) ListDeleted() ([]domain.Developer, error) {
+	s.logger.Info("developer_service_list_deleted_started")
+
+	developers, err := s.developerRepo.ListDeleted()
+	if err != nil {
+		s.logger.Error("developer_service_list_deleted_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	s.logger.Info("developer_service_list_deleted_completed",
+		"count", len(developers),
+	)
+
+	return developers, nil
+}
+
+func (s *DevelopersService) Restore(id uuid.UUID) (*domain.Developer, error) {
+	s.logger.Info("developer_service_restore_started",
+		"developer_id", id,
+	)
+
+	existing, err := s.developerRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("developer_service_restore_get_existing_failed",
+			"developer_id", id,
+			"error", err.Error(),
+		)
+		return nil, fmt.Errorf("failed to get developer: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("developer_service_restore_not_found",
+			"developer_id", id,
+		)
+		return nil, ErrDeveloperNotFound
+	}
+	if existing.DeletedAt == nil {
+		s.logger.Warn("developer_service_restore_not_deleted",
+			"developer_id", id,
+		)
+		return nil, fmt.Errorf("developer is not deleted")
+	}
+
+	err = s.developerRepo.Restore(id)
+	if err != nil {
+		s.logger.Error("developer_service_restore_failed",
+			"developer_id", id,
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	restored, err := s.developerRepo.GetByID(id)
+	if err != nil {
+		s.logger.Error("developer_service_restore_get_restored_failed",
+			"developer_id", id,
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	s.logger.Info("developer_service_restore_completed",
+		"developer_id", id,
+		"developer_slug", existing.Slug,
+	)
+
+	return restored, nil
+}
+
 func (s *DevelopersService) Delete(id uuid.UUID) error {
 	s.logger.Info("developer_service_delete_started",
 		"developer_id", id,
@@ -171,6 +241,43 @@ func (s *DevelopersService) Delete(id uuid.UUID) error {
 	}
 
 	s.logger.Info("developer_service_delete_completed",
+		"developer_id", id,
+		"developer_slug", existing.Slug,
+	)
+
+	return nil
+}
+
+func (s *DevelopersService) HardDelete(id uuid.UUID) error {
+	s.logger.Info("developer_service_hard_delete_started",
+		"developer_id", id,
+	)
+
+	existing, err := s.developerRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("developer_service_hard_delete_get_existing_failed",
+			"developer_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get developer: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("developer_service_hard_delete_not_found",
+			"developer_id", id,
+		)
+		return ErrDeveloperNotFound
+	}
+
+	err = s.developerRepo.HardDelete(id)
+	if err != nil {
+		s.logger.Error("developer_service_hard_delete_failed",
+			"developer_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	s.logger.Info("developer_service_hard_delete_completed",
 		"developer_id", id,
 		"developer_slug", existing.Slug,
 	)
