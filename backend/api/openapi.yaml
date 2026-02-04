@@ -481,6 +481,82 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
 
+  /admin/developers/deleted:
+    get:
+      operationId: adminListDeletedDevelopers
+      summary: Получить список удаленных застройщиков (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список удаленных застройщиков
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Developer"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/developers/{id}/restore:
+    post:
+      operationId: adminRestoreDeveloper
+      summary: Восстановить удаленного застройщика (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Застройщик восстановлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Developer"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/developers/{id}/hard-delete:
+    delete:
+      operationId: adminHardDeleteDeveloper
+      summary: Полное удаление застройщика (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Застройщик полностью удален
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
   /admin/areas:
     get:
       operationId: adminListAreas
@@ -609,6 +685,82 @@ paths:
                 $ref: "#/components/schemas/Area"
         "400":
           $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/areas/deleted:
+    get:
+      operationId: adminListDeletedAreas
+      summary: Получить список удаленных районов (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список удаленных районов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Area"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/areas/{id}/restore:
+    post:
+      operationId: adminRestoreArea
+      summary: Восстановить удаленный район (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Район восстановлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Area"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/areas/{id}/hard-delete:
+    delete:
+      operationId: adminHardDeleteArea
+      summary: Полное удаление района (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Район полностью удален
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -751,6 +903,82 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
 
+  /admin/cities/deleted:
+    get:
+      operationId: adminListDeletedCities
+      summary: Получить список удаленных городов (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список удаленных городов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/City"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/cities/{id}/restore:
+    post:
+      operationId: adminRestoreCity
+      summary: Восстановить удаленный город (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Город восстановлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/City"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/cities/{id}/hard-delete:
+    delete:
+      operationId: adminHardDeleteCity
+      summary: Полное удаление города (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Город полностью удален
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
   /admin/projects:
     get:
       operationId: adminListProjects
@@ -886,6 +1114,82 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
 
+  /admin/projects/deleted:
+    get:
+      operationId: adminListDeletedProjects
+      summary: Получить список удаленных проектов (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список удаленных проектов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/projects/{id}/restore:
+    post:
+      operationId: adminRestoreProject
+      summary: Восстановить удаленный проект (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Проект восстановлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/projects/{id}/hard-delete:
+    delete:
+      operationId: adminHardDeleteProject
+      summary: Полное удаление проекта (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Проект полностью удален
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
   /admin/lots:
     get:
       operationId: adminListLots
@@ -1012,6 +1316,80 @@ paths:
                 $ref: "#/components/schemas/Lot"
         "400":
           $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/lots/deleted:
+    get:
+      operationId: adminListDeletedLots
+      summary: Получить список удаленных лотов (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список удаленных лотов
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LotsListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/lots/{id}/restore:
+    post:
+      operationId: adminRestoreLot
+      summary: Восстановить удаленный лот (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Лот восстановлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lot"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/lots/{id}/hard-delete:
+    delete:
+      operationId: adminHardDeleteLot
+      summary: Полное удаление лота (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Лот полностью удален
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -1176,6 +1554,293 @@ paths:
                 $ref: "#/components/schemas/Badge"
         "400":
           $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/badges/deleted:
+    get:
+      operationId: adminListDeletedBadges
+      summary: Получить список удаленных бейджей (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список удаленных бейджей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Badge"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/badges/{id}/restore:
+    post:
+      operationId: adminRestoreBadge
+      summary: Восстановить удаленный бейдж (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Бейдж восстановлен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Badge"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/badges/{id}/hard-delete:
+    delete:
+      operationId: adminHardDeleteBadge
+      summary: Полное удаление бейджа (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Бейдж полностью удален
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/infrastructures:
+    get:
+      operationId: adminListInfrastructures
+      summary: Получить список инфраструктуры (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список инфраструктуры
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Infrastructure"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: adminCreateInfrastructure
+      summary: Создать инфраструктуру (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InfrastructureCreateRequest"
+      responses:
+        "201":
+          description: Инфраструктура создана
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Infrastructure"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/infrastructures/{id}:
+    get:
+      operationId: adminGetInfrastructure
+      summary: Получить инфраструктуру по ID (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Инфраструктура найдена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Infrastructure"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      operationId: adminSoftDeleteInfrastructure
+      summary: Мягкое удаление инфраструктуры (установка deleted_at)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Инфраструктура помечена как удаленная
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      operationId: adminUpdateInfrastructure
+      summary: Обновить инфраструктуру (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InfrastructureUpdateRequest"
+      responses:
+        "200":
+          description: Инфраструктура обновлена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Infrastructure"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/infrastructures/deleted:
+    get:
+      operationId: adminListDeletedInfrastructures
+      summary: Получить список удаленной инфраструктуры (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Список удаленной инфраструктуры
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Infrastructure"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/infrastructures/{id}/restore:
+    post:
+      operationId: adminRestoreInfrastructure
+      summary: Восстановить удаленную инфраструктуру (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Инфраструктура восстановлена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Infrastructure"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /admin/infrastructures/{id}/hard-delete:
+    delete:
+      operationId: adminHardDeleteInfrastructure
+      summary: Полное удаление инфраструктуры (админ)
+      tags:
+        - Admin
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Инфраструктура полностью удалена
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -1417,6 +2082,11 @@ components:
           items:
             $ref: "#/components/schemas/Badge"
           description: Бейджи проекта
+        infrastructures:
+          type: array
+          items:
+            $ref: "#/components/schemas/Infrastructure"
+          description: Инфраструктура комплекса
 
     ProjectData:
       type: object
@@ -1451,6 +2121,18 @@ components:
           description: YouTube video URL for the project
         timeline:
           $ref: "#/components/schemas/ProjectTimeline"
+        roi:
+          type: number
+          description: Return on Investment percentage
+        ourPrice:
+          type: number
+          description: Our company price (AED)
+        developerPrice:
+          type: number
+          description: Original developer price (AED)
+        paymentPlan:
+          type: string
+          description: Payment plan description
 
     ProjectTimeline:
       type: object
@@ -1482,6 +2164,9 @@ components:
       properties:
         cover:
           $ref: "#/components/schemas/MediaItem"
+        hover:
+          $ref: "#/components/schemas/MediaItem"
+          description: Hover image for the project card
         gallery:
           type: array
           items:
@@ -1681,6 +2366,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
 
     LotsListResponse:
       type: object
@@ -1867,6 +2557,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
 
     CityStatus:
       type: string
@@ -1901,6 +2596,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
 
     BadgeStatus:
       type: string
@@ -1946,6 +2646,88 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/BadgeStatus"
+        sortOrder:
+          type: integer
+
+    Infrastructure:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        backgroundColor:
+          type: string
+          description: Hex color code for background (e.g. "#25D366")
+        textColor:
+          type: string
+          description: Hex color code for text (e.g. "#FFFFFF")
+        icon:
+          type: string
+          description: Icon name or URL
+        status:
+          $ref: "#/components/schemas/InfrastructureStatus"
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
+
+    InfrastructureStatus:
+      type: string
+      enum: [active, inactive]
+
+    InfrastructureCreateRequest:
+      type: object
+      required:
+        - slug
+        - name
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        backgroundColor:
+          type: string
+          default: "#000000"
+        textColor:
+          type: string
+          default: "#FFFFFF"
+        icon:
+          type: string
+        status:
+          $ref: "#/components/schemas/InfrastructureStatus"
+          default: active
+        sortOrder:
+          type: integer
+          default: 0
+
+    InfrastructureUpdateRequest:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        backgroundColor:
+          type: string
+        textColor:
+          type: string
+        icon:
+          type: string
+        status:
+          $ref: "#/components/schemas/InfrastructureStatus"
         sortOrder:
           type: integer
 
@@ -2142,6 +2924,18 @@ components:
           type: number
         data:
           $ref: "#/components/schemas/ProjectData"
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of badges for the project
+        infrastructureIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of complex infrastructure for the project
 
     ProjectUpdateRequest:
       type: object
@@ -2168,6 +2962,18 @@ components:
           type: number
         data:
           $ref: "#/components/schemas/ProjectData"
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of badges for the project
+        infrastructureIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of complex infrastructure for the project
 
     LotCreateRequest:
       type: object

@@ -250,3 +250,77 @@ func (s *BadgesService) GetLotBadges(lotID uuid.UUID) ([]domain.Badge, error) {
 func (s *BadgesService) SetLotBadges(lotID uuid.UUID, badgeIDs []uuid.UUID) error {
 	return s.badgeRepo.SetLotBadges(lotID, badgeIDs)
 }
+
+func (s *BadgesService) ListDeleted() ([]domain.Badge, error) {
+	s.logger.Info("badge_service_list_deleted_started")
+
+	badges, err := s.badgeRepo.ListDeleted()
+	if err != nil {
+		s.logger.Error("badge_service_list_deleted_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	s.logger.Info("badge_service_list_deleted_completed",
+		"count", len(badges),
+	)
+
+	return badges, nil
+}
+
+func (s *BadgesService) Restore(id uuid.UUID) error {
+	s.logger.Info("badge_service_restore_started", "badge_id", id)
+
+	existing, err := s.badgeRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("badge_service_restore_get_existing_failed",
+			"badge_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get badge: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("badge_service_restore_not_found", "badge_id", id)
+		return ErrBadgeNotFound
+	}
+	if existing.DeletedAt == nil {
+		s.logger.Warn("badge_service_restore_not_deleted", "badge_id", id)
+		return fmt.Errorf("badge is not deleted")
+	}
+
+	err = s.badgeRepo.Restore(id)
+	if err != nil {
+		s.logger.Error("badge_service_restore_failed", "badge_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("badge_service_restore_completed", "badge_id", id)
+	return nil
+}
+
+func (s *BadgesService) HardDelete(id uuid.UUID) error {
+	s.logger.Info("badge_service_hard_delete_started", "badge_id", id)
+
+	existing, err := s.badgeRepo.GetByIDWithDeleted(id)
+	if err != nil {
+		s.logger.Error("badge_service_hard_delete_get_existing_failed",
+			"badge_id", id,
+			"error", err.Error(),
+		)
+		return fmt.Errorf("failed to get badge: %w", err)
+	}
+	if existing == nil {
+		s.logger.Warn("badge_service_hard_delete_not_found", "badge_id", id)
+		return ErrBadgeNotFound
+	}
+
+	err = s.badgeRepo.HardDelete(id)
+	if err != nil {
+		s.logger.Error("badge_service_hard_delete_failed", "badge_id", id, "error", err.Error())
+		return err
+	}
+
+	s.logger.Info("badge_service_hard_delete_completed", "badge_id", id)
+	return nil
+}

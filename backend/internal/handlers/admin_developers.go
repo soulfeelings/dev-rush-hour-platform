@@ -206,8 +206,91 @@ func (h *AdminDevelopersHandler) GetDeveloper(c *fiber.Ctx, id openapi_types.UUI
 	return c.JSON(mappers.DomainDeveloperToGenerated(dev))
 }
 
+func (h *AdminDevelopersHandler) ListDeletedDevelopers(c *fiber.Ctx) error {
+	developers, err := h.developersService.ListDeleted()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	result := make([]generated.Developer, len(developers))
+	for i := range developers {
+		result[i] = *mappers.DomainDeveloperToGenerated(&developers[i])
+	}
+
+	return c.JSON(result)
+}
+
+func (h *AdminDevelopersHandler) RestoreDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
+	restored, err := h.developersService.Restore(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrDeveloperNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.JSON(mappers.DomainDeveloperToGenerated(restored))
+}
+
 func (h *AdminDevelopersHandler) SoftDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
 	err := h.developersService.Delete(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrDeveloperNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *AdminDevelopersHandler) HardDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.developersService.HardDelete(uuid.UUID(id))
 	if err != nil {
 		if errors.Is(err, services.ErrDeveloperNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{

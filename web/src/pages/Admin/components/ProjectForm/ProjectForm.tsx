@@ -1,9 +1,25 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Button, Input, Select, ImagePreview, YouTubePreview } from '../../../../ui'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import {
+  Button,
+  Input,
+  Select,
+  ImagePreview,
+  YouTubePreview,
+  Checkbox,
+  Textarea,
+} from '../../../../ui'
 import { Plus, X } from 'lucide-react'
-import { type ProjectCreateRequest, type Project } from '../../../../api'
+import {
+  type ProjectCreateRequest,
+  type Project,
+  type Badge,
+  type Infrastructure,
+} from '../../../../api'
 import { MapPicker } from '../MapPicker'
+import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './ProjectForm.module.scss'
+
+const STORAGE_KEY = 'admin_project_form_draft'
 
 type Developer = {
   id?: string
@@ -15,9 +31,46 @@ type Area = {
   name?: string
 }
 
+type ValidationErrors = {
+  status?: string
+  sale?: string
+  hoverUrl?: string
+}
+
+type FormData = {
+  slug: string
+  name: string
+  status: string
+  sale: string
+  developerId: string
+  areaId: string
+  lat: string
+  lng: string
+  coverUrl: string
+  hoverUrl: string
+  gallery: string[]
+  youtubeUrl: string
+  timeline: {
+    projectAnnouncement: string
+    bookingStarted: string
+    constructionStarted: string
+    constructionProgress: string
+    expectedCompletion: string
+  }
+  description: string
+  roi: string
+  ourPrice: string
+  developerPrice: string
+  paymentPlan: string
+  badgeIds: string[]
+  infrastructureIds: string[]
+}
+
 type ProjectFormProps = {
   developers: Developer[]
   areas: Area[]
+  badges: Badge[]
+  infrastructures: Infrastructure[]
   onSubmit: (data: ProjectCreateRequest) => void
   loading: boolean
   initialData?: Project | null
@@ -27,6 +80,8 @@ type ProjectFormProps = {
 export function ProjectForm({
   developers,
   areas,
+  badges,
+  infrastructures,
   onSubmit,
   loading,
   initialData,
@@ -36,13 +91,14 @@ export function ProjectForm({
     () => ({
       slug: '',
       name: '',
-      status: 'active',
-      sale: 'sale',
+      status: '',
+      sale: '',
       developerId: '',
       areaId: '',
       lat: '',
       lng: '',
       coverUrl: '',
+      hoverUrl: '',
       gallery: [] as string[],
       youtubeUrl: '',
       timeline: {
@@ -52,22 +108,37 @@ export function ProjectForm({
         constructionProgress: '',
         expectedCompletion: '',
       },
+      description: '',
+      roi: '',
+      ourPrice: '',
+      developerPrice: '',
+      paymentPlan: '',
+      badgeIds: [] as string[],
+      infrastructureIds: [] as string[],
     }),
     []
   )
 
   const initialForm = useMemo(() => {
     if (initialData) {
+      const descriptionValue = initialData.data?.description
+      const descriptionStr =
+        typeof descriptionValue === 'string'
+          ? descriptionValue
+          : typeof descriptionValue === 'object' && descriptionValue !== null
+            ? (descriptionValue as Record<string, string>).en || ''
+            : ''
       return {
         slug: initialData.slug || '',
         name: initialData.name || '',
-        status: (initialData.status as string) || 'active',
-        sale: (initialData.sale as string) || 'sale',
+        status: (initialData.status as string) || '',
+        sale: (initialData.sale as string) || '',
         developerId: initialData.developerId || '',
         areaId: initialData.areaId || '',
         lat: initialData.lat?.toString() || '',
         lng: initialData.lng?.toString() || '',
         coverUrl: initialData.data?.media?.cover?.url || '',
+        hoverUrl: initialData.data?.media?.hover?.url || '',
         gallery:
           initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
         youtubeUrl: initialData.data?.youtubeUrl || '',
@@ -78,10 +149,29 @@ export function ProjectForm({
           constructionProgress: initialData.data?.timeline?.constructionProgress || '',
           expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
         },
+        description: descriptionStr,
+        roi: initialData.data?.roi?.toString() || '',
+        ourPrice: initialData.data?.ourPrice?.toString() || '',
+        developerPrice: initialData.data?.developerPrice?.toString() || '',
+        paymentPlan: initialData.data?.paymentPlan || '',
+        badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
+        infrastructureIds:
+          initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
+      }
+    }
+    // Load from localStorage for new forms
+    if (!isEditMode) {
+      try {
+        const cached = localStorage.getItem(STORAGE_KEY)
+        if (cached) {
+          return JSON.parse(cached) as FormData
+        }
+      } catch {
+        // Ignore parse errors
       }
     }
     return defaultForm
-  }, [initialData, defaultForm])
+  }, [initialData, defaultForm, isEditMode])
 
   const [form, setForm] = useState(initialForm)
 
@@ -89,18 +179,37 @@ export function ProjectForm({
     setForm(initialForm)
   }, [initialForm])
 
+  // Cache form data to localStorage for new forms
+  useEffect(() => {
+    if (!isEditMode) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
+    }
+  }, [form, isEditMode])
+
+  const clearCache = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY)
+  }, [])
+
   const initialFormData = useMemo(() => {
     if (!initialData) return null
+    const descriptionValue = initialData.data?.description
+    const descriptionStr =
+      typeof descriptionValue === 'string'
+        ? descriptionValue
+        : typeof descriptionValue === 'object' && descriptionValue !== null
+          ? (descriptionValue as Record<string, string>).en || ''
+          : ''
     return {
       slug: initialData.slug || '',
       name: initialData.name || '',
-      status: (initialData.status as string) || 'active',
-      sale: (initialData.sale as string) || 'sale',
+      status: (initialData.status as string) || '',
+      sale: (initialData.sale as string) || '',
       developerId: initialData.developerId || '',
       areaId: initialData.areaId || '',
       lat: initialData.lat?.toString() || '',
       lng: initialData.lng?.toString() || '',
       coverUrl: initialData.data?.media?.cover?.url || '',
+      hoverUrl: initialData.data?.media?.hover?.url || '',
       gallery: initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
       youtubeUrl: initialData.data?.youtubeUrl || '',
       timeline: {
@@ -110,6 +219,14 @@ export function ProjectForm({
         constructionProgress: initialData.data?.timeline?.constructionProgress || '',
         expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
       },
+      description: descriptionStr,
+      roi: initialData.data?.roi?.toString() || '',
+      ourPrice: initialData.data?.ourPrice?.toString() || '',
+      developerPrice: initialData.data?.developerPrice?.toString() || '',
+      paymentPlan: initialData.data?.paymentPlan || '',
+      badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
+      infrastructureIds:
+        initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
     }
   }, [initialData])
 
@@ -124,6 +241,12 @@ export function ProjectForm({
       form.timeline.constructionStarted !== initialFormData.timeline.constructionStarted ||
       form.timeline.constructionProgress !== initialFormData.timeline.constructionProgress ||
       form.timeline.expectedCompletion !== initialFormData.timeline.expectedCompletion
+    const badgeIdsChanged =
+      form.badgeIds.length !== initialFormData.badgeIds.length ||
+      form.badgeIds.some((id, idx) => id !== initialFormData.badgeIds[idx])
+    const infrastructureIdsChanged =
+      form.infrastructureIds.length !== initialFormData.infrastructureIds.length ||
+      form.infrastructureIds.some((id, idx) => id !== initialFormData.infrastructureIds[idx])
     return (
       form.slug !== initialFormData.slug ||
       form.name !== initialFormData.name ||
@@ -134,14 +257,51 @@ export function ProjectForm({
       form.lat !== initialFormData.lat ||
       form.lng !== initialFormData.lng ||
       form.coverUrl !== initialFormData.coverUrl ||
+      form.hoverUrl !== initialFormData.hoverUrl ||
       form.youtubeUrl !== initialFormData.youtubeUrl ||
+      form.description !== initialFormData.description ||
+      form.roi !== initialFormData.roi ||
+      form.ourPrice !== initialFormData.ourPrice ||
+      form.developerPrice !== initialFormData.developerPrice ||
+      form.paymentPlan !== initialFormData.paymentPlan ||
       galleryChanged ||
-      timelineChanged
+      timelineChanged ||
+      badgeIdsChanged ||
+      infrastructureIdsChanged
     )
   }, [form, initialFormData, isEditMode])
 
+  const [errors, setErrors] = useState<ValidationErrors>({})
+  const [touched, setTouched] = useState(false)
+
+  const validate = (): ValidationErrors => {
+    const newErrors: ValidationErrors = {}
+    if (!form.status) {
+      newErrors.status = 'Status is required'
+    }
+    if (!form.sale) {
+      newErrors.sale = 'Sale status is required'
+    }
+    if (!form.hoverUrl) {
+      newErrors.hoverUrl = 'Hover image URL is required'
+    }
+    return newErrors
+  }
+
+  useEffect(() => {
+    if (touched) {
+      setErrors(validate())
+    }
+  }, [form, touched])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setTouched(true)
+    const validationErrors = validate()
+    setErrors(validationErrors)
+    if (Object.keys(validationErrors).length > 0) {
+      return
+    }
     const payload: ProjectCreateRequest = {
       slug: form.slug,
       name: form.name,
@@ -151,6 +311,8 @@ export function ProjectForm({
       ...(form.areaId && { areaId: form.areaId }),
       ...(form.lat && { lat: parseFloat(form.lat) }),
       ...(form.lng && { lng: parseFloat(form.lng) }),
+      ...(form.badgeIds.length > 0 && { badgeIds: form.badgeIds }),
+      ...(form.infrastructureIds.length > 0 && { infrastructureIds: form.infrastructureIds }),
     }
 
     const dataPayload: Record<string, unknown> = {}
@@ -158,6 +320,9 @@ export function ProjectForm({
     const mediaData: Record<string, unknown> = {}
     if (form.coverUrl) {
       mediaData.cover = { url: form.coverUrl }
+    }
+    if (form.hoverUrl) {
+      mediaData.hover = { url: form.hoverUrl }
     }
     if (form.gallery.length > 0) {
       mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
@@ -184,10 +349,29 @@ export function ProjectForm({
       dataPayload.timeline = timelineData
     }
 
+    if (form.description) {
+      dataPayload.description = form.description
+    }
+    if (form.roi) {
+      dataPayload.roi = parseFloat(form.roi)
+    }
+    if (form.ourPrice) {
+      dataPayload.ourPrice = parseFloat(form.ourPrice)
+    }
+    if (form.developerPrice) {
+      dataPayload.developerPrice = parseFloat(form.developerPrice)
+    }
+    if (form.paymentPlan) {
+      dataPayload.paymentPlan = form.paymentPlan
+    }
+
     if (Object.keys(dataPayload).length > 0) {
       payload.data = dataPayload
     }
 
+    if (!isEditMode) {
+      clearCache()
+    }
     onSubmit(payload)
   }
 
@@ -205,38 +389,54 @@ export function ProjectForm({
     setForm({ ...form, gallery: newGallery })
   }
 
+  const toggleBadge = (badgeId: string) => {
+    const newBadgeIds = form.badgeIds.includes(badgeId)
+      ? form.badgeIds.filter(id => id !== badgeId)
+      : [...form.badgeIds, badgeId]
+    setForm({ ...form, badgeIds: newBadgeIds })
+  }
+
+  const toggleInfrastructure = (infraId: string) => {
+    const newInfraIds = form.infrastructureIds.includes(infraId)
+      ? form.infrastructureIds.filter(id => id !== infraId)
+      : [...form.infrastructureIds, infraId]
+    setForm({ ...form, infrastructureIds: newInfraIds })
+  }
+
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
       <Input
-        label="Slug"
-        value={form.slug}
-        onChange={e => setForm({ ...form, slug: e.target.value })}
-        required
-      />
-      <Input
         label="Name"
         value={form.name}
-        onChange={e => setForm({ ...form, name: e.target.value })}
+        onChange={e => {
+          const newName = e.target.value
+          setForm({ ...form, name: newName, slug: generateSlug(newName) })
+        }}
         required
       />
+      <Input label="Slug" value={form.slug} disabled />
       <Select
         label="Status"
         options={[
+          { value: '', label: 'Select Status' },
           { value: 'active', label: 'Active' },
           { value: 'archived', label: 'Archived' },
         ]}
         value={form.status}
         onChange={value => setForm({ ...form, status: value })}
+        error={errors.status}
       />
       <Select
         label="Sale Status"
         options={[
+          { value: '', label: 'Select Sale Status' },
           { value: 'sale', label: 'Sale' },
           { value: 'start of sales', label: 'Start of Sales' },
           { value: 'sales announcement', label: 'Sales Announcement' },
         ]}
         value={form.sale}
         onChange={value => setForm({ ...form, sale: value })}
+        error={errors.sale}
       />
       <Select
         label="Developer"
@@ -256,6 +456,99 @@ export function ProjectForm({
         value={form.areaId}
         onChange={value => setForm({ ...form, areaId: value })}
       />
+      <div className={styles.mediaSection}>
+        <h3 className={styles.sectionTitle}>Pricing & ROI</h3>
+        <div className={styles.priceRow}>
+          <Input
+            label="Our Price (AED)"
+            type="number"
+            step="any"
+            value={form.ourPrice}
+            onChange={e => setForm({ ...form, ourPrice: e.target.value })}
+            placeholder="Enter our price"
+          />
+          <Input
+            label="Developer Price (AED)"
+            type="number"
+            step="any"
+            value={form.developerPrice}
+            onChange={e => setForm({ ...form, developerPrice: e.target.value })}
+            placeholder="Enter developer price"
+          />
+        </div>
+        <Input
+          label="ROI (%)"
+          type="number"
+          step="0.01"
+          value={form.roi}
+          onChange={e => setForm({ ...form, roi: e.target.value })}
+          placeholder="Return on Investment percentage"
+        />
+        <Input
+          label="Payment Plan"
+          value={form.paymentPlan}
+          onChange={e => setForm({ ...form, paymentPlan: e.target.value })}
+          placeholder="e.g., 60/40, 50/50, etc."
+        />
+      </div>
+      <div className={styles.mediaSection}>
+        <h3 className={styles.sectionTitle}>Description</h3>
+        <Textarea
+          label="Project Description"
+          value={form.description}
+          onChange={e => setForm({ ...form, description: e.target.value })}
+          placeholder="Enter project description..."
+          rows={4}
+        />
+      </div>
+      {badges.length > 0 && (
+        <div className={styles.mediaSection}>
+          <h3 className={styles.sectionTitle}>Badges</h3>
+          <div className={styles.badgesList}>
+            {badges.map(badge => (
+              <label key={badge.id} className={styles.badgeItem}>
+                <Checkbox
+                  checked={badge.id ? form.badgeIds.includes(badge.id) : false}
+                  onChange={() => badge.id && toggleBadge(badge.id)}
+                />
+                <span
+                  className={styles.badgeLabel}
+                  style={{
+                    backgroundColor: badge.backgroundColor || '#e0e0e0',
+                    color: badge.textColor || '#000000',
+                  }}
+                >
+                  {badge.name}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+      {infrastructures.length > 0 && (
+        <div className={styles.mediaSection}>
+          <h3 className={styles.sectionTitle}>Complex Infrastructure</h3>
+          <div className={styles.badgesList}>
+            {infrastructures.map(infra => (
+              <label key={infra.id} className={styles.badgeItem}>
+                <Checkbox
+                  checked={infra.id ? form.infrastructureIds.includes(infra.id) : false}
+                  onChange={() => infra.id && toggleInfrastructure(infra.id)}
+                />
+                <span
+                  className={styles.badgeLabel}
+                  style={{
+                    backgroundColor: infra.backgroundColor || '#e0e0e0',
+                    color: infra.textColor || '#000000',
+                  }}
+                >
+                  {infra.name}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
       <MapPicker
         lat={form.lat}
         lng={form.lng}
@@ -286,6 +579,18 @@ export function ProjectForm({
             placeholder="https://example.com/image.jpg"
           />
           {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
+        </div>
+        <div className={styles.coverImageWrapper}>
+          <Input
+            label="Hover Image URL"
+            type="url"
+            value={form.hoverUrl}
+            onChange={e => setForm({ ...form, hoverUrl: e.target.value })}
+            placeholder="https://example.com/hover-image.jpg"
+            error={errors.hoverUrl}
+            required
+          />
+          {form.hoverUrl && <ImagePreview src={form.hoverUrl} alt="Hover preview" />}
         </div>
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>

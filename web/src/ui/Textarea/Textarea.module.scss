@@ -1,0 +1,80 @@
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+}
+
+.textarea {
+  width: 100%;
+  padding: $spacing-2 $spacing-3;
+  font-family: inherit;
+  font-size: $font-size-md;
+  color: $color-text;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  transition: all $transition-fast;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 100px;
+
+  &::placeholder {
+    color: $color-text-muted;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: color.mix(black, $color-border, 10%);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-yellow;
+    box-shadow: 0 0 0 3px color.change($color-yellow, $alpha: 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.textarea--default {
+  // Default state (no additional styles)
+}
+
+.textarea--error {
+  border-color: $color-error;
+
+  &:focus {
+    border-color: $color-error;
+    box-shadow: 0 0 0 3px color.change($color-error, $alpha: 0.15);
+  }
+}
+
+.textarea--success {
+  border-color: $color-success;
+
+  &:focus {
+    border-color: $color-success;
+    box-shadow: 0 0 0 3px color.change($color-success, $alpha: 0.15);
+  }
+}
+
+.helperText {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+}
+
+.errorText {
+  font-size: $font-size-sm;
+  color: $color-error;
+}

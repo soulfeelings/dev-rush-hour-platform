@@ -24,4 +24,12 @@ export interface ProjectData {
   /** YouTube video URL for the project */
   youtubeUrl?: string
   timeline?: ProjectTimeline
+  /** Return on Investment percentage */
+  roi?: number
+  /** Our company price (AED) */
+  ourPrice?: number
+  /** Original developer price (AED) */
+  developerPrice?: number
+  /** Payment plan description */
+  paymentPlan?: string
 }

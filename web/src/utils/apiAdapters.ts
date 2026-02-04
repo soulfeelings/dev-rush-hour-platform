@@ -19,6 +19,9 @@ interface ApiProject {
       cover?: {
         url?: string
       }
+      hover?: {
+        url?: string
+      }
       gallery?: Array<{
         url: string
       }>
@@ -80,9 +83,10 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
   const paymentPlan = (specs?.paymentPlan as string) ?? undefined
   const pricesByType = (specs?.pricesByType as PriceByType[]) ?? undefined
 
-  // Получаем изображение
+  // Получаем изображения
   const image =
     media?.cover?.url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
+  const hoverImage = media?.hover?.url
   const gallery = media?.gallery?.map(item => item.url)
 
   // Получаем координаты
@@ -125,6 +129,7 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
     area: (specs?.area as number) ?? 0,
     areaUnit: (specs?.areaUnit as string) ?? 'sq. ft.',
     image,
+    hoverImage,
     gallery,
     coordinates,
     sale,

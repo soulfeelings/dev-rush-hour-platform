@@ -1,0 +1,1 @@
+export { DeletedCitiesTable } from './DeletedCitiesTable'

@@ -21,4 +21,9 @@ export interface Badge {
   sortOrder?: number
   createdAt?: string
   updatedAt?: string
+  /**
+   * Время мягкого удаления (если null - не удален)
+   * @nullable
+   */
+  deletedAt?: string | null
 }

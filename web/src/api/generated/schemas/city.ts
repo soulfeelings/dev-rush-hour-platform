@@ -14,4 +14,9 @@ export interface City {
   status?: CityStatus
   createdAt?: string
   updatedAt?: string
+  /**
+   * Время мягкого удаления (если null - не удален)
+   * @nullable
+   */
+  deletedAt?: string | null
 }

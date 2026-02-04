@@ -480,19 +480,21 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 	r.logger.Info("project_repo_get_by_id_started",
 		"project_id", id,
+		"project_id_string", id.String(),
 	)
 
 	var project domain.Project
 	var dataJSON []byte
 	var developerID, areaID sql.NullString
 	var lat, lng sql.NullFloat64
+	var sale sql.NullString
 
 	err := r.db.QueryRow(`
 		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
 		FROM projects
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id).Scan(
-		&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
+		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 		&developerID, &areaID, &lat, &lng, &dataJSON,
 		&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
 	)
@@ -511,6 +513,9 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		return nil, err
 	}
 
+	if sale.Valid {
+		project.Sale = sale.String
+	}
 	if developerID.Valid {
 		id := uuid.MustParse(developerID.String)
 		project.DeveloperID = &id
@@ -651,5 +656,166 @@ func (r *ProjectRepo) Delete(id uuid.UUID) error {
 		"project_id", id,
 	)
 
+	return nil
+}
+
+func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
+	r.logger.Info("project_repo_list_deleted_started")
+
+	rows, err := r.db.Query(`
+		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
+		FROM projects
+		WHERE deleted_at IS NOT NULL
+		ORDER BY deleted_at DESC
+	`)
+	if err != nil {
+		r.logger.Error("project_repo_list_deleted_query_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+	defer rows.Close()
+
+	projects := []domain.Project{}
+	for rows.Next() {
+		var project domain.Project
+		var dataJSON []byte
+		var developerID, areaID sql.NullString
+		var lat, lng sql.NullFloat64
+		var sale sql.NullString
+
+		if err := rows.Scan(
+			&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
+			&developerID, &areaID, &lat, &lng, &dataJSON,
+			&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
+		); err != nil {
+			r.logger.Error("project_repo_list_deleted_scan_failed",
+				"error", err.Error(),
+			)
+			return nil, err
+		}
+
+		if sale.Valid {
+			project.Sale = sale.String
+		}
+		if developerID.Valid {
+			id := uuid.MustParse(developerID.String)
+			project.DeveloperID = &id
+		}
+		if areaID.Valid {
+			id := uuid.MustParse(areaID.String)
+			project.AreaID = &id
+		}
+		if lat.Valid {
+			project.Lat = &lat.Float64
+		}
+		if lng.Valid {
+			project.Lng = &lng.Float64
+		}
+
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+				r.logger.Error("project_repo_list_deleted_unmarshal_failed",
+					"project_id", project.ID,
+					"error", err.Error(),
+				)
+				return nil, err
+			}
+		} else {
+			project.Data = domain.ProjectData{}
+		}
+
+		projects = append(projects, project)
+	}
+
+	r.logger.Info("project_repo_list_deleted_completed",
+		"count", len(projects),
+	)
+
+	return projects, nil
+}
+
+func (r *ProjectRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Project, error) {
+	var project domain.Project
+	var dataJSON []byte
+	var developerID, areaID sql.NullString
+	var lat, lng sql.NullFloat64
+	var sale sql.NullString
+
+	err := r.db.QueryRow(`
+		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
+		FROM projects
+		WHERE id = $1
+	`, id).Scan(
+		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
+		&developerID, &areaID, &lat, &lng, &dataJSON,
+		&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if sale.Valid {
+		project.Sale = sale.String
+	}
+	if developerID.Valid {
+		id := uuid.MustParse(developerID.String)
+		project.DeveloperID = &id
+	}
+	if areaID.Valid {
+		id := uuid.MustParse(areaID.String)
+		project.AreaID = &id
+	}
+	if lat.Valid {
+		project.Lat = &lat.Float64
+	}
+	if lng.Valid {
+		project.Lng = &lng.Float64
+	}
+
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		project.Data = domain.ProjectData{}
+	}
+
+	return &project, nil
+}
+
+func (r *ProjectRepo) Restore(id uuid.UUID) error {
+	r.logger.Info("project_repo_restore_started", "project_id", id)
+
+	_, err := r.db.Exec(`
+		UPDATE projects
+		SET deleted_at = NULL
+		WHERE id = $1 AND deleted_at IS NOT NULL
+	`, id)
+
+	if err != nil {
+		r.logger.Error("project_repo_restore_failed", "project_id", id, "error", err.Error())
+		return err
+	}
+
+	r.logger.Info("project_repo_restore_completed", "project_id", id)
+	return nil
+}
+
+func (r *ProjectRepo) HardDelete(id uuid.UUID) error {
+	r.logger.Info("project_repo_hard_delete_started", "project_id", id)
+
+	_, err := r.db.Exec(`DELETE FROM projects WHERE id = $1`, id)
+
+	if err != nil {
+		r.logger.Error("project_repo_hard_delete_failed", "project_id", id, "error", err.Error())
+		return err
+	}
+
+	r.logger.Info("project_repo_hard_delete_completed", "project_id", id)
 	return nil
 }

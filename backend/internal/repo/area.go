@@ -404,3 +404,146 @@ func (r *AreaRepo) Delete(id uuid.UUID) error {
 	return nil
 }
 
+func (r *AreaRepo) ListDeleted() ([]domain.Area, error) {
+	r.logger.Info("area_repo_list_deleted_started")
+
+	rows, err := r.db.Query(`
+		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
+		FROM areas
+		WHERE deleted_at IS NOT NULL
+		ORDER BY deleted_at DESC
+	`)
+	if err != nil {
+		r.logger.Error("area_repo_list_deleted_query_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+	defer rows.Close()
+
+	areas := []domain.Area{}
+	for rows.Next() {
+		var area domain.Area
+		var dataJSON []byte
+
+		if err := rows.Scan(
+			&area.ID, &area.Slug, &area.Name, &area.City,
+			&area.Lat, &area.Lng, &area.Status, &dataJSON,
+			&area.CreatedAt, &area.UpdatedAt, &area.DeletedAt,
+		); err != nil {
+			r.logger.Error("area_repo_list_deleted_scan_failed",
+				"error", err.Error(),
+			)
+			return nil, err
+		}
+
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+				r.logger.Error("area_repo_list_deleted_unmarshal_failed",
+					"area_id", area.ID,
+					"error", err.Error(),
+				)
+				return nil, err
+			}
+		} else {
+			area.Data = domain.AreaData{}
+		}
+
+		areas = append(areas, area)
+	}
+
+	r.logger.Info("area_repo_list_deleted_completed",
+		"count", len(areas),
+	)
+
+	return areas, nil
+}
+
+func (r *AreaRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Area, error) {
+	r.logger.Info("area_repo_get_by_id_with_deleted_started",
+		"area_id", id,
+	)
+
+	var area domain.Area
+	var dataJSON []byte
+
+	err := r.db.QueryRow(`
+		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
+		FROM areas
+		WHERE id = $1
+	`, id).Scan(
+		&area.ID, &area.Slug, &area.Name, &area.City,
+		&area.Lat, &area.Lng, &area.Status, &dataJSON,
+		&area.CreatedAt, &area.UpdatedAt, &area.DeletedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		r.logger.Error("area_repo_get_by_id_with_deleted_failed",
+			"area_id", id,
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	if len(dataJSON) > 0 {
+		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+			return nil, err
+		}
+	} else {
+		area.Data = domain.AreaData{}
+	}
+
+	return &area, nil
+}
+
+func (r *AreaRepo) Restore(id uuid.UUID) error {
+	r.logger.Info("area_repo_restore_started",
+		"area_id", id,
+	)
+
+	_, err := r.db.Exec(`
+		UPDATE areas
+		SET deleted_at = NULL
+		WHERE id = $1 AND deleted_at IS NOT NULL
+	`, id)
+
+	if err != nil {
+		r.logger.Error("area_repo_restore_failed",
+			"area_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("area_repo_restore_completed",
+		"area_id", id,
+	)
+
+	return nil
+}
+
+func (r *AreaRepo) HardDelete(id uuid.UUID) error {
+	r.logger.Info("area_repo_hard_delete_started",
+		"area_id", id,
+	)
+
+	_, err := r.db.Exec(`DELETE FROM areas WHERE id = $1`, id)
+
+	if err != nil {
+		r.logger.Error("area_repo_hard_delete_failed",
+			"area_id", id,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("area_repo_hard_delete_completed",
+		"area_id", id,
+	)
+
+	return nil
+}
+

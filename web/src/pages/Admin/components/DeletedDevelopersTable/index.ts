@@ -1,0 +1,1 @@
+export { DeletedDevelopersTable } from './DeletedDevelopersTable'

@@ -88,11 +88,16 @@ export default function FeaturedPropertyCarousel({
             ))}
           </div>
           <div className={styles.navButtons}>
-            <button className={styles.navButton} onClick={goToPrevious} type="button">
-              <ChevronLeft size={20} />
+            <button
+              className={styles.navButton}
+              onClick={goToPrevious}
+              type="button"
+              aria-label="Previous"
+            >
+              <ChevronLeft size={22} strokeWidth={2.5} />
             </button>
-            <button className={styles.navButton} onClick={goToNext} type="button">
-              <ChevronRight size={20} />
+            <button className={styles.navButton} onClick={goToNext} type="button" aria-label="Next">
+              <ChevronRight size={22} strokeWidth={2.5} />
             </button>
           </div>
         </div>

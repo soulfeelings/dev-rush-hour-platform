@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import useEmblaCarousel from 'embla-carousel-react'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { createPropertyMarkerIcon } from '../../components/PropertyMap/markerIcon'
@@ -15,7 +16,7 @@ import { useGetProject, useListLots } from '../../api'
 import type { Project, Lot, Developer, Area, Badge as BadgeType } from '../../api'
 import { IconBed, IconBath, IconArea } from '../../components/icons'
 import { ROUTES, getLotDetailRoute } from '../../constants/routes'
-import { Heart, MapPin, Building2, Check } from 'lucide-react'
+import { Heart, MapPin, Building2, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import styles from './ProjectDetail.module.scss'
 
 const MAP_ZOOM_DEFAULT = 13
@@ -74,13 +75,47 @@ const formatPrice = (price: number | undefined, currency = 'AED') => {
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const [isFloorPlanModalOpen, setIsFloorPlanModalOpen] = useState(false)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const [mapContainerEl, setMapContainerEl] = useState<HTMLDivElement | null>(null)
+
+  // Embla Carousel
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
+  const [selectedIndex, setSelectedIndex] = useState(0)
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev()
+  }, [emblaApi])
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext()
+  }, [emblaApi])
+
+  const scrollTo = useCallback(
+    (index: number, jump = false) => {
+      if (emblaApi) emblaApi.scrollTo(index, jump)
+    },
+    [emblaApi]
+  )
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setSelectedIndex(emblaApi.selectedScrollSnap())
+  }, [emblaApi])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on('select', onSelect)
+    emblaApi.on('reInit', onSelect)
+    return () => {
+      emblaApi.off('select', onSelect)
+      emblaApi.off('reInit', onSelect)
+    }
+  }, [emblaApi, onSelect])
 
   const {
     data: projectData,
@@ -265,14 +300,6 @@ export default function ProjectDetail() {
       .filter((url): url is string => Boolean(url)) || []),
   ]
 
-  const handlePrevImage = () => {
-    setCurrentImageIndex(prev => (prev === 0 ? allImages.length - 1 : prev - 1))
-  }
-
-  const handleNextImage = () => {
-    setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
-  }
-
   const developerLogoUrl =
     (project.developer?.data as { logoUrl?: string } | undefined)?.logoUrl ||
     developerLogos[project.developer?.name || '']
@@ -302,26 +329,34 @@ export default function ProjectDetail() {
           <div className={styles.galleryContainer}>
             {allImages.length > 0 ? (
               <>
-                <img
-                  src={allImages[currentImageIndex]}
-                  alt={`${project.name} - image ${currentImageIndex + 1}`}
-                  className={styles.projectImage}
-                />
+                <div className={styles.emblaViewport} ref={emblaRef}>
+                  <div className={styles.emblaContainer}>
+                    {allImages.map((url, idx) => (
+                      <div className={styles.emblaSlide} key={idx}>
+                        <img
+                          src={url}
+                          alt={`${project.name} - image ${idx + 1}`}
+                          className={styles.projectImage}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 {allImages.length > 1 && (
                   <>
                     <button
                       className={`${styles.navButton} ${styles.prevButton}`}
-                      onClick={handlePrevImage}
+                      onClick={scrollPrev}
                       aria-label="Previous image"
                     >
-                      ‹
+                      <ChevronLeft size={24} strokeWidth={2.5} />
                     </button>
                     <button
                       className={`${styles.navButton} ${styles.nextButton}`}
-                      onClick={handleNextImage}
+                      onClick={scrollNext}
                       aria-label="Next image"
                     >
-                      ›
+                      <ChevronRight size={24} strokeWidth={2.5} />
                     </button>
                   </>
                 )}
@@ -335,13 +370,14 @@ export default function ProjectDetail() {
 
           {allImages.length > 1 && (
             <div className={styles.thumbnailRow}>
-              {allImages.slice(0, 5).map((url, idx) => (
+              {allImages.map((url, idx) => (
                 <div
                   key={idx}
                   className={`${styles.thumbnailWrapper} ${
-                    idx === currentImageIndex ? styles.activeThumbnail : ''
+                    idx === selectedIndex ? styles.activeThumbnail : ''
                   }`}
-                  onClick={() => setCurrentImageIndex(idx)}
+                  onMouseEnter={() => scrollTo(idx, true)}
+                  onClick={() => scrollTo(idx, true)}
                 >
                   <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
                 </div>
@@ -362,8 +398,9 @@ export default function ProjectDetail() {
           {hasCoordinates && (
             <div className={styles.mapThumbnail}>
               <div ref={setMapContainerEl} className={styles.miniMap} />
-              <div className={styles.mapOverlay}>
-                <MapPin size={20} />
+              <div className={styles.mapLocationLabel}>
+                <MapPin size={14} />
+                <span>{project.area?.name || 'Location'}</span>
               </div>
             </div>
           )}
@@ -381,23 +418,22 @@ export default function ProjectDetail() {
             />
           )}
           <div className={styles.projectTitle}>
-            <h1>{project.name}</h1>
+            <div className={styles.titleRow}>
+              <h1>{project.name}</h1>
+              {project.badges?.[0] && (
+                <Badge
+                  text={project.badges[0].name || ''}
+                  backgroundColor={project.badges[0].backgroundColor || '#000'}
+                  textColor={project.badges[0].textColor || '#fff'}
+                  iconName={project.badges[0].icon || undefined}
+                />
+              )}
+            </div>
             <div className={styles.projectLocation}>
               <MapPin size={16} />
               <span>{project.area?.name || 'Dubai'}</span>
             </div>
           </div>
-        </div>
-        <div className={styles.badgesRow}>
-          {project.badges?.map(badge => (
-            <Badge
-              key={badge.id}
-              text={badge.name || ''}
-              backgroundColor={badge.backgroundColor || '#000'}
-              textColor={badge.textColor || '#fff'}
-              iconName={badge.icon || undefined}
-            />
-          ))}
         </div>
       </section>
 
@@ -408,12 +444,14 @@ export default function ProjectDetail() {
             <div className={styles.ourPrice}>
               <span className={styles.priceLabel}>Our price</span>
               <span className={styles.priceDiscount}>-3%</span>
+              <span className={styles.priceArrow}>→</span>
               <span className={styles.priceValue}>
                 {formatPrice(projectDataFields?.specs?.priceFrom)}
               </span>
             </div>
             <div className={styles.developerPrice}>
               <span className={styles.priceLabel}>Developer price</span>
+              <span className={styles.priceArrow}>→</span>
               <span className={styles.priceValueStrike}>
                 {formatPrice(
                   projectDataFields?.specs?.priceFrom
@@ -423,9 +461,10 @@ export default function ProjectDetail() {
               </span>
             </div>
           </div>
+          <div className={styles.yearIndicator}>~ {new Date().getFullYear()}</div>
           {projectDataFields?.specs?.handoverDate && (
             <div className={styles.handoverInfo}>
-              <span className={styles.handoverLabel}>PP</span>
+              <span className={styles.handoverLabel}>PP:</span>
               <span className={styles.handoverDate}>{projectDataFields.specs.handoverDate}</span>
             </div>
           )}
@@ -479,19 +518,10 @@ export default function ProjectDetail() {
         </section>
       )}
 
-      {/* Action Buttons */}
-      <div className={styles.actionButtons}>
-        <Button onClick={() => setIs3DModalOpen(true)} variant="primary" size="lg">
-          View Apartments in 3D
-        </Button>
-        <Button onClick={() => setIsFloorPlanModalOpen(true)} variant="secondary" size="lg">
-          View Building Plan
-        </Button>
-      </div>
-
       {/* Apartments Sections by Bedroom Count */}
       {groupedLots.map(group => (
         <section key={group.bedrooms} className={styles.apartmentsSection}>
+          <span className={styles.allUnitsLabel}>All Units</span>
           <div className={styles.apartmentsHeader}>
             <h2>Apartments</h2>
             <div className={styles.apartmentsStats}>
@@ -541,11 +571,20 @@ export default function ProjectDetail() {
                       </div>
                     )}
                     <div className={styles.apartmentCardTags}>
-                      {lotTags.slice(0, 2).map((tag, i) => (
-                        <span key={i} className={styles.apartmentTag}>
-                          {tag}
-                        </span>
-                      ))}
+                      {lotTags.slice(0, 2).map((tag, i) => {
+                        const tagLower = tag.toLowerCase()
+                        let tagClass = styles.apartmentTag
+                        if (tagLower.includes('special') || tagLower.includes('price')) {
+                          tagClass = `${styles.apartmentTag} ${styles.tagPink}`
+                        } else if (tagLower.includes('new')) {
+                          tagClass = `${styles.apartmentTag} ${styles.tagTeal}`
+                        }
+                        return (
+                          <span key={i} className={tagClass}>
+                            {tag}
+                          </span>
+                        )
+                      })}
                     </div>
                     <button
                       className={styles.favoriteBtn}
@@ -559,7 +598,7 @@ export default function ProjectDetail() {
 
                   <div className={styles.apartmentCardContent}>
                     <h3 className={styles.apartmentCardTitle}>
-                      {project.name} - {lot.bedrooms} Bedrooms {lot.type}
+                      {lot.type || 'Unit'} - {lot.bedrooms} Bedrooms {lot.type || 'Mansion'}
                     </h3>
 
                     <div className={styles.apartmentCardBadges}>
@@ -590,7 +629,7 @@ export default function ProjectDetail() {
                     </div>
 
                     <div className={styles.apartmentCardSpecs}>
-                      <span>Apartments</span>
+                      <span className={styles.specLabel}>Apartments</span>
                       <span>
                         <IconBed /> {lot.bedrooms ?? '-'}
                       </span>

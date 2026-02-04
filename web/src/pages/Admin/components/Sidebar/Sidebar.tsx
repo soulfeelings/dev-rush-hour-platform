@@ -4,7 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../../../../ui'
 import styles from './Sidebar.module.scss'
 
-type Tab = 'projects-list' | 'lots-list' | 'areas-list' | 'cities-list' | 'badges-list'
+type Tab =
+  | 'projects-list'
+  | 'lots-list'
+  | 'areas-list'
+  | 'cities-list'
+  | 'badges-list'
+  | 'developers-list'
 
 type SidebarProps = {
   activeTab: Tab
@@ -53,6 +59,13 @@ export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: S
         </div>
         <nav className={styles.nav}>
           <div className={styles.navSection}>
+            <button
+              type="button"
+              className={`${styles.navItem} ${activeTab === 'developers-list' ? styles.active : ''}`}
+              onClick={() => onTabChange('developers-list')}
+            >
+              <span>Developers</span>
+            </button>
             <button
               type="button"
               className={`${styles.navItem} ${activeTab === 'projects-list' ? styles.active : ''}`}

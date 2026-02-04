@@ -276,16 +276,18 @@ export default function Catalog() {
         {isDesktop ? (
           /* Desktop: CSS Grid layout with mode switching (>=1024px) */
           <div className={styles.pageLayout} data-layout={layoutMode}>
+            <div className={styles.mapPanel}>
+              {mapContent}
+              <button
+                className={styles.panelToggle}
+                onClick={() => handleLayoutChange(layoutMode === 'map' ? 'split' : 'map')}
+                type="button"
+                aria-label={layoutMode === 'map' ? 'Show list' : 'Show map'}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
             <div className={styles.listPanel}>{catalogContent}</div>
-            <button
-              className={styles.panelToggle}
-              onClick={() => handleLayoutChange(layoutMode === 'map' ? 'split' : 'map')}
-              type="button"
-              aria-label={layoutMode === 'map' ? 'Show list' : 'Show map'}
-            >
-              <ChevronRight size={18} />
-            </button>
-            <div className={styles.mapPanel}>{mapContent}</div>
           </div>
         ) : (
           /* Mobile/Tablet: One view at a time with slide (<1024px) */
@@ -293,8 +295,8 @@ export default function Catalog() {
             <div
               className={`${styles.mobileLayout} ${mobileView === 'list' ? styles.showList : ''}`}
             >
-              <div className={styles.mobileListView}>{catalogContent}</div>
               <div className={styles.mobileMapView}>{mapContent}</div>
+              <div className={styles.mobileListView}>{catalogContent}</div>
             </div>
 
             {/* Floating toggle button */}

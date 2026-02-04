@@ -5,6 +5,7 @@ export const ADMIN_ROUTES = {
   AREAS: '/admin/areas',
   CITIES: '/admin/cities',
   BADGES: '/admin/badges',
+  DEVELOPERS: '/admin/developers',
 } as const
 
 export const ADMIN_ROUTE_SEGMENTS = {
@@ -13,6 +14,7 @@ export const ADMIN_ROUTE_SEGMENTS = {
   AREAS: 'areas',
   CITIES: 'cities',
   BADGES: 'badges',
+  DEVELOPERS: 'developers',
 } as const
 
 export const ADMIN_API_ENDPOINTS = {

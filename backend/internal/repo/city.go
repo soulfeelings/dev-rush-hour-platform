@@ -277,3 +277,98 @@ func (r *CityRepo) ListAll() ([]domain.City, error) {
 
 	return cities, nil
 }
+
+func (r *CityRepo) ListDeleted() ([]domain.City, error) {
+	r.logger.Info("city_repo_list_deleted_started")
+
+	rows, err := r.db.Query(`
+		SELECT id, slug, name, status, created_at, updated_at, deleted_at
+		FROM cities
+		WHERE deleted_at IS NOT NULL
+		ORDER BY deleted_at DESC
+	`)
+	if err != nil {
+		r.logger.Error("city_repo_list_deleted_query_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+	defer rows.Close()
+
+	cities := []domain.City{}
+	for rows.Next() {
+		var city domain.City
+
+		if err := rows.Scan(
+			&city.ID, &city.Slug, &city.Name, &city.Status,
+			&city.CreatedAt, &city.UpdatedAt, &city.DeletedAt,
+		); err != nil {
+			r.logger.Error("city_repo_list_deleted_scan_failed",
+				"error", err.Error(),
+			)
+			return nil, err
+		}
+
+		cities = append(cities, city)
+	}
+
+	r.logger.Info("city_repo_list_deleted_completed",
+		"count", len(cities),
+	)
+
+	return cities, nil
+}
+
+func (r *CityRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.City, error) {
+	var city domain.City
+
+	err := r.db.QueryRow(`
+		SELECT id, slug, name, status, created_at, updated_at, deleted_at
+		FROM cities
+		WHERE id = $1
+	`, id).Scan(
+		&city.ID, &city.Slug, &city.Name, &city.Status,
+		&city.CreatedAt, &city.UpdatedAt, &city.DeletedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &city, nil
+}
+
+func (r *CityRepo) Restore(id uuid.UUID) error {
+	r.logger.Info("city_repo_restore_started", "city_id", id)
+
+	_, err := r.db.Exec(`
+		UPDATE cities
+		SET deleted_at = NULL
+		WHERE id = $1 AND deleted_at IS NOT NULL
+	`, id)
+
+	if err != nil {
+		r.logger.Error("city_repo_restore_failed", "city_id", id, "error", err.Error())
+		return err
+	}
+
+	r.logger.Info("city_repo_restore_completed", "city_id", id)
+	return nil
+}
+
+func (r *CityRepo) HardDelete(id uuid.UUID) error {
+	r.logger.Info("city_repo_hard_delete_started", "city_id", id)
+
+	_, err := r.db.Exec(`DELETE FROM cities WHERE id = $1`, id)
+
+	if err != nil {
+		r.logger.Error("city_repo_hard_delete_failed", "city_id", id, "error", err.Error())
+		return err
+	}
+
+	r.logger.Info("city_repo_hard_delete_completed", "city_id", id)
+	return nil
+}

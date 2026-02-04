@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Pencil } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button } from '../../../../ui'
+import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { Area } from '../../../../api/generated/schemas/area'
 import { TableSkeleton } from '../TableSkeleton'
 import styles from './AreasTable.module.scss'
@@ -11,10 +11,15 @@ const { useAdminListAreas } = AdminApi
 type AreasTableProps = {
   onNewClick: () => void
   onEditClick: (area: Area) => void
+  onDelete: (ids: string[]) => void
+  deleteLoading?: boolean
 }
 
-export function AreasTable({ onNewClick, onEditClick }: AreasTableProps) {
+export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading }: AreasTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [areasToDelete, setAreasToDelete] = useState<string[]>([])
   const {
     data: areas,
     isLoading,
@@ -22,6 +27,50 @@ export function AreasTable({ onNewClick, onEditClick }: AreasTableProps) {
   } = useAdminListAreas({
     query: { enabled: true },
   })
+
+  const areasList = areas || []
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === areasList.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(areasList.map(a => a.id).filter((id): id is string => !!id)))
+    }
+  }
+
+  const handleSelectOne = (id: string) => {
+    const newSelected = new Set(selectedIds)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedIds(newSelected)
+  }
+
+  const handleDeleteClick = (ids: string[]) => {
+    setAreasToDelete(ids)
+    setDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    onDelete(areasToDelete)
+    setDeleteModalOpen(false)
+    setAreasToDelete([])
+    setSelectedIds(new Set())
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false)
+    setAreasToDelete([])
+  }
+
+  const isAllSelected = areasList.length > 0 && selectedIds.size === areasList.length
+  const isSomeSelected = selectedIds.size > 0
+
+  const getAreaNamesToDelete = () => {
+    return areasToDelete.map(id => areasList.find(a => a.id === id)?.name || id).join(', ')
+  }
 
   if (isLoading) {
     return (
@@ -31,9 +80,19 @@ export function AreasTable({ onNewClick, onEditClick }: AreasTableProps) {
           <Button onClick={onNewClick}>New</Button>
         </div>
         <TableSkeleton
-          headers={['', 'ID', 'Name', 'Slug', 'City', 'Coordinates', 'Status', 'Created At']}
-          columns={[{ isActions: true, width: '50px' }, {}, {}, {}, {}, {}, {}, {}]}
-          minWidth="900px"
+          headers={['', '', 'ID', 'Name', 'Slug', 'City', 'Coordinates', 'Status', 'Created At']}
+          columns={[
+            { width: '40px' },
+            { isActions: true, width: '50px' },
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+          ]}
+          minWidth="950px"
         />
       </div>
     )
@@ -43,13 +102,23 @@ export function AreasTable({ onNewClick, onEditClick }: AreasTableProps) {
     return <div className={styles.error}>Error loading areas</div>
   }
 
-  const areasList = areas || []
-
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.header}>
         <h2 className={styles.title}>Areas</h2>
-        <Button onClick={onNewClick}>New</Button>
+        <div className={styles.headerActions}>
+          {isSomeSelected && (
+            <Button
+              variant="secondary"
+              onClick={() => handleDeleteClick(Array.from(selectedIds))}
+              disabled={deleteLoading}
+              iconLeft={<Trash2 size={16} />}
+            >
+              Delete ({selectedIds.size})
+            </Button>
+          )}
+          <Button onClick={onNewClick}>New</Button>
+        </div>
       </div>
       {areasList.length === 0 ? (
         <div className={styles.empty}>No areas</div>
@@ -57,6 +126,13 @@ export function AreasTable({ onNewClick, onEditClick }: AreasTableProps) {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th className={styles.checkboxCell}>
+                <Checkbox
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  aria-label="Select all areas"
+                />
+              </th>
               <th></th>
               <th>ID</th>
               <th>Name</th>
@@ -73,17 +149,36 @@ export function AreasTable({ onNewClick, onEditClick }: AreasTableProps) {
                 key={area.id}
                 onMouseEnter={() => setHoveredRowId(area.id)}
                 onMouseLeave={() => setHoveredRowId(undefined)}
+                className={area.id && selectedIds.has(area.id) ? styles.selectedRow : ''}
               >
+                <td className={styles.checkboxCell}>
+                  <Checkbox
+                    checked={!!area.id && selectedIds.has(area.id)}
+                    onChange={() => area.id && handleSelectOne(area.id)}
+                    aria-label={`Select ${area.name}`}
+                  />
+                </td>
                 <td className={styles.actionsCell}>
                   {hoveredRowId === area.id && (
-                    <button
-                      type="button"
-                      className={styles.editButton}
-                      onClick={() => onEditClick(area)}
-                      aria-label="Edit area"
-                    >
-                      <Pencil size={16} />
-                    </button>
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        className={styles.editButton}
+                        onClick={() => onEditClick(area)}
+                        aria-label="Edit area"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteButton}
+                        onClick={() => area.id && handleDeleteClick([area.id])}
+                        aria-label="Delete area"
+                        disabled={deleteLoading}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   )}
                 </td>
                 <td>{area.id}</td>
@@ -102,6 +197,25 @@ export function AreasTable({ onNewClick, onEditClick }: AreasTableProps) {
           </tbody>
         </table>
       )}
+
+      <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">
+        <ModalBody>
+          <p>
+            Are you sure you want to delete{' '}
+            {areasToDelete.length === 1 ? 'this area' : `${areasToDelete.length} areas`}?
+          </p>
+          <p className={styles.deleteItemNames}>{getAreaNamesToDelete()}</p>
+          <p className={styles.deleteWarning}>This action cannot be undone.</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="secondary" onClick={handleCancelDelete} disabled={deleteLoading}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleConfirmDelete} disabled={deleteLoading}>
+            {deleteLoading ? 'Deleting...' : 'Delete'}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   )
 }

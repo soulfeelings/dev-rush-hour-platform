@@ -1102,6 +1102,9 @@ type ServerInterface interface {
 	// Создать район (админ)
 	// (POST /admin/areas)
 	AdminCreateArea(c *fiber.Ctx) error
+	// Получить список удаленных районов (админ)
+	// (GET /admin/areas/deleted)
+	AdminListDeletedAreas(c *fiber.Ctx) error
 	// Мягкое удаление района (установка deleted_at)
 	// (DELETE /admin/areas/{id})
 	AdminSoftDeleteArea(c *fiber.Ctx, id openapi_types.UUID) error
@@ -1111,12 +1114,21 @@ type ServerInterface interface {
 	// Обновить район (админ)
 	// (PATCH /admin/areas/{id})
 	AdminUpdateArea(c *fiber.Ctx, id openapi_types.UUID) error
+	// Полное удаление района (админ)
+	// (DELETE /admin/areas/{id}/hard-delete)
+	AdminHardDeleteArea(c *fiber.Ctx, id openapi_types.UUID) error
+	// Восстановить удаленный район (админ)
+	// (POST /admin/areas/{id}/restore)
+	AdminRestoreArea(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список бейджей (админ)
 	// (GET /admin/badges)
 	AdminListBadges(c *fiber.Ctx) error
 	// Создать бейдж (админ)
 	// (POST /admin/badges)
 	AdminCreateBadge(c *fiber.Ctx) error
+	// Получить список удаленных бейджей (админ)
+	// (GET /admin/badges/deleted)
+	AdminListDeletedBadges(c *fiber.Ctx) error
 	// Мягкое удаление бейджа (установка deleted_at)
 	// (DELETE /admin/badges/{id})
 	AdminSoftDeleteBadge(c *fiber.Ctx, id openapi_types.UUID) error
@@ -1126,12 +1138,21 @@ type ServerInterface interface {
 	// Обновить бейдж (админ)
 	// (PATCH /admin/badges/{id})
 	AdminUpdateBadge(c *fiber.Ctx, id openapi_types.UUID) error
+	// Полное удаление бейджа (админ)
+	// (DELETE /admin/badges/{id}/hard-delete)
+	AdminHardDeleteBadge(c *fiber.Ctx, id openapi_types.UUID) error
+	// Восстановить удаленный бейдж (админ)
+	// (POST /admin/badges/{id}/restore)
+	AdminRestoreBadge(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список городов (админ)
 	// (GET /admin/cities)
 	AdminListCities(c *fiber.Ctx) error
 	// Создать город (админ)
 	// (POST /admin/cities)
 	AdminCreateCity(c *fiber.Ctx) error
+	// Получить список удаленных городов (админ)
+	// (GET /admin/cities/deleted)
+	AdminListDeletedCities(c *fiber.Ctx) error
 	// Мягкое удаление города (установка deleted_at)
 	// (DELETE /admin/cities/{id})
 	AdminSoftDeleteCity(c *fiber.Ctx, id openapi_types.UUID) error
@@ -1141,12 +1162,21 @@ type ServerInterface interface {
 	// Обновить город (админ)
 	// (PATCH /admin/cities/{id})
 	AdminUpdateCity(c *fiber.Ctx, id openapi_types.UUID) error
+	// Полное удаление города (админ)
+	// (DELETE /admin/cities/{id}/hard-delete)
+	AdminHardDeleteCity(c *fiber.Ctx, id openapi_types.UUID) error
+	// Восстановить удаленный город (админ)
+	// (POST /admin/cities/{id}/restore)
+	AdminRestoreCity(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список застройщиков (админ)
 	// (GET /admin/developers)
 	AdminListDevelopers(c *fiber.Ctx) error
 	// Создать застройщика (админ)
 	// (POST /admin/developers)
 	AdminCreateDeveloper(c *fiber.Ctx) error
+	// Получить список удаленных застройщиков (админ)
+	// (GET /admin/developers/deleted)
+	AdminListDeletedDevelopers(c *fiber.Ctx) error
 	// Мягкое удаление застройщика (установка deleted_at)
 	// (DELETE /admin/developers/{id})
 	AdminSoftDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
@@ -1156,6 +1186,12 @@ type ServerInterface interface {
 	// Обновить застройщика (админ)
 	// (PATCH /admin/developers/{id})
 	AdminUpdateDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
+	// Полное удаление застройщика (админ)
+	// (DELETE /admin/developers/{id}/hard-delete)
+	AdminHardDeleteDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
+	// Восстановить удаленного застройщика (админ)
+	// (POST /admin/developers/{id}/restore)
+	AdminRestoreDeveloper(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список заявок (админ)
 	// (GET /admin/leads)
 	AdminListLeads(c *fiber.Ctx, params AdminListLeadsParams) error
@@ -1174,6 +1210,9 @@ type ServerInterface interface {
 	// Создать лот (админ)
 	// (POST /admin/lots)
 	AdminCreateLot(c *fiber.Ctx) error
+	// Получить список удаленных лотов (админ)
+	// (GET /admin/lots/deleted)
+	AdminListDeletedLots(c *fiber.Ctx) error
 	// Мягкое удаление лота (установка deleted_at)
 	// (DELETE /admin/lots/{id})
 	AdminSoftDeleteLot(c *fiber.Ctx, id openapi_types.UUID) error
@@ -1183,12 +1222,21 @@ type ServerInterface interface {
 	// Обновить лот (админ)
 	// (PATCH /admin/lots/{id})
 	AdminUpdateLot(c *fiber.Ctx, id openapi_types.UUID) error
+	// Полное удаление лота (админ)
+	// (DELETE /admin/lots/{id}/hard-delete)
+	AdminHardDeleteLot(c *fiber.Ctx, id openapi_types.UUID) error
+	// Восстановить удаленный лот (админ)
+	// (POST /admin/lots/{id}/restore)
+	AdminRestoreLot(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список проектов (админ)
 	// (GET /admin/projects)
 	AdminListProjects(c *fiber.Ctx) error
 	// Создать проект (админ)
 	// (POST /admin/projects)
 	AdminCreateProject(c *fiber.Ctx) error
+	// Получить список удаленных проектов (админ)
+	// (GET /admin/projects/deleted)
+	AdminListDeletedProjects(c *fiber.Ctx) error
 	// Мягкое удаление проекта (установка deleted_at)
 	// (DELETE /admin/projects/{id})
 	AdminSoftDeleteProject(c *fiber.Ctx, id openapi_types.UUID) error
@@ -1198,6 +1246,12 @@ type ServerInterface interface {
 	// Обновить проект (админ)
 	// (PATCH /admin/projects/{id})
 	AdminUpdateProject(c *fiber.Ctx, id openapi_types.UUID) error
+	// Полное удаление проекта (админ)
+	// (DELETE /admin/projects/{id}/hard-delete)
+	AdminHardDeleteProject(c *fiber.Ctx, id openapi_types.UUID) error
+	// Восстановить удаленный проект (админ)
+	// (POST /admin/projects/{id}/restore)
+	AdminRestoreProject(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список районов
 	// (GET /areas)
 	ListAreas(c *fiber.Ctx, params ListAreasParams) error
@@ -1251,6 +1305,14 @@ func (siw *ServerInterfaceWrapper) AdminCreateArea(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateArea(c)
+}
+
+// AdminListDeletedAreas operation middleware
+func (siw *ServerInterfaceWrapper) AdminListDeletedAreas(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminListDeletedAreas(c)
 }
 
 // AdminSoftDeleteArea operation middleware
@@ -1307,6 +1369,42 @@ func (siw *ServerInterfaceWrapper) AdminUpdateArea(c *fiber.Ctx) error {
 	return siw.Handler.AdminUpdateArea(c, id)
 }
 
+// AdminHardDeleteArea operation middleware
+func (siw *ServerInterfaceWrapper) AdminHardDeleteArea(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminHardDeleteArea(c, id)
+}
+
+// AdminRestoreArea operation middleware
+func (siw *ServerInterfaceWrapper) AdminRestoreArea(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminRestoreArea(c, id)
+}
+
 // AdminListBadges operation middleware
 func (siw *ServerInterfaceWrapper) AdminListBadges(c *fiber.Ctx) error {
 
@@ -1321,6 +1419,14 @@ func (siw *ServerInterfaceWrapper) AdminCreateBadge(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateBadge(c)
+}
+
+// AdminListDeletedBadges operation middleware
+func (siw *ServerInterfaceWrapper) AdminListDeletedBadges(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminListDeletedBadges(c)
 }
 
 // AdminSoftDeleteBadge operation middleware
@@ -1377,6 +1483,42 @@ func (siw *ServerInterfaceWrapper) AdminUpdateBadge(c *fiber.Ctx) error {
 	return siw.Handler.AdminUpdateBadge(c, id)
 }
 
+// AdminHardDeleteBadge operation middleware
+func (siw *ServerInterfaceWrapper) AdminHardDeleteBadge(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminHardDeleteBadge(c, id)
+}
+
+// AdminRestoreBadge operation middleware
+func (siw *ServerInterfaceWrapper) AdminRestoreBadge(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminRestoreBadge(c, id)
+}
+
 // AdminListCities operation middleware
 func (siw *ServerInterfaceWrapper) AdminListCities(c *fiber.Ctx) error {
 
@@ -1391,6 +1533,14 @@ func (siw *ServerInterfaceWrapper) AdminCreateCity(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateCity(c)
+}
+
+// AdminListDeletedCities operation middleware
+func (siw *ServerInterfaceWrapper) AdminListDeletedCities(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminListDeletedCities(c)
 }
 
 // AdminSoftDeleteCity operation middleware
@@ -1447,6 +1597,42 @@ func (siw *ServerInterfaceWrapper) AdminUpdateCity(c *fiber.Ctx) error {
 	return siw.Handler.AdminUpdateCity(c, id)
 }
 
+// AdminHardDeleteCity operation middleware
+func (siw *ServerInterfaceWrapper) AdminHardDeleteCity(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminHardDeleteCity(c, id)
+}
+
+// AdminRestoreCity operation middleware
+func (siw *ServerInterfaceWrapper) AdminRestoreCity(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminRestoreCity(c, id)
+}
+
 // AdminListDevelopers operation middleware
 func (siw *ServerInterfaceWrapper) AdminListDevelopers(c *fiber.Ctx) error {
 
@@ -1461,6 +1647,14 @@ func (siw *ServerInterfaceWrapper) AdminCreateDeveloper(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateDeveloper(c)
+}
+
+// AdminListDeletedDevelopers operation middleware
+func (siw *ServerInterfaceWrapper) AdminListDeletedDevelopers(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminListDeletedDevelopers(c)
 }
 
 // AdminSoftDeleteDeveloper operation middleware
@@ -1515,6 +1709,42 @@ func (siw *ServerInterfaceWrapper) AdminUpdateDeveloper(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminUpdateDeveloper(c, id)
+}
+
+// AdminHardDeleteDeveloper operation middleware
+func (siw *ServerInterfaceWrapper) AdminHardDeleteDeveloper(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminHardDeleteDeveloper(c, id)
+}
+
+// AdminRestoreDeveloper operation middleware
+func (siw *ServerInterfaceWrapper) AdminRestoreDeveloper(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminRestoreDeveloper(c, id)
 }
 
 // AdminListLeads operation middleware
@@ -1613,6 +1843,14 @@ func (siw *ServerInterfaceWrapper) AdminCreateLot(c *fiber.Ctx) error {
 	return siw.Handler.AdminCreateLot(c)
 }
 
+// AdminListDeletedLots operation middleware
+func (siw *ServerInterfaceWrapper) AdminListDeletedLots(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminListDeletedLots(c)
+}
+
 // AdminSoftDeleteLot operation middleware
 func (siw *ServerInterfaceWrapper) AdminSoftDeleteLot(c *fiber.Ctx) error {
 
@@ -1667,6 +1905,42 @@ func (siw *ServerInterfaceWrapper) AdminUpdateLot(c *fiber.Ctx) error {
 	return siw.Handler.AdminUpdateLot(c, id)
 }
 
+// AdminHardDeleteLot operation middleware
+func (siw *ServerInterfaceWrapper) AdminHardDeleteLot(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminHardDeleteLot(c, id)
+}
+
+// AdminRestoreLot operation middleware
+func (siw *ServerInterfaceWrapper) AdminRestoreLot(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminRestoreLot(c, id)
+}
+
 // AdminListProjects operation middleware
 func (siw *ServerInterfaceWrapper) AdminListProjects(c *fiber.Ctx) error {
 
@@ -1681,6 +1955,14 @@ func (siw *ServerInterfaceWrapper) AdminCreateProject(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminCreateProject(c)
+}
+
+// AdminListDeletedProjects operation middleware
+func (siw *ServerInterfaceWrapper) AdminListDeletedProjects(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminListDeletedProjects(c)
 }
 
 // AdminSoftDeleteProject operation middleware
@@ -1735,6 +2017,42 @@ func (siw *ServerInterfaceWrapper) AdminUpdateProject(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminUpdateProject(c, id)
+}
+
+// AdminHardDeleteProject operation middleware
+func (siw *ServerInterfaceWrapper) AdminHardDeleteProject(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminHardDeleteProject(c, id)
+}
+
+// AdminRestoreProject operation middleware
+func (siw *ServerInterfaceWrapper) AdminRestoreProject(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminRestoreProject(c, id)
 }
 
 // ListAreas operation middleware
@@ -2069,15 +2387,23 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 
 	router.Post(options.BaseURL+"/admin/areas", wrapper.AdminCreateArea)
 
+	router.Get(options.BaseURL+"/admin/areas/deleted", wrapper.AdminListDeletedAreas)
+
 	router.Delete(options.BaseURL+"/admin/areas/:id", wrapper.AdminSoftDeleteArea)
 
 	router.Get(options.BaseURL+"/admin/areas/:id", wrapper.AdminGetArea)
 
 	router.Patch(options.BaseURL+"/admin/areas/:id", wrapper.AdminUpdateArea)
 
+	router.Delete(options.BaseURL+"/admin/areas/:id/hard-delete", wrapper.AdminHardDeleteArea)
+
+	router.Post(options.BaseURL+"/admin/areas/:id/restore", wrapper.AdminRestoreArea)
+
 	router.Get(options.BaseURL+"/admin/badges", wrapper.AdminListBadges)
 
 	router.Post(options.BaseURL+"/admin/badges", wrapper.AdminCreateBadge)
+
+	router.Get(options.BaseURL+"/admin/badges/deleted", wrapper.AdminListDeletedBadges)
 
 	router.Delete(options.BaseURL+"/admin/badges/:id", wrapper.AdminSoftDeleteBadge)
 
@@ -2085,9 +2411,15 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 
 	router.Patch(options.BaseURL+"/admin/badges/:id", wrapper.AdminUpdateBadge)
 
+	router.Delete(options.BaseURL+"/admin/badges/:id/hard-delete", wrapper.AdminHardDeleteBadge)
+
+	router.Post(options.BaseURL+"/admin/badges/:id/restore", wrapper.AdminRestoreBadge)
+
 	router.Get(options.BaseURL+"/admin/cities", wrapper.AdminListCities)
 
 	router.Post(options.BaseURL+"/admin/cities", wrapper.AdminCreateCity)
+
+	router.Get(options.BaseURL+"/admin/cities/deleted", wrapper.AdminListDeletedCities)
 
 	router.Delete(options.BaseURL+"/admin/cities/:id", wrapper.AdminSoftDeleteCity)
 
@@ -2095,15 +2427,25 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 
 	router.Patch(options.BaseURL+"/admin/cities/:id", wrapper.AdminUpdateCity)
 
+	router.Delete(options.BaseURL+"/admin/cities/:id/hard-delete", wrapper.AdminHardDeleteCity)
+
+	router.Post(options.BaseURL+"/admin/cities/:id/restore", wrapper.AdminRestoreCity)
+
 	router.Get(options.BaseURL+"/admin/developers", wrapper.AdminListDevelopers)
 
 	router.Post(options.BaseURL+"/admin/developers", wrapper.AdminCreateDeveloper)
+
+	router.Get(options.BaseURL+"/admin/developers/deleted", wrapper.AdminListDeletedDevelopers)
 
 	router.Delete(options.BaseURL+"/admin/developers/:id", wrapper.AdminSoftDeleteDeveloper)
 
 	router.Get(options.BaseURL+"/admin/developers/:id", wrapper.AdminGetDeveloper)
 
 	router.Patch(options.BaseURL+"/admin/developers/:id", wrapper.AdminUpdateDeveloper)
+
+	router.Delete(options.BaseURL+"/admin/developers/:id/hard-delete", wrapper.AdminHardDeleteDeveloper)
+
+	router.Post(options.BaseURL+"/admin/developers/:id/restore", wrapper.AdminRestoreDeveloper)
 
 	router.Get(options.BaseURL+"/admin/leads", wrapper.AdminListLeads)
 
@@ -2117,21 +2459,33 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 
 	router.Post(options.BaseURL+"/admin/lots", wrapper.AdminCreateLot)
 
+	router.Get(options.BaseURL+"/admin/lots/deleted", wrapper.AdminListDeletedLots)
+
 	router.Delete(options.BaseURL+"/admin/lots/:id", wrapper.AdminSoftDeleteLot)
 
 	router.Get(options.BaseURL+"/admin/lots/:id", wrapper.AdminGetLot)
 
 	router.Patch(options.BaseURL+"/admin/lots/:id", wrapper.AdminUpdateLot)
 
+	router.Delete(options.BaseURL+"/admin/lots/:id/hard-delete", wrapper.AdminHardDeleteLot)
+
+	router.Post(options.BaseURL+"/admin/lots/:id/restore", wrapper.AdminRestoreLot)
+
 	router.Get(options.BaseURL+"/admin/projects", wrapper.AdminListProjects)
 
 	router.Post(options.BaseURL+"/admin/projects", wrapper.AdminCreateProject)
+
+	router.Get(options.BaseURL+"/admin/projects/deleted", wrapper.AdminListDeletedProjects)
 
 	router.Delete(options.BaseURL+"/admin/projects/:id", wrapper.AdminSoftDeleteProject)
 
 	router.Get(options.BaseURL+"/admin/projects/:id", wrapper.AdminGetProject)
 
 	router.Patch(options.BaseURL+"/admin/projects/:id", wrapper.AdminUpdateProject)
+
+	router.Delete(options.BaseURL+"/admin/projects/:id/hard-delete", wrapper.AdminHardDeleteProject)
+
+	router.Post(options.BaseURL+"/admin/projects/:id/restore", wrapper.AdminRestoreProject)
 
 	router.Get(options.BaseURL+"/areas", wrapper.ListAreas)
 

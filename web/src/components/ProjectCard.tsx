@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { Heart } from 'lucide-react'
+import { Heart, ChevronLeft, ChevronRight } from 'lucide-react'
 import { getProjectDetailRoute } from '../constants/routes'
 import { Typography } from '../ui/Typography'
 import { Badge } from '../ui/Badge'
+import { Button } from '../ui/Button'
 import styles from './ProjectCard.module.scss'
 import type { Property } from '../types/property'
 
@@ -38,10 +39,15 @@ const splitCompletionDate = (dateString: string) => {
 export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => {
   const { t } = useTranslation()
   const [isFavorited, setIsFavorited] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
-  const secondaryImage = property.gallery?.[0]
+  const hoverImage = property.hoverImage
   const badges = property.badges ?? []
+
+  // Build array of all images: cover + gallery
+  const allImages = [property.image, ...(property.gallery || [])]
+  const totalImages = allImages.length
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -50,21 +56,82 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
     onFavoriteClick?.(property.id)
   }
 
+  const handlePrevImage = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setCurrentImageIndex(prev => (prev === 0 ? totalImages - 1 : prev - 1))
+    },
+    [totalImages]
+  )
+
+  const handleNextImage = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setCurrentImageIndex(prev => (prev === totalImages - 1 ? 0 : prev + 1))
+    },
+    [totalImages]
+  )
+
+  const handleDotClick = useCallback((e: React.MouseEvent, index: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setCurrentImageIndex(index)
+  }, [])
+
   return (
     <Link to={getProjectDetailRoute(property.id)} className={styles.cardLink}>
-      <div className={styles.card}>
+      <div className={styles.card} onMouseEnter={() => setCurrentImageIndex(0)}>
         <div className={styles.cardInner}>
           {/* Область картинок */}
           <div className={styles.imagesWrapper}>
-            {/* Основная картинка */}
+            {/* Основная картинка (текущий слайд) */}
             <div className={styles.imageContainer}>
-              <img src={property.image} alt={property.title} />
+              <img src={allImages[currentImageIndex]} alt={property.title} />
             </div>
 
-            {/* Вторая картинка (появляется при hover) */}
-            {secondaryImage && (
-              <div className={styles.secondaryImageContainer}>
-                <img src={secondaryImage} alt={`${property.title} - additional`} />
+            {/* Hover картинка - только для первого слайда на desktop */}
+            {currentImageIndex === 0 && hoverImage && (
+              <div className={styles.hoverImageContainer}>
+                <img src={hoverImage} alt={`${property.title} - hover`} />
+              </div>
+            )}
+
+            {/* Navigation arrows - show only if more than 1 image */}
+            {totalImages > 1 && (
+              <>
+                <button
+                  type="button"
+                  className={`${styles.navButton} ${styles.navButtonPrev}`}
+                  onClick={handlePrevImage}
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.navButton} ${styles.navButtonNext}`}
+                  onClick={handleNextImage}
+                  aria-label="Next image"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </>
+            )}
+
+            {/* Navigation dots */}
+            {totalImages > 1 && (
+              <div className={styles.dotsContainer}>
+                {allImages.map((_, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={`${styles.dot} ${index === currentImageIndex ? styles.dotActive : ''}`}
+                    onClick={e => handleDotClick(e, index)}
+                    aria-label={`Go to image ${index + 1}`}
+                  />
+                ))}
               </div>
             )}
 
@@ -203,11 +270,9 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
                 )}
               </div>
 
-              <button type="button" className={styles.whatsappButton}>
-                <Typography size="regular" weight="medium" color="white">
-                  {t('getDetailsOnWhatsApp')}
-                </Typography>
-              </button>
+              <Button variant="primary" size="md" fullWidth align="center">
+                {t('getDetailsOnWhatsApp')}
+              </Button>
 
               <Typography size="small" className={styles.disclaimer}>
                 {t('investmentDetailsNoSpam')}

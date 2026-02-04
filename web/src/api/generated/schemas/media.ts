@@ -9,5 +9,7 @@ import type { MediaItem } from './mediaItem'
 
 export interface Media {
   cover?: MediaItem
+  /** Hover image for the project card */
+  hover?: MediaItem
   gallery?: MediaItem[]
 }

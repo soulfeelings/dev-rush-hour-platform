@@ -37,6 +37,9 @@ import type {
   DeveloperUpdateRequest,
   FilterOptions,
   GetProjectParams,
+  Infrastructure,
+  InfrastructureCreateRequest,
+  InfrastructureUpdateRequest,
   InternalErrorResponse,
   Lead,
   LeadCreateRequest,
@@ -1680,6 +1683,304 @@ export const useAdminUpdateDeveloper = <
 }
 
 /**
+ * @summary Получить список удаленных застройщиков (админ)
+ */
+export const adminListDeletedDevelopers = (
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Developer[]>(
+    { url: `/admin/developers/deleted`, method: 'GET', signal },
+    options
+  )
+}
+
+export const getAdminListDeletedDevelopersQueryKey = () => {
+  return [`/admin/developers/deleted`] as const
+}
+
+export const getAdminListDeletedDevelopersQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListDeletedDevelopers>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedDevelopers>>, TError, TData>
+  >
+  request?: SecondParameter<typeof adminInstance>
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListDeletedDevelopersQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListDeletedDevelopers>>> = ({
+    signal,
+  }) => adminListDeletedDevelopers(requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListDeletedDevelopers>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListDeletedDevelopersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListDeletedDevelopers>>
+>
+export type AdminListDeletedDevelopersQueryError = UnauthorizedResponse | InternalErrorResponse
+
+export function useAdminListDeletedDevelopers<
+  TData = Awaited<ReturnType<typeof adminListDeletedDevelopers>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedDevelopers>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedDevelopers>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedDevelopers>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedDevelopers<
+  TData = Awaited<ReturnType<typeof adminListDeletedDevelopers>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedDevelopers>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedDevelopers>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedDevelopers>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedDevelopers<
+  TData = Awaited<ReturnType<typeof adminListDeletedDevelopers>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedDevelopers>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить список удаленных застройщиков (админ)
+ */
+
+export function useAdminListDeletedDevelopers<
+  TData = Awaited<ReturnType<typeof adminListDeletedDevelopers>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedDevelopers>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminListDeletedDevelopersQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Восстановить удаленного застройщика (админ)
+ */
+export const adminRestoreDeveloper = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Developer>(
+    { url: `/admin/developers/${id}/restore`, method: 'POST', signal },
+    options
+  )
+}
+
+export const getAdminRestoreDeveloperMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminRestoreDeveloper>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminRestoreDeveloper>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminRestoreDeveloper']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminRestoreDeveloper>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminRestoreDeveloper(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminRestoreDeveloperMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminRestoreDeveloper>>
+>
+
+export type AdminRestoreDeveloperMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Восстановить удаленного застройщика (админ)
+ */
+export const useAdminRestoreDeveloper = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminRestoreDeveloper>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminRestoreDeveloper>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminRestoreDeveloperMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Полное удаление застройщика (админ)
+ */
+export const adminHardDeleteDeveloper = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<void>(
+    { url: `/admin/developers/${id}/hard-delete`, method: 'DELETE' },
+    options
+  )
+}
+
+export const getAdminHardDeleteDeveloperMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminHardDeleteDeveloper>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminHardDeleteDeveloper>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminHardDeleteDeveloper']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminHardDeleteDeveloper>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminHardDeleteDeveloper(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminHardDeleteDeveloperMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminHardDeleteDeveloper>>
+>
+
+export type AdminHardDeleteDeveloperMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Полное удаление застройщика (админ)
+ */
+export const useAdminHardDeleteDeveloper = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminHardDeleteDeveloper>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminHardDeleteDeveloper>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminHardDeleteDeveloperMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
  * @summary Получить список районов (админ)
  */
 export const adminListAreas = (
@@ -2179,6 +2480,292 @@ export const useAdminUpdateArea = <
 }
 
 /**
+ * @summary Получить список удаленных районов (админ)
+ */
+export const adminListDeletedAreas = (
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Area[]>({ url: `/admin/areas/deleted`, method: 'GET', signal }, options)
+}
+
+export const getAdminListDeletedAreasQueryKey = () => {
+  return [`/admin/areas/deleted`] as const
+}
+
+export const getAdminListDeletedAreasQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListDeletedAreas>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedAreas>>, TError, TData>>
+  request?: SecondParameter<typeof adminInstance>
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListDeletedAreasQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListDeletedAreas>>> = ({ signal }) =>
+    adminListDeletedAreas(requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListDeletedAreas>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListDeletedAreasQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListDeletedAreas>>
+>
+export type AdminListDeletedAreasQueryError = UnauthorizedResponse | InternalErrorResponse
+
+export function useAdminListDeletedAreas<
+  TData = Awaited<ReturnType<typeof adminListDeletedAreas>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedAreas>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedAreas>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedAreas>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedAreas<
+  TData = Awaited<ReturnType<typeof adminListDeletedAreas>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedAreas>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedAreas>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedAreas>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedAreas<
+  TData = Awaited<ReturnType<typeof adminListDeletedAreas>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedAreas>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить список удаленных районов (админ)
+ */
+
+export function useAdminListDeletedAreas<
+  TData = Awaited<ReturnType<typeof adminListDeletedAreas>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedAreas>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminListDeletedAreasQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Восстановить удаленный район (админ)
+ */
+export const adminRestoreArea = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Area>({ url: `/admin/areas/${id}/restore`, method: 'POST', signal }, options)
+}
+
+export const getAdminRestoreAreaMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminRestoreArea>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminRestoreArea>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminRestoreArea']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminRestoreArea>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminRestoreArea(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminRestoreAreaMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminRestoreArea>>
+>
+
+export type AdminRestoreAreaMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Восстановить удаленный район (админ)
+ */
+export const useAdminRestoreArea = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminRestoreArea>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminRestoreArea>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminRestoreAreaMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Полное удаление района (админ)
+ */
+export const adminHardDeleteArea = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<void>({ url: `/admin/areas/${id}/hard-delete`, method: 'DELETE' }, options)
+}
+
+export const getAdminHardDeleteAreaMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminHardDeleteArea>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminHardDeleteArea>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminHardDeleteArea']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminHardDeleteArea>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminHardDeleteArea(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminHardDeleteAreaMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminHardDeleteArea>>
+>
+
+export type AdminHardDeleteAreaMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Полное удаление района (админ)
+ */
+export const useAdminHardDeleteArea = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminHardDeleteArea>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminHardDeleteArea>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminHardDeleteAreaMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
  * @summary Получить список городов (админ)
  */
 export const adminListCities = (
@@ -2673,6 +3260,297 @@ export const useAdminUpdateCity = <
   TContext
 > => {
   const mutationOptions = getAdminUpdateCityMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Получить список удаленных городов (админ)
+ */
+export const adminListDeletedCities = (
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<City[]>({ url: `/admin/cities/deleted`, method: 'GET', signal }, options)
+}
+
+export const getAdminListDeletedCitiesQueryKey = () => {
+  return [`/admin/cities/deleted`] as const
+}
+
+export const getAdminListDeletedCitiesQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListDeletedCities>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedCities>>, TError, TData>
+  >
+  request?: SecondParameter<typeof adminInstance>
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListDeletedCitiesQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListDeletedCities>>> = ({ signal }) =>
+    adminListDeletedCities(requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListDeletedCities>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListDeletedCitiesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListDeletedCities>>
+>
+export type AdminListDeletedCitiesQueryError = UnauthorizedResponse | InternalErrorResponse
+
+export function useAdminListDeletedCities<
+  TData = Awaited<ReturnType<typeof adminListDeletedCities>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedCities>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedCities>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedCities>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedCities<
+  TData = Awaited<ReturnType<typeof adminListDeletedCities>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedCities>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedCities>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedCities>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedCities<
+  TData = Awaited<ReturnType<typeof adminListDeletedCities>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedCities>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить список удаленных городов (админ)
+ */
+
+export function useAdminListDeletedCities<
+  TData = Awaited<ReturnType<typeof adminListDeletedCities>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedCities>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminListDeletedCitiesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Восстановить удаленный город (админ)
+ */
+export const adminRestoreCity = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<City>(
+    { url: `/admin/cities/${id}/restore`, method: 'POST', signal },
+    options
+  )
+}
+
+export const getAdminRestoreCityMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminRestoreCity>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminRestoreCity>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminRestoreCity']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminRestoreCity>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminRestoreCity(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminRestoreCityMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminRestoreCity>>
+>
+
+export type AdminRestoreCityMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Восстановить удаленный город (админ)
+ */
+export const useAdminRestoreCity = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminRestoreCity>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminRestoreCity>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminRestoreCityMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Полное удаление города (админ)
+ */
+export const adminHardDeleteCity = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<void>({ url: `/admin/cities/${id}/hard-delete`, method: 'DELETE' }, options)
+}
+
+export const getAdminHardDeleteCityMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminHardDeleteCity>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminHardDeleteCity>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminHardDeleteCity']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminHardDeleteCity>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminHardDeleteCity(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminHardDeleteCityMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminHardDeleteCity>>
+>
+
+export type AdminHardDeleteCityMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Полное удаление города (админ)
+ */
+export const useAdminHardDeleteCity = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminHardDeleteCity>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminHardDeleteCity>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminHardDeleteCityMutationOptions(options)
 
   return useMutation(mutationOptions, queryClient)
 }
@@ -3186,6 +4064,304 @@ export const useAdminUpdateProject = <
 }
 
 /**
+ * @summary Получить список удаленных проектов (админ)
+ */
+export const adminListDeletedProjects = (
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Project[]>(
+    { url: `/admin/projects/deleted`, method: 'GET', signal },
+    options
+  )
+}
+
+export const getAdminListDeletedProjectsQueryKey = () => {
+  return [`/admin/projects/deleted`] as const
+}
+
+export const getAdminListDeletedProjectsQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListDeletedProjects>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedProjects>>, TError, TData>
+  >
+  request?: SecondParameter<typeof adminInstance>
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListDeletedProjectsQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListDeletedProjects>>> = ({
+    signal,
+  }) => adminListDeletedProjects(requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListDeletedProjects>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListDeletedProjectsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListDeletedProjects>>
+>
+export type AdminListDeletedProjectsQueryError = UnauthorizedResponse | InternalErrorResponse
+
+export function useAdminListDeletedProjects<
+  TData = Awaited<ReturnType<typeof adminListDeletedProjects>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedProjects>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedProjects>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedProjects>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedProjects<
+  TData = Awaited<ReturnType<typeof adminListDeletedProjects>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedProjects>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedProjects>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedProjects>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedProjects<
+  TData = Awaited<ReturnType<typeof adminListDeletedProjects>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedProjects>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить список удаленных проектов (админ)
+ */
+
+export function useAdminListDeletedProjects<
+  TData = Awaited<ReturnType<typeof adminListDeletedProjects>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedProjects>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminListDeletedProjectsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Восстановить удаленный проект (админ)
+ */
+export const adminRestoreProject = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Project>(
+    { url: `/admin/projects/${id}/restore`, method: 'POST', signal },
+    options
+  )
+}
+
+export const getAdminRestoreProjectMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminRestoreProject>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminRestoreProject>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminRestoreProject']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminRestoreProject>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminRestoreProject(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminRestoreProjectMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminRestoreProject>>
+>
+
+export type AdminRestoreProjectMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Восстановить удаленный проект (админ)
+ */
+export const useAdminRestoreProject = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminRestoreProject>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminRestoreProject>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminRestoreProjectMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Полное удаление проекта (админ)
+ */
+export const adminHardDeleteProject = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<void>(
+    { url: `/admin/projects/${id}/hard-delete`, method: 'DELETE' },
+    options
+  )
+}
+
+export const getAdminHardDeleteProjectMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminHardDeleteProject>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminHardDeleteProject>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminHardDeleteProject']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminHardDeleteProject>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminHardDeleteProject(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminHardDeleteProjectMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminHardDeleteProject>>
+>
+
+export type AdminHardDeleteProjectMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Полное удаление проекта (админ)
+ */
+export const useAdminHardDeleteProject = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminHardDeleteProject>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminHardDeleteProject>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminHardDeleteProjectMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
  * @summary Получить список лотов (админ)
  */
 export const adminListLots = (
@@ -3677,6 +4853,290 @@ export const useAdminUpdateLot = <
   TContext
 > => {
   const mutationOptions = getAdminUpdateLotMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Получить список удаленных лотов (админ)
+ */
+export const adminListDeletedLots = (
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<LotsListResponse>(
+    { url: `/admin/lots/deleted`, method: 'GET', signal },
+    options
+  )
+}
+
+export const getAdminListDeletedLotsQueryKey = () => {
+  return [`/admin/lots/deleted`] as const
+}
+
+export const getAdminListDeletedLotsQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListDeletedLots>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedLots>>, TError, TData>>
+  request?: SecondParameter<typeof adminInstance>
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListDeletedLotsQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListDeletedLots>>> = ({ signal }) =>
+    adminListDeletedLots(requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListDeletedLots>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListDeletedLotsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListDeletedLots>>
+>
+export type AdminListDeletedLotsQueryError = UnauthorizedResponse | InternalErrorResponse
+
+export function useAdminListDeletedLots<
+  TData = Awaited<ReturnType<typeof adminListDeletedLots>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedLots>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedLots>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedLots>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedLots<
+  TData = Awaited<ReturnType<typeof adminListDeletedLots>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedLots>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedLots>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedLots>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedLots<
+  TData = Awaited<ReturnType<typeof adminListDeletedLots>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedLots>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить список удаленных лотов (админ)
+ */
+
+export function useAdminListDeletedLots<
+  TData = Awaited<ReturnType<typeof adminListDeletedLots>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedLots>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminListDeletedLotsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Восстановить удаленный лот (админ)
+ */
+export const adminRestoreLot = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Lot>({ url: `/admin/lots/${id}/restore`, method: 'POST', signal }, options)
+}
+
+export const getAdminRestoreLotMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminRestoreLot>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminRestoreLot>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminRestoreLot']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminRestoreLot>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminRestoreLot(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminRestoreLotMutationResult = NonNullable<Awaited<ReturnType<typeof adminRestoreLot>>>
+
+export type AdminRestoreLotMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Восстановить удаленный лот (админ)
+ */
+export const useAdminRestoreLot = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminRestoreLot>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminRestoreLot>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminRestoreLotMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Полное удаление лота (админ)
+ */
+export const adminHardDeleteLot = (id: string, options?: SecondParameter<typeof adminInstance>) => {
+  return adminInstance<void>({ url: `/admin/lots/${id}/hard-delete`, method: 'DELETE' }, options)
+}
+
+export const getAdminHardDeleteLotMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminHardDeleteLot>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminHardDeleteLot>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminHardDeleteLot']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminHardDeleteLot>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminHardDeleteLot(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminHardDeleteLotMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminHardDeleteLot>>
+>
+
+export type AdminHardDeleteLotMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Полное удаление лота (админ)
+ */
+export const useAdminHardDeleteLot = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminHardDeleteLot>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminHardDeleteLot>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminHardDeleteLotMutationOptions(options)
 
   return useMutation(mutationOptions, queryClient)
 }
@@ -4300,6 +5760,1132 @@ export const useAdminUpdateBadge = <
   TContext
 > => {
   const mutationOptions = getAdminUpdateBadgeMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Получить список удаленных бейджей (админ)
+ */
+export const adminListDeletedBadges = (
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Badge[]>({ url: `/admin/badges/deleted`, method: 'GET', signal }, options)
+}
+
+export const getAdminListDeletedBadgesQueryKey = () => {
+  return [`/admin/badges/deleted`] as const
+}
+
+export const getAdminListDeletedBadgesQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListDeletedBadges>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedBadges>>, TError, TData>
+  >
+  request?: SecondParameter<typeof adminInstance>
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListDeletedBadgesQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListDeletedBadges>>> = ({ signal }) =>
+    adminListDeletedBadges(requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListDeletedBadges>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListDeletedBadgesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListDeletedBadges>>
+>
+export type AdminListDeletedBadgesQueryError = UnauthorizedResponse | InternalErrorResponse
+
+export function useAdminListDeletedBadges<
+  TData = Awaited<ReturnType<typeof adminListDeletedBadges>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedBadges>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedBadges>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedBadges>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedBadges<
+  TData = Awaited<ReturnType<typeof adminListDeletedBadges>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedBadges>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedBadges>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedBadges>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedBadges<
+  TData = Awaited<ReturnType<typeof adminListDeletedBadges>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedBadges>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить список удаленных бейджей (админ)
+ */
+
+export function useAdminListDeletedBadges<
+  TData = Awaited<ReturnType<typeof adminListDeletedBadges>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedBadges>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminListDeletedBadgesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Восстановить удаленный бейдж (админ)
+ */
+export const adminRestoreBadge = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Badge>(
+    { url: `/admin/badges/${id}/restore`, method: 'POST', signal },
+    options
+  )
+}
+
+export const getAdminRestoreBadgeMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminRestoreBadge>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminRestoreBadge>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminRestoreBadge']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminRestoreBadge>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminRestoreBadge(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminRestoreBadgeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminRestoreBadge>>
+>
+
+export type AdminRestoreBadgeMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Восстановить удаленный бейдж (админ)
+ */
+export const useAdminRestoreBadge = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminRestoreBadge>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminRestoreBadge>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminRestoreBadgeMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Полное удаление бейджа (админ)
+ */
+export const adminHardDeleteBadge = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<void>({ url: `/admin/badges/${id}/hard-delete`, method: 'DELETE' }, options)
+}
+
+export const getAdminHardDeleteBadgeMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminHardDeleteBadge>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminHardDeleteBadge>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminHardDeleteBadge']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminHardDeleteBadge>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminHardDeleteBadge(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminHardDeleteBadgeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminHardDeleteBadge>>
+>
+
+export type AdminHardDeleteBadgeMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Полное удаление бейджа (админ)
+ */
+export const useAdminHardDeleteBadge = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminHardDeleteBadge>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminHardDeleteBadge>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminHardDeleteBadgeMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Получить список инфраструктуры (админ)
+ */
+export const adminListInfrastructures = (
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Infrastructure[]>(
+    { url: `/admin/infrastructures`, method: 'GET', signal },
+    options
+  )
+}
+
+export const getAdminListInfrastructuresQueryKey = () => {
+  return [`/admin/infrastructures`] as const
+}
+
+export const getAdminListInfrastructuresQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof adminListInfrastructures>>, TError, TData>
+  >
+  request?: SecondParameter<typeof adminInstance>
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListInfrastructuresQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListInfrastructures>>> = ({
+    signal,
+  }) => adminListInfrastructures(requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListInfrastructures>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListInfrastructuresQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListInfrastructures>>
+>
+export type AdminListInfrastructuresQueryError = UnauthorizedResponse | InternalErrorResponse
+
+export function useAdminListInfrastructures<
+  TData = Awaited<ReturnType<typeof adminListInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListInfrastructures>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListInfrastructures>>,
+          TError,
+          Awaited<ReturnType<typeof adminListInfrastructures>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListInfrastructures<
+  TData = Awaited<ReturnType<typeof adminListInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListInfrastructures>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListInfrastructures>>,
+          TError,
+          Awaited<ReturnType<typeof adminListInfrastructures>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListInfrastructures<
+  TData = Awaited<ReturnType<typeof adminListInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListInfrastructures>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить список инфраструктуры (админ)
+ */
+
+export function useAdminListInfrastructures<
+  TData = Awaited<ReturnType<typeof adminListInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListInfrastructures>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminListInfrastructuresQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Создать инфраструктуру (админ)
+ */
+export const adminCreateInfrastructure = (
+  infrastructureCreateRequest: InfrastructureCreateRequest,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Infrastructure>(
+    {
+      url: `/admin/infrastructures`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: infrastructureCreateRequest,
+      signal,
+    },
+    options
+  )
+}
+
+export const getAdminCreateInfrastructureMutationOptions = <
+  TError = ValidationErrorResponse | UnauthorizedResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreateInfrastructure>>,
+    TError,
+    { data: InfrastructureCreateRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminCreateInfrastructure>>,
+  TError,
+  { data: InfrastructureCreateRequest },
+  TContext
+> => {
+  const mutationKey = ['adminCreateInfrastructure']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminCreateInfrastructure>>,
+    { data: InfrastructureCreateRequest }
+  > = props => {
+    const { data } = props ?? {}
+
+    return adminCreateInfrastructure(data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminCreateInfrastructureMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminCreateInfrastructure>>
+>
+export type AdminCreateInfrastructureMutationBody = InfrastructureCreateRequest
+export type AdminCreateInfrastructureMutationError =
+  | ValidationErrorResponse
+  | UnauthorizedResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Создать инфраструктуру (админ)
+ */
+export const useAdminCreateInfrastructure = <
+  TError = ValidationErrorResponse | UnauthorizedResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminCreateInfrastructure>>,
+      TError,
+      { data: InfrastructureCreateRequest },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminCreateInfrastructure>>,
+  TError,
+  { data: InfrastructureCreateRequest },
+  TContext
+> => {
+  const mutationOptions = getAdminCreateInfrastructureMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Получить инфраструктуру по ID (админ)
+ */
+export const adminGetInfrastructure = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Infrastructure>(
+    { url: `/admin/infrastructures/${id}`, method: 'GET', signal },
+    options
+  )
+}
+
+export const getAdminGetInfrastructureQueryKey = (id?: string) => {
+  return [`/admin/infrastructures/${id}`] as const
+}
+
+export const getAdminGetInfrastructureQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminGetInfrastructure>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminGetInfrastructure>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminGetInfrastructureQueryKey(id)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetInfrastructure>>> = ({ signal }) =>
+    adminGetInfrastructure(id, requestOptions, signal)
+
+  return { queryKey, queryFn, enabled: !!id, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetInfrastructure>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminGetInfrastructureQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminGetInfrastructure>>
+>
+export type AdminGetInfrastructureQueryError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+export function useAdminGetInfrastructure<
+  TData = Awaited<ReturnType<typeof adminGetInfrastructure>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminGetInfrastructure>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetInfrastructure>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetInfrastructure>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetInfrastructure<
+  TData = Awaited<ReturnType<typeof adminGetInfrastructure>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminGetInfrastructure>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminGetInfrastructure>>,
+          TError,
+          Awaited<ReturnType<typeof adminGetInfrastructure>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminGetInfrastructure<
+  TData = Awaited<ReturnType<typeof adminGetInfrastructure>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminGetInfrastructure>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить инфраструктуру по ID (админ)
+ */
+
+export function useAdminGetInfrastructure<
+  TData = Awaited<ReturnType<typeof adminGetInfrastructure>>,
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminGetInfrastructure>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminGetInfrastructureQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Мягкое удаление инфраструктуры (установка deleted_at)
+ */
+export const adminSoftDeleteInfrastructure = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<void>({ url: `/admin/infrastructures/${id}`, method: 'DELETE' }, options)
+}
+
+export const getAdminSoftDeleteInfrastructureMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminSoftDeleteInfrastructure>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminSoftDeleteInfrastructure>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminSoftDeleteInfrastructure']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminSoftDeleteInfrastructure>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminSoftDeleteInfrastructure(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminSoftDeleteInfrastructureMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminSoftDeleteInfrastructure>>
+>
+
+export type AdminSoftDeleteInfrastructureMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Мягкое удаление инфраструктуры (установка deleted_at)
+ */
+export const useAdminSoftDeleteInfrastructure = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminSoftDeleteInfrastructure>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminSoftDeleteInfrastructure>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminSoftDeleteInfrastructureMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Обновить инфраструктуру (админ)
+ */
+export const adminUpdateInfrastructure = (
+  id: string,
+  infrastructureUpdateRequest: InfrastructureUpdateRequest,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<Infrastructure>(
+    {
+      url: `/admin/infrastructures/${id}`,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      data: infrastructureUpdateRequest,
+    },
+    options
+  )
+}
+
+export const getAdminUpdateInfrastructureMutationOptions = <
+  TError =
+    | ValidationErrorResponse
+    | UnauthorizedResponse
+    | NotFoundResponse
+    | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminUpdateInfrastructure>>,
+    TError,
+    { id: string; data: InfrastructureUpdateRequest },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminUpdateInfrastructure>>,
+  TError,
+  { id: string; data: InfrastructureUpdateRequest },
+  TContext
+> => {
+  const mutationKey = ['adminUpdateInfrastructure']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminUpdateInfrastructure>>,
+    { id: string; data: InfrastructureUpdateRequest }
+  > = props => {
+    const { id, data } = props ?? {}
+
+    return adminUpdateInfrastructure(id, data, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminUpdateInfrastructureMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminUpdateInfrastructure>>
+>
+export type AdminUpdateInfrastructureMutationBody = InfrastructureUpdateRequest
+export type AdminUpdateInfrastructureMutationError =
+  | ValidationErrorResponse
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Обновить инфраструктуру (админ)
+ */
+export const useAdminUpdateInfrastructure = <
+  TError =
+    | ValidationErrorResponse
+    | UnauthorizedResponse
+    | NotFoundResponse
+    | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminUpdateInfrastructure>>,
+      TError,
+      { id: string; data: InfrastructureUpdateRequest },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminUpdateInfrastructure>>,
+  TError,
+  { id: string; data: InfrastructureUpdateRequest },
+  TContext
+> => {
+  const mutationOptions = getAdminUpdateInfrastructureMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Получить список удаленной инфраструктуры (админ)
+ */
+export const adminListDeletedInfrastructures = (
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Infrastructure[]>(
+    { url: `/admin/infrastructures/deleted`, method: 'GET', signal },
+    options
+  )
+}
+
+export const getAdminListDeletedInfrastructuresQueryKey = () => {
+  return [`/admin/infrastructures/deleted`] as const
+}
+
+export const getAdminListDeletedInfrastructuresQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListDeletedInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedInfrastructures>>, TError, TData>
+  >
+  request?: SecondParameter<typeof adminInstance>
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListDeletedInfrastructuresQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListDeletedInfrastructures>>> = ({
+    signal,
+  }) => adminListDeletedInfrastructures(requestOptions, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListDeletedInfrastructures>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminListDeletedInfrastructuresQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListDeletedInfrastructures>>
+>
+export type AdminListDeletedInfrastructuresQueryError = UnauthorizedResponse | InternalErrorResponse
+
+export function useAdminListDeletedInfrastructures<
+  TData = Awaited<ReturnType<typeof adminListDeletedInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedInfrastructures>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedInfrastructures>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedInfrastructures>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedInfrastructures<
+  TData = Awaited<ReturnType<typeof adminListDeletedInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedInfrastructures>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminListDeletedInfrastructures>>,
+          TError,
+          Awaited<ReturnType<typeof adminListDeletedInfrastructures>>
+        >,
+        'initialData'
+      >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminListDeletedInfrastructures<
+  TData = Awaited<ReturnType<typeof adminListDeletedInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedInfrastructures>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить список удаленной инфраструктуры (админ)
+ */
+
+export function useAdminListDeletedInfrastructures<
+  TData = Awaited<ReturnType<typeof adminListDeletedInfrastructures>>,
+  TError = UnauthorizedResponse | InternalErrorResponse,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof adminListDeletedInfrastructures>>, TError, TData>
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getAdminListDeletedInfrastructuresQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  query.queryKey = queryOptions.queryKey
+
+  return query
+}
+
+/**
+ * @summary Восстановить удаленную инфраструктуру (админ)
+ */
+export const adminRestoreInfrastructure = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>,
+  signal?: AbortSignal
+) => {
+  return adminInstance<Infrastructure>(
+    { url: `/admin/infrastructures/${id}/restore`, method: 'POST', signal },
+    options
+  )
+}
+
+export const getAdminRestoreInfrastructureMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminRestoreInfrastructure>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminRestoreInfrastructure>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminRestoreInfrastructure']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminRestoreInfrastructure>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminRestoreInfrastructure(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminRestoreInfrastructureMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminRestoreInfrastructure>>
+>
+
+export type AdminRestoreInfrastructureMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Восстановить удаленную инфраструктуру (админ)
+ */
+export const useAdminRestoreInfrastructure = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminRestoreInfrastructure>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminRestoreInfrastructure>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminRestoreInfrastructureMutationOptions(options)
+
+  return useMutation(mutationOptions, queryClient)
+}
+
+/**
+ * @summary Полное удаление инфраструктуры (админ)
+ */
+export const adminHardDeleteInfrastructure = (
+  id: string,
+  options?: SecondParameter<typeof adminInstance>
+) => {
+  return adminInstance<void>(
+    { url: `/admin/infrastructures/${id}/hard-delete`, method: 'DELETE' },
+    options
+  )
+}
+
+export const getAdminHardDeleteInfrastructureMutationOptions = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminHardDeleteInfrastructure>>,
+    TError,
+    { id: string },
+    TContext
+  >
+  request?: SecondParameter<typeof adminInstance>
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminHardDeleteInfrastructure>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ['adminHardDeleteInfrastructure']
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminHardDeleteInfrastructure>>,
+    { id: string }
+  > = props => {
+    const { id } = props ?? {}
+
+    return adminHardDeleteInfrastructure(id, requestOptions)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type AdminHardDeleteInfrastructureMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminHardDeleteInfrastructure>>
+>
+
+export type AdminHardDeleteInfrastructureMutationError =
+  | UnauthorizedResponse
+  | NotFoundResponse
+  | InternalErrorResponse
+
+/**
+ * @summary Полное удаление инфраструктуры (админ)
+ */
+export const useAdminHardDeleteInfrastructure = <
+  TError = UnauthorizedResponse | NotFoundResponse | InternalErrorResponse,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof adminHardDeleteInfrastructure>>,
+      TError,
+      { id: string },
+      TContext
+    >
+    request?: SecondParameter<typeof adminInstance>
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof adminHardDeleteInfrastructure>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getAdminHardDeleteInfrastructureMutationOptions(options)
 
   return useMutation(mutationOptions, queryClient)
 }

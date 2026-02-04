@@ -1,0 +1,1 @@
+export { DeletedBadgesTable } from './DeletedBadgesTable'

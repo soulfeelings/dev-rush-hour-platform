@@ -250,3 +250,99 @@ func (h *AdminLotsHandler) SoftDeleteLot(c *fiber.Ctx, id openapi_types.UUID) er
 
 	return c.SendStatus(fiber.StatusNoContent)
 }
+
+func (h *AdminLotsHandler) ListDeletedLots(c *fiber.Ctx) error {
+	lots, err := h.lotsService.ListDeleted()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	items := make([]generated.LotListItem, 0, len(lots))
+	for i := range lots {
+		lotListItem := mappers.DomainLotToGeneratedLotListItem(&lots[i])
+		if lotListItem != nil {
+			items = append(items, *lotListItem)
+		}
+	}
+
+	total := len(lots)
+	page := 1
+	limit := 1000
+	response := generated.LotsListResponse{
+		Items: &items,
+		Total: &total,
+		Page:  &page,
+		Limit: &limit,
+	}
+
+	return c.JSON(response)
+}
+
+func (h *AdminLotsHandler) RestoreLot(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.lotsService.Restore(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrLotNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *AdminLotsHandler) HardDeleteLot(c *fiber.Ctx, id openapi_types.UUID) error {
+	err := h.lotsService.HardDelete(uuid.UUID(id))
+	if err != nil {
+		if errors.Is(err, services.ErrLotNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+				Error: &struct {
+					Code    *string                        `json:"code,omitempty"`
+					Details *generated.Error_Error_Details `json:"details,omitempty"`
+					Message *string                        `json:"message,omitempty"`
+				}{
+					Code:    stringPtr("not_found"),
+					Message: stringPtr(err.Error()),
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(generated.InternalError{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("internal_error"),
+				Message: stringPtr(err.Error()),
+			},
+		})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}

@@ -68,5 +68,10 @@ export const adminInstance = async <T>(
     throw new Error(error.message || `API Error: ${response.statusText}`)
   }
 
+  // Handle 204 No Content responses (e.g., DELETE operations)
+  if (response.status === 204) {
+    return undefined as T
+  }
+
   return response.json()
 }

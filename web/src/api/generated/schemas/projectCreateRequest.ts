@@ -19,4 +19,8 @@ export interface ProjectCreateRequest {
   lat?: number
   lng?: number
   data?: ProjectData
+  /** IDs of badges for the project */
+  badgeIds?: string[]
+  /** IDs of complex infrastructure for the project */
+  infrastructureIds?: string[]
 }

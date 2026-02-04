@@ -261,6 +261,68 @@ func (r *DeveloperRepo) List() ([]domain.Developer, error) {
 	return developers, nil
 }
 
+func (r *DeveloperRepo) ListDeleted() ([]domain.Developer, error) {
+	r.logger.Info("developer_repo_list_deleted_started")
+
+	rows, err := r.db.Query(`
+		SELECT id, slug, name, status, data, created_at, updated_at, deleted_at
+		FROM developers
+		WHERE deleted_at IS NOT NULL
+		ORDER BY deleted_at DESC
+	`)
+	if err != nil {
+		r.logger.Error("developer_repo_list_deleted_query_failed",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var developers []domain.Developer
+	for rows.Next() {
+		var dev domain.Developer
+		var dataJSON []byte
+
+		if err := rows.Scan(
+			&dev.ID, &dev.Slug, &dev.Name, &dev.Status, &dataJSON,
+			&dev.CreatedAt, &dev.UpdatedAt, &dev.DeletedAt,
+		); err != nil {
+			r.logger.Error("developer_repo_list_deleted_scan_failed",
+				"error", err.Error(),
+			)
+			return nil, err
+		}
+
+		if len(dataJSON) > 0 {
+			if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
+				r.logger.Error("developer_repo_list_deleted_unmarshal_failed",
+					"developer_id", dev.ID,
+					"error", err.Error(),
+				)
+				return nil, err
+			}
+		} else {
+			dev.Data = make(map[string]interface{})
+		}
+
+		developers = append(developers, dev)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		r.logger.Error("developer_repo_list_deleted_rows_error",
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+
+	r.logger.Info("developer_repo_list_deleted_completed",
+		"count", len(developers),
+	)
+
+	return developers, nil
+}
+
 func (r *DeveloperRepo) ListWithDeleted() ([]domain.Developer, error) {
 	r.logger.Info("developer_repo_list_with_deleted_started")
 
