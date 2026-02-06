@@ -1,5 +1,84 @@
 @use '@/styles' as *;
 
+@mixin compact-overrides {
+  .cardInner {
+    border-radius: 12px;
+  }
+
+  .imagesWrapper {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .infoSection {
+    border-radius: 0 0 12px 12px;
+  }
+
+  .badgesContainer {
+    top: 8px;
+    left: 8px;
+  }
+
+  .favoriteButton {
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .headerRow {
+    padding: $spacing-2 $spacing-3;
+  }
+
+  .projectLogoContainer {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+  }
+
+  .roiContainer {
+    padding: 2px $spacing-1;
+  }
+
+  .priceRow {
+    padding: calc($spacing-1 + 2px) $spacing-3;
+  }
+
+  .discountBadge {
+    padding: 2px 8px;
+  }
+
+  .footerRow {
+    padding: $spacing-2 $spacing-3;
+  }
+
+  .additionalInfoGrid {
+    padding: $spacing-2 $spacing-3;
+  }
+
+  .buttonContainer {
+    padding: $spacing-2 $spacing-3;
+  }
+
+  // Typography downgrades: h1 (20px) → 16px, large (16px) → 14px
+  .projectTitle,
+  .priceAmount {
+    font-size: 16px;
+    line-height: 20px;
+  }
+
+  .priceLabel,
+  .dateValue,
+  .planValue {
+    font-size: 14px;
+    line-height: 18px;
+  }
+}
+
 .cardLink {
   text-decoration: none;
   color: inherit;
@@ -7,6 +86,17 @@
   width: 100%;
   min-width: 0;
   position: relative;
+  container-type: inline-size;
+}
+
+.compact {
+  @include compact-overrides;
+}
+
+@container (max-width: 360px) {
+  .autoCompact {
+    @include compact-overrides;
+  }
 }
 
 .card {

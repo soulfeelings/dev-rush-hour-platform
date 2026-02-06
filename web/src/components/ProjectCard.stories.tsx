@@ -80,22 +80,39 @@ const meta: Meta<typeof ProjectCard> = {
 export default meta
 type Story = StoryObj<typeof ProjectCard>
 
+const sizes = [
+  { width: 460, label: '460px' },
+  { width: 380, label: '380px' },
+  { width: 320, label: '320px', compact: true },
+  { width: 260, label: '260px', compact: true },
+]
+
 export const Default: Story = {
   decorators: [
-    Story => (
-      <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-        <div style={{ width: 460 }}>
-          <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 13 }}>
-            Default
-          </p>
-          <Story />
-        </div>
-        <div style={{ width: 460 }}>
-          <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 13 }}>
-            Hovered
-          </p>
-          <ProjectCard property={mockProperty} forceHovered />
-        </div>
+    () => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+        {sizes.map(({ width, label, compact }) => (
+          <div key={label}>
+            <p style={{ marginBottom: 8, color: '#888', fontSize: 13 }}>
+              {label}
+              {compact ? ' (compact)' : ''}
+            </p>
+            <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+              <div style={{ width }}>
+                <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 11 }}>
+                  Default
+                </p>
+                <ProjectCard property={mockProperty} compact={compact} />
+              </div>
+              <div style={{ width }}>
+                <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 11 }}>
+                  Hovered
+                </p>
+                <ProjectCard property={mockProperty} forceHovered compact={compact} />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     ),
   ],

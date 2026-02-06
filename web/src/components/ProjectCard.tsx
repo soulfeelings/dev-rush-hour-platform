@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
+import clsx from 'clsx'
 import { getProjectDetailRoute } from '../constants/routes'
 import { Typography } from '../ui/Typography'
 import { Badge } from '../ui/Badge'
@@ -14,6 +15,7 @@ interface ProjectCardProps {
   property: Property
   onFavoriteClick?: (propertyId: string) => void
   forceHovered?: boolean
+  compact?: boolean
 }
 
 const formatPrice = (price: number | undefined, currency: string | undefined) => {
@@ -39,11 +41,17 @@ const splitCompletionDate = (dateString: string | undefined) => {
   }
 }
 
-export const ProjectCard = ({ property, onFavoriteClick, forceHovered }: ProjectCardProps) => {
+export const ProjectCard = ({
+  property,
+  onFavoriteClick,
+  forceHovered,
+  compact,
+}: ProjectCardProps) => {
   const { t } = useTranslation()
   const [isFavorited, setIsFavorited] = useState(false)
   const [isMouseHovered, setIsMouseHovered] = useState(false)
   const isHovered = forceHovered ?? isMouseHovered
+  const isCompact = compact === true
 
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
   const hoverImage = property.hoverImage
@@ -59,7 +67,10 @@ export const ProjectCard = ({ property, onFavoriteClick, forceHovered }: Project
   return (
     <Link to={getProjectDetailRoute(property.id)} className={styles.cardLink}>
       <div
-        className={styles.card}
+        className={clsx(styles.card, {
+          [styles.compact]: compact === true,
+          [styles.autoCompact]: compact === undefined,
+        })}
         onMouseEnter={() => setIsMouseHovered(true)}
         onMouseLeave={() => setIsMouseHovered(false)}
       >
@@ -100,7 +111,7 @@ export const ProjectCard = ({ property, onFavoriteClick, forceHovered }: Project
             {/* Кнопка избранного */}
             <button
               type="button"
-              className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
+              className={clsx(styles.favoriteButton, isFavorited && styles.favorited)}
               onClick={handleFavoriteClick}
               aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
             >
@@ -121,7 +132,12 @@ export const ProjectCard = ({ property, onFavoriteClick, forceHovered }: Project
                   )}
                 </div>
                 <div className={styles.projectNameContainer}>
-                  <Typography variant="h1" className={styles.projectTitle}>
+                  <Typography
+                    {...(isCompact
+                      ? { size: 'large', weight: 'semibold' }
+                      : { variant: 'h1' as const })}
+                    className={styles.projectTitle}
+                  >
                     {property.title}
                   </Typography>
                   {property.developer && (
@@ -153,14 +169,23 @@ export const ProjectCard = ({ property, onFavoriteClick, forceHovered }: Project
                 >
                   <div className={styles.priceRow}>
                     <div className={styles.priceLabelContainer}>
-                      <Typography size="large" weight="medium" className={styles.priceLabel}>
+                      <Typography
+                        size={isCompact ? 'regular' : 'large'}
+                        weight="medium"
+                        className={styles.priceLabel}
+                      >
                         {t('ourPrice')}:
                       </Typography>
                       <span className={styles.discountBadge}>-{property.discount}%</span>
                     </div>
                     <div className={styles.priceValue}>
                       <Typography className={styles.from}>{t('from')}</Typography>{' '}
-                      <Typography variant="h1" className={styles.priceAmount}>
+                      <Typography
+                        {...(isCompact
+                          ? { size: 'large', weight: 'semibold' }
+                          : { variant: 'h1' as const })}
+                        className={styles.priceAmount}
+                      >
                         {formatPrice(
                           property.priceFrom * (1 - property.discount / 100),
                           property.currency
@@ -172,12 +197,21 @@ export const ProjectCard = ({ property, onFavoriteClick, forceHovered }: Project
               )}
               {/* Developer price */}
               <div className={styles.priceRow}>
-                <Typography size="large" weight="medium" className={styles.priceLabel}>
+                <Typography
+                  size={isCompact ? 'regular' : 'large'}
+                  weight="medium"
+                  className={styles.priceLabel}
+                >
                   {t('developerPrice')}:
                 </Typography>
                 <div className={styles.priceValue}>
                   <Typography className={styles.from}>{t('from')}</Typography>{' '}
-                  <Typography variant="h1" className={styles.priceAmount}>
+                  <Typography
+                    {...(isCompact
+                      ? { size: 'large', weight: 'semibold' }
+                      : { variant: 'h1' as const })}
+                    className={styles.priceAmount}
+                  >
                     {formatPrice(property.priceFrom, property.currency)}
                   </Typography>
                 </div>
@@ -188,13 +222,17 @@ export const ProjectCard = ({ property, onFavoriteClick, forceHovered }: Project
             {(firstPart || property.paymentPlan) && (
               <div className={styles.footerRow}>
                 {firstPart && (
-                  <Typography size="large" className={styles.dateValue}>
+                  <Typography size={isCompact ? 'regular' : 'large'} className={styles.dateValue}>
                     <span className={styles.quarter}>{firstPart}</span>
                     {rest && <span className={styles.year}> {rest}</span>}
                   </Typography>
                 )}
                 {property.paymentPlan && (
-                  <Typography size="large" weight="medium" className={styles.planValue}>
+                  <Typography
+                    size={isCompact ? 'regular' : 'large'}
+                    weight="medium"
+                    className={styles.planValue}
+                  >
                     <span className={styles.planLabel}>PP:</span>{' '}
                     <span className={styles.planNumbers}>{property.paymentPlan}</span>
                   </Typography>
