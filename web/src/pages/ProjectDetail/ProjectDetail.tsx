@@ -29,10 +29,17 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 })
 
+type Infrastructure = {
+  id?: string
+  name?: string
+  icon?: string
+}
+
 type ProjectWithRelations = Project & {
   developer?: Developer
   area?: Area
   badges?: BadgeType[]
+  infrastructures?: Infrastructure[]
 }
 
 type ProjectDataFields = {
@@ -47,6 +54,11 @@ type ProjectDataFields = {
     constructionProgress?: string
     expectedCompletion?: string
   }
+  roi?: number
+  ourPrice?: number
+  developerPrice?: number
+  paymentPlan?: string
+  completionDate?: string
 }
 
 interface LotGroup {
@@ -300,9 +312,11 @@ export default function ProjectDetail() {
       .filter((url): url is string => Boolean(url)) || []),
   ]
 
+  const projectLogoUrl = project.data?.media?.logo?.url
   const developerLogoUrl =
     (project.developer?.data as { logoUrl?: string } | undefined)?.logoUrl ||
     developerLogos[project.developer?.name || '']
+  const displayLogoUrl = projectLogoUrl || developerLogoUrl
 
   const description =
     typeof projectDataFields?.description === 'string'
@@ -410,10 +424,10 @@ export default function ProjectDetail() {
       {/* Project Header */}
       <section className={styles.projectHeader}>
         <div className={styles.developerInfo}>
-          {developerLogoUrl && (
+          {displayLogoUrl && (
             <img
-              src={developerLogoUrl}
-              alt={project.developer?.name}
+              src={displayLogoUrl}
+              alt={project.name || project.developer?.name}
               className={styles.developerLogo}
             />
           )}
@@ -441,31 +455,43 @@ export default function ProjectDetail() {
       <section className={styles.infoSection}>
         <div className={styles.projectInfo}>
           <div className={styles.priceBlock}>
-            <div className={styles.ourPrice}>
-              <span className={styles.priceLabel}>Our price</span>
-              <span className={styles.priceDiscount}>-3%</span>
-              <span className={styles.priceArrow}>→</span>
-              <span className={styles.priceValue}>
-                {formatPrice(projectDataFields?.specs?.priceFrom)}
-              </span>
-            </div>
-            <div className={styles.developerPrice}>
-              <span className={styles.priceLabel}>Developer price</span>
-              <span className={styles.priceArrow}>→</span>
-              <span className={styles.priceValueStrike}>
-                {formatPrice(
-                  projectDataFields?.specs?.priceFrom
-                    ? Math.round(projectDataFields.specs.priceFrom * 1.03)
-                    : undefined
+            {projectDataFields?.ourPrice && projectDataFields?.developerPrice && (
+              <div className={styles.ourPrice}>
+                <span className={styles.priceLabel}>Our price</span>
+                {projectDataFields.developerPrice > projectDataFields.ourPrice && (
+                  <span className={styles.priceDiscount}>
+                    -
+                    {Math.round(
+                      (1 - projectDataFields.ourPrice / projectDataFields.developerPrice) * 100
+                    )}
+                    %
+                  </span>
                 )}
-              </span>
-            </div>
+                <span className={styles.priceArrow}>→</span>
+                <span className={styles.priceValue}>{formatPrice(projectDataFields.ourPrice)}</span>
+              </div>
+            )}
+            {projectDataFields?.developerPrice && (
+              <div className={styles.developerPrice}>
+                <span className={styles.priceLabel}>Developer price</span>
+                <span className={styles.priceArrow}>→</span>
+                <span
+                  className={
+                    projectDataFields?.ourPrice ? styles.priceValueStrike : styles.priceValue
+                  }
+                >
+                  {formatPrice(projectDataFields.developerPrice)}
+                </span>
+              </div>
+            )}
           </div>
-          <div className={styles.yearIndicator}>~ {new Date().getFullYear()}</div>
-          {projectDataFields?.specs?.handoverDate && (
+          {projectDataFields?.completionDate && (
+            <div className={styles.yearIndicator}>{projectDataFields.completionDate}</div>
+          )}
+          {projectDataFields?.paymentPlan && (
             <div className={styles.handoverInfo}>
               <span className={styles.handoverLabel}>PP:</span>
-              <span className={styles.handoverDate}>{projectDataFields.specs.handoverDate}</span>
+              <span className={styles.handoverDate}>{projectDataFields.paymentPlan}</span>
             </div>
           )}
         </div>
@@ -508,11 +534,11 @@ export default function ProjectDetail() {
       )}
 
       {/* Infrastructure Section */}
-      {projectDataFields?.featuresAmenities && projectDataFields.featuresAmenities.length > 0 && (
+      {project.infrastructures && project.infrastructures.length > 0 && (
         <section className={styles.infrastructureSection}>
           <h2>Residential complex infrastructure</h2>
           <ProjectFeatures
-            features={projectDataFields.featuresAmenities as string[]}
+            features={project.infrastructures.map(i => i.name).filter((n): n is string => !!n)}
             maxItems={12}
           />
         </section>
@@ -606,26 +632,20 @@ export default function ProjectDetail() {
                         <Building2 size={14} />
                         Building
                       </span>
-                      <span className={styles.roiBadge}>ROI 7%</span>
+                      {projectDataFields?.roi && (
+                        <span className={styles.roiBadge}>ROI {projectDataFields.roi}%</span>
+                      )}
                     </div>
 
                     <div className={styles.apartmentCardPrices}>
-                      <div className={styles.apartmentOurPrice}>
-                        <span>Our price</span>
-                        <span className={styles.discountTag}>-3%</span>
-                        <span className={styles.priceAmount}>
-                          {formatPrice(lot.priceAmount, lot.priceCurrency)}
-                        </span>
-                      </div>
-                      <div className={styles.apartmentDevPrice}>
-                        <span>Developer price</span>
-                        <span className={styles.priceAmountStrike}>
-                          {formatPrice(
-                            lot.priceAmount ? Math.round(lot.priceAmount * 1.03) : undefined,
-                            lot.priceCurrency
-                          )}
-                        </span>
-                      </div>
+                      {lot.priceAmount && (
+                        <div className={styles.apartmentOurPrice}>
+                          <span>Price</span>
+                          <span className={styles.priceAmount}>
+                            {formatPrice(lot.priceAmount, lot.priceCurrency)}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className={styles.apartmentCardSpecs}>

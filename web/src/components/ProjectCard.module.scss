@@ -172,13 +172,14 @@
   flex-direction: column;
   background: $color-bg-card;
   border-radius: 0 0 16px 16px;
+  margin-top: $spacing-2;
 }
 
 // Верхний блок с логотипом, названием и ROI
 .headerRow {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   padding: $spacing-3 $spacing-4;
   gap: $spacing-3;
   border-bottom: 0.5px solid $color-charcoal-grey-10;
@@ -193,9 +194,9 @@
 }
 
 .projectLogoContainer {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 68px;
+  height: 68px;
+  min-width: 68px;
   display: flex;
   justify-content: center;
   align-items: center;

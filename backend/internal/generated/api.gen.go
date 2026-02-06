@@ -812,7 +812,9 @@ type ProjectCreateRequestStatus string
 
 // ProjectData defines model for ProjectData.
 type ProjectData struct {
-	Description *ProjectData_Description `json:"description,omitempty"`
+	// CompletionDate Expected completion date (e.g., Q4 2025, 2026)
+	CompletionDate *string                  `json:"completionDate,omitempty"`
+	Description    *ProjectData_Description `json:"description,omitempty"`
 
 	// DeveloperPrice Original developer price (AED)
 	DeveloperPrice    *float32       `json:"developerPrice,omitempty"`

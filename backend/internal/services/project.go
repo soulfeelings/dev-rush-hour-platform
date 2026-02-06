@@ -237,6 +237,22 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 	if updates.Data.Tags != nil {
 		existing.Data.Tags = updates.Data.Tags
 	}
+	// Merge pricing and completion fields
+	if updates.Data.ROI != nil {
+		existing.Data.ROI = updates.Data.ROI
+	}
+	if updates.Data.OurPrice != nil {
+		existing.Data.OurPrice = updates.Data.OurPrice
+	}
+	if updates.Data.DeveloperPrice != nil {
+		existing.Data.DeveloperPrice = updates.Data.DeveloperPrice
+	}
+	if updates.Data.PaymentPlan != "" {
+		existing.Data.PaymentPlan = updates.Data.PaymentPlan
+	}
+	if updates.Data.CompletionDate != "" {
+		existing.Data.CompletionDate = updates.Data.CompletionDate
+	}
 
 	err = s.projectRepo.Update(id, existing)
 	if err != nil {

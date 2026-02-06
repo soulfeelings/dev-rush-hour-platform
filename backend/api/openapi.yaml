@@ -2133,6 +2133,9 @@ components:
         paymentPlan:
           type: string
           description: Payment plan description
+        completionDate:
+          type: string
+          description: Expected completion date (e.g., Q4 2025, 2026)
 
     ProjectTimeline:
       type: object

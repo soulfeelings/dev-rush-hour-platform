@@ -312,12 +312,10 @@
   background: $color-bg-card;
   border-radius: $radius-2xl;
   overflow: hidden;
-  box-shadow: $shadow-card;
   transition: all $transition-normal;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: $shadow-lg;
   }
 }
 

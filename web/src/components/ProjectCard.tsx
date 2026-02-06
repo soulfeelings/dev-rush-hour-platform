@@ -109,18 +109,14 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
                   )}
                 </div>
                 <div className={styles.projectNameContainer}>
-                  <Typography size="large" weight="medium" className={styles.projectTitle}>
+                  <Typography variant="h1" className={styles.projectTitle}>
                     {property.title}
                   </Typography>
                   {property.developer && (
-                    <Typography size="small" className={styles.developerName}>
-                      {property.developer}
-                    </Typography>
+                    <Typography className={styles.developerName}>{property.developer}</Typography>
                   )}
                   {property.location && (
-                    <Typography size="small" className={styles.regionName}>
-                      {property.location}
-                    </Typography>
+                    <Typography className={styles.regionName}>{property.location}</Typography>
                   )}
                 </div>
               </div>

@@ -174,6 +174,21 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 	if project.Data.Timeline != nil {
 		result.Data.Timeline = domainTimelineToGenerated(project.Data.Timeline)
 	}
+	if project.Data.ROI != nil {
+		result.Data.Roi = float32Ptr(float32(*project.Data.ROI))
+	}
+	if project.Data.OurPrice != nil {
+		result.Data.OurPrice = float32Ptr(float32(*project.Data.OurPrice))
+	}
+	if project.Data.DeveloperPrice != nil {
+		result.Data.DeveloperPrice = float32Ptr(float32(*project.Data.DeveloperPrice))
+	}
+	if project.Data.PaymentPlan != "" {
+		result.Data.PaymentPlan = &project.Data.PaymentPlan
+	}
+	if project.Data.CompletionDate != "" {
+		result.Data.CompletionDate = &project.Data.CompletionDate
+	}
 
 	// Include badges
 	if len(project.Badges) > 0 {
@@ -862,6 +877,24 @@ func domainProjectDataFromGenerated(data *generated.ProjectData) domain.ProjectD
 	}
 	if data.Timeline != nil {
 		result.Timeline = generatedTimelineToDomain(data.Timeline)
+	}
+	if data.Roi != nil {
+		roi := float64(*data.Roi)
+		result.ROI = &roi
+	}
+	if data.OurPrice != nil {
+		ourPrice := float64(*data.OurPrice)
+		result.OurPrice = &ourPrice
+	}
+	if data.DeveloperPrice != nil {
+		developerPrice := float64(*data.DeveloperPrice)
+		result.DeveloperPrice = &developerPrice
+	}
+	if data.PaymentPlan != nil {
+		result.PaymentPlan = *data.PaymentPlan
+	}
+	if data.CompletionDate != nil {
+		result.CompletionDate = *data.CompletionDate
 	}
 	return result
 }

@@ -32,4 +32,6 @@ export interface ProjectData {
   developerPrice?: number
   /** Payment plan description */
   paymentPlan?: string
+  /** Expected completion date (e.g., Q4 2025, 2026) */
+  completionDate?: string
 }

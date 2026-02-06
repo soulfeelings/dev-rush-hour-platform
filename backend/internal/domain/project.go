@@ -36,6 +36,11 @@ type ProjectData struct {
 	Tags              []string               `json:"tags,omitempty"`
 	YoutubeURL        string                 `json:"youtubeUrl,omitempty"`
 	Timeline          *ProjectTimeline       `json:"timeline,omitempty"`
+	ROI               *float64               `json:"roi,omitempty"`
+	OurPrice          *float64               `json:"ourPrice,omitempty"`
+	DeveloperPrice    *float64               `json:"developerPrice,omitempty"`
+	PaymentPlan       string                 `json:"paymentPlan,omitempty"`
+	CompletionDate    string                 `json:"completionDate,omitempty"`
 }
 
 type ProjectTimeline struct {

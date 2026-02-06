@@ -35,6 +35,27 @@ type ValidationErrors = {
   status?: string
   sale?: string
   hoverUrl?: string
+  paymentPlan?: string
+}
+
+// Payment plan validation: numbers separated by slashes, total must equal 100
+const validatePaymentPlan = (value: string): string | undefined => {
+  if (!value) return undefined // Optional field
+
+  // Check format: only digits and slashes, must start and end with digit
+  const formatRegex = /^\d+(?:\/\d+)*$/
+  if (!formatRegex.test(value)) {
+    return 'Payment plan must be numbers separated by slashes (e.g., 60/40 or 30/10/60)'
+  }
+
+  // Check that total equals 100
+  const numbers = value.split('/').map(n => parseInt(n, 10))
+  const total = numbers.reduce((sum, n) => sum + n, 0)
+  if (total !== 100) {
+    return `Payment plan must total 100% (currently ${total}%)`
+  }
+
+  return undefined
 }
 
 type FormData = {
@@ -48,6 +69,7 @@ type FormData = {
   lng: string
   coverUrl: string
   hoverUrl: string
+  logoUrl: string
   gallery: string[]
   youtubeUrl: string
   timeline: {
@@ -62,6 +84,7 @@ type FormData = {
   ourPrice: string
   developerPrice: string
   paymentPlan: string
+  completionDate: string
   badgeIds: string[]
   infrastructureIds: string[]
 }
@@ -99,6 +122,7 @@ export function ProjectForm({
       lng: '',
       coverUrl: '',
       hoverUrl: '',
+      logoUrl: '',
       gallery: [] as string[],
       youtubeUrl: '',
       timeline: {
@@ -113,6 +137,7 @@ export function ProjectForm({
       ourPrice: '',
       developerPrice: '',
       paymentPlan: '',
+      completionDate: '',
       badgeIds: [] as string[],
       infrastructureIds: [] as string[],
     }),
@@ -139,6 +164,7 @@ export function ProjectForm({
         lng: initialData.lng?.toString() || '',
         coverUrl: initialData.data?.media?.cover?.url || '',
         hoverUrl: initialData.data?.media?.hover?.url || '',
+        logoUrl: initialData.data?.media?.logo?.url || '',
         gallery:
           initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
         youtubeUrl: initialData.data?.youtubeUrl || '',
@@ -154,6 +180,7 @@ export function ProjectForm({
         ourPrice: initialData.data?.ourPrice?.toString() || '',
         developerPrice: initialData.data?.developerPrice?.toString() || '',
         paymentPlan: initialData.data?.paymentPlan || '',
+        completionDate: initialData.data?.completionDate || '',
         badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
         infrastructureIds:
           initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -210,6 +237,7 @@ export function ProjectForm({
       lng: initialData.lng?.toString() || '',
       coverUrl: initialData.data?.media?.cover?.url || '',
       hoverUrl: initialData.data?.media?.hover?.url || '',
+      logoUrl: initialData.data?.media?.logo?.url || '',
       gallery: initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
       youtubeUrl: initialData.data?.youtubeUrl || '',
       timeline: {
@@ -224,6 +252,7 @@ export function ProjectForm({
       ourPrice: initialData.data?.ourPrice?.toString() || '',
       developerPrice: initialData.data?.developerPrice?.toString() || '',
       paymentPlan: initialData.data?.paymentPlan || '',
+      completionDate: initialData.data?.completionDate || '',
       badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
       infrastructureIds:
         initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -258,12 +287,14 @@ export function ProjectForm({
       form.lng !== initialFormData.lng ||
       form.coverUrl !== initialFormData.coverUrl ||
       form.hoverUrl !== initialFormData.hoverUrl ||
+      form.logoUrl !== initialFormData.logoUrl ||
       form.youtubeUrl !== initialFormData.youtubeUrl ||
       form.description !== initialFormData.description ||
       form.roi !== initialFormData.roi ||
       form.ourPrice !== initialFormData.ourPrice ||
       form.developerPrice !== initialFormData.developerPrice ||
       form.paymentPlan !== initialFormData.paymentPlan ||
+      form.completionDate !== initialFormData.completionDate ||
       galleryChanged ||
       timelineChanged ||
       badgeIdsChanged ||
@@ -284,6 +315,10 @@ export function ProjectForm({
     }
     if (!form.hoverUrl) {
       newErrors.hoverUrl = 'Hover image URL is required'
+    }
+    const paymentPlanError = validatePaymentPlan(form.paymentPlan)
+    if (paymentPlanError) {
+      newErrors.paymentPlan = paymentPlanError
     }
     return newErrors
   }
@@ -324,6 +359,9 @@ export function ProjectForm({
     if (form.hoverUrl) {
       mediaData.hover = { url: form.hoverUrl }
     }
+    if (form.logoUrl) {
+      mediaData.logo = { url: form.logoUrl }
+    }
     if (form.gallery.length > 0) {
       mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
     }
@@ -363,6 +401,9 @@ export function ProjectForm({
     }
     if (form.paymentPlan) {
       dataPayload.paymentPlan = form.paymentPlan
+    }
+    if (form.completionDate) {
+      dataPayload.completionDate = form.completionDate
     }
 
     if (Object.keys(dataPayload).length > 0) {
@@ -488,7 +529,18 @@ export function ProjectForm({
           label="Payment Plan"
           value={form.paymentPlan}
           onChange={e => setForm({ ...form, paymentPlan: e.target.value })}
-          placeholder="e.g., 60/40, 50/50, etc."
+          onBlur={() => {
+            const error = validatePaymentPlan(form.paymentPlan)
+            setErrors(prev => ({ ...prev, paymentPlan: error }))
+          }}
+          placeholder="e.g., 60/40 or 30/10/60 (must total 100%)"
+          error={errors.paymentPlan}
+        />
+        <Input
+          label="Completion Date"
+          value={form.completionDate}
+          onChange={e => setForm({ ...form, completionDate: e.target.value })}
+          placeholder="e.g., Q4 2025, 2026, etc."
         />
       </div>
       <div className={styles.mediaSection}>
@@ -591,6 +643,16 @@ export function ProjectForm({
             required
           />
           {form.hoverUrl && <ImagePreview src={form.hoverUrl} alt="Hover preview" />}
+        </div>
+        <div className={styles.coverImageWrapper}>
+          <Input
+            label="Project Logo URL"
+            type="url"
+            value={form.logoUrl}
+            onChange={e => setForm({ ...form, logoUrl: e.target.value })}
+            placeholder="https://example.com/logo.png"
+          />
+          {form.logoUrl && <ImagePreview src={form.logoUrl} alt="Logo preview" />}
         </div>
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>

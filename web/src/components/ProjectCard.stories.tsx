@@ -45,7 +45,7 @@ const mockProperty: Property = {
   image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
   hoverImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
   gallery: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800'],
-  logoUrl: 'https://placehold.co/48x48/2a5a4a/fff?text=V',
+  logoUrl: 'https://placehold.co/70x70/2a5a4a/fff?text=V',
   coordinates: [25.0657, 55.1713],
   sale: 'sale',
   status: 'active',
@@ -97,13 +97,13 @@ export const Default: Story = {
           `}
         </style>
         <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-          <div style={{ width: 320 }}>
+          <div style={{ width: 460 }}>
             <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 13 }}>
               Default
             </p>
             <Story />
           </div>
-          <div style={{ width: 320 }} className="force-hover">
+          <div style={{ width: 460 }} className="force-hover">
             <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 13 }}>
               Hovered
             </p>
@@ -121,7 +121,7 @@ export const Default: Story = {
 export const WithoutBadges: Story = {
   decorators: [
     Story => (
-      <div style={{ width: 320 }}>
+      <div style={{ width: 460 }}>
         <Story />
       </div>
     ),
@@ -137,7 +137,7 @@ export const WithoutBadges: Story = {
 export const WithoutLogo: Story = {
   decorators: [
     Story => (
-      <div style={{ width: 320 }}>
+      <div style={{ width: 460 }}>
         <Story />
       </div>
     ),
