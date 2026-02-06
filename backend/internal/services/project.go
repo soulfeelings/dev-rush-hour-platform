@@ -196,9 +196,44 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 	if updates.Lng != nil {
 		existing.Lng = updates.Lng
 	}
-	// For Data struct, we'll assume it's always updated if present
-	// (can be improved by checking individual fields if needed)
-	existing.Data = updates.Data
+	// Merge Data struct fields
+	if updates.Data.Description != nil {
+		existing.Data.Description = updates.Data.Description
+	}
+	if updates.Data.Specs != nil {
+		existing.Data.Specs = updates.Data.Specs
+	}
+	if updates.Data.FeaturesAmenities != nil {
+		existing.Data.FeaturesAmenities = updates.Data.FeaturesAmenities
+	}
+	if updates.Data.Media != nil {
+		// Merge media fields
+		if existing.Data.Media == nil {
+			existing.Data.Media = updates.Data.Media
+		} else {
+			if updates.Data.Media.Cover != nil {
+				existing.Data.Media.Cover = updates.Data.Media.Cover
+			}
+			if updates.Data.Media.Hover != nil {
+				existing.Data.Media.Hover = updates.Data.Media.Hover
+			}
+			if updates.Data.Media.Gallery != nil {
+				existing.Data.Media.Gallery = updates.Data.Media.Gallery
+			}
+		}
+	}
+	if updates.Data.YoutubeURL != "" {
+		existing.Data.YoutubeURL = updates.Data.YoutubeURL
+	}
+	if updates.Data.Timeline != nil {
+		existing.Data.Timeline = updates.Data.Timeline
+	}
+	// Boolean fields - always take from updates if Data is provided
+	existing.Data.IsRecommended = updates.Data.IsRecommended
+	existing.Data.IsFeatured = updates.Data.IsFeatured
+	if updates.Data.Tags != nil {
+		existing.Data.Tags = updates.Data.Tags
+	}
 
 	err = s.projectRepo.Update(id, existing)
 	if err != nil {

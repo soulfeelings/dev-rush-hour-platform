@@ -332,6 +332,39 @@ func (s *Server) AdminHardDeleteBadge(c *fiber.Ctx, id openapi_types.UUID) error
 	return s.adminBadgesHandler.HardDeleteBadge(c, id)
 }
 
+// Infrastructure stub implementations (not yet implemented)
+func (s *Server) AdminListInfrastructures(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+}
+
+func (s *Server) AdminCreateInfrastructure(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+}
+
+func (s *Server) AdminGetInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
+	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+}
+
+func (s *Server) AdminUpdateInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
+	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+}
+
+func (s *Server) AdminSoftDeleteInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
+	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+}
+
+func (s *Server) AdminListDeletedInfrastructures(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+}
+
+func (s *Server) AdminRestoreInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
+	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+}
+
+func (s *Server) AdminHardDeleteInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
+	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+}
+
 // initMediaService initializes the media service with appropriate storage and delivery
 func initMediaService(ctx context.Context, cfg *config.Config, db *sql.DB) (*services.MediaService, error) {
 	mediaRepo := repo.NewMediaRepo(db)

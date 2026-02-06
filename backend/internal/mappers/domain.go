@@ -422,6 +422,9 @@ func domainMediaToGenerated(media *domain.Media) *generated.Media {
 	if media.Cover != nil {
 		result.Cover = domainMediaItemToGenerated(media.Cover)
 	}
+	if media.Hover != nil {
+		result.Hover = domainMediaItemToGenerated(media.Hover)
+	}
 	if len(media.Gallery) > 0 {
 		gallery := make([]generated.MediaItem, len(media.Gallery))
 		for i := range media.Gallery {
@@ -773,6 +776,9 @@ func GeneratedProjectCreateToDomain(req *generated.ProjectCreateRequest) (*domai
 	if req.Status != nil {
 		project.Status = domain.ProjectStatus(*req.Status)
 	}
+	if req.Sale != nil {
+		project.Sale = string(*req.Sale)
+	}
 	if req.DeveloperId != nil {
 		id := uuid.UUID(*req.DeveloperId)
 		project.DeveloperID = &id
@@ -807,6 +813,9 @@ func GeneratedProjectUpdateToDomain(req *generated.ProjectUpdateRequest) (*domai
 	}
 	if req.Status != nil {
 		project.Status = domain.ProjectStatus(*req.Status)
+	}
+	if req.Sale != nil {
+		project.Sale = string(*req.Sale)
 	}
 	if req.DeveloperId != nil {
 		id := uuid.UUID(*req.DeveloperId)
@@ -917,6 +926,9 @@ func generatedMediaToDomain(media *generated.Media) *domain.Media {
 	result := &domain.Media{}
 	if media.Cover != nil {
 		result.Cover = generatedMediaItemToDomain(media.Cover)
+	}
+	if media.Hover != nil {
+		result.Hover = generatedMediaItemToDomain(media.Hover)
 	}
 	if media.Gallery != nil {
 		result.Gallery = make([]domain.MediaItem, len(*media.Gallery))
