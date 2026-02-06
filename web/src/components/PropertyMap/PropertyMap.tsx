@@ -119,8 +119,11 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         map.addLayer(clusterGroupRef.current)
       }
 
-      properties.forEach(property => {
-        const marker = L.marker(property.coordinates, {
+      // Filter out properties without coordinates
+      const propertiesWithCoords = properties.filter(p => p.coordinates)
+
+      propertiesWithCoords.forEach(property => {
+        const marker = L.marker(property.coordinates!, {
           icon: createPropertyMarkerIcon(),
         })
 
@@ -143,7 +146,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         marker.on('mouseover', () => {
           clearPopupTimeout()
 
-          const markerPoint = map.latLngToContainerPoint(property.coordinates)
+          const markerPoint = map.latLngToContainerPoint(property.coordinates!)
           const mapSize = map.getSize()
           const popupWidth = 290
           const popupHeight = 400
@@ -332,8 +335,9 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
       updateMarkers()
 
-      if (properties.length > 0 && mapRef.current) {
-        const bounds = L.latLngBounds(properties.map(p => p.coordinates))
+      const propertiesWithCoords = properties.filter(p => p.coordinates)
+      if (propertiesWithCoords.length > 0 && mapRef.current) {
+        const bounds = L.latLngBounds(propertiesWithCoords.map(p => p.coordinates!))
         mapRef.current.fitBounds(bounds, { padding: [50, 50] })
       }
 
@@ -350,7 +354,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
       if (!mapRef.current || !selectedPropertyId) return
 
       const selectedProperty = properties.find(p => p.id === selectedPropertyId)
-      if (selectedProperty) {
+      if (selectedProperty?.coordinates) {
         mapRef.current.setView(selectedProperty.coordinates, 14, {
           animate: true,
           duration: 0.5,

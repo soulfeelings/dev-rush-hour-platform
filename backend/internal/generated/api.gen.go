@@ -721,6 +721,7 @@ type Media struct {
 	Cover   *MediaItem   `json:"cover,omitempty"`
 	Gallery *[]MediaItem `json:"gallery,omitempty"`
 	Hover   *MediaItem   `json:"hover,omitempty"`
+	Logo    *MediaItem   `json:"logo,omitempty"`
 }
 
 // MediaItem defines model for MediaItem.

@@ -2167,6 +2167,9 @@ components:
         hover:
           $ref: "#/components/schemas/MediaItem"
           description: Hover image for the project card
+        logo:
+          $ref: "#/components/schemas/MediaItem"
+          description: Project logo
         gallery:
           type: array
           items:

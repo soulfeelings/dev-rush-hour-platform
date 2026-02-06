@@ -11,5 +11,7 @@ export interface Media {
   cover?: MediaItem
   /** Hover image for the project card */
   hover?: MediaItem
+  /** Project logo */
+  logo?: MediaItem
   gallery?: MediaItem[]
 }

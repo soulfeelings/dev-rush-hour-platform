@@ -8,15 +8,16 @@ interface MarkerPopupProps {
   onMouseLeave?: () => void
 }
 
-const formatPrice = (price: number, currency: string) => {
+const formatPrice = (price: number | undefined, currency: string | undefined) => {
+  if (price === undefined) return '—'
   const formatted = (price / 1000000).toFixed(1)
-  return `${formatted}M ${currency}`
+  return `${formatted}M ${currency || ''}`
 }
 
-const splitCompletionDate = (dateString: string) => {
-  if (dateString.length <= 2) {
+const splitCompletionDate = (dateString: string | undefined) => {
+  if (!dateString || dateString.length <= 2) {
     return {
-      firstPart: dateString,
+      firstPart: dateString || '',
       rest: '',
     }
   }
@@ -31,13 +32,14 @@ const splitCompletionDate = (dateString: string) => {
 export const MarkerPopup = ({ property, onMouseEnter, onMouseLeave }: MarkerPopupProps) => {
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
   const discount = property.discount
-  const roi = property.roi ?? 7
-  const paymentPlan = property.paymentPlan ?? '30/10/60'
+  const roi = property.roi
+  const paymentPlan = property.paymentPlan
   const badges = property.badges ?? []
   const pricesByType = property.pricesByType ?? []
 
   // Calculate discounted price if discount exists
-  const discountedPrice = discount ? property.priceFrom * (1 - discount / 100) : null
+  const discountedPrice =
+    discount && property.priceFrom ? property.priceFrom * (1 - discount / 100) : null
 
   return (
     <div className={styles.card} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
@@ -93,9 +95,11 @@ export const MarkerPopup = ({ property, onMouseEnter, onMouseLeave }: MarkerPopu
           </div>
         </div>
 
-        <div className={styles.roiContainer}>
-          <span className={styles.roiValue}>ROI {roi}%</span>
-        </div>
+        {roi && (
+          <div className={styles.roiContainer}>
+            <span className={styles.roiValue}>ROI {roi}%</span>
+          </div>
+        )}
       </div>
 
       <div className={styles.priceContainer}>
@@ -126,20 +130,26 @@ export const MarkerPopup = ({ property, onMouseEnter, onMouseLeave }: MarkerPopu
         </div>
       </div>
 
-      <div className={styles.paymentPlanContainer}>
-        <div className={styles.dateContainer}>
-          <span className={styles.dateValue}>
-            <span className={styles.quarter}>{firstPart}</span>
-            {rest && <span className={styles.year}> {rest}</span>}
-          </span>
+      {(firstPart || paymentPlan) && (
+        <div className={styles.paymentPlanContainer}>
+          {firstPart && (
+            <div className={styles.dateContainer}>
+              <span className={styles.dateValue}>
+                <span className={styles.quarter}>{firstPart}</span>
+                {rest && <span className={styles.year}> {rest}</span>}
+              </span>
+            </div>
+          )}
+          {paymentPlan && (
+            <div className={styles.planContainer}>
+              <span className={styles.planValue}>
+                <span className={styles.planLabel}>PP: </span>
+                <span className={styles.planNumbers}>{paymentPlan}</span>
+              </span>
+            </div>
+          )}
         </div>
-        <div className={styles.planContainer}>
-          <span className={styles.planValue}>
-            <span className={styles.planLabel}>PP: </span>
-            <span className={styles.planNumbers}>{paymentPlan}</span>
-          </span>
-        </div>
-      </div>
+      )}
 
       {pricesByType.length > 0 && (
         <div className={styles.pricesByTypeContainer}>

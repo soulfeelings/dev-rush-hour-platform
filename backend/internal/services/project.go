@@ -217,6 +217,9 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 			if updates.Data.Media.Hover != nil {
 				existing.Data.Media.Hover = updates.Data.Media.Hover
 			}
+			if updates.Data.Media.Logo != nil {
+				existing.Data.Media.Logo = updates.Data.Media.Logo
+			}
 			if updates.Data.Media.Gallery != nil {
 				existing.Data.Media.Gallery = updates.Data.Media.Gallery
 			}

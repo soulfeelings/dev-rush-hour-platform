@@ -14,15 +14,16 @@ interface ProjectCardProps {
   onFavoriteClick?: (propertyId: string) => void
 }
 
-const formatPrice = (price: number, currency: string) => {
+const formatPrice = (price: number | undefined, currency: string | undefined) => {
+  if (price === undefined) return '—'
   const formatted = (price / 1000000).toFixed(1)
-  return `${formatted}M ${currency}`
+  return `${formatted}M ${currency || ''}`
 }
 
-const splitCompletionDate = (dateString: string) => {
-  if (dateString.length <= 2) {
+const splitCompletionDate = (dateString: string | undefined) => {
+  if (!dateString || dateString.length <= 2) {
     return {
-      firstPart: dateString,
+      firstPart: dateString || '',
       rest: '',
     }
   }
@@ -59,7 +60,7 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
           <div className={styles.imagesWrapper}>
             {/* Основная картинка */}
             <div className={styles.imageContainer}>
-              <img src={property.image} alt={property.title} />
+              {property.image && <img src={property.image} alt={property.title} />}
             </div>
 
             {/* Hover картинка */}
@@ -99,11 +100,11 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
           <div className={styles.infoSection}>
             {/* Верхний блок: логотип + название + ROI */}
             <div className={styles.headerRow}>
-              <div className={styles.developerInfo}>
-                <div className={styles.developerLogoContainer}>
+              <div className={styles.projectInfo}>
+                <div className={styles.projectLogoContainer}>
                   {property.logoUrl && (
-                    <div className={styles.developerLogo}>
-                      <img src={property.logoUrl} alt={property.developer} />
+                    <div className={styles.projectLogo}>
+                      <img src={property.logoUrl} alt={property.title} />
                     </div>
                   )}
                 </div>
@@ -111,12 +112,16 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
                   <Typography size="large" weight="medium" className={styles.projectTitle}>
                     {property.title}
                   </Typography>
-                  <Typography size="small" className={styles.developerName}>
-                    {property.developer}
-                  </Typography>
-                  <Typography size="small" className={styles.regionName}>
-                    {property.location}
-                  </Typography>
+                  {property.developer && (
+                    <Typography size="small" className={styles.developerName}>
+                      {property.developer}
+                    </Typography>
+                  )}
+                  {property.location && (
+                    <Typography size="small" className={styles.regionName}>
+                      {property.location}
+                    </Typography>
+                  )}
                 </div>
               </div>
               {property.roi && (
@@ -131,7 +136,7 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
             {/* Цены */}
             <div className={styles.pricesSection}>
               {/* Our price (со скидкой) */}
-              {property.discount && property.discount > 0 && (
+              {property.discount && property.discount > 0 && property.priceFrom && (
                 <div className={styles.priceRow}>
                   <div className={styles.priceLabelContainer}>
                     <Typography size="small" className={styles.priceLabel}>
@@ -161,18 +166,22 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
             </div>
 
             {/* Дата и payment plan */}
-            <div className={styles.footerRow}>
-              <Typography size="small" className={styles.dateValue}>
-                <span className={styles.quarter}>{firstPart}</span>
-                {rest && <span className={styles.year}> {rest}</span>}
-              </Typography>
-              {property.paymentPlan && (
-                <Typography size="small" className={styles.planValue}>
-                  <span className={styles.planLabel}>PP:</span>{' '}
-                  <span className={styles.planNumbers}>{property.paymentPlan}</span>
-                </Typography>
-              )}
-            </div>
+            {(firstPart || property.paymentPlan) && (
+              <div className={styles.footerRow}>
+                {firstPart && (
+                  <Typography size="small" className={styles.dateValue}>
+                    <span className={styles.quarter}>{firstPart}</span>
+                    {rest && <span className={styles.year}> {rest}</span>}
+                  </Typography>
+                )}
+                {property.paymentPlan && (
+                  <Typography size="small" className={styles.planValue}>
+                    <span className={styles.planLabel}>PP:</span>{' '}
+                    <span className={styles.planNumbers}>{property.paymentPlan}</span>
+                  </Typography>
+                )}
+              </div>
+            )}
 
             {/* Дополнительная информация (появляется при наведении) */}
             <div className={styles.additionalInfo}>
@@ -192,7 +201,7 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
                       </Typography>
                     </div>
                   ))
-                ) : (
+                ) : property.types && property.types.length > 0 ? (
                   <div className={styles.additionalInfoItem}>
                     <Typography size="small" className={styles.additionalInfoLabel}>
                       {property.types.join(', ')}
@@ -201,7 +210,7 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
                       {t('from')} {formatPrice(property.priceFrom, property.currency)}
                     </Typography>
                   </div>
-                )}
+                ) : null}
               </div>
 
               <Button variant="primary" size="md" fullWidth align="center">

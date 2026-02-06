@@ -425,6 +425,9 @@ func domainMediaToGenerated(media *domain.Media) *generated.Media {
 	if media.Hover != nil {
 		result.Hover = domainMediaItemToGenerated(media.Hover)
 	}
+	if media.Logo != nil {
+		result.Logo = domainMediaItemToGenerated(media.Logo)
+	}
 	if len(media.Gallery) > 0 {
 		gallery := make([]generated.MediaItem, len(media.Gallery))
 		for i := range media.Gallery {
@@ -929,6 +932,9 @@ func generatedMediaToDomain(media *generated.Media) *domain.Media {
 	}
 	if media.Hover != nil {
 		result.Hover = generatedMediaItemToDomain(media.Hover)
+	}
+	if media.Logo != nil {
+		result.Logo = generatedMediaItemToDomain(media.Logo)
 	}
 	if media.Gallery != nil {
 		result.Gallery = make([]domain.MediaItem, len(*media.Gallery))
