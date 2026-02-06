@@ -83,34 +83,20 @@ type Story = StoryObj<typeof ProjectCard>
 export const Default: Story = {
   decorators: [
     Story => (
-      <>
-        <style>
-          {`
-            .force-hover [class*="additionalInfo"] {
-              max-height: 500px !important;
-              opacity: 1 !important;
-              padding: 12px 16px !important;
-            }
-            .force-hover [class*="hoverImageContainer"] {
-              opacity: 1 !important;
-            }
-          `}
-        </style>
-        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-          <div style={{ width: 460 }}>
-            <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 13 }}>
-              Default
-            </p>
-            <Story />
-          </div>
-          <div style={{ width: 460 }} className="force-hover">
-            <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 13 }}>
-              Hovered
-            </p>
-            <Story />
-          </div>
+      <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+        <div style={{ width: 460 }}>
+          <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 13 }}>
+            Default
+          </p>
+          <Story />
         </div>
-      </>
+        <div style={{ width: 460 }}>
+          <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 13 }}>
+            Hovered
+          </p>
+          <ProjectCard property={mockProperty} forceHovered />
+        </div>
+      </div>
     ),
   ],
   args: {

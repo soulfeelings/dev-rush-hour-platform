@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
 import { getProjectDetailRoute } from '../constants/routes'
 import { Typography } from '../ui/Typography'
@@ -12,6 +13,7 @@ import type { Property } from '../types/property'
 interface ProjectCardProps {
   property: Property
   onFavoriteClick?: (propertyId: string) => void
+  forceHovered?: boolean
 }
 
 const formatPrice = (price: number | undefined, currency: string | undefined) => {
@@ -37,9 +39,11 @@ const splitCompletionDate = (dateString: string | undefined) => {
   }
 }
 
-export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => {
+export const ProjectCard = ({ property, onFavoriteClick, forceHovered }: ProjectCardProps) => {
   const { t } = useTranslation()
   const [isFavorited, setIsFavorited] = useState(false)
+  const [isMouseHovered, setIsMouseHovered] = useState(false)
+  const isHovered = forceHovered ?? isMouseHovered
 
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
   const hoverImage = property.hoverImage
@@ -54,7 +58,11 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
 
   return (
     <Link to={getProjectDetailRoute(property.id)} className={styles.cardLink}>
-      <div className={styles.card}>
+      <div
+        className={styles.card}
+        onMouseEnter={() => setIsMouseHovered(true)}
+        onMouseLeave={() => setIsMouseHovered(false)}
+      >
         <div className={styles.cardInner}>
           {/* Область картинок */}
           <div className={styles.imagesWrapper}>
@@ -65,9 +73,13 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
 
             {/* Hover картинка */}
             {hoverImage && (
-              <div className={styles.hoverImageContainer}>
+              <motion.div
+                className={styles.hoverImageContainer}
+                animate={{ opacity: isHovered ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
                 <img src={hoverImage} alt={`${property.title} - hover`} />
-              </div>
+              </motion.div>
             )}
 
             {/* Бейджи */}
@@ -131,33 +143,44 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
 
             {/* Цены */}
             <div className={styles.pricesSection}>
-              {/* Our price (со скидкой) */}
+              {/* Our price (со скидкой, только при наведении) */}
               {property.discount && property.discount > 0 && property.priceFrom && (
-                <div className={styles.priceRow}>
-                  <div className={styles.priceLabelContainer}>
-                    <Typography size="small" className={styles.priceLabel}>
-                      {t('ourPrice')}
-                    </Typography>
-                    <span className={styles.discountBadge}>-{property.discount}%</span>
+                <motion.div
+                  initial={false}
+                  animate={{ height: isHovered ? 'auto' : 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  style={{ overflow: 'hidden' }}
+                >
+                  <div className={styles.priceRow}>
+                    <div className={styles.priceLabelContainer}>
+                      <Typography size="large" weight="medium" className={styles.priceLabel}>
+                        {t('ourPrice')}:
+                      </Typography>
+                      <span className={styles.discountBadge}>-{property.discount}%</span>
+                    </div>
+                    <div className={styles.priceValue}>
+                      <Typography className={styles.from}>{t('from')}</Typography>{' '}
+                      <Typography variant="h1" className={styles.priceAmount}>
+                        {formatPrice(
+                          property.priceFrom * (1 - property.discount / 100),
+                          property.currency
+                        )}
+                      </Typography>
+                    </div>
                   </div>
-                  <Typography size="small" weight="medium" className={styles.priceValue}>
-                    <span className={styles.from}>{t('from')}</span>{' '}
-                    {formatPrice(
-                      property.priceFrom * (1 - property.discount / 100),
-                      property.currency
-                    )}
-                  </Typography>
-                </div>
+                </motion.div>
               )}
               {/* Developer price */}
               <div className={styles.priceRow}>
-                <Typography size="small" className={styles.priceLabel}>
+                <Typography size="large" weight="medium" className={styles.priceLabel}>
                   {t('developerPrice')}:
                 </Typography>
-                <Typography size="small" weight="medium" className={styles.priceValue}>
-                  <span className={styles.from}>{t('from')}</span>{' '}
-                  {formatPrice(property.priceFrom, property.currency)}
-                </Typography>
+                <div className={styles.priceValue}>
+                  <Typography className={styles.from}>{t('from')}</Typography>{' '}
+                  <Typography variant="h1" className={styles.priceAmount}>
+                    {formatPrice(property.priceFrom, property.currency)}
+                  </Typography>
+                </div>
               </div>
             </div>
 
@@ -165,13 +188,13 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
             {(firstPart || property.paymentPlan) && (
               <div className={styles.footerRow}>
                 {firstPart && (
-                  <Typography size="small" className={styles.dateValue}>
+                  <Typography size="large" className={styles.dateValue}>
                     <span className={styles.quarter}>{firstPart}</span>
                     {rest && <span className={styles.year}> {rest}</span>}
                   </Typography>
                 )}
                 {property.paymentPlan && (
-                  <Typography size="small" className={styles.planValue}>
+                  <Typography size="large" weight="medium" className={styles.planValue}>
                     <span className={styles.planLabel}>PP:</span>{' '}
                     <span className={styles.planNumbers}>{property.paymentPlan}</span>
                   </Typography>
@@ -180,43 +203,58 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
             )}
 
             {/* Дополнительная информация (появляется при наведении) */}
-            <div className={styles.additionalInfo}>
-              <div className={styles.additionalInfoGrid}>
-                {property.pricesByType && property.pricesByType.length > 0 ? (
-                  property.pricesByType.map((item, index) => (
-                    <div key={index} className={styles.additionalInfoItem}>
+            <motion.div
+              initial={false}
+              animate={{ height: isHovered ? 'auto' : 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              style={{ overflow: 'hidden' }}
+            >
+              <div className={styles.additionalInfo}>
+                <div className={styles.additionalInfoGrid}>
+                  {property.pricesByType && property.pricesByType.length > 0 ? (
+                    property.pricesByType.map((item, index) => (
+                      <div key={index} className={styles.additionalInfoItem}>
+                        <Typography size="small" className={styles.additionalInfoLabel}>
+                          {item.type}
+                        </Typography>
+                        <Typography
+                          size="small"
+                          weight="medium"
+                          className={styles.additionalInfoValue}
+                        >
+                          <span className={styles.from}>{t('from')}</span>{' '}
+                          {formatPrice(item.price, property.currency)}
+                        </Typography>
+                      </div>
+                    ))
+                  ) : property.types && property.types.length > 0 ? (
+                    <div className={styles.additionalInfoItem}>
                       <Typography size="small" className={styles.additionalInfoLabel}>
-                        {item.type}
+                        {property.types.join(', ')}
                       </Typography>
                       <Typography
                         size="small"
                         weight="medium"
                         className={styles.additionalInfoValue}
                       >
-                        {t('from')} {formatPrice(item.price, property.currency)}
+                        <span className={styles.from}>{t('from')}</span>{' '}
+                        {formatPrice(property.priceFrom, property.currency)}
                       </Typography>
                     </div>
-                  ))
-                ) : property.types && property.types.length > 0 ? (
-                  <div className={styles.additionalInfoItem}>
-                    <Typography size="small" className={styles.additionalInfoLabel}>
-                      {property.types.join(', ')}
-                    </Typography>
-                    <Typography size="small" weight="medium" className={styles.additionalInfoValue}>
-                      {t('from')} {formatPrice(property.priceFrom, property.currency)}
-                    </Typography>
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
+
+                <div className={styles.buttonContainer}>
+                  <Button variant="primary" size="sm" fullWidth align="center">
+                    {t('getDetailsOnWhatsApp')}
+                  </Button>
+
+                  <Typography size="small" className={styles.disclaimer}>
+                    {t('investmentDetailsNoSpam')}
+                  </Typography>
+                </div>
               </div>
-
-              <Button variant="primary" size="md" fullWidth align="center">
-                {t('getDetailsOnWhatsApp')}
-              </Button>
-
-              <Typography size="small" className={styles.disclaimer}>
-                {t('investmentDetailsNoSpam')}
-              </Typography>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
