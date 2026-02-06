@@ -68,6 +68,7 @@ logs-dev:
 web-deps:
 	@echo "\033[1;33m📦 Rebuilding web dependencies...\033[0m"
 	docker compose -f docker-compose.dev.yml stop web
+	docker compose -f docker-compose.dev.yml rm -f web
 	docker volume rm -f dev-rush-hour-platform_web_node_modules 2>/dev/null || true
 	docker compose -f docker-compose.dev.yml up -d --build web
 	@echo "\033[1;32m✅ Web dependencies rebuilt!\033[0m"
