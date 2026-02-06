@@ -3,27 +3,6 @@ import { createElement } from 'react'
 import type { Property } from '../../../types/property'
 import { MarkerPopup } from './MarkerPopup'
 
-export const createMarkerPopupHTML = (property: Property): string => {
-  const escapeHtml = (text: string | undefined) => {
-    if (!text) return ''
-    const div = document.createElement('div')
-    div.textContent = text
-    return div.innerHTML
-  }
-
-  return `
-    <div class="marker-popup-content">
-      <div class="marker-popup-image">
-        ${property.image ? `<img src="${escapeHtml(property.image)}" alt="${escapeHtml(property.title)}" />` : ''}
-      </div>
-      <div class="marker-popup-text">
-        <div class="marker-popup-title">${escapeHtml(property.title)}</div>
-        ${property.developer ? `<div class="marker-popup-price">${escapeHtml(property.developer)}</div>` : ''}
-      </div>
-    </div>
-  `
-}
-
 interface PopupEventHandlers {
   onMouseEnter?: () => void
   onMouseLeave?: () => void

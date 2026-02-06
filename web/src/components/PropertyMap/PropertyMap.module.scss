@@ -4,6 +4,18 @@
   width: 100%;
   height: 100%;
   min-height: 600px;
+
+  // Dark overlay on top of tiles but below markers/popups/controls
+  :global(.leaflet-tile-pane)::after {
+    content: '';
+    position: absolute;
+    inset: -100%;
+    width: 300%;
+    height: 300%;
+    background: rgba(19, 20, 21, 0.5); // $color-charcoal-grey-50
+    z-index: 1;
+    pointer-events: none;
+  }
 }
 
 // Hidden - areas button not used currently

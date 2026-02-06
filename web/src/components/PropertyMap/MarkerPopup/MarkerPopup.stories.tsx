@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import type { ReactNode } from 'react'
+import './MarkerPopup.scss'
 import { MarkerPopup } from './MarkerPopup'
 import type { Property, PropertyBadge } from '../../../types/property'
 
@@ -70,16 +71,6 @@ const PopupWithArrow = ({ children }: { children: ReactNode }) => (
       }}
     >
       {children}
-      <div
-        style={{
-          width: 0,
-          height: 0,
-          borderLeft: '14px solid transparent',
-          borderRight: '14px solid transparent',
-          borderTop: '14px solid #fdfdfd',
-          margin: '0 auto',
-        }}
-      />
     </div>
   </div>
 )
