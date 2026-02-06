@@ -53,7 +53,7 @@
   }
 
   @media (min-width: 1440px) {
-    grid-template-columns: 1fr 656px;
+    grid-template-columns: 1fr 768px;
   }
 
   @media (min-width: 1920px) {
@@ -317,14 +317,14 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  // 3 columns at 780px container (list full on medium screens)
+  // 2 columns at 780px container (list full on medium screens)
   @container catalog (min-width: 780px) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   // 4 columns at 1100px container (list full on large screens)
   @container catalog (min-width: 1100px) {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

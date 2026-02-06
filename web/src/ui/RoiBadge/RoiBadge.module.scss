@@ -1,0 +1,27 @@
+@use '../../styles' as *;
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-full;
+  background: $color-label-lightgreen;
+  flex-shrink: 0;
+}
+
+.default {
+  padding: $spacing-1 $spacing-2;
+}
+
+.small {
+  padding: 2px $spacing-2;
+}
+
+.value {
+  color: $color-label-green;
+  font-family: $font-family-primary;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  line-height: 14px;
+  white-space: nowrap;
+}

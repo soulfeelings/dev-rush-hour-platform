@@ -8,6 +8,7 @@ import { getProjectDetailRoute } from '../constants/routes'
 import { Typography } from '../ui/Typography'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
+import { RoiBadge } from '../ui/RoiBadge'
 import styles from './ProjectCard.module.scss'
 import type { Property } from '../types/property'
 
@@ -149,11 +150,7 @@ export const ProjectCard = ({
                 </div>
               </div>
               {property.roi && (
-                <div className={styles.roiContainer}>
-                  <Typography size="small" weight="medium" className={styles.roiValue}>
-                    ROI {property.roi}%
-                  </Typography>
-                </div>
+                <RoiBadge value={property.roi} size={isCompact ? 'small' : 'default'} />
               )}
             </div>
 

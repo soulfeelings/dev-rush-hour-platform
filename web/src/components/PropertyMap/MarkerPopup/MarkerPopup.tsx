@@ -1,6 +1,8 @@
 import styles from './MarkerPopup.module.scss'
 import type { Property } from '../../../types/property'
 import { Badge } from '../../../ui/Badge'
+import { Typography } from '../../../ui/Typography'
+import { RoiBadge } from '../../../ui/RoiBadge'
 
 interface MarkerPopupProps {
   property: Property
@@ -58,48 +60,38 @@ export const MarkerPopup = ({ property, onMouseEnter, onMouseLeave }: MarkerPopu
             ))}
           </div>
         )}
-        <button className={styles.favoriteButton} aria-label="Add to favorites">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
-        </button>
         <img src={property.image} alt={property.title} />
       </div>
 
       <div className={styles.infoContainer}>
-        <div className={styles.developerInfo}>
-          <div className={styles.developerLogoContainer}>
+        <div className={styles.projectInfo}>
+          <div className={styles.projectLogoContainer}>
             {property.logoUrl && (
-              <div className={styles.developerLogo}>
+              <div className={styles.projectLogo}>
                 <img src={property.logoUrl} alt={property.developer} />
               </div>
             )}
           </div>
           <div className={styles.projectNameContainer}>
             <div className={styles.projectTitleRow}>
-              <span className={styles.projectTitle}>{property.title}</span>
+              <Typography size="small" className={styles.projectTitle}>
+                {property.title}
+              </Typography>
             </div>
             <div className={styles.developerRow}>
-              <span className={styles.developerName}>{property.developer}</span>
+              <Typography size="xs" className={styles.developerName}>
+                {property.developer}
+              </Typography>
             </div>
             <div className={styles.regionRow}>
-              <span className={styles.regionName}>{property.location}</span>
+              <Typography size="xs" className={styles.regionName}>
+                {property.location}
+              </Typography>
             </div>
           </div>
         </div>
 
-        {roi && (
-          <div className={styles.roiContainer}>
-            <span className={styles.roiValue}>ROI {roi}%</span>
-          </div>
-        )}
+        {roi && <RoiBadge value={roi} size="small" />}
       </div>
 
       <div className={styles.priceContainer}>
@@ -164,6 +156,7 @@ export const MarkerPopup = ({ property, onMouseEnter, onMouseLeave }: MarkerPopu
           ))}
         </div>
       )}
+      <div className={styles.arrow} />
     </div>
   )
 }

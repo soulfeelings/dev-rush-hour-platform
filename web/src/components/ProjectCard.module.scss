@@ -40,10 +40,6 @@
     min-width: 48px;
   }
 
-  .roiContainer {
-    padding: 2px $spacing-1;
-  }
-
   .priceRow {
     padding: calc($spacing-1 + 2px) $spacing-3;
   }
@@ -301,22 +297,6 @@
 .regionName {
   @include truncate;
   color: $color-charcoal-grey-50;
-}
-
-// ROI Badge
-.roiContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-1 $spacing-2;
-  border-radius: $radius-full;
-  background: $color-label-lightgreen;
-  flex-shrink: 0;
-}
-
-.roiValue {
-  color: $color-label-green;
-  white-space: nowrap;
 }
 
 // Секция цен

@@ -23,6 +23,9 @@ export * from './YouTubePreview'
 export * from './Typography'
 export * from './Link'
 
+// Data Display
+export * from './RoiBadge'
+
 // Feedback
 export * from './Toast'
 export * from './Tooltip'

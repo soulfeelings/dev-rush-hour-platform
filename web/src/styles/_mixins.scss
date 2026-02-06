@@ -164,6 +164,24 @@
   text-align: left;
 }
 
+@mixin typography-body-xs-regular {
+  font-family: $font-family-primary;
+  font-size: 8px;
+  font-weight: $font-weight-regular;
+  line-height: 10px;
+  letter-spacing: 0%;
+  text-align: left;
+}
+
+@mixin typography-body-xs-medium {
+  font-family: $font-family-primary;
+  font-size: 8px;
+  font-weight: $font-weight-medium;
+  line-height: 10px;
+  letter-spacing: 0%;
+  text-align: left;
+}
+
 // ----------------
 // BUTTONS
 // ----------------
