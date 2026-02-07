@@ -26,11 +26,10 @@ declare module 'leaflet' {
   function markerClusterGroup(options?: MarkerClusterGroupOptions): MarkerClusterGroup
 }
 import styles from './PropertyMap.module.scss'
-import { createMarkerPopupElement, type MarkerPopupHandle } from './MarkerPopup'
+import { createMarkerPopupElement } from './MarkerPopup'
 import type { Property } from '../../types/property'
 import { createPropertyMarkerIcon } from './markerIcon'
 import { createClusterIcon } from './clusterIcon'
-import { getProjectDetailRoute } from '../../constants/routes'
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -56,7 +55,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
     const navigate = useNavigate()
     const mapRef = useRef<L.Map | null>(null)
     const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null)
-    const popupHandlesRef = useRef<MarkerPopupHandle[]>([])
 
     const updateMarkers = useCallback(() => {
       if (!mapRef.current) return
@@ -79,10 +77,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         map.addLayer(clusterGroupRef.current)
       }
 
-      // Cleanup previous popup handles
-      popupHandlesRef.current.forEach(h => h.cleanup())
-      popupHandlesRef.current = []
-
       // Filter out properties without coordinates
       const propertiesWithCoords = properties.filter(p => p.coordinates)
 
@@ -91,21 +85,18 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           icon: createPropertyMarkerIcon(),
         })
 
-        const popupHandle = createMarkerPopupElement(property)
-        popupHandle.setDirection('top')
-        popupHandlesRef.current.push(popupHandle)
+        const popupElement = createMarkerPopupElement(property)
 
         const markerSize = 12
-        const gap = 12
 
         const popup = L.popup({
-          offset: [0, -(markerSize / 2 + gap)],
+          offset: [0, 0],
           className: 'marker-popup marker-popup--top',
           closeButton: false,
           autoPan: false,
           maxWidth: 320,
           minWidth: 280,
-        }).setContent(popupHandle.element)
+        }).setContent(popupElement)
 
         marker.bindPopup(popup)
 
@@ -140,12 +131,17 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         })
 
         marker.on('popupopen', () => {
-          // Navigate on popup card click, not on marker click
-          const el = popupHandle.element
-          const card = el.querySelector('.mp-card') as HTMLElement | null
-          if (card) {
-            card.onclick = () => navigate(getProjectDetailRoute(property.id))
-          }
+          marker.closeTooltip()
+          marker.unbindTooltip()
+        })
+
+        marker.on('popupclose', () => {
+          marker.bindTooltip(tooltipHtml, {
+            direction: 'top',
+            offset: L.point(0, -(markerSize / 2 + 4)),
+            opacity: 1,
+            className: 'marker-tooltip',
+          })
         })
 
         clusterGroupRef.current?.addLayer(marker)
@@ -197,8 +193,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         if (clusterGroupRef.current) {
           clusterGroupRef.current.clearLayers()
         }
-        popupHandlesRef.current.forEach(h => h.cleanup())
-        popupHandlesRef.current = []
       }
     }, [properties, selectedPropertyId, updateMarkers])
 
