@@ -50,10 +50,10 @@ const createClusterIcon = (cluster: { getChildCount(): number }) => {
     html: `<div style="
       width: ${size}px;
       height: ${size}px;
-      background: #1C1C1E;
-      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      background: #FFD400;
       border-radius: 50%;
       box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.2);
+      border: 1.5px solid rgba(0, 0, 0, 0.85);
       display: flex;
       align-items: center;
       justify-content: center;

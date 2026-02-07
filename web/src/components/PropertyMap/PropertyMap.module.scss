@@ -16,6 +16,10 @@
     z-index: 1;
     pointer-events: none;
   }
+
+  :global(.leaflet-tile) {
+    filter: brightness(0.7);
+  }
 }
 
 // Hidden - areas button not used currently
