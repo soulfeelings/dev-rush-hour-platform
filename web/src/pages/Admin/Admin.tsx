@@ -18,6 +18,7 @@ import {
   getAdminListAreasQueryKey,
   getAdminListCitiesQueryKey,
   getAdminListBadgesQueryKey,
+  getAdminListInfrastructuresQueryKey,
   getAdminListDevelopersQueryKey,
   getAdminListDeletedDevelopersQueryKey,
   getAdminListDeletedProjectsQueryKey,
@@ -25,9 +26,12 @@ import {
   getAdminListDeletedAreasQueryKey,
   getAdminListDeletedCitiesQueryKey,
   getAdminListDeletedBadgesQueryKey,
+  getAdminListDeletedInfrastructuresQueryKey,
 } from '../../api'
 import type { Badge } from '../../api/generated/schemas/badge'
 import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreateRequest'
+import type { Infrastructure } from '../../api/generated/schemas/infrastructure'
+import type { InfrastructureCreateRequest } from '../../api/generated/schemas/infrastructureCreateRequest'
 import { Toast } from '../../ui'
 import { AuthForm } from './components/AuthForm'
 import { Sidebar } from './components/Sidebar'
@@ -49,6 +53,9 @@ import { DeletedLotsTable } from './components/DeletedLotsTable'
 import { DeletedAreasTable } from './components/DeletedAreasTable'
 import { DeletedCitiesTable } from './components/DeletedCitiesTable'
 import { DeletedBadgesTable } from './components/DeletedBadgesTable'
+import { InfrastructuresTable } from './components/InfrastructuresTable'
+import { InfrastructureForm } from './components/InfrastructureForm'
+import { DeletedInfrastructuresTable } from './components/DeletedInfrastructuresTable'
 import { ADMIN_ROUTES, ADMIN_ROUTE_SEGMENTS, ADMIN_API_ENDPOINTS } from './constants'
 
 const {
@@ -67,11 +74,14 @@ const {
   useAdminUpdateCity,
   useAdminCreateBadge,
   useAdminUpdateBadge,
+  useAdminCreateInfrastructure,
+  useAdminUpdateInfrastructure,
   useAdminSoftDeleteProject,
   useAdminSoftDeleteLot,
   useAdminSoftDeleteArea,
   useAdminSoftDeleteCity,
   useAdminSoftDeleteBadge,
+  useAdminSoftDeleteInfrastructure,
   useAdminSoftDeleteDeveloper,
   useAdminRestoreDeveloper,
   useAdminHardDeleteDeveloper,
@@ -85,6 +95,8 @@ const {
   useAdminHardDeleteCity,
   useAdminRestoreBadge,
   useAdminHardDeleteBadge,
+  useAdminRestoreInfrastructure,
+  useAdminHardDeleteInfrastructure,
 } = AdminApi
 import styles from './Admin.module.scss'
 
@@ -98,10 +110,10 @@ export default function Admin() {
   const [formKey, setFormKey] = useState(0)
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false)
   const [rightSidebarForm, setRightSidebarForm] = useState<
-    'developer' | 'project' | 'lot' | 'city' | 'badge' | null
+    'developer' | 'project' | 'lot' | 'city' | 'badge' | 'infrastructure' | null
   >(null)
   const [editingEntity, setEditingEntity] = useState<
-    Project | LotListItem | Developer | Area | City | Badge | null
+    Project | LotListItem | Developer | Area | City | Badge | Infrastructure | null
   >(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -287,6 +299,38 @@ export default function Admin() {
     },
   })
 
+  const createInfrastructureMutation = useAdminCreateInfrastructure({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.INFRASTRUCTURES] })
+        setSuccess('Infrastructure created successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to create infrastructure')
+      },
+    },
+  })
+
+  const updateInfrastructureMutation = useAdminUpdateInfrastructure({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.INFRASTRUCTURES] })
+        setSuccess('Infrastructure updated successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to update infrastructure')
+      },
+    },
+  })
+
   const deleteProjectMutation = useAdminSoftDeleteProject({
     mutation: {
       onSuccess: (_, variables) => {
@@ -353,6 +397,23 @@ export default function Admin() {
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to delete badge')
+      },
+    },
+  })
+
+  const deleteInfrastructureMutation = useAdminSoftDeleteInfrastructure({
+    mutation: {
+      onSuccess: (_, variables) => {
+        queryClient.setQueryData<Infrastructure[]>(
+          getAdminListInfrastructuresQueryKey(),
+          oldData => (oldData ? oldData.filter(item => item.id !== variables.id) : [])
+        )
+        queryClient.invalidateQueries({
+          queryKey: getAdminListDeletedInfrastructuresQueryKey(),
+        })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to delete infrastructure')
       },
     },
   })
@@ -509,6 +570,33 @@ export default function Admin() {
     },
   })
 
+  const restoreInfrastructureMutation = useAdminRestoreInfrastructure({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.INFRASTRUCTURES] })
+        queryClient.invalidateQueries({
+          queryKey: getAdminListDeletedInfrastructuresQueryKey(),
+        })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to restore infrastructure')
+      },
+    },
+  })
+
+  const hardDeleteInfrastructureMutation = useAdminHardDeleteInfrastructure({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: getAdminListDeletedInfrastructuresQueryKey(),
+        })
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to permanently delete infrastructure')
+      },
+    },
+  })
+
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [restoreLoading, setRestoreLoading] = useState(false)
   const [hardDeleteLoading, setHardDeleteLoading] = useState(false)
@@ -519,16 +607,19 @@ export default function Admin() {
     createLotMutation.isPending ||
     createCityMutation.isPending ||
     createBadgeMutation.isPending ||
+    createInfrastructureMutation.isPending ||
     updateDeveloperMutation.isPending ||
     updateProjectMutation.isPending ||
     updateLotMutation.isPending ||
     updateCityMutation.isPending ||
     updateBadgeMutation.isPending ||
+    updateInfrastructureMutation.isPending ||
     deleteProjectMutation.isPending ||
     deleteLotMutation.isPending ||
     deleteAreaMutation.isPending ||
     deleteCityMutation.isPending ||
     deleteBadgeMutation.isPending ||
+    deleteInfrastructureMutation.isPending ||
     deleteDeveloperMutation.isPending
 
   const handleAuth = (username: string, password: string) => {
@@ -560,12 +651,14 @@ export default function Admin() {
     | 'areas-list'
     | 'cities-list'
     | 'badges-list'
+    | 'infrastructures-list'
     | 'developers-list' => {
     const path = params['*'] || ADMIN_ROUTE_SEGMENTS.PROJECTS
     if (path === ADMIN_ROUTE_SEGMENTS.LOTS) return 'lots-list'
     if (path === ADMIN_ROUTE_SEGMENTS.AREAS) return 'areas-list'
     if (path === ADMIN_ROUTE_SEGMENTS.CITIES) return 'cities-list'
     if (path === ADMIN_ROUTE_SEGMENTS.BADGES) return 'badges-list'
+    if (path === ADMIN_ROUTE_SEGMENTS.INFRASTRUCTURES) return 'infrastructures-list'
     if (path === ADMIN_ROUTE_SEGMENTS.DEVELOPERS) return 'developers-list'
     return 'projects-list'
   }
@@ -579,6 +672,7 @@ export default function Admin() {
       | 'areas-list'
       | 'cities-list'
       | 'badges-list'
+      | 'infrastructures-list'
       | 'developers-list'
   ) => {
     const pathMap: Record<typeof tab, string> = {
@@ -588,13 +682,16 @@ export default function Admin() {
       'areas-list': ADMIN_ROUTE_SEGMENTS.AREAS,
       'cities-list': ADMIN_ROUTE_SEGMENTS.CITIES,
       'badges-list': ADMIN_ROUTE_SEGMENTS.BADGES,
+      'infrastructures-list': ADMIN_ROUTE_SEGMENTS.INFRASTRUCTURES,
     }
     navigate(`${ADMIN_ROUTES.BASE}/${pathMap[tab]}`)
     setRightSidebarOpen(false)
     setRightSidebarForm(null)
   }
 
-  const handleNewClick = (formType: 'developer' | 'project' | 'lot' | 'city' | 'badge') => {
+  const handleNewClick = (
+    formType: 'developer' | 'project' | 'lot' | 'city' | 'badge' | 'infrastructure'
+  ) => {
     setEditingEntity(null)
     setRightSidebarForm(formType)
     setRightSidebarOpen(true)
@@ -603,8 +700,8 @@ export default function Admin() {
   }
 
   const handleEditClick = (
-    entity: Project | LotListItem | Developer | Area | City | Badge,
-    formType: 'developer' | 'project' | 'lot' | 'city' | 'badge'
+    entity: Project | LotListItem | Developer | Area | City | Badge | Infrastructure,
+    formType: 'developer' | 'project' | 'lot' | 'city' | 'badge' | 'infrastructure'
   ) => {
     setEditingEntity(entity)
     setRightSidebarForm(formType)
@@ -667,6 +764,16 @@ export default function Admin() {
       updateBadgeMutation.mutate({ id: editingEntity.id, data: payload })
     } else {
       createBadgeMutation.mutate({ data: payload })
+    }
+  }
+
+  const handleInfrastructureSubmit = (payload: InfrastructureCreateRequest) => {
+    setError(null)
+    setSuccess(null)
+    if (editingEntity && 'id' in editingEntity && editingEntity.id) {
+      updateInfrastructureMutation.mutate({ id: editingEntity.id, data: payload })
+    } else {
+      createInfrastructureMutation.mutate({ data: payload })
     }
   }
 
@@ -1040,6 +1147,69 @@ export default function Admin() {
     }
   }
 
+  const handleDeleteInfrastructures = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setDeleteLoading(true)
+
+    try {
+      for (const id of ids) {
+        await deleteInfrastructureMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Infrastructure deleted successfully!'
+          : `${ids.length} infrastructures deleted successfully!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
+  const handleRestoreInfrastructures = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setRestoreLoading(true)
+
+    try {
+      for (const id of ids) {
+        await restoreInfrastructureMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Infrastructure restored successfully!'
+          : `${ids.length} infrastructures restored successfully!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setRestoreLoading(false)
+    }
+  }
+
+  const handleHardDeleteInfrastructures = async (ids: string[]) => {
+    setError(null)
+    setSuccess(null)
+    setHardDeleteLoading(true)
+
+    try {
+      for (const id of ids) {
+        await hardDeleteInfrastructureMutation.mutateAsync({ id })
+      }
+      setSuccess(
+        ids.length === 1
+          ? 'Infrastructure permanently deleted!'
+          : `${ids.length} infrastructures permanently deleted!`
+      )
+    } catch {
+      // Error is already handled by mutation onError
+    } finally {
+      setHardDeleteLoading(false)
+    }
+  }
+
   if (!isAuthenticated) {
     return (
       <div className={styles.admin}>
@@ -1057,6 +1227,8 @@ export default function Admin() {
     if (rightSidebarForm === 'lot') return isEditMode ? 'Edit Lot' : 'Create Lot'
     if (rightSidebarForm === 'city') return isEditMode ? 'Edit City' : 'Create City'
     if (rightSidebarForm === 'badge') return isEditMode ? 'Edit Badge' : 'Create Badge'
+    if (rightSidebarForm === 'infrastructure')
+      return isEditMode ? 'Edit Infrastructure' : 'Create Infrastructure'
     return ''
   }
 
@@ -1191,6 +1363,26 @@ export default function Admin() {
             }
           />
 
+          <Route
+            path={ADMIN_ROUTE_SEGMENTS.INFRASTRUCTURES}
+            element={
+              <>
+                <InfrastructuresTable
+                  onNewClick={() => handleNewClick('infrastructure')}
+                  onEditClick={infrastructure => handleEditClick(infrastructure, 'infrastructure')}
+                  onDelete={handleDeleteInfrastructures}
+                  deleteLoading={deleteLoading}
+                />
+                <DeletedInfrastructuresTable
+                  onRestore={handleRestoreInfrastructures}
+                  onHardDelete={handleHardDeleteInfrastructures}
+                  restoreLoading={restoreLoading}
+                  hardDeleteLoading={hardDeleteLoading}
+                />
+              </>
+            }
+          />
+
           <Route path="*" element={<Navigate to={ADMIN_ROUTES.PROJECTS} replace />} />
         </Routes>
       </div>
@@ -1253,6 +1445,17 @@ export default function Admin() {
             onSubmit={handleBadgeSubmit}
             loading={loading}
             initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as Badge) : null}
+            isEditMode={isEditMode}
+          />
+        )}
+        {rightSidebarForm === 'infrastructure' && (
+          <InfrastructureForm
+            key={formKey}
+            onSubmit={handleInfrastructureSubmit}
+            loading={loading}
+            initialData={
+              isEditMode && 'slug' in editingEntity ? (editingEntity as Infrastructure) : null
+            }
             isEditMode={isEditMode}
           />
         )}

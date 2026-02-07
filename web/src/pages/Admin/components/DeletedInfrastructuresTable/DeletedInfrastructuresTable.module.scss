@@ -1,0 +1,162 @@
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: #666;
+}
+
+.loading,
+.error,
+.empty {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+.error {
+  color: #c33;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-width: 700px;
+  opacity: 0.8;
+}
+
+.table thead {
+  background: #f5f5f5;
+}
+
+.table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  color: #999;
+}
+
+.table tbody tr:hover {
+  background: #f9f9f9;
+  opacity: 1;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.checkboxCell {
+  width: 40px;
+  padding: 0.5rem !important;
+  text-align: center;
+}
+
+.actionsCell {
+  width: 70px;
+  padding: 0.5rem !important;
+  text-align: center;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.restoreBtn,
+.deleteBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.restoreBtn {
+  &:hover {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+
+  &:active {
+    background: #bbf7d0;
+  }
+}
+
+.deleteBtn {
+  &:hover {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  &:active {
+    background: #fecaca;
+  }
+}
+
+.deleteButton {
+  &:hover {
+    background: #fee2e2 !important;
+    color: #dc2626 !important;
+    border-color: #dc2626 !important;
+  }
+}
+
+.selectedRow {
+  background: #fef9c3 !important;
+  opacity: 1 !important;
+}
+
+.itemNames {
+  font-weight: 500;
+  color: #333;
+  word-break: break-word;
+}
+
+.deleteWarning {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}

@@ -10,6 +10,7 @@ type Tab =
   | 'areas-list'
   | 'cities-list'
   | 'badges-list'
+  | 'infrastructures-list'
   | 'developers-list'
 
 type SidebarProps = {
@@ -100,6 +101,13 @@ export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: S
               onClick={() => onTabChange('badges-list')}
             >
               <span>Badges</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.navItem} ${activeTab === 'infrastructures-list' ? styles.active : ''}`}
+              onClick={() => onTabChange('infrastructures-list')}
+            >
+              <span>Infrastructures</span>
             </button>
           </div>
         </nav>

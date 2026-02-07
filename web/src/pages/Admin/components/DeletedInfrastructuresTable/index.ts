@@ -1,0 +1,1 @@
+export { DeletedInfrastructuresTable } from './DeletedInfrastructuresTable'
