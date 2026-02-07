@@ -133,9 +133,15 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         marker.on('popupopen', () => {
           marker.closeTooltip()
           marker.unbindTooltip()
+
+          const iconEl = marker.getElement()
+          if (iconEl) iconEl.style.pointerEvents = 'none'
         })
 
         marker.on('popupclose', () => {
+          const iconEl = marker.getElement()
+          if (iconEl) iconEl.style.pointerEvents = ''
+
           marker.bindTooltip(tooltipHtml, {
             direction: 'top',
             offset: L.point(0, -(markerSize / 2 + 4)),
