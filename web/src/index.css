@@ -37,6 +37,7 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   max-width: none !important;
   width: auto !important;
+  background: transparent !important;
 }
 
 .marker-popup .leaflet-popup-content {
