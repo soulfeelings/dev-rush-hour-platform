@@ -44,7 +44,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  '{"description": "Luxurious fully furnished 3-bedroom apartment spanning 1,533.25 sq. ft. in the prestigious Sea Legend Tower One at Dubai Marina, offering panoramic marina views, modern finishes, and access to world-class amenities in one of Dubai''s most sought-after waterfront districts.",
    "specs": {
      "priceFrom": 1200000, "currency": "AED", "types": ["Primary"], "bedrooms": ["3К"], "completionDate": "Q4 2025", "area": 1533.25, "areaUnit": "sq. ft.",
-     "roi": 7, "discount": 25, "paymentPlan": "30/10/60",
+     "roi": 7, "paymentPlan": "30/10/60",
      "pricesByType": [
        {"type": "studio, 1-2 beds", "price": 1200000},
        {"type": "apartments", "price": 1800000},
@@ -95,7 +95,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  '{"description": "Premium waterfront residences on Dubai Islands featuring 1 to 4-bedroom apartments with modern architecture, private beach access, and luxury amenities in a serene island setting just minutes from the city center.",
    "specs": {
      "priceFrom": 1400000, "currency": "AED", "types": ["Primary"], "bedrooms": ["1К", "2К", "4К"], "completionDate": "Q2 2027",
-     "roi": 8, "discount": 15, "paymentPlan": "40/60",
+     "roi": 8, "paymentPlan": "40/60",
      "pricesByType": [
        {"type": "1 bedroom", "price": 1400000},
        {"type": "2 bedrooms", "price": 1850000},
@@ -144,7 +144,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  '{"description": "Premium high-rise tower in the heart of Downtown Dubai featuring 1 to 3-bedroom apartments with direct views of Burj Khalifa, immediate access to Dubai Mall, and luxury urban living at the center of the city''s cultural and commercial hub.",
    "specs": {
      "priceFrom": 1400000, "currency": "AED", "types": ["Primary"], "bedrooms": ["1К", "2К", "3К"], "completionDate": "Q1 2028",
-     "roi": 7, "discount": 10, "paymentPlan": "20/80",
+     "roi": 7, "paymentPlan": "20/80",
      "pricesByType": [
        {"type": "1 bedroom", "price": 1350000},
        {"type": "2 bedrooms", "price": 1950000},
@@ -193,7 +193,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  '{"description": "Exclusive collection of ultra-luxury villas on Palm Jumeirah featuring 5-7 bedroom mansions with private beaches, yacht berths, and unparalleled amenities for the most discerning buyers.",
    "specs": {
      "priceFrom": 15000000, "currency": "AED", "types": ["Primary"], "bedrooms": ["5К", "6К", "7К"], "completionDate": "Q4 2027",
-     "roi": 5, "discount": 5, "paymentPlan": "40/60",
+     "roi": 5, "paymentPlan": "40/60",
      "pricesByType": [
        {"type": "5 bedroom villa", "price": 15000000},
        {"type": "6 bedroom villa", "price": 22000000},
@@ -217,7 +217,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  '{"description": "Move-in ready apartments in Dubai Marina with immediate handover. Fully finished units with high-end appliances and stunning marina views.",
    "specs": {
      "priceFrom": 950000, "currency": "AED", "types": ["Secondary"], "bedrooms": ["1К", "2К"], "completionDate": "Ready",
-     "roi": 7, "discount": 20, "paymentPlan": "100",
+     "roi": 7, "paymentPlan": "100",
      "pricesByType": [
        {"type": "1 bedroom", "price": 950000},
        {"type": "2 bedrooms", "price": 1500000}
@@ -264,7 +264,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  '{"description": "Family-oriented townhouses and apartments on Dubai Islands with spacious layouts, kids-friendly amenities, and a secure community environment.",
    "specs": {
      "priceFrom": 2200000, "currency": "AED", "types": ["Primary"], "bedrooms": ["3К", "4К"], "completionDate": "Q3 2026",
-     "roi": 6, "discount": 12, "paymentPlan": "25/75",
+     "roi": 6, "paymentPlan": "25/75",
      "pricesByType": [
        {"type": "3 bedroom apartment", "price": 2200000},
        {"type": "4 bedroom townhouse", "price": 3500000}
@@ -308,7 +308,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  '{"description": "Practical and affordable homes in Al Hamra with generous discounts. Ideal for budget-conscious buyers looking for value-driven investments.",
    "specs": {
      "priceFrom": 550000, "currency": "AED", "types": ["Primary", "Secondary"], "bedrooms": ["Ст", "1К", "2К"], "completionDate": "Q1 2026",
-     "roi": 4, "discount": 30, "paymentPlan": "30/70",
+     "roi": 4, "paymentPlan": "30/70",
      "pricesByType": [
        {"type": "studio", "price": 550000},
        {"type": "1 bedroom", "price": 750000},
@@ -355,7 +355,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  '{"description": "Comprehensive residential development offering every unit type from studios to penthouses, catering to singles, couples, and families alike.",
    "specs": {
      "priceFrom": 600000, "currency": "AED", "types": ["Primary"], "bedrooms": ["Ст", "1К", "2К", "3К", "4К", "5К"], "completionDate": "Q2 2027",
-     "roi": 7, "discount": 8, "paymentPlan": "20/30/50",
+     "roi": 7, "paymentPlan": "20/30/50",
      "pricesByType": [
        {"type": "studio", "price": 600000},
        {"type": "1 bedroom", "price": 900000},
