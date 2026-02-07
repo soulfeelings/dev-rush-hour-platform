@@ -7,8 +7,6 @@ import clsx from 'clsx'
 
 interface MarkerPopupProps {
   property: Property
-  onMouseEnter?: () => void
-  onMouseLeave?: () => void
   direction?: 'bottom' | 'left' | 'right' | 'top'
 }
 
@@ -33,12 +31,7 @@ const splitCompletionDate = (dateString: string | undefined) => {
   }
 }
 
-export const MarkerPopup = ({
-  property,
-  onMouseEnter,
-  onMouseLeave,
-  direction = 'bottom',
-}: MarkerPopupProps) => {
+export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) => {
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
   const discount = property.discount
   const roi = property.roi
@@ -51,7 +44,7 @@ export const MarkerPopup = ({
     discount && property.priceFrom ? property.priceFrom * (1 - discount / 100) : null
 
   return (
-    <div className="mp-wrapper" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+    <div className={clsx('mp-wrapper', `mp-wrapper-${direction}`)}>
       <div className="mp-card">
         <div className="mp-image-container">
           {badges.length > 0 && (

@@ -11,6 +11,50 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  // top (default): popup above marker → [card, arrow↓]
+  &.mp-wrapper-top .mp-card {
+    border-radius: $radius-2xl;
+    padding-bottom: $spacing-2;
+  }
+
+  &.mp-wrapper-bottom {
+    flex-direction: column-reverse;
+
+    .mp-card {
+      border-radius: 0 0 $radius-2xl $radius-2xl;
+    }
+
+    .mp-image-container {
+      border-radius: 0;
+    }
+  }
+
+  &.mp-wrapper-left {
+    flex-direction: row;
+    align-items: center;
+
+    .mp-card {
+      border-radius: $radius-2xl 0 0 $radius-2xl;
+    }
+
+    .mp-image-container {
+      border-radius: $radius-lg 0 0 0;
+    }
+  }
+
+  &.mp-wrapper-right {
+    flex-direction: row-reverse;
+    align-items: center;
+
+    .mp-card {
+      border-radius: 0 $radius-2xl $radius-2xl 0;
+    }
+
+    .mp-image-container {
+      border-radius: 0 $radius-lg 0 0;
+    }
+  }
 }
 
 .mp-card {
@@ -309,28 +353,41 @@
   }
 }
 
+$arrow-w: 60px;
+$arrow-h: 33px;
+// Correction for rotated layout box: (60 - 33) / 2 = 13.5px
+$arrow-rot-fix: calc(($arrow-w - $arrow-h) / 2);
+$arrow-overlap: 6px;
+
 .mp-arrow {
   display: block;
-  width: 60px;
-  height: 33px;
-  margin: 0 auto;
+  width: $arrow-w;
+  height: $arrow-h;
+  flex-shrink: 0;
   color: $color-snow-white;
 }
 
-.mp-arrow.mp-arrow-bottom {
-  margin-top: -6px;
-}
-
-.mp-arrow.mp-arrow-left {
-  margin-right: -6px;
-}
-
-.mp-arrow.mp-arrow-right {
-  margin-left: -6px;
-}
-
+// top: arrow at bottom of popup, pointing down ↓
 .mp-arrow.mp-arrow-top {
-  margin-bottom: -6px;
+  margin: -$arrow-overlap auto 0;
+}
+
+// bottom: arrow at top of popup, pointing up ↑
+.mp-arrow.mp-arrow-bottom {
+  margin: 0 auto -$arrow-overlap;
+  transform: rotate(180deg);
+}
+
+// left: arrow at right of popup, pointing right → (flex row: [card, arrow])
+.mp-arrow.mp-arrow-left {
+  margin: auto calc(-1 * $arrow-rot-fix) auto calc(-1 * $arrow-rot-fix - $arrow-overlap);
+  transform: rotate(-90deg);
+}
+
+// right: arrow at left of popup, pointing left ← (flex row-reverse: [arrow, card])
+.mp-arrow.mp-arrow-right {
+  margin: auto calc(-1 * $arrow-rot-fix - $arrow-overlap) auto calc(-1 * $arrow-rot-fix);
+  transform: rotate(90deg);
 }
 
 // ============================================
@@ -356,4 +413,52 @@
 // Hide Leaflet popup tip/arrow
 .marker-popup .leaflet-popup-tip-container {
   display: none;
+}
+
+// ============================================
+// Hover Tooltip Styles
+// ============================================
+
+.marker-tooltip {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  &::before {
+    display: none;
+  }
+}
+
+.mp-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 1px 4px rgba(0, 0, 0, 0.1);
+  max-width: 220px;
+}
+
+.mp-tooltip-name {
+  font-family: $font-family-primary;
+  font-size: 12px;
+  font-weight: $font-weight-semibold;
+  color: $color-charcoal-black;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mp-tooltip-price {
+  font-family: $font-family-primary;
+  font-size: 11px;
+  font-weight: $font-weight-medium;
+  color: $color-charcoal-grey-50;
+  line-height: 1.2;
+  white-space: nowrap;
 }

@@ -1,37 +1,39 @@
-import { createRoot, type Root } from 'react-dom/client'
+import { createRoot } from 'react-dom/client'
 import { createElement } from 'react'
 import type { Property } from '../../../types/property'
 import { MarkerPopup } from './MarkerPopup'
 
-interface PopupEventHandlers {
-  onMouseEnter?: () => void
-  onMouseLeave?: () => void
+type PopupDirection = 'bottom' | 'left' | 'right' | 'top'
+
+export interface MarkerPopupHandle {
+  element: HTMLElement
+  setDirection: (direction: PopupDirection) => void
+  cleanup: () => void
 }
 
-export const createMarkerPopupElement = (
-  property: Property,
-  handlers?: PopupEventHandlers
-): HTMLElement => {
+export const createMarkerPopupElement = (property: Property): MarkerPopupHandle => {
   const container = document.createElement('div')
   const root = createRoot(container)
-  root.render(
-    createElement(MarkerPopup, {
-      property,
-      onMouseEnter: handlers?.onMouseEnter,
-      onMouseLeave: handlers?.onMouseLeave,
-    })
-  )
 
-  // Сохраняем root в контейнере для последующей очистки
-  ;(container as unknown as { _reactRoot?: Root })._reactRoot = root
+  let currentDirection: PopupDirection = 'top'
 
-  return container
-}
+  const render = () => {
+    root.render(
+      createElement(MarkerPopup, {
+        property,
+        direction: currentDirection,
+      })
+    )
+  }
 
-export const cleanupMarkerPopupElement = (element: HTMLElement): void => {
-  const root = (element as unknown as { _reactRoot?: Root })._reactRoot
-  if (root) {
-    root.unmount()
-    delete (element as unknown as { _reactRoot?: Root })._reactRoot
+  render()
+
+  return {
+    element: container,
+    setDirection: (direction: PopupDirection) => {
+      currentDirection = direction
+      render()
+    },
+    cleanup: () => root.unmount(),
   }
 }
