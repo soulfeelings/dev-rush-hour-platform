@@ -255,5 +255,21 @@
   "settings.currency": "Currency",
   "settings.units": "Units of measurement",
   "settings.units.squareMeters": "m²",
-  "settings.units.squareFeet": "ft²"
+  "settings.units.squareFeet": "ft²",
+  "admin.projectForm.completionDate.month": "Completion Month",
+  "admin.projectForm.completionDate.year": "Completion Year",
+  "admin.projectForm.completionDate.selectMonth": "Select Month",
+  "admin.projectForm.completionDate.selectYear": "Select Year",
+  "admin.projectForm.completionDate.months.january": "January",
+  "admin.projectForm.completionDate.months.february": "February",
+  "admin.projectForm.completionDate.months.march": "March",
+  "admin.projectForm.completionDate.months.april": "April",
+  "admin.projectForm.completionDate.months.may": "May",
+  "admin.projectForm.completionDate.months.june": "June",
+  "admin.projectForm.completionDate.months.july": "July",
+  "admin.projectForm.completionDate.months.august": "August",
+  "admin.projectForm.completionDate.months.september": "September",
+  "admin.projectForm.completionDate.months.october": "October",
+  "admin.projectForm.completionDate.months.november": "November",
+  "admin.projectForm.completionDate.months.december": "December"
 }

@@ -92,6 +92,11 @@
   gap: 1rem;
 }
 
+.completionDateRow {
+  display: grid;
+  gap: 0.5rem;
+}
+
 .badgesList {
   display: flex;
   flex-wrap: wrap;

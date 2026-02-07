@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Button,
   Input,
@@ -20,6 +21,20 @@ import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './ProjectForm.module.scss'
 
 const STORAGE_KEY = 'admin_project_form_draft'
+
+// Функции для работы с датой формата YYYY-MM
+const parseCompletionDate = (dateStr: string): { month: string; year: string } => {
+  if (!dateStr || !dateStr.match(/^\d{4}-\d{2}$/)) {
+    return { month: '', year: '' }
+  }
+  const [year, month] = dateStr.split('-')
+  return { month, year }
+}
+
+const formatCompletionDate = (month: string, year: string): string => {
+  if (!month || !year) return ''
+  return `${year}-${month}`
+}
 
 type Developer = {
   id?: string
@@ -110,6 +125,36 @@ export function ProjectForm({
   initialData,
   isEditMode = false,
 }: ProjectFormProps) {
+  const { t } = useTranslation()
+
+  // Получаем переведенные месяцы
+  const MONTHS = useMemo(
+    () => [
+      { value: '01', label: t('admin.projectForm.completionDate.months.january') },
+      { value: '02', label: t('admin.projectForm.completionDate.months.february') },
+      { value: '03', label: t('admin.projectForm.completionDate.months.march') },
+      { value: '04', label: t('admin.projectForm.completionDate.months.april') },
+      { value: '05', label: t('admin.projectForm.completionDate.months.may') },
+      { value: '06', label: t('admin.projectForm.completionDate.months.june') },
+      { value: '07', label: t('admin.projectForm.completionDate.months.july') },
+      { value: '08', label: t('admin.projectForm.completionDate.months.august') },
+      { value: '09', label: t('admin.projectForm.completionDate.months.september') },
+      { value: '10', label: t('admin.projectForm.completionDate.months.october') },
+      { value: '11', label: t('admin.projectForm.completionDate.months.november') },
+      { value: '12', label: t('admin.projectForm.completionDate.months.december') },
+    ],
+    [t]
+  )
+
+  // Годы от 2000 до 2050
+  const YEARS = useMemo(
+    () =>
+      Array.from({ length: 51 }, (_, i) => {
+        const year = 2000 + i
+        return { value: year.toString(), label: year.toString() }
+      }),
+    []
+  )
   const defaultForm = useMemo(
     () => ({
       slug: '',
@@ -202,9 +247,41 @@ export function ProjectForm({
 
   const [form, setForm] = useState(initialForm)
 
+  // Парсим completionDate на месяц и год для начального состояния
+  const initialDateParsed = useMemo(
+    () => parseCompletionDate(initialForm.completionDate),
+    [initialForm.completionDate]
+  )
+
+  const [selectedMonth, setSelectedMonth] = useState(initialDateParsed.month)
+  const [selectedYear, setSelectedYear] = useState(initialDateParsed.year)
+
+  // Синхронизируем локальное состояние с form.completionDate при изменении initialForm
   useEffect(() => {
     setForm(initialForm)
+    const parsed = parseCompletionDate(initialForm.completionDate)
+    setSelectedMonth(parsed.month)
+    setSelectedYear(parsed.year)
   }, [initialForm])
+
+  // Обновляем form.completionDate при изменении месяца или года
+  useEffect(() => {
+    const newDate = formatCompletionDate(selectedMonth, selectedYear)
+    const currentDate = form.completionDate
+    if (newDate !== currentDate) {
+      setForm(prev => ({ ...prev, completionDate: newDate }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMonth, selectedYear])
+
+  // Обработчики для изменения месяца и года
+  const handleMonthChange = (month: string) => {
+    setSelectedMonth(month)
+  }
+
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year)
+  }
 
   // Cache form data to localStorage for new forms
   useEffect(() => {
@@ -501,7 +578,7 @@ export function ProjectForm({
         <h3 className={styles.sectionTitle}>Pricing & ROI</h3>
         <div className={styles.priceRow}>
           <Input
-            label="Our Price (AED)"
+            label="Our Price From (AED)"
             type="number"
             step="any"
             value={form.ourPrice}
@@ -509,7 +586,7 @@ export function ProjectForm({
             placeholder="Enter our price"
           />
           <Input
-            label="Developer Price (AED)"
+            label="Developer Price From (AED)"
             type="number"
             step="any"
             value={form.developerPrice}
@@ -536,12 +613,29 @@ export function ProjectForm({
           placeholder="e.g., 60/40 or 30/10/60 (must total 100%)"
           error={errors.paymentPlan}
         />
-        <Input
-          label="Completion Date"
-          value={form.completionDate}
-          onChange={e => setForm({ ...form, completionDate: e.target.value })}
-          placeholder="e.g., Q4 2025, 2026, etc."
-        />
+      </div>
+      <div className={styles.mediaSection}>
+        <h3 className={styles.sectionTitle}>Completion</h3>
+        <div className={styles.completionDateRow}>
+          <Select
+            label={t('admin.projectForm.completionDate.year')}
+            options={[
+              { value: '', label: t('admin.projectForm.completionDate.selectYear') },
+              ...YEARS,
+            ]}
+            value={selectedYear}
+            onChange={handleYearChange}
+          />
+          <Select
+            label={t('admin.projectForm.completionDate.month')}
+            options={[
+              { value: '', label: t('admin.projectForm.completionDate.selectMonth') },
+              ...MONTHS,
+            ]}
+            value={selectedMonth}
+            onChange={handleMonthChange}
+          />
+        </div>
       </div>
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Description</h3>
