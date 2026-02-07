@@ -26,6 +26,14 @@ export function apiProjectToProperty(apiProject: Project): Property {
       ? [apiProject.lat, apiProject.lng]
       : undefined
 
+  // Calculate discount from ourPrice and developerPrice
+  const ourPrice = apiProject.data?.ourPrice
+  const developerPrice = apiProject.data?.developerPrice
+  let discount: number | undefined
+  if (ourPrice && developerPrice && developerPrice > ourPrice) {
+    discount = Math.round((1 - ourPrice / developerPrice) * 100)
+  }
+
   return {
     id: apiProject.slug || apiProject.id || '',
     title: apiProject.name || '',
@@ -50,7 +58,7 @@ export function apiProjectToProperty(apiProject: Project): Property {
     isRecommended: apiProject.data?.isRecommended,
     isFeatured: apiProject.data?.isFeatured,
     tags: apiProject.data?.tags,
-    discount: specs?.discount as number | undefined,
+    discount,
     roi: apiProject.data?.roi ?? (specs?.roi as number | undefined),
     paymentPlan: apiProject.data?.paymentPlan ?? (specs?.paymentPlan as string | undefined),
     pricesByType: specs?.pricesByType as PriceByType[] | undefined,
