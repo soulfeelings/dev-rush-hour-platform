@@ -1333,3 +1333,86 @@ func ApplyBadgeUpdateRequest(existing *domain.Badge, req *generated.BadgeUpdateR
 
 	return &updated
 }
+
+// Infrastructure mappers
+
+func DomainInfrastructureToGenerated(infra *domain.Infrastructure) *generated.Infrastructure {
+	if infra == nil {
+		return nil
+	}
+	id := openapi_types.UUID(infra.ID)
+	status := generated.InfrastructureStatus(infra.Status)
+	result := &generated.Infrastructure{
+		Id:              &id,
+		Slug:            &infra.Slug,
+		Name:            &infra.Name,
+		BackgroundColor: &infra.BackgroundColor,
+		TextColor:       &infra.TextColor,
+		Icon:            infra.Icon,
+		Status:          &status,
+		SortOrder:       intPtr(infra.SortOrder),
+		CreatedAt:       timePtr(infra.CreatedAt),
+		UpdatedAt:       timePtr(infra.UpdatedAt),
+	}
+	return result
+}
+
+func GeneratedInfrastructureCreateToDomain(req *generated.InfrastructureCreateRequest) (*domain.Infrastructure, error) {
+	infra := &domain.Infrastructure{
+		Slug:            req.Slug,
+		Name:            req.Name,
+		BackgroundColor: "#000000",
+		TextColor:       "#FFFFFF",
+		Status:          domain.InfrastructureStatusActive,
+		SortOrder:       0,
+	}
+
+	if req.BackgroundColor != nil {
+		infra.BackgroundColor = *req.BackgroundColor
+	}
+	if req.TextColor != nil {
+		infra.TextColor = *req.TextColor
+	}
+	if req.Icon != nil {
+		infra.Icon = req.Icon
+	}
+	if req.Status != nil {
+		infra.Status = domain.InfrastructureStatus(*req.Status)
+	}
+	if req.SortOrder != nil {
+		infra.SortOrder = *req.SortOrder
+	}
+
+	return infra, nil
+}
+
+func ApplyInfrastructureUpdateRequest(existing *domain.Infrastructure, req *generated.InfrastructureUpdateRequest) *domain.Infrastructure {
+	if existing == nil || req == nil {
+		return nil
+	}
+	updated := *existing
+
+	if req.Slug != nil {
+		updated.Slug = *req.Slug
+	}
+	if req.Name != nil {
+		updated.Name = *req.Name
+	}
+	if req.BackgroundColor != nil {
+		updated.BackgroundColor = *req.BackgroundColor
+	}
+	if req.TextColor != nil {
+		updated.TextColor = *req.TextColor
+	}
+	if req.Icon != nil {
+		updated.Icon = req.Icon
+	}
+	if req.Status != nil {
+		updated.Status = domain.InfrastructureStatus(*req.Status)
+	}
+	if req.SortOrder != nil {
+		updated.SortOrder = *req.SortOrder
+	}
+
+	return &updated
+}

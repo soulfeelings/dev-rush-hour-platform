@@ -37,7 +37,8 @@ type Server struct {
 	adminProjectsHandler   *handlers.AdminProjectsHandler
 	adminLotsHandler       *handlers.AdminLotsHandler
 	adminLeadsHandler      *handlers.AdminLeadsHandler
-	adminBadgesHandler     *handlers.AdminBadgesHandler
+	adminBadgesHandler           *handlers.AdminBadgesHandler
+	adminInfrastructuresHandler  *handlers.AdminInfrastructuresHandler
 }
 
 func NewServer(db *sql.DB) *Server {
@@ -49,6 +50,7 @@ func NewServer(db *sql.DB) *Server {
 	leadRepo := repo.NewLeadRepo(db)
 	developerRepo := repo.NewDeveloperRepo(db)
 	badgeRepo := repo.NewBadgeRepo(db)
+	infrastructureRepo := repo.NewInfrastructureRepo(db)
 
 	// Services
 	areasService := services.NewAreasService(areaRepo)
@@ -58,6 +60,7 @@ func NewServer(db *sql.DB) *Server {
 	leadsService := services.NewLeadsService(leadRepo)
 	developersService := services.NewDevelopersService(developerRepo)
 	badgesService := services.NewBadgesService(badgeRepo)
+	infrastructuresService := services.NewInfrastructuresService(infrastructureRepo)
 	filtersService := services.NewFiltersService(citiesService, areasService, developersService, projectsService)
 
 	// Handlers
@@ -75,7 +78,8 @@ func NewServer(db *sql.DB) *Server {
 		adminProjectsHandler:   handlers.NewAdminProjectsHandler(projectsService),
 		adminLotsHandler:       handlers.NewAdminLotsHandler(lotsService),
 		adminLeadsHandler:      handlers.NewAdminLeadsHandler(leadsService),
-		adminBadgesHandler:     handlers.NewAdminBadgesHandler(badgesService),
+		adminBadgesHandler:          handlers.NewAdminBadgesHandler(badgesService),
+		adminInfrastructuresHandler: handlers.NewAdminInfrastructuresHandler(infrastructuresService),
 	}
 }
 
@@ -332,37 +336,38 @@ func (s *Server) AdminHardDeleteBadge(c *fiber.Ctx, id openapi_types.UUID) error
 	return s.adminBadgesHandler.HardDeleteBadge(c, id)
 }
 
-// Infrastructure stub implementations (not yet implemented)
+// Infrastructure admin methods
+
 func (s *Server) AdminListInfrastructures(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	return s.adminInfrastructuresHandler.ListInfrastructures(c)
 }
 
 func (s *Server) AdminCreateInfrastructure(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	return s.adminInfrastructuresHandler.CreateInfrastructure(c)
 }
 
 func (s *Server) AdminGetInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	return s.adminInfrastructuresHandler.GetInfrastructure(c, id)
 }
 
 func (s *Server) AdminUpdateInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	return s.adminInfrastructuresHandler.UpdateInfrastructure(c, id)
 }
 
 func (s *Server) AdminSoftDeleteInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	return s.adminInfrastructuresHandler.SoftDeleteInfrastructure(c, id)
 }
 
 func (s *Server) AdminListDeletedInfrastructures(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	return s.adminInfrastructuresHandler.ListDeletedInfrastructures(c)
 }
 
 func (s *Server) AdminRestoreInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	return s.adminInfrastructuresHandler.RestoreInfrastructure(c, id)
 }
 
 func (s *Server) AdminHardDeleteInfrastructure(c *fiber.Ctx, id openapi_types.UUID) error {
-	return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{"error": "not implemented"})
+	return s.adminInfrastructuresHandler.HardDeleteInfrastructure(c, id)
 }
 
 // initMediaService initializes the media service with appropriate storage and delivery
