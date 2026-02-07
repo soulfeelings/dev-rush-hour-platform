@@ -46,6 +46,27 @@
   }
 }
 
+.opacityRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.opacityLabel {
+  font-size: 0.75rem;
+  color: #666;
+  white-space: nowrap;
+  min-width: 85px;
+}
+
+.opacitySlider {
+  flex: 1;
+  height: 4px;
+  accent-color: #007bff;
+  cursor: pointer;
+}
+
 .previewSection {
   padding: 1rem;
   background: #f5f5f5;
