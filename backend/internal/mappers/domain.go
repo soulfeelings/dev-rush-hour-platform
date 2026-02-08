@@ -628,12 +628,10 @@ func DomainCityToGenerated(city *domain.City) *generated.City {
 		return nil
 	}
 	id := openapi_types.UUID(city.ID)
-	status := generated.CityStatus(city.Status)
 	result := &generated.City{
 		Id:        &id,
 		Slug:      &city.Slug,
 		Name:      &city.Name,
-		Status:    &status,
 		CreatedAt: timePtr(city.CreatedAt),
 		UpdatedAt: timePtr(city.UpdatedAt),
 	}
@@ -642,13 +640,8 @@ func DomainCityToGenerated(city *domain.City) *generated.City {
 
 func GeneratedCityCreateToDomain(req *generated.CityCreateRequest) (*domain.City, error) {
 	city := &domain.City{
-		Slug:   req.Slug,
-		Name:   req.Name,
-		Status: domain.CityStatusActive,
-	}
-
-	if req.Status != nil {
-		city.Status = domain.CityStatus(*req.Status)
+		Slug: req.Slug,
+		Name: req.Name,
 	}
 
 	return city, nil
@@ -665,9 +658,6 @@ func ApplyCityUpdateRequest(existing *domain.City, req *generated.CityUpdateRequ
 	}
 	if req.Name != nil {
 		updated.Name = *req.Name
-	}
-	if req.Status != nil {
-		updated.Status = domain.CityStatus(*req.Status)
 	}
 
 	return &updated
@@ -1258,7 +1248,6 @@ func DomainBadgeToGenerated(badge *domain.Badge) *generated.Badge {
 		return nil
 	}
 	id := openapi_types.UUID(badge.ID)
-	status := generated.BadgeStatus(badge.Status)
 	result := &generated.Badge{
 		Id:              &id,
 		Slug:            &badge.Slug,
@@ -1266,7 +1255,7 @@ func DomainBadgeToGenerated(badge *domain.Badge) *generated.Badge {
 		BackgroundColor: &badge.BackgroundColor,
 		TextColor:       &badge.TextColor,
 		Icon:            badge.Icon,
-		Status:          &status,
+		IconColor:       &badge.IconColor,
 		SortOrder:       intPtr(badge.SortOrder),
 		CreatedAt:       timePtr(badge.CreatedAt),
 		UpdatedAt:       timePtr(badge.UpdatedAt),
@@ -1280,7 +1269,7 @@ func GeneratedBadgeCreateToDomain(req *generated.BadgeCreateRequest) (*domain.Ba
 		Name:            req.Name,
 		BackgroundColor: "#000000",
 		TextColor:       "#FFFFFF",
-		Status:          domain.BadgeStatusActive,
+		IconColor:       "#FFD400",
 		SortOrder:       0,
 	}
 
@@ -1293,8 +1282,8 @@ func GeneratedBadgeCreateToDomain(req *generated.BadgeCreateRequest) (*domain.Ba
 	if req.Icon != nil {
 		badge.Icon = req.Icon
 	}
-	if req.Status != nil {
-		badge.Status = domain.BadgeStatus(*req.Status)
+	if req.IconColor != nil {
+		badge.IconColor = *req.IconColor
 	}
 	if req.SortOrder != nil {
 		badge.SortOrder = *req.SortOrder
@@ -1324,8 +1313,8 @@ func ApplyBadgeUpdateRequest(existing *domain.Badge, req *generated.BadgeUpdateR
 	if req.Icon != nil {
 		updated.Icon = req.Icon
 	}
-	if req.Status != nil {
-		updated.Status = domain.BadgeStatus(*req.Status)
+	if req.IconColor != nil {
+		updated.IconColor = *req.IconColor
 	}
 	if req.SortOrder != nil {
 		updated.SortOrder = *req.SortOrder
@@ -1341,7 +1330,6 @@ func DomainInfrastructureToGenerated(infra *domain.Infrastructure) *generated.In
 		return nil
 	}
 	id := openapi_types.UUID(infra.ID)
-	status := generated.InfrastructureStatus(infra.Status)
 	result := &generated.Infrastructure{
 		Id:              &id,
 		Slug:            &infra.Slug,
@@ -1349,7 +1337,6 @@ func DomainInfrastructureToGenerated(infra *domain.Infrastructure) *generated.In
 		BackgroundColor: &infra.BackgroundColor,
 		TextColor:       &infra.TextColor,
 		Icon:            infra.Icon,
-		Status:          &status,
 		SortOrder:       intPtr(infra.SortOrder),
 		CreatedAt:       timePtr(infra.CreatedAt),
 		UpdatedAt:       timePtr(infra.UpdatedAt),
@@ -1363,7 +1350,6 @@ func GeneratedInfrastructureCreateToDomain(req *generated.InfrastructureCreateRe
 		Name:            req.Name,
 		BackgroundColor: "#000000",
 		TextColor:       "#FFFFFF",
-		Status:          domain.InfrastructureStatusActive,
 		SortOrder:       0,
 	}
 
@@ -1375,9 +1361,6 @@ func GeneratedInfrastructureCreateToDomain(req *generated.InfrastructureCreateRe
 	}
 	if req.Icon != nil {
 		infra.Icon = req.Icon
-	}
-	if req.Status != nil {
-		infra.Status = domain.InfrastructureStatus(*req.Status)
 	}
 	if req.SortOrder != nil {
 		infra.SortOrder = *req.SortOrder
@@ -1406,9 +1389,6 @@ func ApplyInfrastructureUpdateRequest(existing *domain.Infrastructure, req *gene
 	}
 	if req.Icon != nil {
 		updated.Icon = req.Icon
-	}
-	if req.Status != nil {
-		updated.Status = domain.InfrastructureStatus(*req.Status)
 	}
 	if req.SortOrder != nil {
 		updated.SortOrder = *req.SortOrder

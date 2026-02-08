@@ -8,6 +8,7 @@ import {
   YouTubePreview,
   Checkbox,
   Textarea,
+  Badge as BadgeUI,
 } from '../../../../ui'
 import { Plus, X } from 'lucide-react'
 import {
@@ -657,15 +658,14 @@ export function ProjectForm({
                   checked={badge.id ? form.badgeIds.includes(badge.id) : false}
                   onChange={() => badge.id && toggleBadge(badge.id)}
                 />
-                <span
-                  className={styles.badgeLabel}
-                  style={{
-                    backgroundColor: badge.backgroundColor || '#e0e0e0',
-                    color: badge.textColor || '#000000',
-                  }}
-                >
-                  {badge.name}
-                </span>
+                <BadgeUI
+                  text={badge.name || ''}
+                  backgroundColor={badge.backgroundColor || '#e0e0e0'}
+                  textColor={badge.textColor || '#000000'}
+                  iconName={badge.icon}
+                  iconColor={badge.iconColor}
+                  size="small"
+                />
               </label>
             ))}
           </div>

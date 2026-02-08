@@ -5,10 +5,8 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
-import type { CityStatus } from './cityStatus'
 
 export interface CityUpdateRequest {
   slug?: string
   name?: string
-  status?: CityStatus
 }

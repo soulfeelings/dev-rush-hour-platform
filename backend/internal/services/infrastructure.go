@@ -125,9 +125,6 @@ func (s *InfrastructuresService) Update(id uuid.UUID, updates *domain.Infrastruc
 	if updates.Icon != nil {
 		existing.Icon = updates.Icon
 	}
-	if updates.Status != "" {
-		existing.Status = updates.Status
-	}
 	existing.SortOrder = updates.SortOrder
 
 	err = s.infrastructureRepo.Update(id, existing)

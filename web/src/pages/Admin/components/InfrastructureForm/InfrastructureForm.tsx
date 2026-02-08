@@ -128,7 +128,6 @@ export function InfrastructureForm({
       slug: form.slug,
       name: form.name,
       icon: form.icon || undefined,
-      status: 'active',
       sortOrder: parseInt(form.sortOrder, 10),
     }
     if (!isEditMode) {

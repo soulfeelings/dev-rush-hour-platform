@@ -83,7 +83,6 @@ export function CityForm({ onSubmit, loading, initialData, isEditMode = false }:
     const payload: CityCreateRequest = {
       slug: form.slug,
       name: form.name,
-      status: 'active',
     }
     if (!isEditMode) {
       clearCache()

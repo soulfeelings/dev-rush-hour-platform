@@ -144,10 +144,6 @@ func (s *CitiesService) Update(id uuid.UUID, updates *domain.City) error {
 	if updates.Name != "" {
 		existing.Name = updates.Name
 	}
-	if updates.Status != "" {
-		existing.Status = updates.Status
-	}
-
 	err = s.cityRepo.Update(id, existing)
 	if err != nil {
 		s.logger.Error("city_service_update_failed",

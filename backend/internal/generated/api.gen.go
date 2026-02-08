@@ -36,18 +36,6 @@ const (
 	AreaUpdateRequestStatusInactive AreaUpdateRequestStatus = "inactive"
 )
 
-// Defines values for BadgeStatus.
-const (
-	BadgeStatusActive   BadgeStatus = "active"
-	BadgeStatusInactive BadgeStatus = "inactive"
-)
-
-// Defines values for CityStatus.
-const (
-	CityStatusActive   CityStatus = "active"
-	CityStatusInactive CityStatus = "inactive"
-)
-
 // Defines values for DeveloperStatus.
 const (
 	DeveloperStatusActive   DeveloperStatus = "active"
@@ -69,12 +57,6 @@ const (
 // Defines values for GeoJSONPolygonType.
 const (
 	Polygon GeoJSONPolygonType = "Polygon"
-)
-
-// Defines values for InfrastructureStatus.
-const (
-	InfrastructureStatusActive   InfrastructureStatus = "active"
-	InfrastructureStatusInactive InfrastructureStatus = "inactive"
 )
 
 // Defines values for LeadStatus.
@@ -186,8 +168,8 @@ const (
 
 // Defines values for ProjectUpdateRequestStatus.
 const (
-	ProjectUpdateRequestStatusActive   ProjectUpdateRequestStatus = "active"
-	ProjectUpdateRequestStatusArchived ProjectUpdateRequestStatus = "archived"
+	Active   ProjectUpdateRequestStatus = "active"
+	Archived ProjectUpdateRequestStatus = "archived"
 )
 
 // Defines values for AdminListLeadsParamsStatus.
@@ -295,12 +277,14 @@ type Badge struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 
 	// Icon Icon name or URL
-	Icon      *string             `json:"icon,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+
+	// IconColor Hex color code for icon (e.g. "#FFD400")
+	IconColor *string             `json:"iconColor,omitempty"`
 	Id        *openapi_types.UUID `json:"id,omitempty"`
 	Name      *string             `json:"name,omitempty"`
 	Slug      *string             `json:"slug,omitempty"`
 	SortOrder *int                `json:"sortOrder,omitempty"`
-	Status    *BadgeStatus        `json:"status,omitempty"`
 
 	// TextColor Hex color code for text (e.g. "#FFFFFF")
 	TextColor *string    `json:"textColor,omitempty"`
@@ -309,27 +293,24 @@ type Badge struct {
 
 // BadgeCreateRequest defines model for BadgeCreateRequest.
 type BadgeCreateRequest struct {
-	BackgroundColor *string      `json:"backgroundColor,omitempty"`
-	Icon            *string      `json:"icon,omitempty"`
-	Name            string       `json:"name"`
-	Slug            string       `json:"slug"`
-	SortOrder       *int         `json:"sortOrder,omitempty"`
-	Status          *BadgeStatus `json:"status,omitempty"`
-	TextColor       *string      `json:"textColor,omitempty"`
+	BackgroundColor *string `json:"backgroundColor,omitempty"`
+	Icon            *string `json:"icon,omitempty"`
+	IconColor       *string `json:"iconColor,omitempty"`
+	Name            string  `json:"name"`
+	Slug            string  `json:"slug"`
+	SortOrder       *int    `json:"sortOrder,omitempty"`
+	TextColor       *string `json:"textColor,omitempty"`
 }
-
-// BadgeStatus defines model for BadgeStatus.
-type BadgeStatus string
 
 // BadgeUpdateRequest defines model for BadgeUpdateRequest.
 type BadgeUpdateRequest struct {
-	BackgroundColor *string      `json:"backgroundColor,omitempty"`
-	Icon            *string      `json:"icon,omitempty"`
-	Name            *string      `json:"name,omitempty"`
-	Slug            *string      `json:"slug,omitempty"`
-	SortOrder       *int         `json:"sortOrder,omitempty"`
-	Status          *BadgeStatus `json:"status,omitempty"`
-	TextColor       *string      `json:"textColor,omitempty"`
+	BackgroundColor *string `json:"backgroundColor,omitempty"`
+	Icon            *string `json:"icon,omitempty"`
+	IconColor       *string `json:"iconColor,omitempty"`
+	Name            *string `json:"name,omitempty"`
+	Slug            *string `json:"slug,omitempty"`
+	SortOrder       *int    `json:"sortOrder,omitempty"`
+	TextColor       *string `json:"textColor,omitempty"`
 }
 
 // Bonus defines model for Bonus.
@@ -354,25 +335,19 @@ type City struct {
 	Id        *openapi_types.UUID `json:"id,omitempty"`
 	Name      *string             `json:"name,omitempty"`
 	Slug      *string             `json:"slug,omitempty"`
-	Status    *CityStatus         `json:"status,omitempty"`
 	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // CityCreateRequest defines model for CityCreateRequest.
 type CityCreateRequest struct {
-	Name   string      `json:"name"`
-	Slug   string      `json:"slug"`
-	Status *CityStatus `json:"status,omitempty"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
 }
-
-// CityStatus defines model for CityStatus.
-type CityStatus string
 
 // CityUpdateRequest defines model for CityUpdateRequest.
 type CityUpdateRequest struct {
-	Name   *string     `json:"name,omitempty"`
-	Slug   *string     `json:"slug,omitempty"`
-	Status *CityStatus `json:"status,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Slug *string `json:"slug,omitempty"`
 }
 
 // Developer defines model for Developer.
@@ -479,12 +454,11 @@ type Infrastructure struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 
 	// Icon Icon name or URL
-	Icon      *string               `json:"icon,omitempty"`
-	Id        *openapi_types.UUID   `json:"id,omitempty"`
-	Name      *string               `json:"name,omitempty"`
-	Slug      *string               `json:"slug,omitempty"`
-	SortOrder *int                  `json:"sortOrder,omitempty"`
-	Status    *InfrastructureStatus `json:"status,omitempty"`
+	Icon      *string             `json:"icon,omitempty"`
+	Id        *openapi_types.UUID `json:"id,omitempty"`
+	Name      *string             `json:"name,omitempty"`
+	Slug      *string             `json:"slug,omitempty"`
+	SortOrder *int                `json:"sortOrder,omitempty"`
 
 	// TextColor Hex color code for text (e.g. "#FFFFFF")
 	TextColor *string    `json:"textColor,omitempty"`
@@ -493,27 +467,22 @@ type Infrastructure struct {
 
 // InfrastructureCreateRequest defines model for InfrastructureCreateRequest.
 type InfrastructureCreateRequest struct {
-	BackgroundColor *string               `json:"backgroundColor,omitempty"`
-	Icon            *string               `json:"icon,omitempty"`
-	Name            string                `json:"name"`
-	Slug            string                `json:"slug"`
-	SortOrder       *int                  `json:"sortOrder,omitempty"`
-	Status          *InfrastructureStatus `json:"status,omitempty"`
-	TextColor       *string               `json:"textColor,omitempty"`
+	BackgroundColor *string `json:"backgroundColor,omitempty"`
+	Icon            *string `json:"icon,omitempty"`
+	Name            string  `json:"name"`
+	Slug            string  `json:"slug"`
+	SortOrder       *int    `json:"sortOrder,omitempty"`
+	TextColor       *string `json:"textColor,omitempty"`
 }
-
-// InfrastructureStatus defines model for InfrastructureStatus.
-type InfrastructureStatus string
 
 // InfrastructureUpdateRequest defines model for InfrastructureUpdateRequest.
 type InfrastructureUpdateRequest struct {
-	BackgroundColor *string               `json:"backgroundColor,omitempty"`
-	Icon            *string               `json:"icon,omitempty"`
-	Name            *string               `json:"name,omitempty"`
-	Slug            *string               `json:"slug,omitempty"`
-	SortOrder       *int                  `json:"sortOrder,omitempty"`
-	Status          *InfrastructureStatus `json:"status,omitempty"`
-	TextColor       *string               `json:"textColor,omitempty"`
+	BackgroundColor *string `json:"backgroundColor,omitempty"`
+	Icon            *string `json:"icon,omitempty"`
+	Name            *string `json:"name,omitempty"`
+	Slug            *string `json:"slug,omitempty"`
+	SortOrder       *int    `json:"sortOrder,omitempty"`
+	TextColor       *string `json:"textColor,omitempty"`
 }
 
 // Lead defines model for Lead.

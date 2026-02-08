@@ -172,9 +172,6 @@ func (s *BadgesService) Update(id uuid.UUID, updates *domain.Badge) error {
 	if updates.Icon != nil {
 		existing.Icon = updates.Icon
 	}
-	if updates.Status != "" {
-		existing.Status = updates.Status
-	}
 	existing.SortOrder = updates.SortOrder
 
 	err = s.badgeRepo.Update(id, existing)

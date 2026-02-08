@@ -24,9 +24,9 @@ func (r *CityRepo) List() ([]domain.City, error) {
 	r.logger.Info("city_repo_list_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, created_at, updated_at
+		SELECT id, slug, name, created_at, updated_at
 		FROM cities
-		WHERE status = 'active' AND deleted_at IS NULL
+		WHERE deleted_at IS NULL
 		ORDER BY name
 	`)
 	if err != nil {
@@ -42,7 +42,7 @@ func (r *CityRepo) List() ([]domain.City, error) {
 		var city domain.City
 
 		if err := rows.Scan(
-			&city.ID, &city.Slug, &city.Name, &city.Status,
+			&city.ID, &city.Slug, &city.Name,
 			&city.CreatedAt, &city.UpdatedAt,
 		); err != nil {
 			r.logger.Error("city_repo_list_scan_failed",
@@ -77,11 +77,11 @@ func (r *CityRepo) GetBySlug(slug string) (*domain.City, error) {
 	var city domain.City
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, created_at, updated_at
+		SELECT id, slug, name, created_at, updated_at
 		FROM cities
 		WHERE slug = $1 AND deleted_at IS NULL
 	`, slug).Scan(
-		&city.ID, &city.Slug, &city.Name, &city.Status,
+		&city.ID, &city.Slug, &city.Name,
 		&city.CreatedAt, &city.UpdatedAt,
 	)
 
@@ -115,11 +115,11 @@ func (r *CityRepo) GetByID(id uuid.UUID) (*domain.City, error) {
 	var city domain.City
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, created_at, updated_at, deleted_at
+		SELECT id, slug, name, created_at, updated_at, deleted_at
 		FROM cities
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id).Scan(
-		&city.ID, &city.Slug, &city.Name, &city.Status,
+		&city.ID, &city.Slug, &city.Name,
 		&city.CreatedAt, &city.UpdatedAt, &city.DeletedAt,
 	)
 
@@ -152,10 +152,10 @@ func (r *CityRepo) Create(city *domain.City) error {
 	)
 
 	err := r.db.QueryRow(`
-		INSERT INTO cities (slug, name, status)
-		VALUES ($1, $2, $3)
+		INSERT INTO cities (slug, name)
+		VALUES ($1, $2)
 		RETURNING id, created_at, updated_at
-	`, city.Slug, city.Name, city.Status).Scan(
+	`, city.Slug, city.Name).Scan(
 		&city.ID, &city.CreatedAt, &city.UpdatedAt,
 	)
 
@@ -182,10 +182,10 @@ func (r *CityRepo) Update(id uuid.UUID, city *domain.City) error {
 
 	err := r.db.QueryRow(`
 		UPDATE cities
-		SET slug = $1, name = $2, status = $3, updated_at = NOW()
-		WHERE id = $4 AND deleted_at IS NULL
+		SET slug = $1, name = $2, updated_at = NOW()
+		WHERE id = $3 AND deleted_at IS NULL
 		RETURNING updated_at
-	`, city.Slug, city.Name, city.Status, id).Scan(&city.UpdatedAt)
+	`, city.Slug, city.Name, id).Scan(&city.UpdatedAt)
 
 	if err != nil {
 		r.logger.Error("city_repo_update_failed",
@@ -233,7 +233,7 @@ func (r *CityRepo) ListAll() ([]domain.City, error) {
 	r.logger.Info("city_repo_list_all_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, created_at, updated_at, deleted_at
+		SELECT id, slug, name, created_at, updated_at, deleted_at
 		FROM cities
 		WHERE deleted_at IS NULL
 		ORDER BY name
@@ -251,7 +251,7 @@ func (r *CityRepo) ListAll() ([]domain.City, error) {
 		var city domain.City
 
 		if err := rows.Scan(
-			&city.ID, &city.Slug, &city.Name, &city.Status,
+			&city.ID, &city.Slug, &city.Name,
 			&city.CreatedAt, &city.UpdatedAt, &city.DeletedAt,
 		); err != nil {
 			r.logger.Error("city_repo_list_all_scan_failed",
@@ -282,7 +282,7 @@ func (r *CityRepo) ListDeleted() ([]domain.City, error) {
 	r.logger.Info("city_repo_list_deleted_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, created_at, updated_at, deleted_at
+		SELECT id, slug, name, created_at, updated_at, deleted_at
 		FROM cities
 		WHERE deleted_at IS NOT NULL
 		ORDER BY deleted_at DESC
@@ -300,7 +300,7 @@ func (r *CityRepo) ListDeleted() ([]domain.City, error) {
 		var city domain.City
 
 		if err := rows.Scan(
-			&city.ID, &city.Slug, &city.Name, &city.Status,
+			&city.ID, &city.Slug, &city.Name,
 			&city.CreatedAt, &city.UpdatedAt, &city.DeletedAt,
 		); err != nil {
 			r.logger.Error("city_repo_list_deleted_scan_failed",
@@ -323,11 +323,11 @@ func (r *CityRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.City, error) {
 	var city domain.City
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, created_at, updated_at, deleted_at
+		SELECT id, slug, name, created_at, updated_at, deleted_at
 		FROM cities
 		WHERE id = $1
 	`, id).Scan(
-		&city.ID, &city.Slug, &city.Name, &city.Status,
+		&city.ID, &city.Slug, &city.Name,
 		&city.CreatedAt, &city.UpdatedAt, &city.DeletedAt,
 	)
 

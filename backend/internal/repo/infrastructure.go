@@ -24,7 +24,7 @@ func (r *InfrastructureRepo) ListAll() ([]domain.Infrastructure, error) {
 	r.logger.Info("infrastructure_repo_list_all_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at, deleted_at
+		SELECT id, slug, name, background_color, text_color, icon, sort_order, created_at, updated_at, deleted_at
 		FROM infrastructures
 		WHERE deleted_at IS NULL
 		ORDER BY sort_order, name
@@ -43,7 +43,7 @@ func (r *InfrastructureRepo) ListAll() ([]domain.Infrastructure, error) {
 
 		if err := rows.Scan(
 			&infra.ID, &infra.Slug, &infra.Name, &infra.BackgroundColor, &infra.TextColor,
-			&infra.Icon, &infra.Status, &infra.SortOrder, &infra.CreatedAt, &infra.UpdatedAt, &infra.DeletedAt,
+			&infra.Icon, &infra.SortOrder, &infra.CreatedAt, &infra.UpdatedAt, &infra.DeletedAt,
 		); err != nil {
 			r.logger.Error("infrastructure_repo_list_all_scan_failed",
 				"error", err.Error(),
@@ -73,7 +73,7 @@ func (r *InfrastructureRepo) ListDeleted() ([]domain.Infrastructure, error) {
 	r.logger.Info("infrastructure_repo_list_deleted_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at, deleted_at
+		SELECT id, slug, name, background_color, text_color, icon, sort_order, created_at, updated_at, deleted_at
 		FROM infrastructures
 		WHERE deleted_at IS NOT NULL
 		ORDER BY deleted_at DESC
@@ -92,7 +92,7 @@ func (r *InfrastructureRepo) ListDeleted() ([]domain.Infrastructure, error) {
 
 		if err := rows.Scan(
 			&infra.ID, &infra.Slug, &infra.Name, &infra.BackgroundColor, &infra.TextColor,
-			&infra.Icon, &infra.Status, &infra.SortOrder, &infra.CreatedAt, &infra.UpdatedAt, &infra.DeletedAt,
+			&infra.Icon, &infra.SortOrder, &infra.CreatedAt, &infra.UpdatedAt, &infra.DeletedAt,
 		); err != nil {
 			r.logger.Error("infrastructure_repo_list_deleted_scan_failed",
 				"error", err.Error(),
@@ -118,12 +118,12 @@ func (r *InfrastructureRepo) GetByID(id uuid.UUID) (*domain.Infrastructure, erro
 	var infra domain.Infrastructure
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at, deleted_at
+		SELECT id, slug, name, background_color, text_color, icon, sort_order, created_at, updated_at, deleted_at
 		FROM infrastructures
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id).Scan(
 		&infra.ID, &infra.Slug, &infra.Name, &infra.BackgroundColor, &infra.TextColor,
-		&infra.Icon, &infra.Status, &infra.SortOrder, &infra.CreatedAt, &infra.UpdatedAt, &infra.DeletedAt,
+		&infra.Icon, &infra.SortOrder, &infra.CreatedAt, &infra.UpdatedAt, &infra.DeletedAt,
 	)
 
 	if err != nil {
@@ -152,12 +152,12 @@ func (r *InfrastructureRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Infrastru
 	var infra domain.Infrastructure
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at, deleted_at
+		SELECT id, slug, name, background_color, text_color, icon, sort_order, created_at, updated_at, deleted_at
 		FROM infrastructures
 		WHERE id = $1
 	`, id).Scan(
 		&infra.ID, &infra.Slug, &infra.Name, &infra.BackgroundColor, &infra.TextColor,
-		&infra.Icon, &infra.Status, &infra.SortOrder, &infra.CreatedAt, &infra.UpdatedAt, &infra.DeletedAt,
+		&infra.Icon, &infra.SortOrder, &infra.CreatedAt, &infra.UpdatedAt, &infra.DeletedAt,
 	)
 
 	if err != nil {
@@ -177,10 +177,10 @@ func (r *InfrastructureRepo) Create(infra *domain.Infrastructure) error {
 	)
 
 	err := r.db.QueryRow(`
-		INSERT INTO infrastructures (slug, name, background_color, text_color, icon, status, sort_order)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO infrastructures (slug, name, background_color, text_color, icon, sort_order)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, created_at, updated_at
-	`, infra.Slug, infra.Name, infra.BackgroundColor, infra.TextColor, infra.Icon, infra.Status, infra.SortOrder).Scan(
+	`, infra.Slug, infra.Name, infra.BackgroundColor, infra.TextColor, infra.Icon, infra.SortOrder).Scan(
 		&infra.ID, &infra.CreatedAt, &infra.UpdatedAt,
 	)
 
@@ -207,10 +207,10 @@ func (r *InfrastructureRepo) Update(id uuid.UUID, infra *domain.Infrastructure) 
 
 	err := r.db.QueryRow(`
 		UPDATE infrastructures
-		SET slug = $1, name = $2, background_color = $3, text_color = $4, icon = $5, status = $6, sort_order = $7, updated_at = NOW()
-		WHERE id = $8 AND deleted_at IS NULL
+		SET slug = $1, name = $2, background_color = $3, text_color = $4, icon = $5, sort_order = $6, updated_at = NOW()
+		WHERE id = $7 AND deleted_at IS NULL
 		RETURNING updated_at
-	`, infra.Slug, infra.Name, infra.BackgroundColor, infra.TextColor, infra.Icon, infra.Status, infra.SortOrder, id).Scan(&infra.UpdatedAt)
+	`, infra.Slug, infra.Name, infra.BackgroundColor, infra.TextColor, infra.Icon, infra.SortOrder, id).Scan(&infra.UpdatedAt)
 
 	if err != nil {
 		r.logger.Error("infrastructure_repo_update_failed",

@@ -5,7 +5,6 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
-import type { InfrastructureStatus } from './infrastructureStatus'
 
 export interface InfrastructureCreateRequest {
   slug: string
@@ -13,6 +12,5 @@ export interface InfrastructureCreateRequest {
   backgroundColor?: string
   textColor?: string
   icon?: string
-  status?: InfrastructureStatus
   sortOrder?: number
 }

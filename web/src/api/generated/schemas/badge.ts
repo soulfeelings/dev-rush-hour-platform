@@ -5,7 +5,6 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
-import type { BadgeStatus } from './badgeStatus'
 
 export interface Badge {
   id?: string
@@ -17,7 +16,8 @@ export interface Badge {
   textColor?: string
   /** Icon name or URL */
   icon?: string
-  status?: BadgeStatus
+  /** Hex color code for icon (e.g. "#FFD400") */
+  iconColor?: string
   sortOrder?: number
   createdAt?: string
   updatedAt?: string
