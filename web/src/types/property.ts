@@ -18,6 +18,7 @@ export interface PropertyBadge {
   backgroundColor: string
   textColor: string
   icon?: string
+  iconColor?: string
 }
 
 /** View model for Project - flattened structure for UI components */

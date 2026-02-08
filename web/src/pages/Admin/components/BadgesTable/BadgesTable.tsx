@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
-import type { Badge } from '../../../../api/generated/schemas/badge'
+import { Button, Checkbox, Modal, ModalBody, ModalFooter, Badge } from '../../../../ui'
+import type { Badge as BadgeSchema } from '../../../../api/generated/schemas/badge'
 import { TableSkeleton } from '../TableSkeleton'
 import styles from './BadgesTable.module.scss'
 
@@ -10,7 +10,7 @@ const { useAdminListBadges } = AdminApi
 
 type BadgesTableProps = {
   onNewClick: () => void
-  onEditClick: (badge: Badge) => void
+  onEditClick: (badge: BadgeSchema) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
 }
@@ -183,15 +183,14 @@ export function BadgesTable({
                   )}
                 </td>
                 <td>
-                  <span
-                    className={styles.badgePreview}
-                    style={{
-                      backgroundColor: badge.backgroundColor || '#000',
-                      color: badge.textColor || '#fff',
-                    }}
-                  >
-                    {badge.name || 'Badge'}
-                  </span>
+                  <Badge
+                    text={badge.name || 'Badge'}
+                    backgroundColor={badge.backgroundColor || '#000000'}
+                    textColor={badge.textColor || '#FFFFFF'}
+                    iconName={badge.icon}
+                    iconColor={badge.iconColor}
+                    size="small"
+                  />
                 </td>
                 <td>{badge.name || '-'}</td>
                 <td>{badge.slug || '-'}</td>

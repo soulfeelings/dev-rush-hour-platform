@@ -24,6 +24,7 @@ export * from './Typography'
 export * from './Link'
 
 // Data Display
+export * from './Badge'
 export * from './RoiBadge'
 
 // Feedback

@@ -18,6 +18,7 @@ export function apiProjectToProperty(apiProject: Project): Property {
       backgroundColor: b.backgroundColor ?? '#000000',
       textColor: b.textColor ?? '#FFFFFF',
       icon: b.icon,
+      iconColor: b.iconColor,
     }))
 
   // Coordinates tuple

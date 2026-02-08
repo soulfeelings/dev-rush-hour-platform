@@ -440,6 +440,7 @@ export default function ProjectDetail() {
                   backgroundColor={project.badges[0].backgroundColor || '#000'}
                   textColor={project.badges[0].textColor || '#fff'}
                   iconName={project.badges[0].icon || undefined}
+                  iconColor={project.badges[0].iconColor}
                 />
               )}
             </div>

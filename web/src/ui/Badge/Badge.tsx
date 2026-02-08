@@ -8,6 +8,7 @@ export interface BadgeProps {
   textColor?: string
   icon?: ReactNode
   iconName?: string
+  iconColor?: string
   size?: 'small' | 'default'
   className?: string
 }
@@ -18,6 +19,7 @@ export const Badge = ({
   textColor = 'white',
   icon,
   iconName,
+  iconColor,
   size = 'default',
   className,
 }: BadgeProps) => {
@@ -31,7 +33,11 @@ export const Badge = ({
         color: textColor,
       }}
     >
-      {resolvedIcon && <span className={styles.icon}>{resolvedIcon}</span>}
+      {resolvedIcon && (
+        <span className={styles.icon} style={iconColor ? { color: iconColor } : undefined}>
+          {resolvedIcon}
+        </span>
+      )}
       <span className={styles.text}>{text}</span>
     </span>
   )

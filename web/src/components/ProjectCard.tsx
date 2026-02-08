@@ -88,6 +88,7 @@ export const ProjectCard = ({
                     backgroundColor={badge.backgroundColor}
                     textColor={badge.textColor}
                     iconName={badge.icon}
+                    iconColor={badge.iconColor}
                   />
                 ))}
               </div>

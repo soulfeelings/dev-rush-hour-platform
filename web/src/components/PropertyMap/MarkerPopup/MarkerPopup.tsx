@@ -56,6 +56,7 @@ export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) =
                   backgroundColor={badge.backgroundColor}
                   textColor={badge.textColor}
                   iconName={badge.icon}
+                  iconColor={badge.iconColor}
                   size="small"
                 />
               ))}

@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button, Input } from '../../../../ui'
 import { generateSlug } from '../../../../utils/generateSlug'
+import { badgeIconMap } from '../../../../utils/badgeIcons'
+import { Gift, Sofa, Tag, Stamp, Waves, Anchor, Sparkles, Key } from 'lucide-react'
 import type { BadgeCreateRequest } from '../../../../api/generated/schemas/badgeCreateRequest'
 import type { Badge } from '../../../../api/generated/schemas/badge'
 import styles from './BadgeForm.module.scss'
@@ -26,6 +28,7 @@ type FormData = {
   backgroundColor: string
   textColor: string
   icon: string
+  iconColor: string
   sortOrder: string
 }
 
@@ -50,6 +53,17 @@ function buildHex(rgb: string, alpha: number): string {
   return '#' + clean + alphaHex
 }
 
+const AVAILABLE_ICONS = [
+  { name: 'gift', component: Gift, label: 'Gift' },
+  { name: 'sofa', component: Sofa, label: 'Sofa' },
+  { name: 'tag', component: Tag, label: 'Tag' },
+  { name: 'passport', component: Stamp, label: 'Passport' },
+  { name: 'waves', component: Waves, label: 'Waves' },
+  { name: 'anchor', component: Anchor, label: 'Anchor' },
+  { name: 'sparkles', component: Sparkles, label: 'Sparkles' },
+  { name: 'key', component: Key, label: 'Key' },
+] as const
+
 export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }: BadgeFormProps) {
   const defaultForm = useMemo(
     () => ({
@@ -58,6 +72,7 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
       backgroundColor: '',
       textColor: '',
       icon: '',
+      iconColor: '#FFD400',
       sortOrder: '',
     }),
     []
@@ -71,6 +86,7 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
         backgroundColor: initialData.backgroundColor || '',
         textColor: initialData.textColor || '',
         icon: initialData.icon || '',
+        iconColor: '',
         sortOrder: initialData.sortOrder?.toString() || '',
       }
     }
@@ -113,6 +129,7 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
       backgroundColor: initialData.backgroundColor || '',
       textColor: initialData.textColor || '',
       icon: initialData.icon || '',
+      iconColor: '',
       sortOrder: initialData.sortOrder?.toString() || '',
     }
   }, [initialData])
@@ -125,6 +142,7 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
       form.backgroundColor !== initialFormData.backgroundColor ||
       form.textColor !== initialFormData.textColor ||
       form.icon !== initialFormData.icon ||
+      form.iconColor !== initialFormData.iconColor ||
       form.sortOrder !== initialFormData.sortOrder
     )
   }, [form, initialFormData, isEditMode])
@@ -166,7 +184,7 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
       backgroundColor: form.backgroundColor,
       textColor: form.textColor,
       icon: form.icon || undefined,
-      status: 'active',
+      iconColor: form.iconColor || undefined,
       sortOrder: parseInt(form.sortOrder, 10),
     }
     if (!isEditMode) {
@@ -279,16 +297,78 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
             color: form.textColor,
           }}
         >
+          {form.icon && badgeIconMap[form.icon] && (
+            <span className={styles.previewIcon} style={{ color: form.iconColor || '#FFD400' }}>
+              {badgeIconMap[form.icon]}
+            </span>
+          )}
           {form.name || 'Badge Preview'}
         </span>
       </div>
 
-      <Input
-        label="Icon (optional)"
-        value={form.icon}
-        onChange={e => setForm({ ...form, icon: e.target.value })}
-        placeholder="e.g., gift, tag, star"
-      />
+      <div className={styles.iconSection}>
+        <label className={styles.colorLabel}>Icon (optional)</label>
+        <div className={styles.iconGrid}>
+          <button
+            type="button"
+            className={`${styles.iconOption} ${!form.icon ? styles.iconOptionActive : ''}`}
+            onClick={() => setForm({ ...form, icon: '' })}
+            title="No icon"
+          >
+            <span className={styles.noIcon}>—</span>
+          </button>
+          {AVAILABLE_ICONS.map(({ name, component: IconComponent, label }) => (
+            <button
+              key={name}
+              type="button"
+              className={`${styles.iconOption} ${form.icon === name ? styles.iconOptionActive : ''}`}
+              onClick={() => setForm({ ...form, icon: name })}
+              title={label}
+            >
+              <IconComponent size={20} />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {form.icon && (
+        <div className={styles.colorField}>
+          <label className={styles.colorLabel}>Icon Color (optional)</label>
+          <div className={styles.colorInputWrapper}>
+            <input
+              type="color"
+              value={getRgb(form.iconColor || '#FFD400')}
+              onChange={e => {
+                const alpha = getAlpha(form.iconColor)
+                setForm({ ...form, iconColor: buildHex(e.target.value, alpha) })
+              }}
+              className={styles.colorPicker}
+            />
+            <Input
+              value={form.iconColor}
+              onChange={e => setForm({ ...form, iconColor: e.target.value })}
+              placeholder="#FFFFFFCC"
+            />
+          </div>
+          <div className={styles.opacityRow}>
+            <label className={styles.opacityLabel}>Opacity: {getAlpha(form.iconColor)}%</label>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={getAlpha(form.iconColor)}
+              onChange={e => {
+                const alpha = parseInt(e.target.value, 10)
+                setForm({
+                  ...form,
+                  iconColor: buildHex(getRgb(form.iconColor || '#FFD400'), alpha),
+                })
+              }}
+              className={styles.opacitySlider}
+            />
+          </div>
+        </div>
+      )}
 
       <Input
         label="Sort Order"
