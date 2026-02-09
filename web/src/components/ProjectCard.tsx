@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -12,6 +12,25 @@ import { RoiBadge } from '../ui/RoiBadge'
 import styles from './ProjectCard.module.scss'
 import type { Property } from '../types/property'
 import { splitCompletionDate } from './splitCompletionDate'
+
+const MOBILE_BREAKPOINT = 768
+
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_BREAKPOINT : false
+  )
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  return isMobile
+}
 
 interface ProjectCardProps {
   property: Property
@@ -33,6 +52,7 @@ export const ProjectCard = ({
   compact,
 }: ProjectCardProps) => {
   const { t } = useTranslation()
+  const isMobile = useIsMobile()
   const [isFavorited, setIsFavorited] = useState(false)
   const [isMouseHovered, setIsMouseHovered] = useState(false)
   const isHovered = forceHovered ?? isMouseHovered
@@ -145,7 +165,7 @@ export const ProjectCard = ({
               {property.discount && property.discount > 0 && property.priceFrom && (
                 <motion.div
                   initial={false}
-                  animate={{ height: isHovered ? 'auto' : 0 }}
+                  animate={{ height: isHovered || isMobile ? 'auto' : 0 }}
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
                   style={{ overflow: 'hidden' }}
                 >
