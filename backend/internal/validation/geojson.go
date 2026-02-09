@@ -5,6 +5,24 @@ import (
 	"rush-hour-platform/backend/internal/domain"
 )
 
+// NormalizeGeoJSONPolygon auto-closes rings that aren't closed.
+// Map drawing libraries (Leaflet, Mapbox) typically don't include the closing point.
+func NormalizeGeoJSONPolygon(polygon *domain.GeoJSONPolygon) {
+	if polygon == nil {
+		return
+	}
+	for i, ring := range polygon.Coordinates {
+		if len(ring) < 3 {
+			continue
+		}
+		first := ring[0]
+		last := ring[len(ring)-1]
+		if len(first) == 2 && len(last) == 2 && (first[0] != last[0] || first[1] != last[1]) {
+			polygon.Coordinates[i] = append(ring, first)
+		}
+	}
+}
+
 // ValidateGeoJSONPolygon проверяет, что полигон замкнут и координаты корректны
 func ValidateGeoJSONPolygon(polygon *domain.GeoJSONPolygon) error {
 	if polygon == nil {
@@ -19,6 +37,9 @@ func ValidateGeoJSONPolygon(polygon *domain.GeoJSONPolygon) error {
 		return fmt.Errorf("polygon must have at least one ring")
 	}
 
+	// Auto-close rings before validation
+	NormalizeGeoJSONPolygon(polygon)
+
 	// Проверяем каждый ring (первый - внешний, остальные - holes)
 	for ringIdx, ring := range polygon.Coordinates {
 		if len(ring) < 4 {
@@ -31,11 +52,6 @@ func ValidateGeoJSONPolygon(polygon *domain.GeoJSONPolygon) error {
 
 		if len(first) != 2 || len(last) != 2 {
 			return fmt.Errorf("ring %d: each point must have exactly 2 coordinates [lng, lat]", ringIdx)
-		}
-
-		// Проверяем замкнутость (первая и последняя точки должны совпадать)
-		if first[0] != last[0] || first[1] != last[1] {
-			return fmt.Errorf("ring %d: polygon is not closed - first and last points must be identical", ringIdx)
 		}
 
 		// Проверяем валидность координат [lng, lat]

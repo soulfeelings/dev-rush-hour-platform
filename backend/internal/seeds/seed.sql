@@ -47,7 +47,8 @@ ON CONFLICT (slug) DO NOTHING;
 
 -- Insert cities
 INSERT INTO cities (slug, name, status) VALUES
-('dubai', 'Dubai', 'active')
+('dubai', 'Dubai', 'active'),
+('abu-dhabi', 'Abu Dhabi', 'active')
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert developers
@@ -59,12 +60,17 @@ INSERT INTO developers (slug, name, status, data) VALUES
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert areas
-INSERT INTO areas (slug, name, city, lat, lng, status) VALUES
-('dubai-marina', 'Dubai Marina', 'Dubai', 25.0772, 55.1398, 'active'),
-('al-jazeera-al-hamra-industrial', 'Al Jazeera Al Hamra Industrial', 'Dubai', 25.3340, 55.3070, 'active'),
-('dubai-islands', 'Dubai Islands', 'Dubai', 25.3216, 55.2911, 'active'),
-('palm-jumeirah', 'Palm Jumeirah', 'Dubai', 25.1154, 55.1390, 'active'),
-('downtown-dubai', 'Downtown Dubai', 'Dubai', 25.1972, 55.2744, 'active')
+INSERT INTO areas (slug, name, city, city_id, lat, lng, status, data) VALUES
+('dubai-marina', 'Dubai Marina', 'Dubai', (SELECT id FROM cities WHERE slug = 'dubai'), 25.0772, 55.1398, 'active',
+ '{"boundary": {"type": "Polygon", "coordinates": [[[55.1320, 25.0840], [55.1355, 25.0855], [55.1400, 25.0850], [55.1445, 25.0835], [55.1480, 25.0800], [55.1495, 25.0760], [55.1490, 25.0715], [55.1465, 25.0680], [55.1425, 25.0665], [55.1380, 25.0670], [55.1340, 25.0690], [55.1310, 25.0725], [55.1295, 25.0770], [55.1305, 25.0810], [55.1320, 25.0840]]]}}'),
+('al-jazeera-al-hamra-industrial', 'Al Jazeera Al Hamra Industrial', 'Dubai', (SELECT id FROM cities WHERE slug = 'dubai'), 25.3340, 55.3070, 'active',
+ '{"boundary": {"type": "Polygon", "coordinates": [[[55.2960, 25.3410], [55.3010, 25.3430], [55.3070, 25.3435], [55.3130, 25.3420], [55.3175, 25.3390], [55.3195, 25.3345], [55.3190, 25.3295], [55.3165, 25.3255], [55.3120, 25.3235], [55.3065, 25.3230], [55.3010, 25.3245], [55.2970, 25.3275], [55.2950, 25.3315], [55.2948, 25.3365], [55.2960, 25.3410]]]}}'),
+('dubai-islands', 'Dubai Islands', 'Dubai', (SELECT id FROM cities WHERE slug = 'dubai'), 25.3216, 55.2911, 'active',
+ '{"boundary": {"type": "Polygon", "coordinates": [[[55.2780, 25.3290], [55.2830, 25.3340], [55.2880, 25.3360], [55.2940, 25.3355], [55.3000, 25.3330], [55.3040, 25.3285], [55.3050, 25.3230], [55.3035, 25.3170], [55.2990, 25.3120], [55.2935, 25.3095], [55.2875, 25.3090], [55.2820, 25.3110], [55.2785, 25.3155], [55.2770, 25.3210], [55.2775, 25.3255], [55.2780, 25.3290]]]}}'),
+('palm-jumeirah', 'Palm Jumeirah', 'Dubai', (SELECT id FROM cities WHERE slug = 'dubai'), 25.1154, 55.1390, 'active',
+ '{"boundary": {"type": "Polygon", "coordinates": [[[55.1175, 25.1300], [55.1240, 25.1345], [55.1320, 25.1365], [55.1400, 25.1360], [55.1475, 25.1335], [55.1540, 25.1290], [55.1580, 25.1230], [55.1595, 25.1160], [55.1580, 25.1090], [55.1535, 25.1025], [55.1470, 25.0980], [55.1395, 25.0960], [55.1315, 25.0965], [55.1245, 25.0995], [55.1190, 25.1045], [55.1155, 25.1110], [55.1145, 25.1180], [55.1155, 25.1245], [55.1175, 25.1300]]]}}'),
+('downtown-dubai', 'Downtown Dubai', 'Dubai', (SELECT id FROM cities WHERE slug = 'dubai'), 25.1972, 55.2744, 'active',
+ '{"boundary": {"type": "Polygon", "coordinates": [[[55.2665, 25.2030], [55.2700, 25.2050], [55.2745, 25.2055], [55.2790, 25.2045], [55.2830, 25.2020], [55.2850, 25.1985], [55.2855, 25.1945], [55.2840, 25.1910], [55.2810, 25.1885], [55.2770, 25.1870], [55.2725, 25.1870], [55.2680, 25.1885], [55.2650, 25.1910], [55.2635, 25.1945], [55.2635, 25.1985], [55.2645, 25.2010], [55.2665, 25.2030]]]}}')
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert projects
@@ -94,7 +100,15 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
    },
    "featuresAmenities": ["Gym", "Swimming Pool", "Sea View", "Spa Center", "Children''s Playground", "Electric Vehicle Charging", "24/7 Security", "Underground Parking", "Concierge Service", "Private Beach"],
    "tags": ["9 декабря", "Акция для клиентов"],
-   "isRecommended": true, "isFeatured": true}'
+   "timeline": {
+     "projectAnnouncement": "2023-01-15",
+     "bookingStarted": "2023-03-01",
+     "constructionStarted": "2023-06-10",
+     "constructionProgress": "2025-01-15",
+     "constructionProgressPercent": 72.5,
+     "expectedCompletion": "2025-12-30"
+   },
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8", "isFeatured": true}'
 ),
 ('colibri-views', 'Colibri Views', 'active', 'sales announcement',
  (SELECT id FROM developers WHERE slug = 'major-developments'),
@@ -118,7 +132,13 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Gym", "Children''s Playground", "Landscaped Garden", "Barbecue Area", "Retail Space", "On-site Supermarket", "Picnic Area", "Sports Court", "Bicycle Paths", "Package Room"],
-   "isRecommended": false}'
+   "timeline": {
+     "projectAnnouncement": "2025-06-01",
+     "bookingStarted": "2025-09-15",
+     "constructionProgressPercent": 0,
+     "expectedCompletion": "2029-03-30"
+   },
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 ('luz-ora-residences', 'Luz Ora Residences', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'dia-developments'),
@@ -142,7 +162,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Gym", "Swimming Pool", "Sea View", "Private Beach", "Electric Vehicle Charging", "Yoga Studio", "Spa Center", "Kids Club", "Private Yacht Dock", "On-site Restaurant"],
-   "isRecommended": true}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 ('palm-jumeirah-residence', 'Palm Jumeirah Residence', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'emaar-properties'),
@@ -167,7 +187,15 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Gym", "Swimming Pool", "Sea View", "Spa Center", "Private Beach", "Infrared Saunas", "Poolside Restaurant", "Kids Club with Nanny", "Concierge Service", "Helipad"],
-   "isRecommended": false}'
+   "timeline": {
+     "projectAnnouncement": "2022-09-01",
+     "bookingStarted": "2022-11-15",
+     "constructionStarted": "2023-02-20",
+     "constructionProgress": "2025-12-01",
+     "constructionProgressPercent": 88.0,
+     "expectedCompletion": "2026-09-30"
+   },
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 ('downtown-dubai-tower', 'Downtown Dubai Tower', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'emaar-properties'),
@@ -192,7 +220,15 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Gym", "Swimming Pool", "Children''s Playground", "Yoga Studio", "Electric Vehicle Charging", "Indoor Tennis Court", "Library", "Cinema", "Conference Room", "Direct Access to Dubai Mall"],
-   "isRecommended": false}'
+   "timeline": {
+     "projectAnnouncement": "2024-03-01",
+     "bookingStarted": "2024-06-15",
+     "constructionStarted": "2024-10-01",
+     "constructionProgress": "2025-11-01",
+     "constructionProgressPercent": 20.04,
+     "expectedCompletion": "2028-03-30"
+   },
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 -- Additional projects for filter testing
 -- Budget-friendly studio project (low price, studios only)
@@ -215,7 +251,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Gym", "Swimming Pool", "24/7 Security"],
-   "isRecommended": false}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 -- Ultra-luxury project (very high price, large units)
 ('palm-royal-villas', 'Palm Royal Villas', 'active', 'start of sales',
@@ -239,7 +275,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Private Beach", "Yacht Berth", "Helipad", "Private Cinema", "Wine Cellar", "Spa", "Infinity Pool", "Smart Home"],
-   "isRecommended": true, "isFeatured": true}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8", "isFeatured": true}'
 ),
 -- Ready to move project (immediate completion)
 ('marina-gate-ready', 'Marina Gate Ready', 'active', 'sale',
@@ -262,7 +298,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Gym", "Swimming Pool", "Concierge", "Valet Parking", "Retail Podium"],
-   "isRecommended": false}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 -- Long-term off-plan (far completion date, high ROI)
 ('dubai-creek-tower', 'Dubai Creek Tower', 'active', 'sales announcement',
@@ -286,7 +322,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Observatory Deck", "Sky Lounge", "Infinity Pool", "Gym", "Spa", "Private Dining"],
-   "isRecommended": true}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 -- Mid-range family project (3-4 bedrooms focus)
 ('islands-family-homes', 'Islands Family Homes', 'active', 'sale',
@@ -309,7 +345,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Kids Club", "Playground", "School Nearby", "Community Pool", "Parks", "Cycling Paths", "Pet-Friendly"],
-   "isRecommended": false}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 -- Inactive/draft project for status testing
 ('palm-residences-phase2', 'Palm Residences Phase 2', 'draft', 'coming soon',
@@ -330,7 +366,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      "gallery": []
    },
    "featuresAmenities": ["TBA"],
-   "isRecommended": false}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 -- Very low ROI but high discount project
 ('al-hamra-value', 'Al Hamra Value Homes', 'active', 'sale',
@@ -354,7 +390,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Parking", "Security", "Gym"],
-   "isRecommended": false}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 ),
 -- High ROI investment project
 ('downtown-investment-suites', 'Downtown Investment Suites', 'active', 'sale',
@@ -377,7 +413,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Hotel Management", "Room Service", "Concierge", "Valet", "Restaurant", "Rooftop Bar"],
-   "isRecommended": true, "isFeatured": true}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8", "isFeatured": true}'
 ),
 -- Project with all bedroom types
 ('marina-complete-living', 'Marina Complete Living', 'active', 'sale',
@@ -405,7 +441,7 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
      ]
    },
    "featuresAmenities": ["Gym", "Swimming Pool", "Kids Play Area", "Jogging Track", "BBQ Area", "Retail", "Mosque"],
-   "isRecommended": false}'
+   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
 )
 ON CONFLICT (slug) DO NOTHING;
 
