@@ -1,0 +1,40 @@
+@use '@/styles' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: $radius-md;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  white-space: nowrap;
+}
+
+.default {
+  padding: 8px 12px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.small {
+  padding: 4px 8px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-yellow;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.text {
+  color: $color-text;
+  line-height: 1;
+}

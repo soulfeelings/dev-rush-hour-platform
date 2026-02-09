@@ -26,6 +26,7 @@ export * from './Link'
 // Data Display
 export * from './Badge'
 export * from './RoiBadge'
+export * from './InfrastructureTag'
 
 // Feedback
 export * from './Toast'
