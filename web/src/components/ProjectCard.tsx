@@ -250,9 +250,9 @@ export const ProjectCard = ({
               style={{ overflow: 'hidden' }}
             >
               <div className={styles.additionalInfo}>
-                <div className={styles.additionalInfoGrid}>
-                  {property.pricesByType && property.pricesByType.length > 0 ? (
-                    property.pricesByType.map((item, index) => (
+                {property.pricesByType && property.pricesByType.length > 0 ? (
+                  <div className={styles.additionalInfoGrid}>
+                    {property.pricesByType.map((item, index) => (
                       <div key={index} className={styles.additionalInfoItem}>
                         <Typography size="small" className={styles.additionalInfoLabel}>
                           {item.type}
@@ -266,23 +266,9 @@ export const ProjectCard = ({
                           {formatPrice(item.price, property.currency)}
                         </Typography>
                       </div>
-                    ))
-                  ) : property.types && property.types.length > 0 ? (
-                    <div className={styles.additionalInfoItem}>
-                      <Typography size="small" className={styles.additionalInfoLabel}>
-                        {property.types.join(', ')}
-                      </Typography>
-                      <Typography
-                        size="small"
-                        weight="medium"
-                        className={styles.additionalInfoValue}
-                      >
-                        <span className={styles.from}>{t('from')}</span>{' '}
-                        {formatPrice(property.priceFrom, property.currency)}
-                      </Typography>
-                    </div>
-                  ) : null}
-                </div>
+                    ))}
+                  </div>
+                ) : null}
 
                 <div className={styles.buttonContainer}>
                   <Button variant="primary" size="sm" fullWidth align="center">
