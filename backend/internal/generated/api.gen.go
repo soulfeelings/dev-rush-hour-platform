@@ -792,9 +792,7 @@ type ProjectData struct {
 	// IsFeatured Избранный проект
 	IsFeatured *bool `json:"isFeatured,omitempty"`
 
-	// IsRecommended Рекомендуемый проект
-	IsRecommended *bool  `json:"isRecommended,omitempty"`
-	Media         *Media `json:"media,omitempty"`
+	Media *Media `json:"media,omitempty"`
 
 	// OurPrice Our company price (AED)
 	OurPrice *float32 `json:"ourPrice,omitempty"`

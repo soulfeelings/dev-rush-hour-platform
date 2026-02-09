@@ -15,8 +15,6 @@ export interface ProjectData {
   specs?: ProjectDataSpecs
   featuresAmenities?: unknown[]
   media?: Media
-  /** Рекомендуемый проект */
-  isRecommended?: boolean
   /** Избранный проект */
   isFeatured?: boolean
   /** Теги проекта */

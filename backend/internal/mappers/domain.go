@@ -148,7 +148,7 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		}
 	}
 
-	// Always include data for isRecommended, isFeatured, tags
+	// Always include data for isFeatured, tags
 	specs := domainSpecsToGenerated(project.Data.Specs)
 	features := domainFeaturesAmenitiesToGenerated(project.Data.FeaturesAmenities)
 	media := domainMediaToGenerated(project.Data.Media)
@@ -157,8 +157,7 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		Specs:             specs,
 		FeaturesAmenities: features,
 		Media:             media,
-		IsRecommended:     &project.Data.IsRecommended,
-		IsFeatured:        &project.Data.IsFeatured,
+		IsFeatured: &project.Data.IsFeatured,
 	}
 	if project.Data.Tags != nil && len(project.Data.Tags) > 0 {
 		result.Data.Tags = &project.Data.Tags

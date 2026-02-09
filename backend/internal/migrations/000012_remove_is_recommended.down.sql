@@ -1,0 +1,1 @@
+-- Cannot restore removed isRecommended values

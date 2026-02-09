@@ -31,7 +31,6 @@ type ProjectData struct {
 	Specs             map[string]interface{} `json:"specs,omitempty"`
 	FeaturesAmenities []interface{}          `json:"featuresAmenities,omitempty"`
 	Media             *Media                 `json:"media,omitempty"`
-	IsRecommended     bool                   `json:"isRecommended,omitempty"`
 	IsFeatured        bool                   `json:"isFeatured,omitempty"`
 	Tags              []string               `json:"tags,omitempty"`
 	YoutubeURL        string                 `json:"youtubeUrl,omitempty"`

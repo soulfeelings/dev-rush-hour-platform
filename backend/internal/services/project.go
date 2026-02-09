@@ -232,7 +232,6 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 		existing.Data.Timeline = updates.Data.Timeline
 	}
 	// Boolean fields - always take from updates if Data is provided
-	existing.Data.IsRecommended = updates.Data.IsRecommended
 	existing.Data.IsFeatured = updates.Data.IsFeatured
 	if updates.Data.Tags != nil {
 		existing.Data.Tags = updates.Data.Tags

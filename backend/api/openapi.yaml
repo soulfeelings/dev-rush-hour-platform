@@ -2105,9 +2105,6 @@ components:
           items: {}
         media:
           $ref: "#/components/schemas/Media"
-        isRecommended:
-          type: boolean
-          description: Рекомендуемый проект
         isFeatured:
           type: boolean
           description: Избранный проект

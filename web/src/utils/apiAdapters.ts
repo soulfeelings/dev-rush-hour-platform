@@ -56,7 +56,6 @@ export function apiProjectToProperty(apiProject: Project): Property {
     sale: getSaleFromStatus(apiProject.sale),
     status: apiProject.status === 'active' ? 'active' : 'inactive',
     description: typeof description === 'string' ? description : undefined,
-    isRecommended: apiProject.data?.isRecommended,
     isFeatured: apiProject.data?.isFeatured,
     tags: apiProject.data?.tags,
     discount,

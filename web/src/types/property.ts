@@ -39,7 +39,6 @@ export interface Property {
   gallery?: string[]
   logoUrl?: string
   tags?: string[]
-  isRecommended?: boolean
   coordinates?: [number, number]
   isFeatured?: boolean
   description?: string
