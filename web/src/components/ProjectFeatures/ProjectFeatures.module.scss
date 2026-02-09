@@ -43,22 +43,15 @@
   height: 36px;
   border-radius: $radius-md;
   background: $color-yellow-light;
+  color: $color-yellow;
   flex-shrink: 0;
   transition: all $transition-normal;
 }
 
 .featureItem:hover .iconWrapper {
   background: $color-yellow;
-  transform: scale(1.1);
-}
-
-.icon {
-  color: $color-yellow;
-  transition: color $transition-normal;
-}
-
-.featureItem:hover .icon {
   color: $color-text-inverse;
+  transform: scale(1.1);
 }
 
 .featureText {
