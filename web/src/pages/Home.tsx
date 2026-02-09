@@ -156,13 +156,12 @@ export default function Home() {
         <div className={styles.heroOverlay} />
         <div className={styles.heroInner}>
           <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>
-              {t('home.hero.title')}{' '}
-              <span className={styles.heroHighlight}>{t('home.hero.titleHighlight')}</span>{' '}
-              {t('home.hero.titleSuffix')}
-            </h1>
+            <span className={styles.heroEyebrow}>{t('home.hero.eyebrow')}</span>
+            <h1 className={styles.heroTitle}>{t('home.hero.title')}</h1>
+            <div className={styles.heroDivider} />
             <p className={styles.heroDesc}>
-              <strong>{t('home.hero.descriptionBold')}</strong> {t('home.hero.description')}
+              <span className={styles.heroDescBold}>{t('home.hero.descriptionBold')}</span>{' '}
+              {t('home.hero.description')}
             </p>
             <HeroFilters />
           </div>
