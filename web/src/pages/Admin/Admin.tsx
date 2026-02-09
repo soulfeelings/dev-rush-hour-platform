@@ -8,6 +8,7 @@ import {
   type DeveloperCreateRequest,
   type ProjectCreateRequest,
   type CityCreateRequest,
+  type AreaCreateRequest,
   type Project,
   type LotListItem,
   type Developer,
@@ -33,12 +34,14 @@ import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreate
 import type { Infrastructure } from '../../api/generated/schemas/infrastructure'
 import type { InfrastructureCreateRequest } from '../../api/generated/schemas/infrastructureCreateRequest'
 import { Toast } from '../../ui'
+import { cleanupOldDrafts } from '../../constants/storage'
 import { AuthForm } from './components/AuthForm'
 import { Sidebar } from './components/Sidebar'
 import { RightSidebar } from './components/RightSidebar'
 import { DeveloperForm } from './components/DeveloperForm'
 import { ProjectForm } from './components/ProjectForm'
 import { LotForm } from './components/LotForm'
+import { AreaForm } from './components/AreaForm'
 import { ProjectsTable } from './components/ProjectsTable'
 import { LotsTable } from './components/LotsTable'
 import { AreasTable } from './components/AreasTable'
@@ -64,6 +67,7 @@ const {
   useAdminListProjects,
   useAdminListBadges,
   useAdminListInfrastructures,
+  useAdminListCities,
   useAdminCreateDeveloper,
   useAdminCreateProject,
   useAdminCreateLot,
@@ -76,6 +80,8 @@ const {
   useAdminUpdateBadge,
   useAdminCreateInfrastructure,
   useAdminUpdateInfrastructure,
+  useAdminCreateArea,
+  useAdminUpdateArea,
   useAdminSoftDeleteProject,
   useAdminSoftDeleteLot,
   useAdminSoftDeleteArea,
@@ -100,6 +106,8 @@ const {
 } = AdminApi
 import styles from './Admin.module.scss'
 
+cleanupOldDrafts()
+
 export default function Admin() {
   const queryClient = useQueryClient()
   const params = useParams<'*'>()
@@ -110,7 +118,7 @@ export default function Admin() {
   const [formKey, setFormKey] = useState(0)
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false)
   const [rightSidebarForm, setRightSidebarForm] = useState<
-    'developer' | 'project' | 'lot' | 'city' | 'badge' | 'infrastructure' | null
+    'developer' | 'project' | 'lot' | 'area' | 'city' | 'badge' | 'infrastructure' | null
   >(null)
   const [editingEntity, setEditingEntity] = useState<
     Project | LotListItem | Developer | Area | City | Badge | Infrastructure | null
@@ -132,12 +140,16 @@ export default function Admin() {
   const { data: infrastructuresData } = useAdminListInfrastructures({
     query: { enabled: isAuthenticated },
   })
+  const { data: citiesData } = useAdminListCities({
+    query: { enabled: isAuthenticated },
+  })
 
   const developers = developersData || []
   const areas = areasData || []
   const projects = projectsData || []
   const badges = badgesData || []
   const infrastructures = infrastructuresData || []
+  const cities = citiesData || []
 
   const createDeveloperMutation = useAdminCreateDeveloper({
     mutation: {
@@ -231,6 +243,38 @@ export default function Admin() {
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to update lot')
+      },
+    },
+  })
+
+  const createAreaMutation = useAdminCreateArea({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.AREAS] })
+        setSuccess('Area created successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to create area')
+      },
+    },
+  })
+
+  const updateAreaMutation = useAdminUpdateArea({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.AREAS] })
+        setSuccess('Area updated successfully!')
+        setFormKey((prev: number) => prev + 1)
+        setTimeout(() => {
+          handleCloseRightSidebar()
+        }, 100)
+      },
+      onError: err => {
+        setError(err instanceof Error ? err.message : 'Failed to update area')
       },
     },
   })
@@ -605,12 +649,14 @@ export default function Admin() {
     createDeveloperMutation.isPending ||
     createProjectMutation.isPending ||
     createLotMutation.isPending ||
+    createAreaMutation.isPending ||
     createCityMutation.isPending ||
     createBadgeMutation.isPending ||
     createInfrastructureMutation.isPending ||
     updateDeveloperMutation.isPending ||
     updateProjectMutation.isPending ||
     updateLotMutation.isPending ||
+    updateAreaMutation.isPending ||
     updateCityMutation.isPending ||
     updateBadgeMutation.isPending ||
     updateInfrastructureMutation.isPending ||
@@ -690,7 +736,7 @@ export default function Admin() {
   }
 
   const handleNewClick = (
-    formType: 'developer' | 'project' | 'lot' | 'city' | 'badge' | 'infrastructure'
+    formType: 'developer' | 'project' | 'lot' | 'area' | 'city' | 'badge' | 'infrastructure'
   ) => {
     setEditingEntity(null)
     setRightSidebarForm(formType)
@@ -701,7 +747,7 @@ export default function Admin() {
 
   const handleEditClick = (
     entity: Project | LotListItem | Developer | Area | City | Badge | Infrastructure,
-    formType: 'developer' | 'project' | 'lot' | 'city' | 'badge' | 'infrastructure'
+    formType: 'developer' | 'project' | 'lot' | 'area' | 'city' | 'badge' | 'infrastructure'
   ) => {
     setEditingEntity(entity)
     setRightSidebarForm(formType)
@@ -744,6 +790,16 @@ export default function Admin() {
       updateLotMutation.mutate({ id: editingEntity.id, data: payload as never })
     } else {
       createLotMutation.mutate({ data: payload as never })
+    }
+  }
+
+  const handleAreaSubmit = (payload: AreaCreateRequest) => {
+    setError(null)
+    setSuccess(null)
+    if (editingEntity && 'id' in editingEntity && editingEntity.id) {
+      updateAreaMutation.mutate({ id: editingEntity.id, data: payload })
+    } else {
+      createAreaMutation.mutate({ data: payload })
     }
   }
 
@@ -1225,6 +1281,7 @@ export default function Admin() {
     if (rightSidebarForm === 'developer') return isEditMode ? 'Edit Developer' : 'Create Developer'
     if (rightSidebarForm === 'project') return isEditMode ? 'Edit Project' : 'Create Project'
     if (rightSidebarForm === 'lot') return isEditMode ? 'Edit Lot' : 'Create Lot'
+    if (rightSidebarForm === 'area') return isEditMode ? 'Edit Area' : 'Create Area'
     if (rightSidebarForm === 'city') return isEditMode ? 'Edit City' : 'Create City'
     if (rightSidebarForm === 'badge') return isEditMode ? 'Edit Badge' : 'Create Badge'
     if (rightSidebarForm === 'infrastructure')
@@ -1310,8 +1367,8 @@ export default function Admin() {
             element={
               <>
                 <AreasTable
-                  onNewClick={() => handleNewClick('developer')}
-                  onEditClick={area => handleEditClick(area, 'developer')}
+                  onNewClick={() => handleNewClick('area')}
+                  onEditClick={area => handleEditClick(area, 'area')}
                   onDelete={handleDeleteAreas}
                   deleteLoading={deleteLoading}
                 />
@@ -1403,6 +1460,7 @@ export default function Admin() {
             isEditMode={isEditMode}
           />
         )}
+
         {rightSidebarForm === 'project' && (
           <ProjectForm
             key={formKey}
@@ -1428,6 +1486,16 @@ export default function Admin() {
               isEditMode && 'projectId' in editingEntity ? (editingEntity as LotListItem) : null
             }
             isEditMode={isEditMode}
+          />
+        )}
+        {rightSidebarForm === 'area' && (
+          <AreaForm
+            key={formKey}
+            onSubmit={handleAreaSubmit}
+            loading={loading}
+            initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as Area) : null}
+            isEditMode={isEditMode}
+            cities={cities}
           />
         )}
         {rightSidebarForm === 'city' && (

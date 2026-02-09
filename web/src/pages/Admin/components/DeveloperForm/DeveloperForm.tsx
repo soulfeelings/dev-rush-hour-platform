@@ -4,7 +4,9 @@ import { type DeveloperCreateRequest, type Developer } from '../../../../api'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './DeveloperForm.module.scss'
 
-const STORAGE_KEY = 'admin_developer_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.DEVELOPER_FORM
 
 type DeveloperFormProps = {
   onSubmit: (data: DeveloperCreateRequest) => void

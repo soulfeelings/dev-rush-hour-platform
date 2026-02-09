@@ -4,7 +4,9 @@ import { Plus, X } from 'lucide-react'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import styles from './LotForm.module.scss'
 
-const STORAGE_KEY = 'admin_lot_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.LOT_FORM
 
 type Project = {
   id?: string

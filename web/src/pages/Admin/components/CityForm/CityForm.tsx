@@ -4,7 +4,9 @@ import { generateSlug } from '../../../../utils/generateSlug'
 import { type CityCreateRequest, type City } from '../../../../api'
 import styles from './CityForm.module.scss'
 
-const STORAGE_KEY = 'admin_city_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.CITY_FORM
 
 type CityFormProps = {
   onSubmit: (data: CityCreateRequest) => void
