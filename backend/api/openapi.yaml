@@ -2157,6 +2157,11 @@ components:
           type: string
           format: date
           description: Date of construction progress milestone
+        constructionProgressPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Construction progress percentage (0-100)
         expectedCompletion:
           type: string
           format: date

@@ -835,6 +835,9 @@ type ProjectTimeline struct {
 	// ConstructionProgress Date of construction progress milestone
 	ConstructionProgress *openapi_types.Date `json:"constructionProgress,omitempty"`
 
+	// ConstructionProgressPercent Construction progress percentage (0-100)
+	ConstructionProgressPercent *int `json:"constructionProgressPercent,omitempty"`
+
 	// ConstructionStarted Date when construction started
 	ConstructionStarted *openapi_types.Date `json:"constructionStarted,omitempty"`
 

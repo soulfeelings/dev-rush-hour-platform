@@ -910,6 +910,9 @@ func generatedTimelineToDomain(timeline *generated.ProjectTimeline) *domain.Proj
 		t := timeline.ConstructionProgress.Time
 		result.ConstructionProgress = &t
 	}
+	if timeline.ConstructionProgressPercent != nil {
+		result.ConstructionProgressPercent = timeline.ConstructionProgressPercent
+	}
 	if timeline.ExpectedCompletion != nil {
 		t := timeline.ExpectedCompletion.Time
 		result.ExpectedCompletion = &t
@@ -937,6 +940,9 @@ func domainTimelineToGenerated(timeline *domain.ProjectTimeline) *generated.Proj
 	if timeline.ConstructionProgress != nil {
 		d := openapi_types.Date{Time: *timeline.ConstructionProgress}
 		result.ConstructionProgress = &d
+	}
+	if timeline.ConstructionProgressPercent != nil {
+		result.ConstructionProgressPercent = timeline.ConstructionProgressPercent
 	}
 	if timeline.ExpectedCompletion != nil {
 		d := openapi_types.Date{Time: *timeline.ExpectedCompletion}

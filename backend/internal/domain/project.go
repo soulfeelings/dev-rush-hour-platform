@@ -44,11 +44,12 @@ type ProjectData struct {
 }
 
 type ProjectTimeline struct {
-	ProjectAnnouncement  *time.Time `json:"projectAnnouncement,omitempty"`
-	BookingStarted       *time.Time `json:"bookingStarted,omitempty"`
-	ConstructionStarted  *time.Time `json:"constructionStarted,omitempty"`
-	ConstructionProgress *time.Time `json:"constructionProgress,omitempty"`
-	ExpectedCompletion   *time.Time `json:"expectedCompletion,omitempty"`
+	ProjectAnnouncement          *time.Time `json:"projectAnnouncement,omitempty"`
+	BookingStarted               *time.Time `json:"bookingStarted,omitempty"`
+	ConstructionStarted          *time.Time `json:"constructionStarted,omitempty"`
+	ConstructionProgress         *time.Time `json:"constructionProgress,omitempty"`
+	ConstructionProgressPercent  *int       `json:"constructionProgressPercent,omitempty"`
+	ExpectedCompletion           *time.Time `json:"expectedCompletion,omitempty"`
 }
 
 type Media struct {

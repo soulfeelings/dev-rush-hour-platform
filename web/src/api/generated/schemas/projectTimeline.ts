@@ -18,6 +18,8 @@ export interface ProjectTimeline {
   constructionStarted?: string
   /** Date of construction progress milestone */
   constructionProgress?: string
+  /** Construction progress percentage (0-100) */
+  constructionProgressPercent?: number
   /** Expected completion date */
   expectedCompletion?: string
 }
