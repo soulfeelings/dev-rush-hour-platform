@@ -203,6 +203,7 @@
   flex-direction: column;
   padding: $spacing-4;
   box-sizing: border-box;
+  margin-bottom: $spacing-16;
 
   @media (min-width: $breakpoint-lg) {
     padding: 0 $spacing-3;
