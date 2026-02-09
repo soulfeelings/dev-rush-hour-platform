@@ -245,7 +245,7 @@ export const ProjectCard = ({
             {/* Дополнительная информация (появляется при наведении) */}
             <motion.div
               initial={false}
-              animate={{ height: isHovered ? 'auto' : 0 }}
+              animate={{ height: isHovered || isMobile ? 'auto' : 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
               style={{ overflow: 'hidden' }}
             >
