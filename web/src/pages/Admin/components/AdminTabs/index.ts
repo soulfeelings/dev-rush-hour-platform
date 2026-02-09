@@ -1,1 +1,0 @@
-export { AdminTabs } from './AdminTabs'
