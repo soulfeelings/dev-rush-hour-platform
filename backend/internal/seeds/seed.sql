@@ -13,6 +13,38 @@ INSERT INTO badges (slug, name, background_color, text_color, icon, status, sort
 ('ready-to-move', 'Ready to Move', '#5856D6', '#FFFFFF', 'key', 'active', 8)
 ON CONFLICT (slug) DO NOTHING;
 
+-- Insert infrastructures
+INSERT INTO infrastructures (slug, name, icon, sort_order) VALUES
+('concierge', 'Concierge', 'concierge', 1),
+('restaurant', 'Restaurant', 'restaurant', 2),
+('vip-lounge', 'VIP Lounge', 'crown', 3),
+('chef-service', 'Chef Service', 'chef', 4),
+('gym', 'Gym', 'dumbbell', 5),
+('spa', 'Spa', 'sparkles', 6),
+('swimming-pool', 'Swimming Pool', 'waves', 7),
+('parking', 'Parking', 'car', 8),
+('access-card', 'Access Card', 'credit-card', 9),
+('security', 'Security', 'shield', 10),
+('playground', 'Playground', 'baby', 11),
+('ev-charging', 'EV Charging', 'zap', 12),
+('beach', 'Beach', 'umbrella', 13),
+('garden', 'Garden', 'trees', 14),
+('retail', 'Retail', 'store', 15),
+('supermarket', 'Supermarket', 'shopping-cart', 16),
+('bicycle-paths', 'Bicycle Paths', 'bike', 17),
+('library', 'Library', 'book-open', 18),
+('cinema', 'Cinema', 'film', 19),
+('yoga-studio', 'Yoga Studio', 'flower', 20),
+('sauna', 'Sauna', 'flame', 21),
+('kids-club', 'Kids Club', 'users', 22),
+('sports', 'Sports', 'trophy', 23),
+('yacht-dock', 'Yacht Dock', 'anchor', 24),
+('conference-room', 'Conference Room', 'presentation', 25),
+('internet', 'Internet', 'wifi', 26),
+('bar', 'Bar', 'wine', 27),
+('pet-friendly', 'Pet-friendly', 'dog', 28)
+ON CONFLICT (slug) DO NOTHING;
+
 -- Insert cities
 INSERT INTO cities (slug, name, status) VALUES
 ('dubai', 'Dubai', 'active')
