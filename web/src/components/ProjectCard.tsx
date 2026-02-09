@@ -91,7 +91,7 @@ export const ProjectCard = ({
             {hoverImage && (
               <motion.div
                 className={styles.hoverImageContainer}
-                animate={{ opacity: isHovered ? 1 : 0 }}
+                animate={{ opacity: isHovered || isMobile ? 1 : 0 }}
                 transition={{ duration: 0.3 }}
               >
                 <img src={hoverImage} alt={`${property.title} - hover`} />
