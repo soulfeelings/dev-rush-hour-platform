@@ -161,7 +161,9 @@ export default function Home() {
               <span className={styles.heroHighlight}>{t('home.hero.titleHighlight')}</span>{' '}
               {t('home.hero.titleSuffix')}
             </h1>
-            <p className={styles.heroDesc}>{t('home.hero.description')}</p>
+            <p className={styles.heroDesc}>
+              <strong>{t('home.hero.descriptionBold')}</strong> {t('home.hero.description')}
+            </p>
             <HeroFilters />
           </div>
         </div>
