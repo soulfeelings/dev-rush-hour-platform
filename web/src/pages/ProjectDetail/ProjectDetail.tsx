@@ -52,6 +52,7 @@ type ProjectDataFields = {
     bookingStarted?: string
     constructionStarted?: string
     constructionProgress?: string
+    constructionProgressPercent?: number
     expectedCompletion?: string
   }
   roi?: number
@@ -327,13 +328,42 @@ export default function ProjectDetail() {
 
   const timeline = projectDataFields?.timeline
 
-  const timelineItems = [
-    { label: 'Project announcement', date: timeline?.projectAnnouncement },
-    { label: 'Booking started', date: timeline?.bookingStarted },
-    { label: 'Construction started', date: timeline?.constructionStarted },
-    { label: 'Construction progress', date: timeline?.constructionProgress },
-    { label: 'Expected completion', date: timeline?.expectedCompletion },
-  ].filter(item => item.date)
+  const timelineItems = timeline
+    ? [
+        {
+          label: 'Project announcement',
+          value: timeline.projectAnnouncement
+            ? formatDate(timeline.projectAnnouncement)
+            : undefined,
+          completed: !!timeline.projectAnnouncement,
+        },
+        {
+          label: 'Booking started',
+          value: timeline.bookingStarted ? formatDate(timeline.bookingStarted) : undefined,
+          completed: !!timeline.bookingStarted,
+        },
+        {
+          label: 'Construction started',
+          value: timeline.constructionStarted
+            ? formatDate(timeline.constructionStarted)
+            : undefined,
+          completed: !!timeline.constructionStarted,
+        },
+        {
+          label: 'Construction progress',
+          value:
+            timeline.constructionProgressPercent != null
+              ? `${timeline.constructionProgressPercent}%`
+              : undefined,
+          completed: !!timeline.constructionProgress,
+        },
+        {
+          label: 'Expected completion',
+          value: timeline.expectedCompletion ? formatDate(timeline.expectedCompletion) : undefined,
+          completed: false,
+        },
+      ]
+    : []
 
   return (
     <div className={styles.container}>
@@ -363,15 +393,23 @@ export default function ProjectDetail() {
                       onClick={scrollPrev}
                       aria-label="Previous image"
                     >
-                      <ChevronLeft size={24} strokeWidth={2.5} />
+                      <ChevronLeft size={18} strokeWidth={2.5} />
                     </button>
                     <button
                       className={`${styles.navButton} ${styles.nextButton}`}
                       onClick={scrollNext}
                       aria-label="Next image"
                     >
-                      <ChevronRight size={24} strokeWidth={2.5} />
+                      <ChevronRight size={18} strokeWidth={2.5} />
                     </button>
+                    <div className={styles.progressBar}>
+                      {allImages.map((_, idx) => (
+                        <div
+                          key={idx}
+                          className={`${styles.progressSegment} ${idx === selectedIndex ? styles.progressSegmentActive : ''}`}
+                        />
+                      ))}
+                    </div>
                   </>
                 )}
               </>
@@ -420,6 +458,30 @@ export default function ProjectDetail() {
           )}
         </div>
       </section>
+
+      {/* Project Timeline */}
+      {timelineItems.length > 0 && (
+        <section className={styles.timelineSection}>
+          <h2>Project timeline</h2>
+          <div className={styles.timelineCard}>
+            <div className={styles.timelineList}>
+              {timelineItems.map((item, idx) => (
+                <div key={idx} className={styles.timelineItem}>
+                  <div
+                    className={`${styles.timelineDot} ${item.completed ? styles.timelineDotCompleted : ''}`}
+                  >
+                    {item.completed && <Check size={12} />}
+                  </div>
+                  <div className={styles.timelineContent}>
+                    <span className={styles.timelineLabel}>{item.label}</span>
+                    {item.value && <span className={styles.timelineDate}>{item.value}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Project Header */}
       <section className={styles.projectHeader}>
@@ -496,25 +558,6 @@ export default function ProjectDetail() {
             </div>
           )}
         </div>
-
-        {timelineItems.length > 0 && (
-          <div className={styles.projectTimeline}>
-            <h3>Project timeline</h3>
-            <div className={styles.timelineList}>
-              {timelineItems.map((item, idx) => (
-                <div key={idx} className={styles.timelineItem}>
-                  <div className={styles.timelineDot}>
-                    <Check size={12} />
-                  </div>
-                  <div className={styles.timelineContent}>
-                    <span className={styles.timelineLabel}>{item.label}</span>
-                    <span className={styles.timelineDate}>{formatDate(item.date)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </section>
 
       {/* Description Section */}
@@ -539,7 +582,9 @@ export default function ProjectDetail() {
         <section className={styles.infrastructureSection}>
           <h2>Residential complex infrastructure</h2>
           <ProjectFeatures
-            features={project.infrastructures.map(i => i.name).filter((n): n is string => !!n)}
+            features={project.infrastructures
+              .filter((i): i is Infrastructure & { name: string } => !!i.name)
+              .map(i => ({ name: i.name, icon: i.icon }))}
             maxItems={12}
           />
         </section>

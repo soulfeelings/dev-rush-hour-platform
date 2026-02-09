@@ -97,6 +97,13 @@
   gap: 0.5rem;
 }
 
+.progressRow {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 1rem;
+  align-items: start;
+}
+
 .badgesList {
   display: flex;
   flex-wrap: wrap;

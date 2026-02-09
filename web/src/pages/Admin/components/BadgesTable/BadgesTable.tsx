@@ -194,7 +194,6 @@ export function BadgesTable({
                 </td>
                 <td>{badge.name || '-'}</td>
                 <td>{badge.slug || '-'}</td>
-                <td>{badge.status || '-'}</td>
                 <td>{badge.sortOrder ?? 0}</td>
               </tr>
             ))}

@@ -1,11 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button, Input } from '../../../../ui'
 import { generateSlug } from '../../../../utils/generateSlug'
+import { AVAILABLE_INFRASTRUCTURE_ICONS } from '../../../../utils/infrastructureIcons'
 import type { InfrastructureCreateRequest } from '../../../../api/generated/schemas/infrastructureCreateRequest'
 import type { Infrastructure } from '../../../../api/generated/schemas/infrastructure'
 import styles from './InfrastructureForm.module.scss'
 
-const STORAGE_KEY = 'admin_infrastructure_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.INFRASTRUCTURE_FORM
 
 type InfrastructureFormProps = {
   onSubmit: (data: InfrastructureCreateRequest) => void
@@ -150,12 +153,30 @@ export function InfrastructureForm({
       />
       <Input label="Slug" value={form.slug} disabled />
 
-      <Input
-        label="Icon (optional)"
-        value={form.icon}
-        onChange={e => setForm({ ...form, icon: e.target.value })}
-        placeholder="e.g., pool, gym, parking"
-      />
+      <div className={styles.iconSection}>
+        <label className={styles.iconLabel}>Icon (optional)</label>
+        <div className={styles.iconGrid}>
+          <button
+            type="button"
+            className={`${styles.iconOption} ${!form.icon ? styles.iconOptionActive : ''}`}
+            onClick={() => setForm({ ...form, icon: '' })}
+            title="No icon"
+          >
+            <span className={styles.noIcon}>—</span>
+          </button>
+          {AVAILABLE_INFRASTRUCTURE_ICONS.map(({ name, component: IconComponent, label }) => (
+            <button
+              key={name}
+              type="button"
+              className={`${styles.iconOption} ${form.icon === name ? styles.iconOptionActive : ''}`}
+              onClick={() => setForm({ ...form, icon: name })}
+              title={label}
+            >
+              <IconComponent size={20} />
+            </button>
+          ))}
+        </div>
+      </div>
 
       <Input
         label="Sort Order"

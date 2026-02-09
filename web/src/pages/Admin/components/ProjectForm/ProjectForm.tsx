@@ -21,7 +21,9 @@ import { MapPicker } from '../MapPicker'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './ProjectForm.module.scss'
 
-const STORAGE_KEY = 'admin_project_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.PROJECT_FORM
 
 // Функции для работы с датой формата YYYY-MM
 const parseCompletionDate = (dateStr: string): { month: string; year: string } => {
@@ -93,6 +95,7 @@ type FormData = {
     bookingStarted: string
     constructionStarted: string
     constructionProgress: string
+    constructionProgressPercent: string
     expectedCompletion: string
   }
   description: string
@@ -101,6 +104,7 @@ type FormData = {
   developerPrice: string
   paymentPlan: string
   completionDate: string
+  isFeatured: boolean
   badgeIds: string[]
   infrastructureIds: string[]
 }
@@ -176,6 +180,7 @@ export function ProjectForm({
         bookingStarted: '',
         constructionStarted: '',
         constructionProgress: '',
+        constructionProgressPercent: '',
         expectedCompletion: '',
       },
       description: '',
@@ -184,6 +189,7 @@ export function ProjectForm({
       developerPrice: '',
       paymentPlan: '',
       completionDate: '',
+      isFeatured: false,
       badgeIds: [] as string[],
       infrastructureIds: [] as string[],
     }),
@@ -219,6 +225,8 @@ export function ProjectForm({
           bookingStarted: initialData.data?.timeline?.bookingStarted || '',
           constructionStarted: initialData.data?.timeline?.constructionStarted || '',
           constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+          constructionProgressPercent:
+            initialData.data?.timeline?.constructionProgressPercent?.toString() || '',
           expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
         },
         description: descriptionStr,
@@ -227,6 +235,7 @@ export function ProjectForm({
         developerPrice: initialData.data?.developerPrice?.toString() || '',
         paymentPlan: initialData.data?.paymentPlan || '',
         completionDate: initialData.data?.completionDate || '',
+        isFeatured: initialData.data?.isFeatured ?? false,
         badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
         infrastructureIds:
           initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -323,6 +332,10 @@ export function ProjectForm({
         bookingStarted: initialData.data?.timeline?.bookingStarted || '',
         constructionStarted: initialData.data?.timeline?.constructionStarted || '',
         constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+        constructionProgressPercent:
+          (
+            initialData.data?.timeline as Record<string, unknown> | undefined
+          )?.constructionProgressPercent?.toString() || '',
         expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
       },
       description: descriptionStr,
@@ -331,6 +344,7 @@ export function ProjectForm({
       developerPrice: initialData.data?.developerPrice?.toString() || '',
       paymentPlan: initialData.data?.paymentPlan || '',
       completionDate: initialData.data?.completionDate || '',
+      isFeatured: initialData.data?.isFeatured ?? false,
       badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
       infrastructureIds:
         initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -347,6 +361,8 @@ export function ProjectForm({
       form.timeline.bookingStarted !== initialFormData.timeline.bookingStarted ||
       form.timeline.constructionStarted !== initialFormData.timeline.constructionStarted ||
       form.timeline.constructionProgress !== initialFormData.timeline.constructionProgress ||
+      form.timeline.constructionProgressPercent !==
+        initialFormData.timeline.constructionProgressPercent ||
       form.timeline.expectedCompletion !== initialFormData.timeline.expectedCompletion
     const badgeIdsChanged =
       form.badgeIds.length !== initialFormData.badgeIds.length ||
@@ -373,6 +389,7 @@ export function ProjectForm({
       form.developerPrice !== initialFormData.developerPrice ||
       form.paymentPlan !== initialFormData.paymentPlan ||
       form.completionDate !== initialFormData.completionDate ||
+      form.isFeatured !== initialFormData.isFeatured ||
       galleryChanged ||
       timelineChanged ||
       badgeIdsChanged ||
@@ -451,7 +468,7 @@ export function ProjectForm({
       dataPayload.youtubeUrl = form.youtubeUrl
     }
 
-    const timelineData: Record<string, string> = {}
+    const timelineData: Record<string, string | number> = {}
     if (form.timeline.projectAnnouncement)
       timelineData.projectAnnouncement = form.timeline.projectAnnouncement
     if (form.timeline.bookingStarted) timelineData.bookingStarted = form.timeline.bookingStarted
@@ -459,6 +476,11 @@ export function ProjectForm({
       timelineData.constructionStarted = form.timeline.constructionStarted
     if (form.timeline.constructionProgress)
       timelineData.constructionProgress = form.timeline.constructionProgress
+    if (form.timeline.constructionProgressPercent)
+      timelineData.constructionProgressPercent = parseInt(
+        form.timeline.constructionProgressPercent,
+        10
+      )
     if (form.timeline.expectedCompletion)
       timelineData.expectedCompletion = form.timeline.expectedCompletion
     if (Object.keys(timelineData).length > 0) {
@@ -483,6 +505,7 @@ export function ProjectForm({
     if (form.completionDate) {
       dataPayload.completionDate = form.completionDate
     }
+    dataPayload.isFeatured = form.isFeatured
 
     if (Object.keys(dataPayload).length > 0) {
       payload.data = dataPayload
@@ -557,6 +580,13 @@ export function ProjectForm({
         onChange={value => setForm({ ...form, sale: value })}
         error={errors.sale}
       />
+      <label className={styles.badgeItem}>
+        <Checkbox
+          checked={form.isFeatured}
+          onChange={() => setForm({ ...form, isFeatured: !form.isFeatured })}
+        />
+        <span>Featured Project</span>
+      </label>
       <Select
         label="Developer"
         options={[
@@ -825,17 +855,37 @@ export function ProjectForm({
             })
           }
         />
-        <Input
-          label="Construction Progress"
-          type="date"
-          value={form.timeline.constructionProgress}
-          onChange={e =>
-            setForm({
-              ...form,
-              timeline: { ...form.timeline, constructionProgress: e.target.value },
-            })
-          }
-        />
+        <div className={styles.progressRow}>
+          <Input
+            label="Construction Progress"
+            type="date"
+            value={form.timeline.constructionProgress}
+            onChange={e =>
+              setForm({
+                ...form,
+                timeline: { ...form.timeline, constructionProgress: e.target.value },
+              })
+            }
+          />
+          <Input
+            label="Progress (%)"
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            value={form.timeline.constructionProgressPercent}
+            onChange={e => {
+              const val = e.target.value
+              if (val === '' || (parseInt(val, 10) >= 0 && parseInt(val, 10) <= 100)) {
+                setForm({
+                  ...form,
+                  timeline: { ...form.timeline, constructionProgressPercent: val },
+                })
+              }
+            }}
+            placeholder="0–100"
+          />
+        </div>
         <Input
           label="Expected Completion"
           type="date"

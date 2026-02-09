@@ -7,7 +7,9 @@ import type { BadgeCreateRequest } from '../../../../api/generated/schemas/badge
 import type { Badge } from '../../../../api/generated/schemas/badge'
 import styles from './BadgeForm.module.scss'
 
-const STORAGE_KEY = 'admin_badge_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.BADGE_FORM
 
 type BadgeFormProps = {
   onSubmit: (data: BadgeCreateRequest) => void
@@ -69,8 +71,8 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
     () => ({
       slug: '',
       name: '',
-      backgroundColor: '',
-      textColor: '',
+      backgroundColor: '#0048FFCC',
+      textColor: '#FFFFFF',
       icon: '',
       iconColor: '#FFD400',
       sortOrder: '',

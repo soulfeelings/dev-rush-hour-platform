@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { getInfrastructureIcon } from '../../../../utils/infrastructureIcons'
 import type { Infrastructure } from '../../../../api/generated/schemas/infrastructure'
 import { TableSkeleton } from '../TableSkeleton'
 import styles from './InfrastructuresTable.module.scss'
@@ -175,7 +176,7 @@ export function InfrastructuresTable({
                 </td>
                 <td>{item.name || '-'}</td>
                 <td>{item.slug || '-'}</td>
-                <td>{item.icon || '-'}</td>
+                <td>{getInfrastructureIcon(item.icon) || item.icon || '-'}</td>
                 <td>{item.sortOrder ?? 0}</td>
               </tr>
             ))}

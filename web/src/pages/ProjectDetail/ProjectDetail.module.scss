@@ -77,12 +77,12 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.95);
+  background: $color-snow-white-60;
   backdrop-filter: blur(8px);
   color: $color-text;
   border: none;
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -106,7 +106,7 @@
 
   &:hover {
     transform: translateY(-50%) scale(1.1);
-    background: rgba(255, 255, 255, 1);
+    background: $color-snow-white;
     box-shadow:
       0 8px 24px rgba($color-yellow, 0.35),
       0 4px 8px rgba(0, 0, 0, 0.1);
@@ -142,9 +142,31 @@
   }
 }
 
+.progressBar {
+  position: absolute;
+  bottom: $spacing-3;
+  left: $spacing-4;
+  right: $spacing-4;
+  display: flex;
+  gap: 3px;
+  z-index: 10;
+}
+
+.progressSegment {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.3s ease;
+
+  &Active {
+    background: $color-yellow;
+  }
+}
+
 .thumbnailRow {
   display: flex;
-  gap: $spacing-2;
+  gap: 4px;
   overflow-x: auto;
   overflow-y: hidden;
   max-width: 100%;
@@ -175,9 +197,9 @@
 }
 
 .thumbnailWrapper {
-  flex: 0 0 80px;
-  height: 60px;
-  border-radius: $radius-md;
+  flex: 0 0 224px;
+  height: 155px;
+  border-radius: 6px;
   overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
@@ -426,13 +448,22 @@
 }
 
 // Timeline
-.projectTimeline {
-  h3 {
-    font-size: $font-size-lg;
+.timelineSection {
+  margin-bottom: $spacing-6;
+
+  h2 {
+    font-size: $font-size-xl;
     font-weight: $font-weight-semibold;
     margin: 0 0 $spacing-4 0;
     color: $color-text;
   }
+}
+
+.timelineCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  border: 1px solid $color-border;
+  padding: $spacing-6;
 }
 
 .timelineList {
@@ -446,7 +477,7 @@
   display: flex;
   align-items: flex-start;
   gap: $spacing-3;
-  padding-bottom: $spacing-3;
+  padding-bottom: $spacing-6;
   position: relative;
 
   &:not(:last-child)::before {
@@ -455,7 +486,7 @@
     left: 11px;
     top: 24px;
     width: 2px;
-    height: calc(100% - 12px);
+    height: calc(100% - 24px);
     background: $color-border;
   }
 
@@ -468,7 +499,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: $color-yellow;
+  background: transparent;
+  border: 2px solid $color-border;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -476,23 +508,29 @@
   flex-shrink: 0;
   position: relative;
   z-index: 1;
+
+  &Completed {
+    background: $color-yellow;
+    border-color: $color-yellow;
+  }
 }
 
 .timelineContent {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding-top: 2px;
 }
 
 .timelineLabel {
   font-size: $font-size-sm;
-  color: $color-text-secondary;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
 }
 
 .timelineDate {
   font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-text;
+  color: $color-text-secondary;
 }
 
 // Description Section
