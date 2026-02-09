@@ -374,7 +374,7 @@ $arrow-overlap: 6px;
 
 // bottom: arrow at top of popup, pointing up ↑
 .mp-arrow.mp-arrow-bottom {
-  margin: 0 auto -$arrow-overlap;
+  margin: 0 auto (-$arrow-overlap);
   transform: rotate(180deg);
 }
 
@@ -398,9 +398,6 @@ $arrow-overlap: 6px;
   .leaflet-popup-content-wrapper {
     padding: 0;
     border-radius: 12px;
-    box-shadow:
-      0 10px 40px rgba(0, 0, 0, 0.15),
-      0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: visible;
   }
 

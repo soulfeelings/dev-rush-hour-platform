@@ -22,6 +22,7 @@ declare module 'leaflet' {
   interface MarkerClusterGroup extends L.FeatureGroup {
     clearLayers(): this
     addLayer(layer: L.Layer): this
+    unspiderfy(): void
   }
   function markerClusterGroup(options?: MarkerClusterGroupOptions): MarkerClusterGroup
 }
@@ -55,6 +56,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
     const navigate = useNavigate()
     const mapRef = useRef<L.Map | null>(null)
     const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null)
+    const spiderfiedMarkersRef = useRef<Set<L.Marker>>(new Set())
 
     const updateMarkers = useCallback(() => {
       if (!mapRef.current) return
@@ -74,6 +76,15 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           zoomToBoundsOnClick: true,
           disableClusteringAtZoom: 15,
         })
+
+        clusterGroupRef.current.on('spiderfied', (e: unknown) => {
+          const evt = e as { cluster: L.MarkerCluster }
+          spiderfiedMarkersRef.current = new Set(evt.cluster.getAllChildMarkers())
+        })
+        clusterGroupRef.current.on('unspiderfied', () => {
+          spiderfiedMarkersRef.current.clear()
+        })
+
         map.addLayer(clusterGroupRef.current)
       }
 
@@ -87,18 +98,14 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
         const popupElement = createMarkerPopupElement(property)
 
-        const markerSize = 12
-
         const popup = L.popup({
-          offset: [0, 0],
+          offset: [0, -42],
           className: 'marker-popup marker-popup--top',
           closeButton: false,
           autoPan: false,
           maxWidth: 320,
           minWidth: 280,
         }).setContent(popupElement)
-
-        marker.bindPopup(popup)
 
         // Simple hover tooltip with image, name & price
         const price = property.priceFrom
@@ -109,45 +116,58 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           ${price ? `<span class="mp-tooltip-price">${price}</span>` : ''}
         </div>`
 
-        marker.bindTooltip(tooltipHtml, {
-          direction: 'top',
-          offset: L.point(0, -(markerSize / 2 + 4)),
-          opacity: 1,
-          className: 'marker-tooltip',
-        })
+        const bindTooltipToMarker = () => {
+          marker.bindTooltip(tooltipHtml, {
+            direction: 'top',
+            offset: L.point(0, -42),
+            opacity: 1,
+            className: 'marker-tooltip',
+          })
+        }
+
+        bindTooltipToMarker()
 
         marker.on('click', () => {
-          // Offset the center so the marker sits below middle, leaving room for the popup above
+          const isSpiderfied = spiderfiedMarkersRef.current.has(marker)
+
+          if (isSpiderfied) {
+            // In spiderfy mode: zoom to this marker, collapse the spider
+            clusterGroupRef.current?.unspiderfy()
+            map.flyTo(property.coordinates!, Math.max(map.getZoom() + 2, 16), {
+              animate: true,
+              duration: 0.5,
+            })
+            return
+          }
+
+          // Standalone marker: offset center and open popup
           const targetPoint = map.project(property.coordinates!, map.getZoom())
-          const offset = map.getSize().y * 0.15
+          const pinHeightOffset = 21
+          const mapOffset = map.getSize().y * 0.15
           const centerLatLng = map.unproject(
-            L.point(targetPoint.x, targetPoint.y - offset),
+            L.point(targetPoint.x, targetPoint.y - mapOffset - pinHeightOffset),
             map.getZoom()
           )
           map.flyTo(centerLatLng, map.getZoom(), {
             animate: true,
             duration: 0.3,
           })
+
+          marker.closeTooltip()
+          marker.unbindTooltip()
+          marker.bindPopup(popup).openPopup()
         })
 
         marker.on('popupopen', () => {
-          marker.closeTooltip()
-          marker.unbindTooltip()
-
           const iconEl = marker.getElement()
           if (iconEl) iconEl.style.pointerEvents = 'none'
         })
 
         marker.on('popupclose', () => {
+          marker.unbindPopup()
           const iconEl = marker.getElement()
           if (iconEl) iconEl.style.pointerEvents = ''
-
-          marker.bindTooltip(tooltipHtml, {
-            direction: 'top',
-            offset: L.point(0, -(markerSize / 2 + 4)),
-            opacity: 1,
-            className: 'marker-tooltip',
-          })
+          bindTooltipToMarker()
         })
 
         clusterGroupRef.current?.addLayer(marker)

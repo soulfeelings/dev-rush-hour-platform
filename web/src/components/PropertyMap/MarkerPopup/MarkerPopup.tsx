@@ -1,4 +1,3 @@
-import PopupArrow from '../../../assets/popup-arrow.svg?react'
 import type { Property } from '../../../types/property'
 import { Badge } from '../../../ui/Badge'
 import { Typography } from '../../../ui/Typography'
@@ -144,14 +143,14 @@ export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) =
           </div>
         )}
       </div>
-      <PopupArrow
+      {/* <PopupArrow
         className={clsx('mp-arrow', {
           'mp-arrow-bottom': direction === 'bottom',
           'mp-arrow-left': direction === 'left',
           'mp-arrow-right': direction === 'right',
           'mp-arrow-top': direction === 'top',
         })}
-      />
+      /> */}
     </div>
   )
 }
