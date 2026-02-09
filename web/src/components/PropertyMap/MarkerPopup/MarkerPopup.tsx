@@ -3,6 +3,7 @@ import type { Property } from '../../../types/property'
 import { Badge } from '../../../ui/Badge'
 import { Typography } from '../../../ui/Typography'
 import { RoiBadge } from '../../../ui/RoiBadge'
+import { splitCompletionDate } from '../../splitCompletionDate'
 import clsx from 'clsx'
 
 interface MarkerPopupProps {
@@ -14,21 +15,6 @@ const formatPrice = (price: number | undefined, currency: string | undefined) =>
   if (price === undefined) return '—'
   const formatted = (price / 1000000).toFixed(1)
   return `${formatted}M ${currency || ''}`
-}
-
-const splitCompletionDate = (dateString: string | undefined) => {
-  if (!dateString || dateString.length <= 2) {
-    return {
-      firstPart: dateString || '',
-      rest: '',
-    }
-  }
-  const firstPart = dateString.substring(0, 2)
-  const rest = dateString.substring(2)
-  return {
-    firstPart,
-    rest: rest.trim(),
-  }
 }
 
 export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) => {
