@@ -107,7 +107,6 @@
   gap: 8px;
   padding: 12px;
   box-sizing: border-box;
-  border-bottom: 0.5px solid $color-charcoal-grey-10;
   background: $color-bg-card;
 }
 
@@ -193,7 +192,7 @@
   flex-direction: column;
   box-sizing: border-box;
   padding: 0 12px;
-  border-bottom: 0.5px solid $color-charcoal-grey-10;
+  border-top: 0.5px solid $color-charcoal-grey-10;
   background: $color-bg-card;
   margin-top: 2px;
 }
@@ -265,7 +264,7 @@
   box-sizing: border-box;
   padding: 0 12px;
   background: $color-bg-card;
-  border-bottom: 0.5px solid $color-charcoal-grey-10;
+  border-top: 0.5px solid $color-charcoal-grey-10;
   margin-top: 2px;
 }
 
@@ -320,6 +319,7 @@
   padding: $spacing-1 $spacing-3;
   background: $color-bg-card;
   gap: 2px;
+  border-top: 0.5px solid $color-charcoal-grey-10;
   border-radius: 0 0 $radius-lg $radius-lg;
   margin-top: 2px;
   margin-bottom: $spacing-2;
