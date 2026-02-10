@@ -88,7 +88,7 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
         backgroundColor: initialData.backgroundColor || '',
         textColor: initialData.textColor || '',
         icon: initialData.icon || '',
-        iconColor: '',
+        iconColor: initialData.iconColor || '',
         sortOrder: initialData.sortOrder?.toString() || '',
       }
     }
@@ -131,7 +131,7 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
       backgroundColor: initialData.backgroundColor || '',
       textColor: initialData.textColor || '',
       icon: initialData.icon || '',
-      iconColor: '',
+      iconColor: initialData.iconColor || '',
       sortOrder: initialData.sortOrder?.toString() || '',
     }
   }, [initialData])
