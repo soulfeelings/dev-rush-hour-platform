@@ -6,14 +6,13 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { ProjectDataDescription } from './projectDataDescription'
-import type { ProjectDataSpecs } from './projectDataSpecs'
 import type { Media } from './media'
 import type { ProjectTimeline } from './projectTimeline'
+import type { ProjectDataPricesByTypeItem } from './projectDataPricesByTypeItem'
 
 export interface ProjectData {
   description?: ProjectDataDescription
-  specs?: ProjectDataSpecs
-  featuresAmenities?: unknown[]
+  featuresAmenities?: string[]
   media?: Media
   /** Избранный проект */
   isFeatured?: boolean
@@ -32,4 +31,18 @@ export interface ProjectData {
   paymentPlan?: string
   /** Expected completion date (e.g., Q4 2025, 2026) */
   completionDate?: string
+  /** Starting price (AED) */
+  priceFrom?: number
+  /** Currency code (e.g., AED, USD) */
+  currency?: string
+  /** Available property types */
+  propertyTypes?: string[]
+  /** Available bedroom configurations */
+  bedrooms?: string[]
+  /** Area size */
+  areaSize?: number
+  /** Unit for area measurement (sqm, sqft) */
+  areaUnit?: string
+  /** Prices broken down by property type */
+  pricesByType?: ProjectDataPricesByTypeItem[]
 }

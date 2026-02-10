@@ -6,14 +6,14 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { DeveloperStatus } from './developerStatus'
-import type { DeveloperData } from './developerData'
 
 export interface Developer {
   id?: string
   slug?: string
   name?: string
   status?: DeveloperStatus
-  data?: DeveloperData
+  /** URL логотипа застройщика */
+  logoUrl?: string
   createdAt?: string
   updatedAt?: string
   /**

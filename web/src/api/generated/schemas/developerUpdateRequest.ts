@@ -6,11 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { DeveloperUpdateRequestStatus } from './developerUpdateRequestStatus'
-import type { DeveloperUpdateRequestData } from './developerUpdateRequestData'
 
 export interface DeveloperUpdateRequest {
   slug?: string
   name?: string
   status?: DeveloperUpdateRequestStatus
-  data?: DeveloperUpdateRequestData
+  /** URL логотипа застройщика */
+  logoUrl?: string
 }

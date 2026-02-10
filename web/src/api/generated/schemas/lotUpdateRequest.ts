@@ -19,8 +19,8 @@ export interface LotUpdateRequest {
   bathrooms?: number
   areaSqm?: number
   floor?: number
-  priceCurrency?: string
   priceAmount?: number
   bonusKeys?: string[]
+  badgeIds?: string[]
   data?: LotData
 }
