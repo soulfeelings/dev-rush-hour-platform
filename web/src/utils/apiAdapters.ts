@@ -4,9 +4,9 @@ import type { LotListItem } from '../api/generated/schemas/lotListItem'
 
 // Функция для преобразования API Project в Property формат
 export function apiProjectToProperty(apiProject: Project): Property {
-  const specs = apiProject.data?.specs as Record<string, unknown> | undefined
-  const media = apiProject.data?.media
-  const description = apiProject.data?.description
+  const data = apiProject.data
+  const media = data?.media
+  const description = data?.description
 
   // Transform badges
   const badges: PropertyBadge[] = (apiProject.badges ?? [])
@@ -28,8 +28,8 @@ export function apiProjectToProperty(apiProject: Project): Property {
       : undefined
 
   // Calculate discount from ourPrice and developerPrice
-  const ourPrice = apiProject.data?.ourPrice
-  const developerPrice = apiProject.data?.developerPrice
+  const ourPrice = data?.ourPrice
+  const developerPrice = data?.developerPrice
   let discount: number | undefined
   if (ourPrice && developerPrice && developerPrice > ourPrice) {
     discount = Math.round((1 - ourPrice / developerPrice) * 100)
@@ -41,14 +41,13 @@ export function apiProjectToProperty(apiProject: Project): Property {
     location: apiProject.area?.name,
     developer: apiProject.developer?.name,
     logoUrl: media?.logo?.url,
-    priceFrom: apiProject.data?.ourPrice ?? (specs?.priceFrom as number | undefined),
-    currency: specs?.currency as string | undefined,
-    types: specs?.types as string[] | undefined,
-    bedrooms: specs?.bedrooms as string[] | undefined,
-    completionDate:
-      apiProject.data?.completionDate ?? (specs?.completionDate as string | undefined),
-    area: specs?.area as number | undefined,
-    areaUnit: specs?.areaUnit as string | undefined,
+    priceFrom: data?.ourPrice ?? data?.priceFrom,
+    currency: data?.currency,
+    types: data?.propertyTypes,
+    bedrooms: data?.bedrooms,
+    completionDate: data?.completionDate,
+    area: data?.areaSize,
+    areaUnit: data?.areaUnit,
     image: media?.cover?.url,
     hoverImage: media?.hover?.url,
     gallery: media?.gallery?.map(item => item.url).filter((url): url is string => !!url),
@@ -56,12 +55,12 @@ export function apiProjectToProperty(apiProject: Project): Property {
     sale: getSaleFromStatus(apiProject.sale),
     status: apiProject.status === 'active' ? 'active' : 'inactive',
     description: typeof description === 'string' ? description : undefined,
-    isFeatured: apiProject.data?.isFeatured,
-    tags: apiProject.data?.tags,
+    isFeatured: data?.isFeatured,
+    tags: data?.tags,
     discount,
-    roi: apiProject.data?.roi ?? (specs?.roi as number | undefined),
-    paymentPlan: apiProject.data?.paymentPlan ?? (specs?.paymentPlan as string | undefined),
-    pricesByType: specs?.pricesByType as PriceByType[] | undefined,
+    roi: data?.roi,
+    paymentPlan: data?.paymentPlan,
+    pricesByType: data?.pricesByType as PriceByType[] | undefined,
     badges: badges.length > 0 ? badges : undefined,
   }
 }
@@ -94,9 +93,7 @@ export function apiLotToPropertyForMap(apiLot: LotListItem): Property | null {
   }
 
   const logoUrl =
-    project.data?.media?.logo?.url ||
-    ((project.developer?.data as Record<string, unknown>)?.logoUrl as string | undefined) ||
-    ((apiLot.developer?.data as Record<string, unknown>)?.logoUrl as string | undefined)
+    project.data?.media?.logo?.url || project.developer?.logoUrl || apiLot.developer?.logoUrl
 
   const typeLabel = apiLot.type ? apiLot.type.charAt(0).toUpperCase() + apiLot.type.slice(1) : ''
   const bedroomsLabel = apiLot.bedrooms ? `${apiLot.bedrooms} BR` : ''
@@ -108,7 +105,6 @@ export function apiLotToPropertyForMap(apiLot: LotListItem): Property | null {
     developer: project.developer?.name || apiLot.developer?.name,
     logoUrl,
     priceFrom: apiLot.priceAmount,
-    currency: apiLot.priceCurrency,
     types: typeLabel ? [typeLabel] : undefined,
     bedrooms: bedroomsLabel ? [bedroomsLabel] : undefined,
     completionDate: undefined,
