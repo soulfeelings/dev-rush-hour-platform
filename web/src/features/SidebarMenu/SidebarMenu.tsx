@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
+import { useIsRTL } from '../../hooks/useDirection'
 import styles from './SidebarMenu.module.scss'
 
 interface SidebarMenuProps {
@@ -12,6 +13,7 @@ interface SidebarMenuProps {
 
 export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
   const { t } = useTranslation()
+  const isRTL = useIsRTL()
 
   return (
     <>
@@ -31,7 +33,7 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarMenuProps) {
         className={styles.sidebar}
         initial={false}
         animate={{
-          x: isOpen ? 0 : '-100%',
+          x: isOpen ? 0 : isRTL ? '100%' : '-100%',
         }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       >

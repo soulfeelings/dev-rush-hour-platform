@@ -14,11 +14,14 @@ import { Button, Typography } from '../../ui'
 import styles from './Settings.module.scss'
 import headerStyles from '../Header/Header.module.scss'
 import ukFlag from '@assets/uk.svg'
-
-// TODO: Add other languages and currencies and units when backend will be ready for this
+import ruFlag from '@assets/ru.svg'
+import arFlag from '@assets/ar.svg'
+import i18n from '../../i18n'
 
 const Language = {
   EN: 'en',
+  RU: 'ru',
+  AR: 'ar',
 } as const
 type Language = (typeof Language)[keyof typeof Language]
 
@@ -62,6 +65,8 @@ const UNITS = Object.values(Unit)
 
 const LANGUAGE_LABELS: Record<Language, string> = {
   [Language.EN]: 'settings.languages.english',
+  [Language.RU]: 'settings.languages.russian',
+  [Language.AR]: 'settings.languages.arabic',
 }
 
 const UNIT_LABELS: Record<Unit, string> = {
@@ -71,6 +76,8 @@ const UNIT_LABELS: Record<Unit, string> = {
 
 const LANGUAGE_FLAGS: Record<Language, string> = {
   [Language.EN]: ukFlag,
+  [Language.RU]: ruFlag,
+  [Language.AR]: arFlag,
 }
 
 const FlagIcon = ({ src, alt }: { src: string; alt: string }) => (
@@ -110,6 +117,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     } catch {
       /* noop */
     }
+    i18n.changeLanguage(language)
+    document.documentElement.lang = language
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr'
   }, [language])
 
   useEffect(() => {
@@ -184,7 +194,7 @@ const SettingsContent = () => {
           key={lang}
           variant={language === lang ? 'primary' : 'secondary'}
           size="sm"
-          iconLeft={<img src={ukFlag} alt="UK Flag" />}
+          iconLeft={<img src={LANGUAGE_FLAGS[lang]} alt={`${lang} flag`} />}
           selected={language === lang}
           onClick={handleLanguageChange(lang)}
         >
