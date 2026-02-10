@@ -1,4 +1,5 @@
 @use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
 
 .tooltip {
   position: relative;
@@ -64,7 +65,7 @@
   right: 100%;
   top: 50%;
   transform: translateY(-50%);
-  margin-right: $spacing-2;
+  margin-inline-end: $spacing-2;
 
   &::after {
     left: 100%;
@@ -72,18 +73,46 @@
     transform: translateY(-50%);
     border-left-color: $color-text;
   }
+
+  @include rtl {
+    right: auto;
+    left: 100%;
+    margin-inline-end: 0;
+    margin-inline-start: $spacing-2;
+
+    &::after {
+      left: auto;
+      right: 100%;
+      border-left-color: transparent;
+      border-right-color: $color-text;
+    }
+  }
 }
 
 .text--right {
   left: 100%;
   top: 50%;
   transform: translateY(-50%);
-  margin-left: $spacing-2;
+  margin-inline-start: $spacing-2;
 
   &::after {
     right: 100%;
     top: 50%;
     transform: translateY(-50%);
     border-right-color: $color-text;
+  }
+
+  @include rtl {
+    left: auto;
+    right: 100%;
+    margin-inline-start: 0;
+    margin-inline-end: $spacing-2;
+
+    &::after {
+      right: auto;
+      left: 100%;
+      border-right-color: transparent;
+      border-left-color: $color-text;
+    }
   }
 }

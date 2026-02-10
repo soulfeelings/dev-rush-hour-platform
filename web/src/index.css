@@ -7,6 +7,30 @@
   box-sizing: border-box;
 }
 
+/* Global scrollbar styles — consistent across all platforms */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e0d8 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #e5e0d8;
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #cdc8c0;
+}
+
 html {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -22,6 +46,10 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+}
+
+[dir='rtl'] {
+  font-family: 'Noto Naskh Arabic', 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
 #root {

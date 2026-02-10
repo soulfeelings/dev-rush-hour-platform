@@ -206,24 +206,6 @@
   display: flex;
   flex-direction: column;
   border-radius: $radius-lg 0 0 $radius-lg;
-
-  // Custom scrollbar
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: $color-border;
-    border-radius: 3px;
-
-    &:hover {
-      background: color.mix(black, $color-border, 10%);
-    }
-  }
 }
 
 .option {

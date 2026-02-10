@@ -116,7 +116,7 @@
   font-weight: $font-weight-medium;
   line-height: 25px;
   letter-spacing: 0;
-  text-align: left;
+  text-align: start;
 }
 
 @mixin typography-body-large-medium {
@@ -125,7 +125,7 @@
   font-weight: $font-weight-medium;
   line-height: 20px;
   letter-spacing: 0%;
-  text-align: left;
+  text-align: start;
 }
 
 @mixin typography-body-large-regular {
@@ -134,7 +134,7 @@
   font-weight: $font-weight-regular;
   line-height: 20px;
   letter-spacing: 0%;
-  text-align: left;
+  text-align: start;
 }
 
 @mixin typography-body-regular-regular {
@@ -143,7 +143,7 @@
   font-weight: $font-weight-regular;
   line-height: 18px;
   letter-spacing: 0%;
-  text-align: left;
+  text-align: start;
 }
 
 @mixin typography-body-small-medium {
@@ -152,7 +152,7 @@
   font-weight: $font-weight-medium;
   line-height: 15px;
   letter-spacing: 0%;
-  text-align: left;
+  text-align: start;
 }
 
 @mixin typography-body-small-regular {
@@ -161,7 +161,7 @@
   font-weight: $font-weight-regular;
   line-height: 15px;
   letter-spacing: 0%;
-  text-align: left;
+  text-align: start;
 }
 
 @mixin typography-body-xs-regular {
@@ -170,7 +170,7 @@
   font-weight: $font-weight-regular;
   line-height: 10px;
   letter-spacing: 0%;
-  text-align: left;
+  text-align: start;
 }
 
 @mixin typography-body-xs-medium {
@@ -179,7 +179,7 @@
   font-weight: $font-weight-medium;
   line-height: 10px;
   letter-spacing: 0%;
-  text-align: left;
+  text-align: start;
 }
 
 // ----------------
