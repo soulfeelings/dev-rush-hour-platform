@@ -172,6 +172,9 @@ func (s *BadgesService) Update(id uuid.UUID, updates *domain.Badge) error {
 	if updates.Icon != nil {
 		existing.Icon = updates.Icon
 	}
+	if updates.IconColor != "" {
+		existing.IconColor = updates.IconColor
+	}
 	existing.SortOrder = updates.SortOrder
 
 	err = s.badgeRepo.Update(id, existing)
