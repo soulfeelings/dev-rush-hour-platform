@@ -11,6 +11,9 @@ import type { Project, Developer, Area } from '../../api'
 import { IconBed, IconBath, IconFloor, IconArea } from '../../components/icons'
 import { getViewIcon } from '../../components/icons/viewIconMap'
 import { ROUTES, getProjectDetailRoute } from '../../constants/routes'
+import { useSettings } from '../../features/Settings/Settings'
+import { formatPrice, formatArea } from '../../utils/format'
+import { LotDetailSkeleton } from './LotDetailSkeleton'
 import styles from './LotDetail.module.scss'
 import { saveCatalogViewMode } from '../../utils/catalogViewMode'
 import { translateBonusKeys } from '../../utils/bonusTranslations'
@@ -26,6 +29,7 @@ L.Icon.Default.mergeOptions({
 })
 
 export default function LotDetail() {
+  const { currency, unit } = useSettings()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -193,13 +197,7 @@ export default function LotDetail() {
   }, [])
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>
-          <h1>Loading...</h1>
-        </div>
-      </div>
-    )
+    return <LotDetailSkeleton />
   }
 
   if (error || !lot) {
@@ -269,10 +267,7 @@ export default function LotDetail() {
     setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
   }
 
-  const priceText =
-    lot.priceAmount !== undefined && typeof lot.priceAmount === 'number'
-      ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
-      : '-'
+  const priceText = formatPrice(lot.priceAmount, currency)
 
   return (
     <div className={styles.container}>
@@ -449,7 +444,7 @@ export default function LotDetail() {
                   <IconArea size={20} />
                   Area:
                 </span>
-                <span className={styles.value}>{lot.areaSqm} sqm</span>
+                <span className={styles.value}>{formatArea(lot.areaSqm, unit)}</span>
               </div>
             )}
             {lot.floor !== undefined && lot.floor !== null && (

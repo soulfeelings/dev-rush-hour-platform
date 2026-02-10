@@ -5,29 +5,17 @@ import { Button } from '../../ui/Button'
 import { Badge } from '../../ui/Badge'
 import { ROUTES, getProjectDetailRoute } from '../../constants/routes'
 import { MapPin, Building2, ArrowLeft } from 'lucide-react'
+import { useSettings } from '../../features/Settings/Settings'
+import { formatPrice } from '../../utils/format'
+import { DeveloperDetailSkeleton } from './DeveloperDetailSkeleton'
 import styles from './DeveloperDetail.module.scss'
-
-type DeveloperDataFields = {
-  logoUrl?: string
-  description?: string
-  website?: string
-  foundedYear?: number
-  headquarters?: string
-}
 
 type ProjectWithRelations = Project & {
   badges?: Array<{ name?: string; backgroundColor?: string; textColor?: string; icon?: string }>
 }
 
-const formatPrice = (price: number | undefined, currency = 'AED') => {
-  if (price === undefined) return '-'
-  if (price >= 1000000) {
-    return `${(price / 1000000).toFixed(1)}M ${currency}`
-  }
-  return `${price.toLocaleString()} ${currency}`
-}
-
 export default function DeveloperDetail() {
+  const { currency } = useSettings()
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
 
@@ -56,13 +44,7 @@ export default function DeveloperDetail() {
   const error = developersError instanceof Error ? developersError.message : null
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>
-          <h1>Loading...</h1>
-        </div>
-      </div>
-    )
+    return <DeveloperDetailSkeleton />
   }
 
   if (error || !developer) {
@@ -79,8 +61,6 @@ export default function DeveloperDetail() {
     )
   }
 
-  const developerData = developer.data as DeveloperDataFields | undefined
-
   return (
     <div className={styles.container}>
       <button className={styles.backButton} onClick={() => navigate(-1)}>
@@ -90,24 +70,11 @@ export default function DeveloperDetail() {
 
       <section className={styles.heroSection}>
         <div className={styles.developerHeader}>
-          {developerData?.logoUrl && (
-            <img
-              src={developerData.logoUrl}
-              alt={developer.name}
-              className={styles.developerLogo}
-            />
+          {developer.logoUrl && (
+            <img src={developer.logoUrl} alt={developer.name} className={styles.developerLogo} />
           )}
           <div className={styles.developerInfo}>
             <h1 className={styles.developerName}>{developer.name}</h1>
-            {developerData?.headquarters && (
-              <div className={styles.location}>
-                <MapPin size={16} />
-                <span>{developerData.headquarters}</span>
-              </div>
-            )}
-            {developerData?.foundedYear && (
-              <p className={styles.founded}>Founded in {developerData.foundedYear}</p>
-            )}
           </div>
         </div>
 
@@ -116,25 +83,8 @@ export default function DeveloperDetail() {
             <span className={styles.statValue}>{projects.length}</span>
             <span className={styles.statLabel}>Projects</span>
           </div>
-          {developerData?.website && (
-            <a
-              href={developerData.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.websiteLink}
-            >
-              Visit Website
-            </a>
-          )}
         </div>
       </section>
-
-      {developerData?.description && (
-        <section className={styles.descriptionSection}>
-          <h2>About {developer.name}</h2>
-          <p>{developerData.description}</p>
-        </section>
-      )}
 
       <section className={styles.projectsSection}>
         <h2>Projects by {developer.name}</h2>
@@ -147,8 +97,7 @@ export default function DeveloperDetail() {
           <div className={styles.projectsGrid}>
             {projects.map(project => {
               const coverImage = project.data?.media?.cover?.url
-              const priceFrom = (project.data as { specs?: { priceFrom?: number } })?.specs
-                ?.priceFrom
+              const priceFrom = project.data?.ourPrice ?? project.data?.priceFrom
 
               return (
                 <div
@@ -187,7 +136,9 @@ export default function DeveloperDetail() {
                     {priceFrom && (
                       <div className={styles.projectPrice}>
                         <span className={styles.priceLabel}>From</span>
-                        <span className={styles.priceValue}>{formatPrice(priceFrom)}</span>
+                        <span className={styles.priceValue}>
+                          {formatPrice(priceFrom, currency)}
+                        </span>
                       </div>
                     )}
                     <Button variant="primary" size="sm" fullWidth>
