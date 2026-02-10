@@ -63,8 +63,8 @@ const saveMobileView = (view: MobileView) => {
   }
 }
 
-// Breakpoint for desktop layout (matches $breakpoint-lg)
-const DESKTOP_BREAKPOINT = 1024
+// Breakpoint for split layout (matches $breakpoint-md)
+const DESKTOP_BREAKPOINT = 768
 
 const useIsDesktop = () => {
   const [isDesktop, setIsDesktop] = useState(() =>
