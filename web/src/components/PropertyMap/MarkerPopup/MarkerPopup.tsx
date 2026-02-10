@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { Property } from '../../../types/property'
 import { Badge } from '../../../ui/Badge'
 import { Typography } from '../../../ui/Typography'
@@ -13,6 +14,7 @@ interface MarkerPopupProps {
 }
 
 export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) => {
+  const { t } = useTranslation()
   const { currency } = useSettings()
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
   const discount = property.discount
@@ -82,23 +84,25 @@ export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) =
           {discountedPrice && (
             <div className="mp-price-row">
               <div className="mp-attribute-container">
-                <span className="mp-attribute-label">Our price:</span>
+                <span className="mp-attribute-label">{t('markerPopup.ourPrice')}</span>
                 <span className="mp-discount-badge">-{discount}%</span>
               </div>
               <div className="mp-price-value-container">
                 <span className="mp-price-value">
-                  <span className="mp-from">from</span> {formatPrice(discountedPrice, currency)}
+                  <span className="mp-from">{t('from')}</span>{' '}
+                  {formatPrice(discountedPrice, currency)}
                 </span>
               </div>
             </div>
           )}
           <div className="mp-price-row">
             <div className="mp-attribute-container">
-              <span className="mp-attribute-label">Developer price:</span>
+              <span className="mp-attribute-label">{t('markerPopup.developerPrice')}</span>
             </div>
             <div className="mp-price-value-container">
               <span className="mp-price-value">
-                <span className="mp-from">from</span> {formatPrice(property.priceFrom, currency)}
+                <span className="mp-from">{t('from')}</span>{' '}
+                {formatPrice(property.priceFrom, currency)}
               </span>
             </div>
           </div>
@@ -131,7 +135,7 @@ export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) =
               <div key={index} className="mp-price-by-type-row">
                 <span className="mp-type-label">{item.type}</span>
                 <span className="mp-type-price">
-                  <span className="mp-from">from</span> {formatPrice(item.price, currency)}
+                  <span className="mp-from">{t('from')}</span> {formatPrice(item.price, currency)}
                 </span>
               </div>
             ))}

@@ -78,14 +78,16 @@ export default function HeroFilters() {
         ? `${filters.minPrice || '0'} - ${filters.maxPrice || t('filters.price.any')} ${currency}`
         : t('filters.price.all')
 
-    const message = `Hello! I'm interested in properties in Dubai.
-Filters:
-- City: ${cityLabel}
-- Developer: ${developerLabel}
-- Project: ${projectLabel}
-- Bedrooms: ${bedsLabel}
-- Bathrooms: ${bathsLabel}
-- Price: ${priceLabel}`
+    const message = [
+      t('heroFilters.whatsappMessage.greeting'),
+      t('heroFilters.whatsappMessage.filters'),
+      t('heroFilters.whatsappMessage.city', { value: cityLabel }),
+      t('heroFilters.whatsappMessage.developer', { value: developerLabel }),
+      t('heroFilters.whatsappMessage.project', { value: projectLabel }),
+      t('heroFilters.whatsappMessage.bedrooms', { value: bedsLabel }),
+      t('heroFilters.whatsappMessage.bathrooms', { value: bathsLabel }),
+      t('heroFilters.whatsappMessage.price', { value: priceLabel }),
+    ].join('\n')
 
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
   }

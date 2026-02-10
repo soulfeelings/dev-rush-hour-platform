@@ -24,11 +24,11 @@
   font-size: $font-size-sm;
   color: $color-text;
   background: $color-border;
-  border-right: 2px solid $color-border;
+  border-inline-end: 2px solid $color-border;
   border-bottom: 2px solid $color-border;
   position: sticky;
   top: 0;
-  left: 0;
+  inset-inline-start: 0;
   z-index: 20;
 }
 
@@ -54,10 +54,10 @@
   font-size: $font-size-sm;
   color: $color-text;
   background: rgba($color-border, 0.3);
-  border-right: 2px solid $color-border;
+  border-inline-end: 2px solid $color-border;
   border-bottom: 1px solid $color-border;
   position: sticky;
-  left: 0;
+  inset-inline-start: 0;
   z-index: 10;
   backdrop-filter: blur(4px);
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useIsRTL } from '../../hooks/useDirection'
 import styles from './FeaturedPropertyCarousel.module.scss'
 import type { Property } from '../../types/property'
 
@@ -22,6 +23,7 @@ export default function FeaturedPropertyCarousel({
   autoPlayInterval = 5000,
 }: FeaturedPropertyCarouselProps) {
   const { t } = useTranslation()
+  const isRTL = useIsRTL()
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
@@ -94,10 +96,18 @@ export default function FeaturedPropertyCarousel({
               type="button"
               aria-label="Previous"
             >
-              <ChevronLeft size={22} strokeWidth={2.5} />
+              {isRTL ? (
+                <ChevronRight size={22} strokeWidth={2.5} />
+              ) : (
+                <ChevronLeft size={22} strokeWidth={2.5} />
+              )}
             </button>
             <button className={styles.navButton} onClick={goToNext} type="button" aria-label="Next">
-              <ChevronRight size={22} strokeWidth={2.5} />
+              {isRTL ? (
+                <ChevronLeft size={22} strokeWidth={2.5} />
+              ) : (
+                <ChevronRight size={22} strokeWidth={2.5} />
+              )}
             </button>
           </div>
         </div>

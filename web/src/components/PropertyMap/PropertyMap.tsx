@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import i18n from '../../i18n'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster'
@@ -109,7 +110,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
         // Simple hover tooltip with image, name & price
         const price = property.priceFrom
-          ? `from ${(property.priceFrom / 1000000).toFixed(1)}M ${property.currency || ''}`
+          ? `${i18n.t('map.from')} ${(property.priceFrom / 1000000).toFixed(1)}M ${property.currency || ''}`
           : ''
         const tooltipHtml = `<div class="mp-tooltip">
           <span class="mp-tooltip-name">${property.title}</span>

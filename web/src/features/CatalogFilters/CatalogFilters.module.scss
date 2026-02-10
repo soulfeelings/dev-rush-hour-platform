@@ -84,12 +84,22 @@
   color: $color-text-secondary;
   pointer-events: none;
   z-index: 1;
+
+  @include rtl {
+    left: auto;
+    right: $spacing-3;
+  }
 }
 
 .searchInput {
   height: 36px;
   width: 250px;
   padding: $spacing-2 $spacing-3 $spacing-2 $spacing-8;
+
+  @include rtl {
+    padding: $spacing-2 $spacing-8 $spacing-2 $spacing-3;
+  }
+
   border: 1px solid $color-border;
   border-radius: $radius-full;
   font-size: $font-size-sm;
@@ -119,11 +129,11 @@
   display: flex;
   align-items: center;
   gap: $spacing-2;
-  margin-left: auto;
+  margin-inline-start: auto;
   flex-shrink: 0;
 
   @media (max-width: $breakpoint-md) {
-    margin-left: 0;
+    margin-inline-start: 0;
   }
 }
 
@@ -182,7 +192,7 @@
   border-radius: $radius-full;
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
-  margin-left: $spacing-1;
+  margin-inline-start: $spacing-1;
 }
 
 .clearButton {

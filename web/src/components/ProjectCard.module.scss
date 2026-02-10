@@ -83,6 +83,8 @@
   min-width: 0;
   position: relative;
   container-type: inline-size;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 .compact {
@@ -175,6 +177,11 @@
   align-items: flex-start;
   gap: 6px;
   z-index: 2;
+
+  @include rtl {
+    left: auto;
+    right: 12px;
+  }
 }
 
 // Кнопка избранного
@@ -192,6 +199,11 @@
   transition: all $transition-fast;
   z-index: 2;
   padding: 0;
+
+  @include rtl {
+    right: auto;
+    left: 12px;
+  }
 
   &:hover {
     transform: scale(1.05);

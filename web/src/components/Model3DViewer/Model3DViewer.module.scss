@@ -88,6 +88,11 @@
   position: absolute;
   top: $spacing-2;
   right: $spacing-2;
+
+  @include rtl {
+    right: auto;
+    left: $spacing-2;
+  }
   width: 24px;
   height: 24px;
   display: flex;

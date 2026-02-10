@@ -196,7 +196,7 @@
     color: $color-charcoal-grey-50;
     font-size: 10px;
     font-weight: $font-weight-regular;
-    margin-right: 2px;
+    margin-inline-end: 2px;
   }
 }
 
@@ -244,7 +244,7 @@
 }
 
 .planValue {
-  text-align: right;
+  text-align: end;
 
   .planLabel {
     color: $color-charcoal-grey-50;
@@ -292,6 +292,6 @@
   .from {
     color: $color-charcoal-grey-50;
     font-weight: $font-weight-regular;
-    margin-right: 2px;
+    margin-inline-end: 2px;
   }
 }

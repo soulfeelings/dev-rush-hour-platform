@@ -125,7 +125,9 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                 <button
                   className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
                   onClick={handleFavoriteClick}
-                  aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                  aria-label={
+                    isFavorited ? t('lotCard.removeFromFavorites') : t('lotCard.addToFavorites')
+                  }
                 >
                   <Heart size={20} />
                 </button>
@@ -169,7 +171,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
           ) : (
             <div className={styles.imagePlaceholder}>
               <Building2 size={48} />
-              <span>Unit Image</span>
+              <span>{t('lotCard.imagePlaceholder')}</span>
             </div>
           )}
         </div>
@@ -245,9 +247,9 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
             <div className={styles.priceSection}>
               <div className={styles.priceItem}>
                 <div className={styles.priceLabel}>
-                  <span className={styles.priceLabelText}>Our price:</span>
+                  <span className={styles.priceLabelText}>{t('lotCard.ourPrice')}</span>
                   <div className={styles.discountBadge}>
-                    <span className={styles.discountValue}>-25%</span>
+                    <span className={styles.discountValue}>{t('lotCard.discount')}</span>
                   </div>
                 </div>
                 <span className={styles.priceValue}>
@@ -257,7 +259,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
               </div>
 
               <div className={styles.priceItem}>
-                <span className={styles.priceLabelText}>Developer price:</span>
+                <span className={styles.priceLabelText}>{t('lotCard.developerPrice')}</span>
                 <span className={styles.priceValue}>
                   <span className={styles.from}>{t('from')}</span>
                   {formatPrice(price, currency)}
@@ -278,9 +280,9 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
             {/* Кнопка WhatsApp */}
             <div className={styles.buttonSection}>
               <button className={styles.whatsappButton} onClick={handleWhatsAppClick}>
-                <span className={styles.whatsappText}>Get Details on WhatsApp</span>
+                <span className={styles.whatsappText}>{t('getDetailsOnWhatsApp')}</span>
               </button>
-              <div className={styles.whatsappNote}>Investment details. No spam</div>
+              <div className={styles.whatsappNote}>{t('investmentDetailsNoSpam')}</div>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 // @ts-nocheck
 
 import { Suspense, useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera, Environment, Html } from '@react-three/drei'
 import { X } from 'lucide-react'
@@ -238,6 +239,7 @@ function Scene({
   hoveredApartmentId,
   currency,
   unit,
+  labels,
 }: {
   selectedApartmentId: number | null
   onApartmentHover: (apartmentId: number | null) => void
@@ -247,6 +249,7 @@ function Scene({
   hoveredApartmentId: number | null
   currency: string
   unit: string
+  labels: Record<string, string>
 }) {
   const selectedApartment = selectedApartmentId ? apartmentsData[selectedApartmentId] : null
 
@@ -273,23 +276,23 @@ function Scene({
             <h4 className={styles.popupTitle}>{selectedApartment.name}</h4>
             <div className={styles.popupInfo}>
               <div className={styles.popupRow}>
-                <span>Floor:</span>
+                <span>{labels.floor}</span>
                 <strong>{selectedApartment.floor}</strong>
               </div>
               <div className={styles.popupRow}>
-                <span>Bedrooms:</span>
+                <span>{labels.bedrooms}</span>
                 <strong>{selectedApartment.bedrooms}</strong>
               </div>
               <div className={styles.popupRow}>
-                <span>Bathrooms:</span>
+                <span>{labels.bathrooms}</span>
                 <strong>{selectedApartment.bathrooms}</strong>
               </div>
               <div className={styles.popupRow}>
-                <span>Area:</span>
+                <span>{labels.area}</span>
                 <strong>{formatArea(selectedApartment.area, unit)}</strong>
               </div>
               <div className={styles.popupRow}>
-                <span>Price:</span>
+                <span>{labels.price}</span>
                 <strong>{formatPrice(selectedApartment.price, currency)}</strong>
               </div>
             </div>
@@ -316,6 +319,7 @@ interface Model3DViewerProps {
 }
 
 export default function Model3DViewer({ embedded = false }: Model3DViewerProps) {
+  const { t } = useTranslation()
   const { currency, unit } = useSettings()
   const [selectedApartmentId, setSelectedApartmentId] = useState<number | null>(null)
   const [hoveredApartmentId, setHoveredApartmentId] = useState<number | null>(null)
@@ -361,18 +365,26 @@ export default function Model3DViewer({ embedded = false }: Model3DViewerProps) 
     }
   }
 
+  const labels = {
+    floor: t('model3d.floor'),
+    bedrooms: t('model3d.bedrooms'),
+    bathrooms: t('model3d.bathrooms'),
+    area: t('model3d.area'),
+    price: t('model3d.price'),
+  }
+
   const selectedApartment = selectedApartmentId ? apartmentsData[selectedApartmentId] : null
 
   return (
     <div className={`${styles.container} ${embedded ? styles.embedded : ''}`}>
       {!embedded && (
         <div className={styles.header}>
-          <h3 className={styles.title}>3D Model</h3>
-          <p className={styles.subtitle}>Drag to rotate, scroll to zoom</p>
+          <h3 className={styles.title}>{t('model3d.title')}</h3>
+          <p className={styles.subtitle}>{t('model3d.subtitle')}</p>
         </div>
       )}
       <div className={styles.canvasWrapper}>
-        <Suspense fallback={<div className={styles.loading}>Loading 3D model...</div>}>
+        <Suspense fallback={<div className={styles.loading}>{t('model3d.loading')}</div>}>
           <Canvas shadows gl={{ antialias: true, alpha: true }}>
             <Scene
               selectedApartmentId={selectedApartmentId}
@@ -383,6 +395,7 @@ export default function Model3DViewer({ embedded = false }: Model3DViewerProps) 
               hoveredApartmentId={hoveredApartmentId}
               currency={currency}
               unit={unit}
+              labels={labels}
             />
           </Canvas>
         </Suspense>
@@ -396,23 +409,23 @@ export default function Model3DViewer({ embedded = false }: Model3DViewerProps) 
           <h4 className={styles.popupTitle}>{selectedApartment.name}</h4>
           <div className={styles.popupInfo}>
             <div className={styles.popupRow}>
-              <span>Floor:</span>
+              <span>{t('model3d.floor')}</span>
               <strong>{selectedApartment.floor}</strong>
             </div>
             <div className={styles.popupRow}>
-              <span>Bedrooms:</span>
+              <span>{t('model3d.bedrooms')}</span>
               <strong>{selectedApartment.bedrooms}</strong>
             </div>
             <div className={styles.popupRow}>
-              <span>Bathrooms:</span>
+              <span>{t('model3d.bathrooms')}</span>
               <strong>{selectedApartment.bathrooms}</strong>
             </div>
             <div className={styles.popupRow}>
-              <span>Area:</span>
+              <span>{t('model3d.area')}</span>
               <strong>{formatArea(selectedApartment.area, unit)}</strong>
             </div>
             <div className={styles.popupRow}>
-              <span>Price:</span>
+              <span>{t('model3d.price')}</span>
               <strong>{formatPrice(selectedApartment.price, currency)}</strong>
             </div>
           </div>

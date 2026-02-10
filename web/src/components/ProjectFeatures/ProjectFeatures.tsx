@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { InfrastructureTag } from '../../ui/InfrastructureTag'
 import styles from './ProjectFeatures.module.scss'
 
@@ -19,6 +20,7 @@ const normalizeFeature = (feature: string | FeatureItem): FeatureItem => {
 
 export default function ProjectFeatures({ features, maxItems = 6 }: ProjectFeaturesProps) {
   const [showAll, setShowAll] = useState(false)
+  const { t } = useTranslation()
 
   if (!features || features.length === 0) {
     return null
@@ -30,7 +32,7 @@ export default function ProjectFeatures({ features, maxItems = 6 }: ProjectFeatu
 
   return (
     <div className={styles.infrastructureContainer}>
-      <h3 className={styles.title}>Residential complex infrastructure</h3>
+      <h3 className={styles.title}>{t('projectFeatures.title')}</h3>
       <div className={styles.infrastructureGrid}>
         {displayedItems.map((item, index) => (
           <InfrastructureTag key={`${item.name}-${index}`} name={item.name} iconName={item.icon} />
@@ -42,7 +44,9 @@ export default function ProjectFeatures({ features, maxItems = 6 }: ProjectFeatu
           className={styles.showMoreButton}
           onClick={() => setShowAll(!showAll)}
         >
-          {showAll ? 'Show Less' : `Show ${items.length - maxItems} More`}
+          {showAll
+            ? t('projectFeatures.showLess')
+            : t('projectFeatures.showMore', { count: items.length - maxItems })}
         </button>
       )}
     </div>

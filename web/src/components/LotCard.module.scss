@@ -6,6 +6,8 @@
   display: block;
   width: 100%;
   min-width: 0;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 .card {
@@ -29,8 +31,12 @@
   min-width: 200px;
   height: 350px;
   border: 0.5px solid rgba(19, 20, 21, 0.1);
-  border-right: none;
+  border-inline-end: none;
   border-radius: 16px 0 0 16px;
+
+  @include rtl {
+    border-radius: 0 16px 16px 0;
+  }
   background: repeating-linear-gradient(
     45deg,
     #f0f0f0 0,
@@ -83,6 +89,11 @@
   z-index: 2;
   padding: $spacing-3;
   box-sizing: border-box;
+
+  @include rtl {
+    right: auto;
+    left: 12px;
+  }
 
   &:hover {
     background: $color-bg-card;
@@ -144,10 +155,20 @@
 
 .prevButton {
   left: 16px;
+
+  @include rtl {
+    left: auto;
+    right: 16px;
+  }
 }
 
 .nextButton {
   right: 16px;
+
+  @include rtl {
+    right: auto;
+    left: 16px;
+  }
 }
 
 .imagePlaceholder {
@@ -207,8 +228,12 @@
   min-width: 0;
   height: 350px;
   border: 0.5px solid rgba(19, 20, 21, 0.1);
-  border-left: none;
+  border-inline-start: none;
   border-radius: 0 16px 16px 0;
+
+  @include rtl {
+    border-radius: 16px 0 0 16px;
+  }
   background: white;
   display: flex;
   align-items: center;
@@ -422,14 +447,14 @@
   font-weight: $font-weight-medium;
   line-height: 1.2;
   white-space: nowrap;
-  text-align: right;
+  text-align: end;
 
   .from {
     color: $color-charcoal-grey-50;
     font-size: $font-size-xs;
     font-weight: $font-weight-medium;
     line-height: 1.2;
-    margin-right: $spacing-1;
+    margin-inline-end: $spacing-1;
   }
 }
 
@@ -443,7 +468,7 @@
 
 .dateContainer {
   @include dataCell(flex-start);
-  padding-left: 16px;
+  padding-inline-start: 16px;
 }
 
 .dateValue {
@@ -510,7 +535,7 @@
     width: 100%;
     height: 280px;
     border-radius: 16px 16px 0 0;
-    border-right: 0.5px solid rgba(19, 20, 21, 0.1);
+    border-inline-end: 0.5px solid rgba(19, 20, 21, 0.1);
     border-bottom: none;
     min-width: 0;
   }
@@ -519,7 +544,7 @@
     width: 100%;
     height: auto;
     border-radius: 0 0 16px 16px;
-    border-left: 0.5px solid rgba(19, 20, 21, 0.1);
+    border-inline-start: 0.5px solid rgba(19, 20, 21, 0.1);
     border-top: none;
   }
 
@@ -569,10 +594,20 @@
 
   .prevButton {
     left: 8px;
+
+    @include rtl {
+      left: auto;
+      right: 8px;
+    }
   }
 
   .nextButton {
     right: 8px;
+
+    @include rtl {
+      right: auto;
+      left: 8px;
+    }
   }
 
   .favoriteButton {
@@ -581,6 +616,11 @@
     padding: $spacing-2;
     top: 8px;
     right: 8px;
+
+    @include rtl {
+      right: auto;
+      left: 8px;
+    }
 
     svg {
       width: 18px;

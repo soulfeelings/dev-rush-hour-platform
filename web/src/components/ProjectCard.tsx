@@ -116,7 +116,9 @@ export const ProjectCard = ({
               type="button"
               className={clsx(styles.favoriteButton, isFavorited && styles.favorited)}
               onClick={handleFavoriteClick}
-              aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+              aria-label={
+                isFavorited ? t('projectCard.removeFromFavorites') : t('projectCard.addToFavorites')
+              }
             >
               <Heart />
             </button>
