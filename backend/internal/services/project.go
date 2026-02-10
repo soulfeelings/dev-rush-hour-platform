@@ -196,61 +196,80 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 	if updates.Lng != nil {
 		existing.Lng = updates.Lng
 	}
-	// Merge Data struct fields
-	if updates.Data.Description != nil {
-		existing.Data.Description = updates.Data.Description
+	// Merge flat data fields
+	if updates.Description != nil {
+		existing.Description = updates.Description
 	}
-	if updates.Data.Specs != nil {
-		existing.Data.Specs = updates.Data.Specs
+	if updates.FeaturesAmenities != nil {
+		existing.FeaturesAmenities = updates.FeaturesAmenities
 	}
-	if updates.Data.FeaturesAmenities != nil {
-		existing.Data.FeaturesAmenities = updates.Data.FeaturesAmenities
-	}
-	if updates.Data.Media != nil {
+	if updates.Media != nil {
 		// Merge media fields
-		if existing.Data.Media == nil {
-			existing.Data.Media = updates.Data.Media
+		if existing.Media == nil {
+			existing.Media = updates.Media
 		} else {
-			if updates.Data.Media.Cover != nil {
-				existing.Data.Media.Cover = updates.Data.Media.Cover
+			if updates.Media.Cover != nil {
+				existing.Media.Cover = updates.Media.Cover
 			}
-			if updates.Data.Media.Hover != nil {
-				existing.Data.Media.Hover = updates.Data.Media.Hover
+			if updates.Media.Hover != nil {
+				existing.Media.Hover = updates.Media.Hover
 			}
-			if updates.Data.Media.Logo != nil {
-				existing.Data.Media.Logo = updates.Data.Media.Logo
+			if updates.Media.Logo != nil {
+				existing.Media.Logo = updates.Media.Logo
 			}
-			if updates.Data.Media.Gallery != nil {
-				existing.Data.Media.Gallery = updates.Data.Media.Gallery
+			if updates.Media.Gallery != nil {
+				existing.Media.Gallery = updates.Media.Gallery
 			}
 		}
 	}
-	if updates.Data.YoutubeURL != "" {
-		existing.Data.YoutubeURL = updates.Data.YoutubeURL
+	if updates.YoutubeURL != "" {
+		existing.YoutubeURL = updates.YoutubeURL
 	}
-	if updates.Data.Timeline != nil {
-		existing.Data.Timeline = updates.Data.Timeline
+	if updates.Timeline != nil {
+		existing.Timeline = updates.Timeline
 	}
-	// Boolean fields - always take from updates if Data is provided
-	existing.Data.IsFeatured = updates.Data.IsFeatured
-	if updates.Data.Tags != nil {
-		existing.Data.Tags = updates.Data.Tags
+	// Boolean fields - always take from updates
+	existing.IsFeatured = updates.IsFeatured
+	if updates.Tags != nil {
+		existing.Tags = updates.Tags
 	}
-	// Merge pricing and completion fields
-	if updates.Data.ROI != nil {
-		existing.Data.ROI = updates.Data.ROI
+	// Merge pricing fields
+	if updates.ROI != nil {
+		existing.ROI = updates.ROI
 	}
-	if updates.Data.OurPrice != nil {
-		existing.Data.OurPrice = updates.Data.OurPrice
+	if updates.OurPrice != nil {
+		existing.OurPrice = updates.OurPrice
 	}
-	if updates.Data.DeveloperPrice != nil {
-		existing.Data.DeveloperPrice = updates.Data.DeveloperPrice
+	if updates.DeveloperPrice != nil {
+		existing.DeveloperPrice = updates.DeveloperPrice
 	}
-	if updates.Data.PaymentPlan != "" {
-		existing.Data.PaymentPlan = updates.Data.PaymentPlan
+	if updates.PaymentPlan != "" {
+		existing.PaymentPlan = updates.PaymentPlan
 	}
-	if updates.Data.CompletionDate != "" {
-		existing.Data.CompletionDate = updates.Data.CompletionDate
+	if updates.CompletionDate != "" {
+		existing.CompletionDate = updates.CompletionDate
+	}
+	// Merge specs fields
+	if updates.PriceFrom != nil {
+		existing.PriceFrom = updates.PriceFrom
+	}
+	if updates.Currency != "" {
+		existing.Currency = updates.Currency
+	}
+	if updates.PropertyTypes != nil {
+		existing.PropertyTypes = updates.PropertyTypes
+	}
+	if updates.Bedrooms != nil {
+		existing.Bedrooms = updates.Bedrooms
+	}
+	if updates.AreaSize != nil {
+		existing.AreaSize = updates.AreaSize
+	}
+	if updates.AreaUnit != "" {
+		existing.AreaUnit = updates.AreaUnit
+	}
+	if updates.PricesByType != nil {
+		existing.PricesByType = updates.PricesByType
 	}
 
 	err = s.projectRepo.Update(id, existing)

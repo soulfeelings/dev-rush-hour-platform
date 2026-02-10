@@ -2097,12 +2097,10 @@ components:
             - type: object
               additionalProperties:
                 type: string
-        specs:
-          type: object
-          additionalProperties: true
         featuresAmenities:
           type: array
-          items: {}
+          items:
+            type: string
         media:
           $ref: "#/components/schemas/Media"
         isFeatured:
@@ -2133,6 +2131,38 @@ components:
         completionDate:
           type: string
           description: Expected completion date (e.g., Q4 2025, 2026)
+        priceFrom:
+          type: number
+          description: Starting price (AED)
+        currency:
+          type: string
+          description: Currency code (e.g., AED, USD)
+        propertyTypes:
+          type: array
+          items:
+            type: string
+          description: Available property types
+        bedrooms:
+          type: array
+          items:
+            type: string
+          description: Available bedroom configurations
+        areaSize:
+          type: number
+          description: Area size
+        areaUnit:
+          type: string
+          description: Unit for area measurement (sqm, sqft)
+        pricesByType:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              price:
+                type: number
+          description: Prices broken down by property type
 
     ProjectTimeline:
       type: object
@@ -2216,15 +2246,21 @@ components:
           type: number
         floor:
           type: integer
-        priceCurrency:
-          type: string
-          default: AED
         priceAmount:
           type: number
         bonusKeys:
           type: array
           items:
             type: string
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        badges:
+          type: array
+          items:
+            $ref: "#/components/schemas/Badge"
         data:
           $ref: "#/components/schemas/LotData"
         project:
@@ -2348,15 +2384,21 @@ components:
           type: number
         floor:
           type: integer
-        priceCurrency:
-          type: string
-          default: AED
         priceAmount:
           type: number
         bonusKeys:
           type: array
           items:
             type: string
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        badges:
+          type: array
+          items:
+            $ref: "#/components/schemas/Badge"
         data:
           $ref: "#/components/schemas/LotData"
         project:
@@ -2532,9 +2574,9 @@ components:
         status:
           type: string
           enum: [active, inactive]
-        data:
-          type: object
-          additionalProperties: true
+        logoUrl:
+          type: string
+          description: URL логотипа застройщика
         createdAt:
           type: string
           format: date-time
@@ -2803,9 +2845,9 @@ components:
           type: string
           enum: [active, inactive]
           default: active
-        data:
-          type: object
-          additionalProperties: true
+        logoUrl:
+          type: string
+          description: URL логотипа застройщика
 
     DeveloperUpdateRequest:
       type: object
@@ -2817,9 +2859,9 @@ components:
         status:
           type: string
           enum: [active, inactive]
-        data:
-          type: object
-          additionalProperties: true
+        logoUrl:
+          type: string
+          description: URL логотипа застройщика
 
     AreaCreateRequest:
       type: object
@@ -2988,15 +3030,17 @@ components:
           type: number
         floor:
           type: integer
-        priceCurrency:
-          type: string
-          default: AED
         priceAmount:
           type: number
         bonusKeys:
           type: array
           items:
             type: string
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
         data:
           $ref: "#/components/schemas/LotData"
 
@@ -3025,14 +3069,17 @@ components:
           type: number
         floor:
           type: integer
-        priceCurrency:
-          type: string
         priceAmount:
           type: number
         bonusKeys:
           type: array
           items:
             type: string
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
         data:
           $ref: "#/components/schemas/LotData"
 

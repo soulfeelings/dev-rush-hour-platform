@@ -74,8 +74,8 @@ func (s *DevelopersService) Update(id uuid.UUID, updates *domain.Developer) erro
 	if updates.Status != "" {
 		existing.Status = updates.Status
 	}
-	if len(updates.Data) > 0 {
-		existing.Data = updates.Data
+	if updates.LogoURL != "" {
+		existing.LogoURL = updates.LogoURL
 	}
 
 	err = s.developerRepo.Update(id, existing)

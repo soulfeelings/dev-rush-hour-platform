@@ -13,7 +13,6 @@ type LotResponse struct {
 	Bathrooms     *int                `json:"bathrooms,omitempty"`
 	AreaSqm       *float64            `json:"areaSqm,omitempty"`
 	Floor         *int                `json:"floor,omitempty"`
-	PriceCurrency string              `json:"priceCurrency"`
 	PriceAmount   float64             `json:"priceAmount"`
 	BonusKeys     []string            `json:"bonusKeys"`
 	Data          LotDataResponse     `json:"data"`
@@ -45,7 +44,6 @@ func LotToResponse(lot *domain.Lot) *LotResponse {
 		ID:            lot.ID.String(),
 		Status:        string(lot.Status),
 		Type:          string(lot.Type),
-		PriceCurrency: lot.PriceCurrency,
 		PriceAmount:   lot.PriceAmount,
 		BonusKeys:     lot.BonusKeys,
 		CreatedAt:     lot.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),

@@ -161,14 +161,14 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 	if updates.Floor != nil {
 		existing.Floor = updates.Floor
 	}
-	if updates.PriceCurrency != "" {
-		existing.PriceCurrency = updates.PriceCurrency
-	}
 	if updates.PriceAmount != 0 {
 		existing.PriceAmount = updates.PriceAmount
 	}
 	if len(updates.BonusKeys) > 0 {
 		existing.BonusKeys = updates.BonusKeys
+	}
+	if updates.BadgeIDs != nil {
+		existing.BadgeIDs = updates.BadgeIDs
 	}
 	
 	// Safe check for Data field updates (ваша версия более безопасная)

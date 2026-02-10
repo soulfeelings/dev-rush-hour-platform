@@ -352,16 +352,18 @@ type CityUpdateRequest struct {
 
 // Developer defines model for Developer.
 type Developer struct {
-	CreatedAt *time.Time              `json:"createdAt,omitempty"`
-	Data      *map[string]interface{} `json:"data,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
 
 	// DeletedAt Время мягкого удаления (если null - не удален)
 	DeletedAt *time.Time          `json:"deletedAt"`
 	Id        *openapi_types.UUID `json:"id,omitempty"`
-	Name      *string             `json:"name,omitempty"`
-	Slug      *string             `json:"slug,omitempty"`
-	Status    *DeveloperStatus    `json:"status,omitempty"`
-	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
+
+	// LogoUrl URL логотипа застройщика
+	LogoUrl   *string          `json:"logoUrl,omitempty"`
+	Name      *string          `json:"name,omitempty"`
+	Slug      *string          `json:"slug,omitempty"`
+	Status    *DeveloperStatus `json:"status,omitempty"`
+	UpdatedAt *time.Time       `json:"updatedAt,omitempty"`
 }
 
 // DeveloperStatus defines model for Developer.Status.
@@ -369,10 +371,11 @@ type DeveloperStatus string
 
 // DeveloperCreateRequest defines model for DeveloperCreateRequest.
 type DeveloperCreateRequest struct {
-	Data   *map[string]interface{}       `json:"data,omitempty"`
-	Name   string                        `json:"name"`
-	Slug   string                        `json:"slug"`
-	Status *DeveloperCreateRequestStatus `json:"status,omitempty"`
+	// LogoUrl URL логотипа застройщика
+	LogoUrl *string                       `json:"logoUrl,omitempty"`
+	Name    string                        `json:"name"`
+	Slug    string                        `json:"slug"`
+	Status  *DeveloperCreateRequestStatus `json:"status,omitempty"`
 }
 
 // DeveloperCreateRequestStatus defines model for DeveloperCreateRequest.Status.
@@ -380,10 +383,11 @@ type DeveloperCreateRequestStatus string
 
 // DeveloperUpdateRequest defines model for DeveloperUpdateRequest.
 type DeveloperUpdateRequest struct {
-	Data   *map[string]interface{}       `json:"data,omitempty"`
-	Name   *string                       `json:"name,omitempty"`
-	Slug   *string                       `json:"slug,omitempty"`
-	Status *DeveloperUpdateRequestStatus `json:"status,omitempty"`
+	// LogoUrl URL логотипа застройщика
+	LogoUrl *string                       `json:"logoUrl,omitempty"`
+	Name    *string                       `json:"name,omitempty"`
+	Slug    *string                       `json:"slug,omitempty"`
+	Status  *DeveloperUpdateRequestStatus `json:"status,omitempty"`
 }
 
 // DeveloperUpdateRequestStatus defines model for DeveloperUpdateRequest.Status.
@@ -562,28 +566,29 @@ type LeadUpdateRequestType string
 
 // Lot defines model for Lot.
 type Lot struct {
-	Area      *Area               `json:"area,omitempty"`
-	AreaId    *openapi_types.UUID `json:"areaId,omitempty"`
-	AreaSqm   *float32            `json:"areaSqm,omitempty"`
-	Bathrooms *int                `json:"bathrooms,omitempty"`
-	Bedrooms  *int                `json:"bedrooms,omitempty"`
-	BonusKeys *[]string           `json:"bonusKeys,omitempty"`
-	CreatedAt *time.Time          `json:"createdAt,omitempty"`
-	Data      *LotData            `json:"data,omitempty"`
+	Area      *Area                 `json:"area,omitempty"`
+	AreaId    *openapi_types.UUID   `json:"areaId,omitempty"`
+	AreaSqm   *float32              `json:"areaSqm,omitempty"`
+	BadgeIds  *[]openapi_types.UUID `json:"badgeIds,omitempty"`
+	Badges    *[]Badge              `json:"badges,omitempty"`
+	Bathrooms *int                  `json:"bathrooms,omitempty"`
+	Bedrooms  *int                  `json:"bedrooms,omitempty"`
+	BonusKeys *[]string             `json:"bonusKeys,omitempty"`
+	CreatedAt *time.Time            `json:"createdAt,omitempty"`
+	Data      *LotData              `json:"data,omitempty"`
 
 	// DeletedAt Время мягкого удаления (если null - не удален)
-	DeletedAt     *time.Time          `json:"deletedAt"`
-	Developer     *Developer          `json:"developer,omitempty"`
-	DeveloperId   *openapi_types.UUID `json:"developerId,omitempty"`
-	Floor         *int                `json:"floor,omitempty"`
-	Id            *openapi_types.UUID `json:"id,omitempty"`
-	PriceAmount   *float32            `json:"priceAmount,omitempty"`
-	PriceCurrency *string             `json:"priceCurrency,omitempty"`
-	Project       *Project            `json:"project,omitempty"`
-	ProjectId     *openapi_types.UUID `json:"projectId,omitempty"`
-	Status        *LotStatus          `json:"status,omitempty"`
-	Type          *LotType            `json:"type,omitempty"`
-	UpdatedAt     *time.Time          `json:"updatedAt,omitempty"`
+	DeletedAt   *time.Time          `json:"deletedAt"`
+	Developer   *Developer          `json:"developer,omitempty"`
+	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
+	Floor       *int                `json:"floor,omitempty"`
+	Id          *openapi_types.UUID `json:"id,omitempty"`
+	PriceAmount *float32            `json:"priceAmount,omitempty"`
+	Project     *Project            `json:"project,omitempty"`
+	ProjectId   *openapi_types.UUID `json:"projectId,omitempty"`
+	Status      *LotStatus          `json:"status,omitempty"`
+	Type        *LotType            `json:"type,omitempty"`
+	UpdatedAt   *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // LotStatus defines model for Lot.Status.
@@ -591,19 +596,19 @@ type LotStatus string
 
 // LotCreateRequest defines model for LotCreateRequest.
 type LotCreateRequest struct {
-	AreaId        *openapi_types.UUID     `json:"areaId,omitempty"`
-	AreaSqm       *float32                `json:"areaSqm,omitempty"`
-	Bathrooms     *int                    `json:"bathrooms,omitempty"`
-	Bedrooms      *int                    `json:"bedrooms,omitempty"`
-	BonusKeys     *[]string               `json:"bonusKeys,omitempty"`
-	Data          *LotData                `json:"data,omitempty"`
-	DeveloperId   *openapi_types.UUID     `json:"developerId,omitempty"`
-	Floor         *int                    `json:"floor,omitempty"`
-	PriceAmount   float32                 `json:"priceAmount"`
-	PriceCurrency *string                 `json:"priceCurrency,omitempty"`
-	ProjectId     openapi_types.UUID      `json:"projectId"`
-	Status        *LotCreateRequestStatus `json:"status,omitempty"`
-	Type          LotType                 `json:"type"`
+	AreaId      *openapi_types.UUID     `json:"areaId,omitempty"`
+	AreaSqm     *float32                `json:"areaSqm,omitempty"`
+	BadgeIds    *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
+	Bathrooms   *int                    `json:"bathrooms,omitempty"`
+	Bedrooms    *int                    `json:"bedrooms,omitempty"`
+	BonusKeys   *[]string               `json:"bonusKeys,omitempty"`
+	Data        *LotData                `json:"data,omitempty"`
+	DeveloperId *openapi_types.UUID     `json:"developerId,omitempty"`
+	Floor       *int                    `json:"floor,omitempty"`
+	PriceAmount float32                 `json:"priceAmount"`
+	ProjectId   openapi_types.UUID      `json:"projectId"`
+	Status      *LotCreateRequestStatus `json:"status,omitempty"`
+	Type        LotType                 `json:"type"`
 }
 
 // LotCreateRequestStatus defines model for LotCreateRequest.Status.
@@ -620,28 +625,29 @@ type LotData struct {
 
 // LotListItem defines model for LotListItem.
 type LotListItem struct {
-	Area      *Area               `json:"area,omitempty"`
-	AreaId    *openapi_types.UUID `json:"areaId,omitempty"`
-	AreaSqm   *float32            `json:"areaSqm,omitempty"`
-	Bathrooms *int                `json:"bathrooms,omitempty"`
-	Bedrooms  *int                `json:"bedrooms,omitempty"`
-	BonusKeys *[]string           `json:"bonusKeys,omitempty"`
-	CreatedAt *time.Time          `json:"createdAt,omitempty"`
-	Data      *LotData            `json:"data,omitempty"`
+	Area      *Area                 `json:"area,omitempty"`
+	AreaId    *openapi_types.UUID   `json:"areaId,omitempty"`
+	AreaSqm   *float32              `json:"areaSqm,omitempty"`
+	BadgeIds  *[]openapi_types.UUID `json:"badgeIds,omitempty"`
+	Badges    *[]Badge              `json:"badges,omitempty"`
+	Bathrooms *int                  `json:"bathrooms,omitempty"`
+	Bedrooms  *int                  `json:"bedrooms,omitempty"`
+	BonusKeys *[]string             `json:"bonusKeys,omitempty"`
+	CreatedAt *time.Time            `json:"createdAt,omitempty"`
+	Data      *LotData              `json:"data,omitempty"`
 
 	// DeletedAt Время мягкого удаления (если null - не удален)
-	DeletedAt     *time.Time          `json:"deletedAt"`
-	Developer     *Developer          `json:"developer,omitempty"`
-	DeveloperId   *openapi_types.UUID `json:"developerId,omitempty"`
-	Floor         *int                `json:"floor,omitempty"`
-	Id            *openapi_types.UUID `json:"id,omitempty"`
-	PriceAmount   *float32            `json:"priceAmount,omitempty"`
-	PriceCurrency *string             `json:"priceCurrency,omitempty"`
-	Project       *Project            `json:"project,omitempty"`
-	ProjectId     *openapi_types.UUID `json:"projectId,omitempty"`
-	Status        *LotListItemStatus  `json:"status,omitempty"`
-	Type          *LotType            `json:"type,omitempty"`
-	UpdatedAt     *time.Time          `json:"updatedAt,omitempty"`
+	DeletedAt   *time.Time          `json:"deletedAt"`
+	Developer   *Developer          `json:"developer,omitempty"`
+	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
+	Floor       *int                `json:"floor,omitempty"`
+	Id          *openapi_types.UUID `json:"id,omitempty"`
+	PriceAmount *float32            `json:"priceAmount,omitempty"`
+	Project     *Project            `json:"project,omitempty"`
+	ProjectId   *openapi_types.UUID `json:"projectId,omitempty"`
+	Status      *LotListItemStatus  `json:"status,omitempty"`
+	Type        *LotType            `json:"type,omitempty"`
+	UpdatedAt   *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // LotListItemStatus defines model for LotListItem.Status.
@@ -659,19 +665,19 @@ type LotType string
 
 // LotUpdateRequest defines model for LotUpdateRequest.
 type LotUpdateRequest struct {
-	AreaId        *openapi_types.UUID     `json:"areaId,omitempty"`
-	AreaSqm       *float32                `json:"areaSqm,omitempty"`
-	Bathrooms     *int                    `json:"bathrooms,omitempty"`
-	Bedrooms      *int                    `json:"bedrooms,omitempty"`
-	BonusKeys     *[]string               `json:"bonusKeys,omitempty"`
-	Data          *LotData                `json:"data,omitempty"`
-	DeveloperId   *openapi_types.UUID     `json:"developerId,omitempty"`
-	Floor         *int                    `json:"floor,omitempty"`
-	PriceAmount   *float32                `json:"priceAmount,omitempty"`
-	PriceCurrency *string                 `json:"priceCurrency,omitempty"`
-	ProjectId     *openapi_types.UUID     `json:"projectId,omitempty"`
-	Status        *LotUpdateRequestStatus `json:"status,omitempty"`
-	Type          *LotType                `json:"type,omitempty"`
+	AreaId      *openapi_types.UUID     `json:"areaId,omitempty"`
+	AreaSqm     *float32                `json:"areaSqm,omitempty"`
+	BadgeIds    *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
+	Bathrooms   *int                    `json:"bathrooms,omitempty"`
+	Bedrooms    *int                    `json:"bedrooms,omitempty"`
+	BonusKeys   *[]string               `json:"bonusKeys,omitempty"`
+	Data        *LotData                `json:"data,omitempty"`
+	DeveloperId *openapi_types.UUID     `json:"developerId,omitempty"`
+	Floor       *int                    `json:"floor,omitempty"`
+	PriceAmount *float32                `json:"priceAmount,omitempty"`
+	ProjectId   *openapi_types.UUID     `json:"projectId,omitempty"`
+	Status      *LotUpdateRequestStatus `json:"status,omitempty"`
+	Type        *LotType                `json:"type,omitempty"`
 }
 
 // LotUpdateRequestStatus defines model for LotUpdateRequest.Status.
@@ -781,18 +787,29 @@ type ProjectCreateRequestStatus string
 
 // ProjectData defines model for ProjectData.
 type ProjectData struct {
+	// AreaSize Area size
+	AreaSize *float32 `json:"areaSize,omitempty"`
+
+	// AreaUnit Unit for area measurement (sqm, sqft)
+	AreaUnit *string `json:"areaUnit,omitempty"`
+
+	// Bedrooms Available bedroom configurations
+	Bedrooms *[]string `json:"bedrooms,omitempty"`
+
 	// CompletionDate Expected completion date (e.g., Q4 2025, 2026)
-	CompletionDate *string                  `json:"completionDate,omitempty"`
-	Description    *ProjectData_Description `json:"description,omitempty"`
+	CompletionDate *string `json:"completionDate,omitempty"`
+
+	// Currency Currency code (e.g., AED, USD)
+	Currency    *string                  `json:"currency,omitempty"`
+	Description *ProjectData_Description `json:"description,omitempty"`
 
 	// DeveloperPrice Original developer price (AED)
-	DeveloperPrice    *float32       `json:"developerPrice,omitempty"`
-	FeaturesAmenities *[]interface{} `json:"featuresAmenities,omitempty"`
+	DeveloperPrice    *float32  `json:"developerPrice,omitempty"`
+	FeaturesAmenities *[]string `json:"featuresAmenities,omitempty"`
 
 	// IsFeatured Избранный проект
-	IsFeatured *bool `json:"isFeatured,omitempty"`
-
-	Media *Media `json:"media,omitempty"`
+	IsFeatured *bool  `json:"isFeatured,omitempty"`
+	Media      *Media `json:"media,omitempty"`
 
 	// OurPrice Our company price (AED)
 	OurPrice *float32 `json:"ourPrice,omitempty"`
@@ -800,9 +817,20 @@ type ProjectData struct {
 	// PaymentPlan Payment plan description
 	PaymentPlan *string `json:"paymentPlan,omitempty"`
 
+	// PriceFrom Starting price (AED)
+	PriceFrom *float32 `json:"priceFrom,omitempty"`
+
+	// PricesByType Prices broken down by property type
+	PricesByType *[]struct {
+		Price *float32 `json:"price,omitempty"`
+		Type  *string  `json:"type,omitempty"`
+	} `json:"pricesByType,omitempty"`
+
+	// PropertyTypes Available property types
+	PropertyTypes *[]string `json:"propertyTypes,omitempty"`
+
 	// Roi Return on Investment percentage
-	Roi   *float32                `json:"roi,omitempty"`
-	Specs *map[string]interface{} `json:"specs,omitempty"`
+	Roi *float32 `json:"roi,omitempty"`
 
 	// Tags Теги проекта
 	Tags *[]string `json:"tags,omitempty"`

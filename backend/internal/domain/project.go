@@ -16,9 +16,28 @@ type Project struct {
 	AreaID      *uuid.UUID
 	Lat         *float64
 	Lng         *float64
-	Data        ProjectData
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	// Structured data fields (formerly in JSONB `data` column)
+	Description       interface{}
+	Media             *Media
+	FeaturesAmenities []string
+	Tags              []string
+	IsFeatured        bool
+	YoutubeURL        string
+	ROI               *float64
+	OurPrice          *float64
+	DeveloperPrice    *float64
+	PaymentPlan       string
+	CompletionDate    string
+	PriceFrom         *float64
+	Currency          string
+	PropertyTypes     []string
+	Bedrooms          []string
+	AreaSize          *float64
+	AreaUnit          string
+	PricesByType      []PriceByType
+	Timeline          *ProjectTimeline
 	// Embedded related data (populated by joins)
 	Developer *Developer
 	Area      *Area
@@ -26,20 +45,9 @@ type Project struct {
 	DeletedAt *time.Time
 }
 
-type ProjectData struct {
-	Description       interface{}            `json:"description,omitempty"`
-	Specs             map[string]interface{} `json:"specs,omitempty"`
-	FeaturesAmenities []interface{}          `json:"featuresAmenities,omitempty"`
-	Media             *Media                 `json:"media,omitempty"`
-	IsFeatured        bool                   `json:"isFeatured,omitempty"`
-	Tags              []string               `json:"tags,omitempty"`
-	YoutubeURL        string                 `json:"youtubeUrl,omitempty"`
-	Timeline          *ProjectTimeline       `json:"timeline,omitempty"`
-	ROI               *float64               `json:"roi,omitempty"`
-	OurPrice          *float64               `json:"ourPrice,omitempty"`
-	DeveloperPrice    *float64               `json:"developerPrice,omitempty"`
-	PaymentPlan       string                 `json:"paymentPlan,omitempty"`
-	CompletionDate    string                 `json:"completionDate,omitempty"`
+type PriceByType struct {
+	Type  string  `json:"type"`
+	Price float64 `json:"price"`
 }
 
 type ProjectTimeline struct {

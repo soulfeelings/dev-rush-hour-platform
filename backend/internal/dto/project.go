@@ -3,25 +3,17 @@ package dto
 import "rush-hour-platform/backend/internal/domain"
 
 type ProjectResponse struct {
-	ID          string                 `json:"id"`
-	Slug        string                 `json:"slug"`
-	Name        string                 `json:"name"`
-	Status      string                 `json:"status"`
-	Sale        string                 `json:"sale"`
-	DeveloperID *string                `json:"developerId,omitempty"`
-	AreaID      *string                `json:"areaId,omitempty"`
-	Lat         *float64               `json:"lat,omitempty"`
-	Lng         *float64               `json:"lng,omitempty"`
-	Data        ProjectDataResponse    `json:"data"`
-	CreatedAt   string                 `json:"createdAt"`
-	UpdatedAt   string                 `json:"updatedAt"`
-}
-
-type ProjectDataResponse struct {
-	Description      interface{}   `json:"description,omitempty"`
-	Specs            map[string]interface{} `json:"specs,omitempty"`
-	FeaturesAmenities []interface{} `json:"featuresAmenities,omitempty"`
-	Media            *domain.Media `json:"media,omitempty"`
+	ID          string   `json:"id"`
+	Slug        string   `json:"slug"`
+	Name        string   `json:"name"`
+	Status      string   `json:"status"`
+	Sale        string   `json:"sale"`
+	DeveloperID *string  `json:"developerId,omitempty"`
+	AreaID      *string  `json:"areaId,omitempty"`
+	Lat         *float64 `json:"lat,omitempty"`
+	Lng         *float64 `json:"lng,omitempty"`
+	CreatedAt   string   `json:"createdAt"`
+	UpdatedAt   string   `json:"updatedAt"`
 }
 
 func ProjectToResponse(project *domain.Project) *ProjectResponse {
@@ -37,12 +29,6 @@ func ProjectToResponse(project *domain.Project) *ProjectResponse {
 		Sale:      project.Sale,
 		CreatedAt: project.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt: project.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		Data: ProjectDataResponse{
-			Description:       project.Data.Description,
-			Specs:             project.Data.Specs,
-			FeaturesAmenities: project.Data.FeaturesAmenities,
-			Media:             project.Data.Media,
-		},
 	}
 
 	if project.DeveloperID != nil {
@@ -73,4 +59,3 @@ func ProjectsToResponse(projects []domain.Project) []ProjectResponse {
 	}
 	return result
 }
-
