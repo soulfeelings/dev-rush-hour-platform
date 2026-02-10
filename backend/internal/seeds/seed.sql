@@ -2,15 +2,15 @@
 -- Run: make seed (local) or make seed-railway DATABASE_URL="..." (production)
 
 -- Insert badges
-INSERT INTO badges (slug, name, background_color, text_color, icon, status, sort_order) VALUES
-('1-year-service-charge', '1 year service charge', '#25D366', '#FFFFFF', 'gift', 'active', 1),
-('fully-furniture', 'Fully furniture', '#F5A623', '#FFFFFF', 'sofa', 'active', 2),
-('special-price', 'Special price', '#FF3B30', '#FFFFFF', 'tag', 'active', 3),
-('golden-visa', 'Golden Visa', '#FFD700', '#000000', 'passport', 'active', 4),
-('pool-view', 'Pool View', '#007AFF', '#FFFFFF', 'waves', 'active', 5),
-('sea-view', 'Sea View', '#34C759', '#FFFFFF', 'anchor', 'active', 6),
-('new-project', 'New Project', '#AF52DE', '#FFFFFF', 'sparkles', 'active', 7),
-('ready-to-move', 'Ready to Move', '#5856D6', '#FFFFFF', 'key', 'active', 8)
+INSERT INTO badges (slug, name, background_color, text_color, icon, sort_order) VALUES
+('1-year-service-charge', '1 year service charge', '#25D366', '#FFFFFF', 'gift', 1),
+('fully-furniture', 'Fully furniture', '#F5A623', '#FFFFFF', 'sofa', 2),
+('special-price', 'Special price', '#FF3B30', '#FFFFFF', 'tag', 3),
+('golden-visa', 'Golden Visa', '#FFD700', '#000000', 'passport', 4),
+('pool-view', 'Pool View', '#007AFF', '#FFFFFF', 'waves', 5),
+('sea-view', 'Sea View', '#34C759', '#FFFFFF', 'anchor', 6),
+('new-project', 'New Project', '#AF52DE', '#FFFFFF', 'sparkles', 7),
+('ready-to-move', 'Ready to Move', '#5856D6', '#FFFFFF', 'key', 8)
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert infrastructures
@@ -46,17 +46,17 @@ INSERT INTO infrastructures (slug, name, icon, sort_order) VALUES
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert cities
-INSERT INTO cities (slug, name, status) VALUES
-('dubai', 'Dubai', 'active'),
-('abu-dhabi', 'Abu Dhabi', 'active')
+INSERT INTO cities (slug, name) VALUES
+('dubai', 'Dubai'),
+('abu-dhabi', 'Abu Dhabi')
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert developers
-INSERT INTO developers (slug, name, status, data) VALUES
-('segrex-development-llc', 'Segrex Development L.L.C Агентство', 'active', '{"logoUrl": "https://avatars.mds.yandex.net/i?id=70d28def6aafbd8f46b5a6028a7218f0_l-5310919-images-thumbs&n=13"}'),
-('major-developments', 'Major Developments', 'active', '{"logoUrl": "https://avatars.mds.yandex.net/i?id=c6a1772c7effeac59b29a17ea8103e7133ae2d79-9151820-images-thumbs&n=13"}'),
-('dia-developments', 'DIA Developments', 'active', '{"logoUrl": "https://novostroyki.bazametrov.ru/storage/uploads/developers/2052/logo.jpg"}'),
-('emaar-properties', 'Emaar Properties', 'active', '{"logoUrl": "https://avatars.mds.yandex.net/i?id=6106b51626c0974294528879d7d72c1d_l-5670589-images-thumbs&n=13"}')
+INSERT INTO developers (slug, name, status, logo_url) VALUES
+('segrex-development-llc', 'Segrex Development L.L.C Агентство', 'active', 'https://avatars.mds.yandex.net/i?id=70d28def6aafbd8f46b5a6028a7218f0_l-5310919-images-thumbs&n=13'),
+('major-developments', 'Major Developments', 'active', 'https://avatars.mds.yandex.net/i?id=c6a1772c7effeac59b29a17ea8103e7133ae2d79-9151820-images-thumbs&n=13'),
+('dia-developments', 'DIA Developments', 'active', 'https://novostroyki.bazametrov.ru/storage/uploads/developers/2052/logo.jpg'),
+('emaar-properties', 'Emaar Properties', 'active', 'https://avatars.mds.yandex.net/i?id=6106b51626c0974294528879d7d72c1d_l-5670589-images-thumbs&n=13')
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert areas
@@ -74,161 +74,81 @@ INSERT INTO areas (slug, name, city, city_id, lat, lng, status, data) VALUES
 ON CONFLICT (slug) DO NOTHING;
 
 -- Insert projects
-INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng, data) VALUES
+INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
+  description, media, features_amenities, tags, is_featured, youtube_url,
+  roi, our_price, developer_price, payment_plan, completion_date,
+  price_from, currency, property_types, bedrooms, area_size, area_unit, prices_by_type,
+  timeline_announcement, timeline_booking_started, timeline_construction_started,
+  timeline_construction_progress, timeline_construction_progress_pct, timeline_expected_completion
+) VALUES
 ('sea-legend-tower-one', 'Sea Legend Tower One', 'active', 'start of sales',
  (SELECT id FROM developers WHERE slug = 'segrex-development-llc'),
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  25.0772, 55.1398,
- '{"description": "Luxurious fully furnished 3-bedroom apartment spanning 1,533.25 sq. ft. in the prestigious Sea Legend Tower One at Dubai Marina, offering panoramic marina views, modern finishes, and access to world-class amenities in one of Dubai''s most sought-after waterfront districts.",
-   "specs": {
-     "priceFrom": 1200000, "currency": "AED", "types": ["Primary"], "bedrooms": ["3К"], "completionDate": "Q4 2025", "area": 1533.25, "areaUnit": "sq. ft.",
-     "roi": 7, "paymentPlan": "30/10/60",
-     "pricesByType": [
-       {"type": "studio, 1-2 beds", "price": 1200000},
-       {"type": "apartments", "price": 1800000},
-       {"type": "penthouse", "price": 3500000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "sea-legend-cover", "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"},
-     "gallery": [
-       {"id": "sea-legend-1", "url": "https://dda-realestate.com/storage/complex_medias/2383_464b6881-0667-45c0-afc4-c3e319c48078.webp"},
-       {"id": "sea-legend-2", "url": "https://dda-realestate.com/storage/complex_medias/2383_58becc44-e6da-4f7c-a369-52e191330579.webp"},
-       {"id": "sea-legend-3", "url": "https://dda-realestate.com/storage/complex_medias/2022_789c184c-8bb6-4f74-81dc-1ba712707f32.webp"},
-       {"id": "sea-legend-4", "url": "https://img.prian.ru/2025_03/6/20250306070144977904250o.png"}
-     ]
-   },
-   "featuresAmenities": ["Gym", "Swimming Pool", "Sea View", "Spa Center", "Children''s Playground", "Electric Vehicle Charging", "24/7 Security", "Underground Parking", "Concierge Service", "Private Beach"],
-   "tags": ["9 декабря", "Акция для клиентов"],
-   "timeline": {
-     "projectAnnouncement": "2023-01-15",
-     "bookingStarted": "2023-03-01",
-     "constructionStarted": "2023-06-10",
-     "constructionProgress": "2025-01-15",
-     "constructionProgressPercent": 72.5,
-     "expectedCompletion": "2025-12-30"
-   },
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8", "isFeatured": true}'
+ '"Luxurious fully furnished 3-bedroom apartment spanning 1,533.25 sq. ft. in the prestigious Sea Legend Tower One at Dubai Marina, offering panoramic marina views, modern finishes, and access to world-class amenities in one of Dubai''s most sought-after waterfront districts."'::jsonb,
+ '{"cover": {"id": "sea-legend-cover", "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"}, "gallery": [{"id": "sea-legend-1", "url": "https://dda-realestate.com/storage/complex_medias/2383_464b6881-0667-45c0-afc4-c3e319c48078.webp"}, {"id": "sea-legend-2", "url": "https://dda-realestate.com/storage/complex_medias/2383_58becc44-e6da-4f7c-a369-52e191330579.webp"}, {"id": "sea-legend-3", "url": "https://dda-realestate.com/storage/complex_medias/2022_789c184c-8bb6-4f74-81dc-1ba712707f32.webp"}, {"id": "sea-legend-4", "url": "https://img.prian.ru/2025_03/6/20250306070144977904250o.png"}]}'::jsonb,
+ ARRAY['Gym', 'Swimming Pool', 'Sea View', 'Spa Center', 'Children''s Playground', 'Electric Vehicle Charging', '24/7 Security', 'Underground Parking', 'Concierge Service', 'Private Beach'],
+ ARRAY['9 декабря', 'Акция для клиентов'], true, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 7, NULL, NULL, '30/10/60', 'Q4 2025',
+ 1200000, 'AED', ARRAY['Primary'], ARRAY['3К'], 1533.25, 'sq. ft.',
+ '[{"type": "studio, 1-2 beds", "price": 1200000}, {"type": "apartments", "price": 1800000}, {"type": "penthouse", "price": 3500000}]'::jsonb,
+ '2023-01-15T00:00:00Z', '2023-03-01T00:00:00Z', '2023-06-10T00:00:00Z',
+ '2025-01-15T00:00:00Z', 73, '2025-12-30T00:00:00Z'
 ),
 ('colibri-views', 'Colibri Views', 'active', 'sales announcement',
  (SELECT id FROM developers WHERE slug = 'major-developments'),
  (SELECT id FROM areas WHERE slug = 'al-jazeera-al-hamra-industrial'),
  25.3340, 55.3070,
- '{"description": "Modern residential complex offering flexible studio to 2-bedroom units in an emerging mixed-use community at Al Jazeera Al Hamra Industrial area, featuring contemporary design, green spaces, and community-focused amenities for comfortable urban living.",
-   "specs": {
-     "priceFrom": 800000, "currency": "AED", "types": ["Primary"], "bedrooms": ["Ст", "1К", "2К"], "completionDate": "Q1 2029",
-     "roi": 6, "paymentPlan": "20/40/40",
-     "pricesByType": [
-       {"type": "studio", "price": 750000},
-       {"type": "1 bedroom", "price": 1100000},
-       {"type": "2 bedrooms", "price": 1450000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "colibri-views-cover", "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"},
-     "gallery": [
-       {"id": "colibri-views-1", "url": "https://i.1.creatium.io/disk2/e7/d4/93/665abb73256b38e6185b4f0023ce485aec/colibri_views.jpg"},
-       {"id": "colibri-views-2", "url": "https://topaddress.ae/wp-content/uploads/2025/09/1879b530c756f4888f1871387860b169.webp"}
-     ]
-   },
-   "featuresAmenities": ["Gym", "Children''s Playground", "Landscaped Garden", "Barbecue Area", "Retail Space", "On-site Supermarket", "Picnic Area", "Sports Court", "Bicycle Paths", "Package Room"],
-   "timeline": {
-     "projectAnnouncement": "2025-06-01",
-     "bookingStarted": "2025-09-15",
-     "constructionProgressPercent": 0,
-     "expectedCompletion": "2029-03-30"
-   },
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Modern residential complex offering flexible studio to 2-bedroom units in an emerging mixed-use community at Al Jazeera Al Hamra Industrial area, featuring contemporary design, green spaces, and community-focused amenities for comfortable urban living."'::jsonb,
+ '{"cover": {"id": "colibri-views-cover", "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"}, "gallery": [{"id": "colibri-views-1", "url": "https://i.1.creatium.io/disk2/e7/d4/93/665abb73256b38e6185b4f0023ce485aec/colibri_views.jpg"}, {"id": "colibri-views-2", "url": "https://topaddress.ae/wp-content/uploads/2025/09/1879b530c756f4888f1871387860b169.webp"}]}'::jsonb,
+ ARRAY['Gym', 'Children''s Playground', 'Landscaped Garden', 'Barbecue Area', 'Retail Space', 'On-site Supermarket', 'Picnic Area', 'Sports Court', 'Bicycle Paths', 'Package Room'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 6, NULL, NULL, '20/40/40', 'Q1 2029',
+ 800000, 'AED', ARRAY['Primary'], ARRAY['Ст', '1К', '2К'], NULL, NULL,
+ '[{"type": "studio", "price": 750000}, {"type": "1 bedroom", "price": 1100000}, {"type": "2 bedrooms", "price": 1450000}]'::jsonb,
+ '2025-06-01T00:00:00Z', '2025-09-15T00:00:00Z', NULL,
+ NULL, 0, '2029-03-30T00:00:00Z'
 ),
 ('luz-ora-residences', 'Luz Ora Residences', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'dia-developments'),
  (SELECT id FROM areas WHERE slug = 'dubai-islands'),
  25.3216, 55.2911,
- '{"description": "Premium waterfront residences on Dubai Islands featuring 1 to 4-bedroom apartments with modern architecture, private beach access, and luxury amenities in a serene island setting just minutes from the city center.",
-   "specs": {
-     "priceFrom": 1400000, "currency": "AED", "types": ["Primary"], "bedrooms": ["1К", "2К", "4К"], "completionDate": "Q2 2027",
-     "roi": 8, "paymentPlan": "40/60",
-     "pricesByType": [
-       {"type": "1 bedroom", "price": 1400000},
-       {"type": "2 bedrooms", "price": 1850000},
-       {"type": "4 bedrooms", "price": 3200000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "luz-ora-cover", "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"},
-     "gallery": [
-       {"id": "luz-ora-1", "url": "https://storage4.emirates.estate/static/p/4cvihjt3c/e7fd0e4qom3vr/luz-ora-00.jpg"},
-       {"id": "luz-ora-2", "url": "https://dda-realestate.com/storage/complex_medias/2276_76ba2232-ae0e-41ec-a058-5b44de53686d.webp"}
-     ]
-   },
-   "featuresAmenities": ["Gym", "Swimming Pool", "Sea View", "Private Beach", "Electric Vehicle Charging", "Yoga Studio", "Spa Center", "Kids Club", "Private Yacht Dock", "On-site Restaurant"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Premium waterfront residences on Dubai Islands featuring 1 to 4-bedroom apartments with modern architecture, private beach access, and luxury amenities in a serene island setting just minutes from the city center."'::jsonb,
+ '{"cover": {"id": "luz-ora-cover", "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"}, "gallery": [{"id": "luz-ora-1", "url": "https://storage4.emirates.estate/static/p/4cvihjt3c/e7fd0e4qom3vr/luz-ora-00.jpg"}, {"id": "luz-ora-2", "url": "https://dda-realestate.com/storage/complex_medias/2276_76ba2232-ae0e-41ec-a058-5b44de53686d.webp"}]}'::jsonb,
+ ARRAY['Gym', 'Swimming Pool', 'Sea View', 'Private Beach', 'Electric Vehicle Charging', 'Yoga Studio', 'Spa Center', 'Kids Club', 'Private Yacht Dock', 'On-site Restaurant'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 8, NULL, NULL, '40/60', 'Q2 2027',
+ 1400000, 'AED', ARRAY['Primary'], ARRAY['1К', '2К', '4К'], NULL, NULL,
+ '[{"type": "1 bedroom", "price": 1400000}, {"type": "2 bedrooms", "price": 1850000}, {"type": "4 bedrooms", "price": 3200000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 ),
 ('palm-jumeirah-residence', 'Palm Jumeirah Residence', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'emaar-properties'),
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  25.1154, 55.1390,
- '{"description": "Ultra-luxury beachfront residences on the iconic Palm Jumeirah, offering 2 to 4-bedroom apartments and villas with direct private beach access, infinity pools, and 5-star hotel amenities in Dubai''s most exclusive address.",
-   "specs": {
-     "priceFrom": 2100000, "currency": "AED", "types": ["Primary"], "bedrooms": ["2К", "3К", "4К"], "completionDate": "Q3 2026",
-     "roi": 9, "paymentPlan": "50/50",
-     "pricesByType": [
-       {"type": "2 bedrooms", "price": 2100000},
-       {"type": "3 bedrooms", "price": 2800000},
-       {"type": "villa 4 beds", "price": 5500000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "palm-jumeirah-cover", "url": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800"},
-     "gallery": [
-       {"id": "palm-jumeirah-1", "url": "https://avatars.mds.yandex.net/i?id=93f01f1b74f3ea661e373841e5a49b47_l-4903160-images-thumbs&n=13"},
-       {"id": "palm-jumeirah-2", "url": "https://i.tez-tour.travel/img/hotels/21619/22.jpg"},
-       {"id": "palm-jumeirah-3", "url": "https://maldives.ru/upload/resize_cache/iblock/cea/v5s5qyfyrww9txkqoxm7yp6p2zkzw8ge/1500_1000_2/5af3f33d71be_75209062_4K.jpeg"}
-     ]
-   },
-   "featuresAmenities": ["Gym", "Swimming Pool", "Sea View", "Spa Center", "Private Beach", "Infrared Saunas", "Poolside Restaurant", "Kids Club with Nanny", "Concierge Service", "Helipad"],
-   "timeline": {
-     "projectAnnouncement": "2022-09-01",
-     "bookingStarted": "2022-11-15",
-     "constructionStarted": "2023-02-20",
-     "constructionProgress": "2025-12-01",
-     "constructionProgressPercent": 88.0,
-     "expectedCompletion": "2026-09-30"
-   },
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Ultra-luxury beachfront residences on the iconic Palm Jumeirah, offering 2 to 4-bedroom apartments and villas with direct private beach access, infinity pools, and 5-star hotel amenities in Dubai''s most exclusive address."'::jsonb,
+ '{"cover": {"id": "palm-jumeirah-cover", "url": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800"}, "gallery": [{"id": "palm-jumeirah-1", "url": "https://avatars.mds.yandex.net/i?id=93f01f1b74f3ea661e373841e5a49b47_l-4903160-images-thumbs&n=13"}, {"id": "palm-jumeirah-2", "url": "https://i.tez-tour.travel/img/hotels/21619/22.jpg"}, {"id": "palm-jumeirah-3", "url": "https://maldives.ru/upload/resize_cache/iblock/cea/v5s5qyfyrww9txkqoxm7yp6p2zkzw8ge/1500_1000_2/5af3f33d71be_75209062_4K.jpeg"}]}'::jsonb,
+ ARRAY['Gym', 'Swimming Pool', 'Sea View', 'Spa Center', 'Private Beach', 'Infrared Saunas', 'Poolside Restaurant', 'Kids Club with Nanny', 'Concierge Service', 'Helipad'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 9, NULL, NULL, '50/50', 'Q3 2026',
+ 2100000, 'AED', ARRAY['Primary'], ARRAY['2К', '3К', '4К'], NULL, NULL,
+ '[{"type": "2 bedrooms", "price": 2100000}, {"type": "3 bedrooms", "price": 2800000}, {"type": "villa 4 beds", "price": 5500000}]'::jsonb,
+ '2022-09-01T00:00:00Z', '2022-11-15T00:00:00Z', '2023-02-20T00:00:00Z',
+ '2025-12-01T00:00:00Z', 88, '2026-09-30T00:00:00Z'
 ),
 ('downtown-dubai-tower', 'Downtown Dubai Tower', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'emaar-properties'),
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  25.1972, 55.2744,
- '{"description": "Premium high-rise tower in the heart of Downtown Dubai featuring 1 to 3-bedroom apartments with direct views of Burj Khalifa, immediate access to Dubai Mall, and luxury urban living at the center of the city''s cultural and commercial hub.",
-   "specs": {
-     "priceFrom": 1400000, "currency": "AED", "types": ["Primary"], "bedrooms": ["1К", "2К", "3К"], "completionDate": "Q1 2028",
-     "roi": 7, "paymentPlan": "20/80",
-     "pricesByType": [
-       {"type": "1 bedroom", "price": 1350000},
-       {"type": "2 bedrooms", "price": 1950000},
-       {"type": "3 bedrooms", "price": 2600000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "downtown-dubai-cover", "url": "https://edge.travelatacdn.ru/thumbs/640x480/upload/2021_41/content_hotel_616721062c3ec6.34344983.jpeg"},
-     "gallery": [
-       {"id": "downtown-dubai-1", "url": "https://avatars.mds.yandex.net/i?id=b52cc6857909a23f5f489ca2af4bc630_l-8311154-images-thumbs&n=13"},
-       {"id": "downtown-dubai-2", "url": "https://avatars.mds.yandex.net/get-altay/5482016/2a0000017f11fe72faf7762646a9fddcf1c0/XXL_height"},
-       {"id": "downtown-dubai-3", "url": "https://avatars.mds.yandex.net/i?id=23ef5e3bfd1d152e1e3016478a10f0d1037c0196-5476568-images-thumbs&n=13"}
-     ]
-   },
-   "featuresAmenities": ["Gym", "Swimming Pool", "Children''s Playground", "Yoga Studio", "Electric Vehicle Charging", "Indoor Tennis Court", "Library", "Cinema", "Conference Room", "Direct Access to Dubai Mall"],
-   "timeline": {
-     "projectAnnouncement": "2024-03-01",
-     "bookingStarted": "2024-06-15",
-     "constructionStarted": "2024-10-01",
-     "constructionProgress": "2025-11-01",
-     "constructionProgressPercent": 20.04,
-     "expectedCompletion": "2028-03-30"
-   },
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Premium high-rise tower in the heart of Downtown Dubai featuring 1 to 3-bedroom apartments with direct views of Burj Khalifa, immediate access to Dubai Mall, and luxury urban living at the center of the city''s cultural and commercial hub."'::jsonb,
+ '{"cover": {"id": "downtown-dubai-cover", "url": "https://edge.travelatacdn.ru/thumbs/640x480/upload/2021_41/content_hotel_616721062c3ec6.34344983.jpeg"}, "gallery": [{"id": "downtown-dubai-1", "url": "https://avatars.mds.yandex.net/i?id=b52cc6857909a23f5f489ca2af4bc630_l-8311154-images-thumbs&n=13"}, {"id": "downtown-dubai-2", "url": "https://avatars.mds.yandex.net/get-altay/5482016/2a0000017f11fe72faf7762646a9fddcf1c0/XXL_height"}, {"id": "downtown-dubai-3", "url": "https://avatars.mds.yandex.net/i?id=23ef5e3bfd1d152e1e3016478a10f0d1037c0196-5476568-images-thumbs&n=13"}]}'::jsonb,
+ ARRAY['Gym', 'Swimming Pool', 'Children''s Playground', 'Yoga Studio', 'Electric Vehicle Charging', 'Indoor Tennis Court', 'Library', 'Cinema', 'Conference Room', 'Direct Access to Dubai Mall'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 7, NULL, NULL, '20/80', 'Q1 2028',
+ 1400000, 'AED', ARRAY['Primary'], ARRAY['1К', '2К', '3К'], NULL, NULL,
+ '[{"type": "1 bedroom", "price": 1350000}, {"type": "2 bedrooms", "price": 1950000}, {"type": "3 bedrooms", "price": 2600000}]'::jsonb,
+ '2024-03-01T00:00:00Z', '2024-06-15T00:00:00Z', '2024-10-01T00:00:00Z',
+ '2025-11-01T00:00:00Z', 20, '2028-03-30T00:00:00Z'
 ),
 -- Additional projects for filter testing
 -- Budget-friendly studio project (low price, studios only)
@@ -236,212 +156,126 @@ INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
  (SELECT id FROM developers WHERE slug = 'major-developments'),
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  25.0780, 55.1405,
- '{"description": "Affordable studio apartments in Dubai Marina, perfect for first-time investors and young professionals seeking waterfront living at accessible prices.",
-   "specs": {
-     "priceFrom": 450000, "currency": "AED", "types": ["Primary"], "bedrooms": ["Ст"], "completionDate": "Q2 2025",
-     "roi": 8, "paymentPlan": "10/90",
-     "pricesByType": [
-       {"type": "studio", "price": 450000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "marina-studios-cover", "url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"},
-     "gallery": [
-       {"id": "marina-studios-1", "url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800"}
-     ]
-   },
-   "featuresAmenities": ["Gym", "Swimming Pool", "24/7 Security"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Affordable studio apartments in Dubai Marina, perfect for first-time investors and young professionals seeking waterfront living at accessible prices."'::jsonb,
+ '{"cover": {"id": "marina-studios-cover", "url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"}, "gallery": [{"id": "marina-studios-1", "url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800"}]}'::jsonb,
+ ARRAY['Gym', 'Swimming Pool', '24/7 Security'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 8, NULL, NULL, '10/90', 'Q2 2025',
+ 450000, 'AED', ARRAY['Primary'], ARRAY['Ст'], NULL, NULL,
+ '[{"type": "studio", "price": 450000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 ),
 -- Ultra-luxury project (very high price, large units)
 ('palm-royal-villas', 'Palm Royal Villas', 'active', 'start of sales',
  (SELECT id FROM developers WHERE slug = 'emaar-properties'),
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  25.1160, 55.1400,
- '{"description": "Exclusive collection of ultra-luxury villas on Palm Jumeirah featuring 5-7 bedroom mansions with private beaches, yacht berths, and unparalleled amenities for the most discerning buyers.",
-   "specs": {
-     "priceFrom": 15000000, "currency": "AED", "types": ["Primary"], "bedrooms": ["5К", "6К", "7К"], "completionDate": "Q4 2027",
-     "roi": 5, "paymentPlan": "40/60",
-     "pricesByType": [
-       {"type": "5 bedroom villa", "price": 15000000},
-       {"type": "6 bedroom villa", "price": 22000000},
-       {"type": "7 bedroom mansion", "price": 35000000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "palm-royal-cover", "url": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800"},
-     "gallery": [
-       {"id": "palm-royal-1", "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"}
-     ]
-   },
-   "featuresAmenities": ["Private Beach", "Yacht Berth", "Helipad", "Private Cinema", "Wine Cellar", "Spa", "Infinity Pool", "Smart Home"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8", "isFeatured": true}'
+ '"Exclusive collection of ultra-luxury villas on Palm Jumeirah featuring 5-7 bedroom mansions with private beaches, yacht berths, and unparalleled amenities for the most discerning buyers."'::jsonb,
+ '{"cover": {"id": "palm-royal-cover", "url": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800"}, "gallery": [{"id": "palm-royal-1", "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"}]}'::jsonb,
+ ARRAY['Private Beach', 'Yacht Berth', 'Helipad', 'Private Cinema', 'Wine Cellar', 'Spa', 'Infinity Pool', 'Smart Home'],
+ '{}', true, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 5, NULL, NULL, '40/60', 'Q4 2027',
+ 15000000, 'AED', ARRAY['Primary'], ARRAY['5К', '6К', '7К'], NULL, NULL,
+ '[{"type": "5 bedroom villa", "price": 15000000}, {"type": "6 bedroom villa", "price": 22000000}, {"type": "7 bedroom mansion", "price": 35000000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 ),
 -- Ready to move project (immediate completion)
 ('marina-gate-ready', 'Marina Gate Ready', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'segrex-development-llc'),
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  25.0765, 55.1390,
- '{"description": "Move-in ready apartments in Dubai Marina with immediate handover. Fully finished units with high-end appliances and stunning marina views.",
-   "specs": {
-     "priceFrom": 950000, "currency": "AED", "types": ["Secondary"], "bedrooms": ["1К", "2К"], "completionDate": "Ready",
-     "roi": 7, "paymentPlan": "100",
-     "pricesByType": [
-       {"type": "1 bedroom", "price": 950000},
-       {"type": "2 bedrooms", "price": 1500000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "marina-gate-cover", "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800"},
-     "gallery": [
-       {"id": "marina-gate-1", "url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"}
-     ]
-   },
-   "featuresAmenities": ["Gym", "Swimming Pool", "Concierge", "Valet Parking", "Retail Podium"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Move-in ready apartments in Dubai Marina with immediate handover. Fully finished units with high-end appliances and stunning marina views."'::jsonb,
+ '{"cover": {"id": "marina-gate-cover", "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800"}, "gallery": [{"id": "marina-gate-1", "url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"}]}'::jsonb,
+ ARRAY['Gym', 'Swimming Pool', 'Concierge', 'Valet Parking', 'Retail Podium'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 7, NULL, NULL, '100', 'Ready',
+ 950000, 'AED', ARRAY['Secondary'], ARRAY['1К', '2К'], NULL, NULL,
+ '[{"type": "1 bedroom", "price": 950000}, {"type": "2 bedrooms", "price": 1500000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 ),
 -- Long-term off-plan (far completion date, high ROI)
 ('dubai-creek-tower', 'Dubai Creek Tower', 'active', 'sales announcement',
  (SELECT id FROM developers WHERE slug = 'emaar-properties'),
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  25.2000, 55.2800,
- '{"description": "Iconic residential tower near Dubai Creek featuring innovative architecture and premium apartments with exceptional investment potential and long-term value appreciation.",
-   "specs": {
-     "priceFrom": 1800000, "currency": "AED", "types": ["Primary"], "bedrooms": ["2К", "3К", "4К"], "completionDate": "Q4 2030",
-     "roi": 12, "paymentPlan": "10/10/80",
-     "pricesByType": [
-       {"type": "2 bedrooms", "price": 1800000},
-       {"type": "3 bedrooms", "price": 2500000},
-       {"type": "4 bedrooms", "price": 3800000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "creek-tower-cover", "url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800"},
-     "gallery": [
-       {"id": "creek-tower-1", "url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800"}
-     ]
-   },
-   "featuresAmenities": ["Observatory Deck", "Sky Lounge", "Infinity Pool", "Gym", "Spa", "Private Dining"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Iconic residential tower near Dubai Creek featuring innovative architecture and premium apartments with exceptional investment potential and long-term value appreciation."'::jsonb,
+ '{"cover": {"id": "creek-tower-cover", "url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800"}, "gallery": [{"id": "creek-tower-1", "url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800"}]}'::jsonb,
+ ARRAY['Observatory Deck', 'Sky Lounge', 'Infinity Pool', 'Gym', 'Spa', 'Private Dining'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 12, NULL, NULL, '10/10/80', 'Q4 2030',
+ 1800000, 'AED', ARRAY['Primary'], ARRAY['2К', '3К', '4К'], NULL, NULL,
+ '[{"type": "2 bedrooms", "price": 1800000}, {"type": "3 bedrooms", "price": 2500000}, {"type": "4 bedrooms", "price": 3800000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 ),
 -- Mid-range family project (3-4 bedrooms focus)
 ('islands-family-homes', 'Islands Family Homes', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'dia-developments'),
  (SELECT id FROM areas WHERE slug = 'dubai-islands'),
  25.3220, 55.2920,
- '{"description": "Family-oriented townhouses and apartments on Dubai Islands with spacious layouts, kids-friendly amenities, and a secure community environment.",
-   "specs": {
-     "priceFrom": 2200000, "currency": "AED", "types": ["Primary"], "bedrooms": ["3К", "4К"], "completionDate": "Q3 2026",
-     "roi": 6, "paymentPlan": "25/75",
-     "pricesByType": [
-       {"type": "3 bedroom apartment", "price": 2200000},
-       {"type": "4 bedroom townhouse", "price": 3500000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "islands-family-cover", "url": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800"},
-     "gallery": [
-       {"id": "islands-family-1", "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"}
-     ]
-   },
-   "featuresAmenities": ["Kids Club", "Playground", "School Nearby", "Community Pool", "Parks", "Cycling Paths", "Pet-Friendly"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Family-oriented townhouses and apartments on Dubai Islands with spacious layouts, kids-friendly amenities, and a secure community environment."'::jsonb,
+ '{"cover": {"id": "islands-family-cover", "url": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800"}, "gallery": [{"id": "islands-family-1", "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"}]}'::jsonb,
+ ARRAY['Kids Club', 'Playground', 'School Nearby', 'Community Pool', 'Parks', 'Cycling Paths', 'Pet-Friendly'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 6, NULL, NULL, '25/75', 'Q3 2026',
+ 2200000, 'AED', ARRAY['Primary'], ARRAY['3К', '4К'], NULL, NULL,
+ '[{"type": "3 bedroom apartment", "price": 2200000}, {"type": "4 bedroom townhouse", "price": 3500000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 ),
 -- Inactive/draft project for status testing
 ('palm-residences-phase2', 'Palm Residences Phase 2', 'draft', 'coming soon',
  (SELECT id FROM developers WHERE slug = 'emaar-properties'),
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  25.1150, 55.1385,
- '{"description": "Upcoming phase of the successful Palm Residences development. Registration of interest now open for exclusive early access.",
-   "specs": {
-     "priceFrom": 3000000, "currency": "AED", "types": ["Primary"], "bedrooms": ["2К", "3К"], "completionDate": "Q2 2029",
-     "roi": 8, "paymentPlan": "TBA",
-     "pricesByType": [
-       {"type": "2 bedrooms", "price": 3000000},
-       {"type": "3 bedrooms", "price": 4200000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "palm-phase2-cover", "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"},
-     "gallery": []
-   },
-   "featuresAmenities": ["TBA"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Upcoming phase of the successful Palm Residences development. Registration of interest now open for exclusive early access."'::jsonb,
+ '{"cover": {"id": "palm-phase2-cover", "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"}, "gallery": []}'::jsonb,
+ ARRAY['TBA'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 8, NULL, NULL, 'TBA', 'Q2 2029',
+ 3000000, 'AED', ARRAY['Primary'], ARRAY['2К', '3К'], NULL, NULL,
+ '[{"type": "2 bedrooms", "price": 3000000}, {"type": "3 bedrooms", "price": 4200000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 ),
 -- Very low ROI but high discount project
 ('al-hamra-value', 'Al Hamra Value Homes', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'major-developments'),
  (SELECT id FROM areas WHERE slug = 'al-jazeera-al-hamra-industrial'),
  25.3350, 55.3080,
- '{"description": "Practical and affordable homes in Al Hamra with generous discounts. Ideal for budget-conscious buyers looking for value-driven investments.",
-   "specs": {
-     "priceFrom": 550000, "currency": "AED", "types": ["Primary", "Secondary"], "bedrooms": ["Ст", "1К", "2К"], "completionDate": "Q1 2026",
-     "roi": 4, "paymentPlan": "30/70",
-     "pricesByType": [
-       {"type": "studio", "price": 550000},
-       {"type": "1 bedroom", "price": 750000},
-       {"type": "2 bedrooms", "price": 950000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "al-hamra-value-cover", "url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800"},
-     "gallery": [
-       {"id": "al-hamra-value-1", "url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"}
-     ]
-   },
-   "featuresAmenities": ["Parking", "Security", "Gym"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Practical and affordable homes in Al Hamra with generous discounts. Ideal for budget-conscious buyers looking for value-driven investments."'::jsonb,
+ '{"cover": {"id": "al-hamra-value-cover", "url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800"}, "gallery": [{"id": "al-hamra-value-1", "url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"}]}'::jsonb,
+ ARRAY['Parking', 'Security', 'Gym'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 4, NULL, NULL, '30/70', 'Q1 2026',
+ 550000, 'AED', ARRAY['Primary', 'Secondary'], ARRAY['Ст', '1К', '2К'], NULL, NULL,
+ '[{"type": "studio", "price": 550000}, {"type": "1 bedroom", "price": 750000}, {"type": "2 bedrooms", "price": 950000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 ),
 -- High ROI investment project
 ('downtown-investment-suites', 'Downtown Investment Suites', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'segrex-development-llc'),
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  25.1980, 55.2750,
- '{"description": "Purpose-built investment suites in Downtown Dubai designed for maximum rental yield. Managed by premium hotel operator with guaranteed returns.",
-   "specs": {
-     "priceFrom": 1100000, "currency": "AED", "types": ["Primary"], "bedrooms": ["Ст", "1К"], "completionDate": "Q4 2026",
-     "roi": 15, "paymentPlan": "50/50",
-     "pricesByType": [
-       {"type": "studio", "price": 1100000},
-       {"type": "1 bedroom", "price": 1600000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "investment-suites-cover", "url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800"},
-     "gallery": [
-       {"id": "investment-suites-1", "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800"}
-     ]
-   },
-   "featuresAmenities": ["Hotel Management", "Room Service", "Concierge", "Valet", "Restaurant", "Rooftop Bar"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8", "isFeatured": true}'
+ '"Purpose-built investment suites in Downtown Dubai designed for maximum rental yield. Managed by premium hotel operator with guaranteed returns."'::jsonb,
+ '{"cover": {"id": "investment-suites-cover", "url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800"}, "gallery": [{"id": "investment-suites-1", "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800"}]}'::jsonb,
+ ARRAY['Hotel Management', 'Room Service', 'Concierge', 'Valet', 'Restaurant', 'Rooftop Bar'],
+ '{}', true, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 15, NULL, NULL, '50/50', 'Q4 2026',
+ 1100000, 'AED', ARRAY['Primary'], ARRAY['Ст', '1К'], NULL, NULL,
+ '[{"type": "studio", "price": 1100000}, {"type": "1 bedroom", "price": 1600000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 ),
 -- Project with all bedroom types
 ('marina-complete-living', 'Marina Complete Living', 'active', 'sale',
  (SELECT id FROM developers WHERE slug = 'dia-developments'),
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  25.0775, 55.1395,
- '{"description": "Comprehensive residential development offering every unit type from studios to penthouses, catering to singles, couples, and families alike.",
-   "specs": {
-     "priceFrom": 600000, "currency": "AED", "types": ["Primary"], "bedrooms": ["Ст", "1К", "2К", "3К", "4К", "5К"], "completionDate": "Q2 2027",
-     "roi": 7, "paymentPlan": "20/30/50",
-     "pricesByType": [
-       {"type": "studio", "price": 600000},
-       {"type": "1 bedroom", "price": 900000},
-       {"type": "2 bedrooms", "price": 1400000},
-       {"type": "3 bedrooms", "price": 2100000},
-       {"type": "4 bedrooms", "price": 3200000},
-       {"type": "5 bedroom penthouse", "price": 5500000}
-     ]
-   },
-   "media": {
-     "cover": {"id": "complete-living-cover", "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"},
-     "gallery": [
-       {"id": "complete-living-1", "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"},
-       {"id": "complete-living-2", "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"}
-     ]
-   },
-   "featuresAmenities": ["Gym", "Swimming Pool", "Kids Play Area", "Jogging Track", "BBQ Area", "Retail", "Mosque"],
-   "youtubeUrl": "https://www.youtube.com/watch?v=a2Om9YwOTU8"}'
+ '"Comprehensive residential development offering every unit type from studios to penthouses, catering to singles, couples, and families alike."'::jsonb,
+ '{"cover": {"id": "complete-living-cover", "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"}, "gallery": [{"id": "complete-living-1", "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"}, {"id": "complete-living-2", "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"}]}'::jsonb,
+ ARRAY['Gym', 'Swimming Pool', 'Kids Play Area', 'Jogging Track', 'BBQ Area', 'Retail', 'Mosque'],
+ '{}', false, 'https://www.youtube.com/watch?v=a2Om9YwOTU8',
+ 7, NULL, NULL, '20/30/50', 'Q2 2027',
+ 600000, 'AED', ARRAY['Primary'], ARRAY['Ст', '1К', '2К', '3К', '4К', '5К'], NULL, NULL,
+ '[{"type": "studio", "price": 600000}, {"type": "1 bedroom", "price": 900000}, {"type": "2 bedrooms", "price": 1400000}, {"type": "3 bedrooms", "price": 2100000}, {"type": "4 bedrooms", "price": 3200000}, {"type": "5 bedroom penthouse", "price": 5500000}]'::jsonb,
+ NULL, NULL, NULL, NULL, NULL, NULL
 )
 ON CONFLICT (slug) DO NOTHING;
 
@@ -498,13 +332,14 @@ ON CONFLICT (project_id, badge_id) DO NOTHING;
 -- В каждом проекте по 3 квартиры с разными характеристиками
 
 -- Sea Legend Tower One (3 квартиры)
-INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bathrooms, area_sqm, floor, price_amount, bonus_keys, data) VALUES
+INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bathrooms, area_sqm, floor, price_amount, bonus_keys, badge_ids, data) VALUES
 ('active', 
  (SELECT id FROM projects WHERE slug = 'sea-legend-tower-one'),
  (SELECT id FROM developers WHERE slug = 'segrex-development-llc'),
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'apartment', 3, 3, 142.5, 25, 1250000.00, 
  '{"free_parking", "furnished", "sea_view"}',
+ ARRAY(SELECT id FROM badges WHERE slug IN ('sea-view', 'fully-furniture')),
  '{"view": "Marina View", "furnishing": "Fully Furnished", "orientation": "South-West", 
    "features": ["Walk-in Closet", "Smart Home System", "Balcony"], 
    "media": {
@@ -521,7 +356,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'apartment', 3, 2, 138.0, 18, 1200000.00, 
  '{"free_parking", "furnished"}',
- '{"view": "City View", "furnishing": "Semi-Furnished", "orientation": "North-East", 
+ '{}',
+ '{"view": "City View", "furnishing": "Semi-Furnished", "orientation": "North-East",
    "features": ["Built-in Wardrobes", "Ensuite Bathroom"], "media": {
      "cover": {"id": "sea-legend-lot2-cover", "url": "https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTIzODI5NjI3NDE0NzgwNjgyOA==/original/81119dba-028e-4350-af43-44c7bbf52d67.jpeg"},
      "gallery": [
@@ -536,7 +372,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'apartment', 3, 3, 145.0, 32, 1350000.00, 
  '{"free_parking", "furnished", "sea_view", "private_beach_access"}',
- '{"view": "Panoramic Sea View", "furnishing": "Fully Furnished", "orientation": "South", 
+ '{}',
+ '{"view": "Panoramic Sea View", "furnishing": "Fully Furnished", "orientation": "South",
    "features": ["Jacuzzi", "Private Storage", "Maids Room"], 
    "media": {
      "cover": {"id": "sea-legend-lot3-cover", "url": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/584325924.jpg?k=532a1b300a62f0d9e7706ae5c9125aac9e8a45846e7a5dab9d81831ad3046789&o=&hp=1"},
@@ -554,7 +391,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'al-jazeera-al-hamra-industrial'),
  'apartment', 1, 1, 65.0, 5, 1100000.00, 
  '{"flexible_payment"}',
- '{"view": "Garden View", "furnishing": "Unfurnished", "orientation": "East", 
+ '{}',
+ '{"view": "Garden View", "furnishing": "Unfurnished", "orientation": "East",
    "features": ["Built-in Kitchen", "Balcony"], 
    "media": {
      "cover": {"id": "colibri-lot1-cover", "url": "https://static.tildacdn.com/tild3765-6638-4338-b336-623733343134/01.jpg"},
@@ -570,7 +408,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'al-jazeera-al-hamra-industrial'),
  'studio', 0, 1, 45.0, 3, 750000.00, 
  '{"flexible_payment", "early_bird_discount"}',
- '{"view": "Street View", "furnishing": "Unfurnished", "orientation": "West", 
+ '{}',
+ '{"view": "Street View", "furnishing": "Unfurnished", "orientation": "West",
    "features": ["Open Plan", "Study Corner"], 
    "media": {
      "cover": {"id": "colibri-lot2-cover", "url": "https://avatars.mds.yandex.net/i?id=cff9d520726a5fc38a4e39b0868bc168_l-10533596-images-thumbs&n=13"},
@@ -586,7 +425,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'al-jazeera-al-hamra-industrial'),
  'apartment', 2, 2, 95.0, 8, 1450000.00, 
  '{"flexible_payment", "free_maintenance_1year"}',
- '{"view": "Pool View", "furnishing": "Semi-Furnished", "orientation": "South", 
+ '{}',
+ '{"view": "Pool View", "furnishing": "Semi-Furnished", "orientation": "South",
    "features": ["Walk-in Closet", "Utility Room"], 
    "media": {
      "cover": {"id": "colibri-lot3-cover", "url": "https://uralto.ru/upload/iblock/966/698l4h23garyrw7wo4a8rfderlitagtz/5-_7_.jpg"},
@@ -604,7 +444,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-islands'),
  'apartment', 2, 2, 110.0, 12, 1650000.00, 
  '{"private_beach_access", "yacht_membership"}',
- '{"view": "Beach Front", "furnishing": "Fully Furnished", "orientation": "West", 
+ '{}',
+ '{"view": "Beach Front", "furnishing": "Fully Furnished", "orientation": "West",
    "features": ["Private Terrace", "Ensuite Bathrooms"], 
    "media": {
      "cover": {"id": "luz-ora-lot1-cover", "url": "https://cdn.worldota.net/t/640x400/extranet/9e/3f/9e3f88325ab612035b50839ea064df85515b77eb.JPEG"},
@@ -620,7 +461,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-islands'),
  'apartment', 4, 4, 220.0, 20, 3200000.00, 
  '{"private_beach_access", "yacht_membership", "free_renovation"}',
- '{"view": "Sea View", "furnishing": "Fully Furnished", "orientation": "South-West", 
+ '{}',
+ '{"view": "Sea View", "furnishing": "Fully Furnished", "orientation": "South-West",
    "features": ["Maid Room", "Study", "Walk-in Closets"], 
    "media": {
      "cover": {"id": "luz-ora-lot2-cover", "url": "https://a0.muscache.com/im/pictures/hosting/Hosting-41548090/original/3ae33bef-7ca0-4d35-94be-37967d9d6982.jpeg"},
@@ -636,7 +478,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-islands'),
  'apartment', 1, 1, 85.0, 7, 1400000.00, 
  '{"private_beach_access"}',
- '{"view": "Island View", "furnishing": "Semi-Furnished", "orientation": "North", 
+ '{}',
+ '{"view": "Island View", "furnishing": "Semi-Furnished", "orientation": "North",
    "features": ["Balcony", "Storage"], 
    "media": {
      "cover": {"id": "luz-ora-lot3-cover", "url": "https://dda-realestate.com/storage/property_medias/910_4dfb18f6-17ec-435e-b120-31a2596cca4e.webp"},
@@ -654,7 +497,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  'apartment', 3, 3, 180.0, 15, 2800000.00, 
  '{"beachfront", "infinity_pool_access", "concierge_service"}',
- '{"view": "Palm View", "furnishing": "Fully Furnished", "orientation": "South", 
+ ARRAY(SELECT id FROM badges WHERE slug IN ('sea-view', 'golden-visa')),
+ '{"view": "Palm View", "furnishing": "Fully Furnished", "orientation": "South",
    "features": ["Private Jacuzzi", "Wine Cellar", "Home Cinema"], 
    "media": {
      "cover": {"id": "palm-lot1-cover", "url": "https://a0.muscache.com/im/pictures/miso/Hosting-1372375706687751053/original/e5a8c0c9-2ec2-469c-8856-db49aa1a7919.jpeg"},
@@ -670,7 +514,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  'apartment', 2, 2, 130.0, 10, 2100000.00, 
  '{"beachfront", "concierge_service"}',
- '{"view": "Sea View", "furnishing": "Fully Furnished", "orientation": "West", 
+ ARRAY(SELECT id FROM badges WHERE slug IN ('sea-view', 'golden-visa')),
+ '{"view": "Sea View", "furnishing": "Fully Furnished", "orientation": "West",
    "features": ["Balcony", "Walk-in Closet"], 
    "media": {
      "cover": {"id": "palm-lot2-cover", "url": "https://cdn.fazwaz.com/wbr/0kZNg9UrxQTft8p9IE9aMoixL0E/0x0/unit/2013784/atlantis-the-royal-1405-11_1.jpg"},
@@ -686,7 +531,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  'villa', 4, 5, 350.0, 1, 5500000.00, 
  '{"beachfront", "infinity_pool_access", "concierge_service", "private_pool"}',
- '{"view": "Direct Beach Access", "furnishing": "Fully Furnished", "orientation": "South-West", 
+ ARRAY(SELECT id FROM badges WHERE slug IN ('sea-view', 'golden-visa')),
+ '{"view": "Direct Beach Access", "furnishing": "Fully Furnished", "orientation": "South-West",
    "features": ["Private Garden", "Barbecue Area", "4 Car Parking"], 
    "media": {
      "cover": {"id": "palm-lot3-cover", "url": "https://i.ytimg.com/vi/RatV6RNNqWU/maxresdefault.jpg"},
@@ -704,7 +550,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  'apartment', 1, 1, 75.0, 25, 1350000.00, 
  '{"burj_khalifa_view", "mall_access"}',
- '{"view": "Burj Khalifa View", "furnishing": "Semi-Furnished", "orientation": "South", 
+ '{}',
+ '{"view": "Burj Khalifa View", "furnishing": "Semi-Furnished", "orientation": "South",
    "features": ["Balcony", "Smart Home Features"], 
    "media": {
      "cover": {"id": "downtown-lot1-cover", "url": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/649227972.jpg?k=10de4f2f057d059244fde3452a62e46a887bc223c3d28346e9aedad3f7bce62e&o=&hp=1"},
@@ -720,7 +567,8 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  'apartment', 2, 2, 115.0, 35, 1950000.00, 
  '{"burj_khalifa_view", "mall_access", "free_valet_parking"}',
- '{"view": "Fountain View", "furnishing": "Fully Furnished", "orientation": "North", 
+ '{}',
+ '{"view": "Fountain View", "furnishing": "Fully Furnished", "orientation": "North",
    "features": ["Walk-in Closet", "Ensuite Bathroom"], 
    "media": {
      "cover": {"id": "downtown-lot2-cover", "url": "https://img.prian.ru/2024_10/19/20241019071331258106935o.jpg"},
@@ -736,6 +584,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  'apartment', 3, 3, 160.0, 42, 2600000.00,
  '{"burj_khalifa_view", "mall_access", "free_valet_parking", "club_membership"}',
+ '{}',
  '{"view": "Panoramic City View", "furnishing": "Fully Furnished", "orientation": "South-West",
    "features": ["Maid Room", "Library", "Wine Cooler"],
    "media": {
@@ -754,6 +603,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'studio', 0, 1, 35.0, 8, 450000.00,
  '{"compact_living"}',
+ '{}',
  '{"view": "City View", "furnishing": "Unfurnished", "orientation": "East",
    "features": ["Built-in Kitchen", "Balcony"],
    "media": {
@@ -767,6 +617,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'studio', 0, 1, 42.0, 15, 520000.00,
  '{"compact_living", "marina_view"}',
+ '{}',
  '{"view": "Marina View", "furnishing": "Semi-Furnished", "orientation": "West",
    "features": ["Built-in Kitchen", "Balcony", "Walk-in Closet"],
    "media": {
@@ -782,6 +633,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  'villa', 5, 6, 650.0, 1, 15000000.00,
  '{"private_beach", "yacht_berth", "private_pool"}',
+ '{}',
  '{"view": "Direct Beach Access", "furnishing": "Fully Furnished", "orientation": "South",
    "features": ["Private Pool", "Cinema Room", "Gym", "Wine Cellar", "Staff Quarters"],
    "media": {
@@ -795,6 +647,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'palm-jumeirah'),
  'villa', 7, 8, 950.0, 1, 35000000.00,
  '{"private_beach", "yacht_berth", "private_pool", "helipad"}',
+ '{}',
  '{"view": "Panoramic Sea View", "furnishing": "Fully Furnished", "orientation": "South-West",
    "features": ["Private Pool", "Cinema Room", "Gym", "Wine Cellar", "Staff Quarters", "Helipad", "Guest House"],
    "media": {
@@ -810,6 +663,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'apartment', 1, 1, 70.0, 12, 950000.00,
  '{"ready_to_move", "furnished"}',
+ '{}',
  '{"view": "Marina View", "furnishing": "Fully Furnished", "orientation": "South",
    "features": ["Balcony", "Built-in Wardrobes"],
    "media": {
@@ -823,6 +677,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'apartment', 2, 2, 105.0, 20, 1500000.00,
  '{"ready_to_move", "furnished", "sea_view"}',
+ '{}',
  '{"view": "Sea View", "furnishing": "Fully Furnished", "orientation": "West",
    "features": ["Balcony", "Walk-in Closet", "Maids Room"],
    "media": {
@@ -838,6 +693,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  'apartment', 2, 2, 120.0, 45, 1800000.00,
  '{"creek_view", "high_floor"}',
+ '{}',
  '{"view": "Creek View", "furnishing": "Unfurnished", "orientation": "North",
    "features": ["Balcony", "Smart Home System"],
    "media": {
@@ -851,6 +707,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  'apartment', 4, 4, 220.0, 60, 3800000.00,
  '{"creek_view", "high_floor", "premium_unit"}',
+ '{}',
  '{"view": "Panoramic Creek View", "furnishing": "Semi-Furnished", "orientation": "South",
    "features": ["Private Terrace", "Study", "Maids Room", "Smart Home System"],
    "media": {
@@ -866,6 +723,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-islands'),
  'apartment', 3, 3, 150.0, 5, 2200000.00,
  '{"family_friendly", "pool_access"}',
+ '{}',
  '{"view": "Garden View", "furnishing": "Semi-Furnished", "orientation": "East",
    "features": ["Balcony", "Utility Room", "Storage"],
    "media": {
@@ -879,6 +737,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-islands'),
  'townhouse', 4, 4, 280.0, 1, 3500000.00,
  '{"family_friendly", "pool_access", "private_garden"}',
+ '{}',
  '{"view": "Community View", "furnishing": "Unfurnished", "orientation": "South",
    "features": ["Private Garden", "Maids Room", "Garage", "Utility Room"],
    "media": {
@@ -894,6 +753,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'al-jazeera-al-hamra-industrial'),
  'studio', 0, 1, 38.0, 3, 550000.00,
  '{"value_deal"}',
+ '{}',
  '{"view": "Street View", "furnishing": "Unfurnished", "orientation": "North",
    "features": ["Kitchenette"],
    "media": {
@@ -907,6 +767,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'al-jazeera-al-hamra-industrial'),
  'apartment', 2, 2, 90.0, 6, 950000.00,
  '{"value_deal", "family_friendly"}',
+ '{}',
  '{"view": "Garden View", "furnishing": "Unfurnished", "orientation": "South",
    "features": ["Balcony", "Storage"],
    "media": {
@@ -922,6 +783,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  'studio', 0, 1, 55.0, 30, 1100000.00,
  '{"hotel_managed", "guaranteed_roi"}',
+ ARRAY(SELECT id FROM badges WHERE slug IN ('golden-visa', '1-year-service-charge')),
  '{"view": "City View", "furnishing": "Fully Furnished", "orientation": "East",
    "features": ["Hotel Service", "Room Service", "Concierge"],
    "media": {
@@ -935,6 +797,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'downtown-dubai'),
  'apartment', 1, 1, 75.0, 35, 1600000.00,
  '{"hotel_managed", "guaranteed_roi", "burj_view"}',
+ ARRAY(SELECT id FROM badges WHERE slug IN ('golden-visa', '1-year-service-charge')),
  '{"view": "Burj Khalifa View", "furnishing": "Fully Furnished", "orientation": "South",
    "features": ["Hotel Service", "Room Service", "Concierge", "Balcony"],
    "media": {
@@ -950,6 +813,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'studio', 0, 1, 40.0, 5, 600000.00,
  '{"marina_view"}',
+ '{}',
  '{"view": "Marina View", "furnishing": "Unfurnished", "orientation": "West",
    "features": ["Balcony"],
    "media": {
@@ -963,6 +827,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'apartment', 2, 2, 110.0, 15, 1400000.00,
  '{"marina_view", "sea_view"}',
+ '{}',
  '{"view": "Sea View", "furnishing": "Semi-Furnished", "orientation": "South",
    "features": ["Balcony", "Walk-in Closet"],
    "media": {
@@ -976,6 +841,7 @@ INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bat
  (SELECT id FROM areas WHERE slug = 'dubai-marina'),
  'penthouse', 5, 5, 400.0, 50, 5500000.00,
  '{"marina_view", "sea_view", "premium_unit", "private_pool"}',
+ '{}',
  '{"view": "Panoramic View", "furnishing": "Fully Furnished", "orientation": "South-West",
    "features": ["Private Pool", "Terrace", "Maids Room", "Study", "Home Cinema"],
    "media": {
