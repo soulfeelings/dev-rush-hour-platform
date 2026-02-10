@@ -32,6 +32,7 @@ import { createMarkerPopupElement } from './MarkerPopup'
 import type { Property } from '../../types/property'
 import { createPropertyMarkerIcon } from './markerIcon'
 import { createClusterIcon } from './clusterIcon'
+import { useSettings } from '../../features/Settings/Settings'
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -55,6 +56,7 @@ export interface PropertyMapRef {
 const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
   ({ properties, selectedPropertyId }, ref) => {
     const navigate = useNavigate()
+    const { currency } = useSettings()
     const mapRef = useRef<L.Map | null>(null)
     const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null)
     const spiderfiedMarkersRef = useRef<Set<L.Marker>>(new Set())
@@ -97,7 +99,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           icon: createPropertyMarkerIcon(),
         })
 
-        const popupElement = createMarkerPopupElement(property)
+        const popupElement = createMarkerPopupElement(property, currency)
 
         const popup = L.popup({
           offset: [0, -42],
@@ -173,7 +175,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
         clusterGroupRef.current?.addLayer(marker)
       })
-    }, [properties, navigate])
+    }, [properties, navigate, currency])
 
     useImperativeHandle(ref, () => ({
       invalidateSize: () => {

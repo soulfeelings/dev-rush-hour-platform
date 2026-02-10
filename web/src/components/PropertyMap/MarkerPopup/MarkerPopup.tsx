@@ -4,18 +4,17 @@ import { Badge } from '../../../ui/Badge'
 import { Typography } from '../../../ui/Typography'
 import { RoiBadge } from '../../../ui/RoiBadge'
 import { splitCompletionDate } from '../../splitCompletionDate'
-import { useSettings } from '../../../features/Settings/Settings'
 import { formatPrice } from '../../../utils/format'
 import clsx from 'clsx'
 
 interface MarkerPopupProps {
   property: Property
   direction?: 'bottom' | 'left' | 'right' | 'top'
+  currency?: 'AED' | 'USD'
 }
 
-export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) => {
+export const MarkerPopup = ({ property, direction = 'top', currency = 'AED' }: MarkerPopupProps) => {
   const { t } = useTranslation()
-  const { currency } = useSettings()
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
   const discount = property.discount
   const roi = property.roi
