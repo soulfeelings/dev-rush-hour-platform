@@ -1,3 +1,4 @@
+import { Package } from 'lucide-react'
 import { getInfrastructureIcon } from '../../utils/infrastructureIcons'
 import styles from './InfrastructureTag.module.scss'
 
@@ -18,7 +19,7 @@ export const InfrastructureTag = ({
 
   return (
     <span className={`${styles.tag} ${styles[size]} ${className ?? ''}`}>
-      {icon && <span className={styles.icon}>{icon}</span>}
+      <span className={styles.icon}>{icon || <Package size={11} />}</span>
       <span className={styles.text}>{name}</span>
     </span>
   )

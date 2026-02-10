@@ -6,6 +6,8 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera, Environment, Html } from '@react-three/drei'
 import { X } from 'lucide-react'
 import type { ThreeEvent } from '@react-three/fiber'
+import { useSettings } from '../../features/Settings/Settings'
+import { formatPrice, formatArea } from '../../utils/format'
 import styles from './Model3DViewer.module.scss'
 
 interface ApartmentData {
@@ -25,7 +27,7 @@ const apartmentsData: Record<number, ApartmentData> = {
     bedrooms: 1,
     bathrooms: 1,
     area: 65,
-    price: 1.8,
+    price: 1_800_000,
     floor: 1,
   },
   3: {
@@ -34,7 +36,7 @@ const apartmentsData: Record<number, ApartmentData> = {
     bedrooms: 2,
     bathrooms: 2,
     area: 95,
-    price: 2.5,
+    price: 2_500_000,
     floor: 2,
   },
   5: {
@@ -43,7 +45,7 @@ const apartmentsData: Record<number, ApartmentData> = {
     bedrooms: 3,
     bathrooms: 2,
     area: 120,
-    price: 3.2,
+    price: 3_200_000,
     floor: 3,
   },
   7: {
@@ -52,7 +54,7 @@ const apartmentsData: Record<number, ApartmentData> = {
     bedrooms: 4,
     bathrooms: 3,
     area: 150,
-    price: 4.5,
+    price: 4_500_000,
     floor: 4,
   },
 }
@@ -234,6 +236,8 @@ function Scene({
   onClosePopup,
   isMobile,
   hoveredApartmentId,
+  currency,
+  unit,
 }: {
   selectedApartmentId: number | null
   onApartmentHover: (apartmentId: number | null) => void
@@ -241,6 +245,8 @@ function Scene({
   onClosePopup: () => void
   isMobile: boolean
   hoveredApartmentId: number | null
+  currency: string
+  unit: string
 }) {
   const selectedApartment = selectedApartmentId ? apartmentsData[selectedApartmentId] : null
 
@@ -280,11 +286,11 @@ function Scene({
               </div>
               <div className={styles.popupRow}>
                 <span>Area:</span>
-                <strong>{selectedApartment.area} sqm</strong>
+                <strong>{formatArea(selectedApartment.area, unit)}</strong>
               </div>
               <div className={styles.popupRow}>
                 <span>Price:</span>
-                <strong>{selectedApartment.price}M AED</strong>
+                <strong>{formatPrice(selectedApartment.price, currency)}</strong>
               </div>
             </div>
           </div>
@@ -310,6 +316,7 @@ interface Model3DViewerProps {
 }
 
 export default function Model3DViewer({ embedded = false }: Model3DViewerProps) {
+  const { currency, unit } = useSettings()
   const [selectedApartmentId, setSelectedApartmentId] = useState<number | null>(null)
   const [hoveredApartmentId, setHoveredApartmentId] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -374,6 +381,8 @@ export default function Model3DViewer({ embedded = false }: Model3DViewerProps) 
               onClosePopup={handleClosePopup}
               isMobile={isMobile}
               hoveredApartmentId={hoveredApartmentId}
+              currency={currency}
+              unit={unit}
             />
           </Canvas>
         </Suspense>
@@ -400,11 +409,11 @@ export default function Model3DViewer({ embedded = false }: Model3DViewerProps) 
             </div>
             <div className={styles.popupRow}>
               <span>Area:</span>
-              <strong>{selectedApartment.area} sqm</strong>
+              <strong>{formatArea(selectedApartment.area, unit)}</strong>
             </div>
             <div className={styles.popupRow}>
               <span>Price:</span>
-              <strong>{selectedApartment.price}M AED</strong>
+              <strong>{formatPrice(selectedApartment.price, currency)}</strong>
             </div>
           </div>
         </div>

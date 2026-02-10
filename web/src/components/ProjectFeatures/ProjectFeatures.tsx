@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Package } from 'lucide-react'
-import { AVAILABLE_INFRASTRUCTURE_ICONS } from '../../utils/infrastructureIcons'
+import { InfrastructureTag } from '../../ui/InfrastructureTag'
 import styles from './ProjectFeatures.module.scss'
 
 type FeatureItem = {
@@ -12,10 +11,6 @@ interface ProjectFeaturesProps {
   features: (string | FeatureItem)[]
   maxItems?: number
 }
-
-const iconComponentMap = new Map(
-  AVAILABLE_INFRASTRUCTURE_ICONS.map(({ name, component }) => [name, component])
-)
 
 const normalizeFeature = (feature: string | FeatureItem): FeatureItem => {
   if (typeof feature === 'string') return { name: feature }
@@ -34,20 +29,12 @@ export default function ProjectFeatures({ features, maxItems = 6 }: ProjectFeatu
   const hasMore = items.length > maxItems
 
   return (
-    <div className={styles.featuresContainer}>
-      <h3 className={styles.title}>Features & Amenities</h3>
-      <div className={styles.featuresGrid}>
-        {displayedItems.map((item, index) => {
-          const IconComponent = item.icon ? iconComponentMap.get(item.icon) : undefined
-          return (
-            <div key={`${item.name}-${index}`} className={styles.featureItem}>
-              <div className={styles.iconWrapper}>
-                {IconComponent ? <IconComponent size={20} /> : <Package size={20} />}
-              </div>
-              <span className={styles.featureText}>{item.name}</span>
-            </div>
-          )
-        })}
+    <div className={styles.infrastructureContainer}>
+      <h3 className={styles.title}>Residential complex infrastructure</h3>
+      <div className={styles.infrastructureGrid}>
+        {displayedItems.map((item, index) => (
+          <InfrastructureTag key={`${item.name}-${index}`} name={item.name} iconName={item.icon} />
+        ))}
       </div>
       {hasMore && (
         <button

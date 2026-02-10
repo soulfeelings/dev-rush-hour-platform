@@ -1,9 +1,7 @@
 @use '../../styles' as *;
 
-.featuresContainer {
-  margin-top: $spacing-6;
-  padding-top: $spacing-6;
-  border-top: 1px solid $color-border;
+.infrastructureContainer {
+  margin-top: $spacing-8;
 }
 
 .title {
@@ -13,52 +11,16 @@
   margin: 0 0 $spacing-4 0;
 }
 
-.featuresGrid {
+.infrastructureGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: $spacing-3;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 20px;
+  row-gap: 16px;
   margin-bottom: $spacing-4;
 
   @media (max-width: $breakpoint-md) {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: $spacing-2;
+    grid-template-columns: 1fr;
   }
-}
-
-.featureItem {
-  display: flex;
-  align-items: center;
-  gap: $spacing-3;
-  padding: $spacing-3;
-  border-radius: $radius-md;
-  background: $color-bg;
-  border: 1px solid $color-border;
-}
-
-.iconWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: $radius-md;
-  background: $color-yellow-light;
-  color: $color-yellow;
-  flex-shrink: 0;
-  transition: all $transition-normal;
-}
-
-.featureItem:hover .iconWrapper {
-  background: $color-yellow;
-  color: $color-text-inverse;
-  transform: scale(1.1);
-}
-
-.featureText {
-  font-size: $font-size-sm;
-  color: $color-text;
-  font-weight: $font-weight-medium;
-  line-height: $line-height-normal;
 }
 
 .showMoreButton {

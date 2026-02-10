@@ -3,15 +3,12 @@
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   border-radius: $radius-md;
-  background: $color-bg;
-  border: 1px solid $color-border;
   white-space: nowrap;
 }
 
 .default {
-  padding: 8px 12px;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
 }
@@ -26,11 +23,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $color-yellow;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: $color-yellow;
+  color: #000000;
+  flex-shrink: 0;
 
   svg {
-    width: 14px;
-    height: 14px;
+    width: 11px;
+    height: 11px;
   }
 }
 

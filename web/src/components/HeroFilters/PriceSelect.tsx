@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ChevronUp, X } from 'lucide-react'
+import { useSettings } from '../../features/Settings/Settings'
 import styles from './PriceSelect.module.scss'
 
 type TriggerSize = 'xs' | 'sm' | 'md' | 'lg'
@@ -25,7 +26,7 @@ export function PriceSelect({
   maxPrice,
   onMinPriceChange,
   onMaxPriceChange,
-  placeholder = 'Price (AED)',
+  placeholder: placeholderProp,
   icon,
   fullWidth = false,
   fullHeight = false,
@@ -33,6 +34,8 @@ export function PriceSelect({
   clearable = false,
 }: PriceSelectProps) {
   const { t } = useTranslation()
+  const { currency } = useSettings()
+  const placeholder = placeholderProp || `Price (${currency})`
   const [isOpen, setIsOpen] = useState(false)
   const [localMinPrice, setLocalMinPrice] = useState(minPrice)
   const [localMaxPrice, setLocalMaxPrice] = useState(maxPrice)
@@ -69,10 +72,10 @@ export function PriceSelect({
     }
     const parts: string[] = []
     if (minPrice) {
-      parts.push(`${minPrice} AED`)
+      parts.push(`${minPrice} ${currency}`)
     }
     if (maxPrice) {
-      parts.push(`${maxPrice} AED`)
+      parts.push(`${maxPrice} ${currency}`)
     }
     return parts.join(' - ') || placeholder
   }

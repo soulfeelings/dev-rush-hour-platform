@@ -10,7 +10,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 85,
     priceAmount: 2500000,
-    priceCurrency: 'AED',
   },
   {
     id: '2',
@@ -19,7 +18,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 120,
     priceAmount: 3500000,
-    priceCurrency: 'AED',
   },
   {
     id: '3',
@@ -28,7 +26,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 65,
     priceAmount: 1800000,
-    priceCurrency: 'AED',
   },
   {
     id: '4',
@@ -37,7 +34,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 150,
     priceAmount: 4500000,
-    priceCurrency: 'AED',
   },
   {
     id: '5',
@@ -46,7 +42,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 90,
     priceAmount: 2700000,
-    priceCurrency: 'AED',
   },
   {
     id: '6',
@@ -55,7 +50,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 140,
     priceAmount: 4200000,
-    priceCurrency: 'AED',
   },
   {
     id: '7',
@@ -64,7 +58,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 70,
     priceAmount: 2000000,
-    priceCurrency: 'AED',
   },
   {
     id: '8',
@@ -73,7 +66,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 88,
     priceAmount: 2600000,
-    priceCurrency: 'AED',
   },
   {
     id: '9',
@@ -82,7 +74,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 155,
     priceAmount: 4600000,
-    priceCurrency: 'AED',
   },
   // Этаж 8
   {
@@ -92,7 +83,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 87,
     priceAmount: 2550000,
-    priceCurrency: 'AED',
   },
   {
     id: '11',
@@ -101,7 +91,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 118,
     priceAmount: 3300000,
-    priceCurrency: 'AED',
   },
   {
     id: '12',
@@ -110,7 +99,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 60,
     priceAmount: 1700000,
-    priceCurrency: 'AED',
   },
   {
     id: '13',
@@ -119,7 +107,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 160,
     priceAmount: 4800000,
-    priceCurrency: 'AED',
   },
   {
     id: '14',
@@ -128,7 +115,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 92,
     priceAmount: 2800000,
-    priceCurrency: 'AED',
   },
   {
     id: '15',
@@ -137,7 +123,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 135,
     priceAmount: 4000000,
-    priceCurrency: 'AED',
   },
   {
     id: '16',
@@ -146,7 +131,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 55,
     priceAmount: 1500000,
-    priceCurrency: 'AED',
   },
   {
     id: '17',
@@ -155,7 +139,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 89,
     priceAmount: 2650000,
-    priceCurrency: 'AED',
   },
   {
     id: '18',
@@ -164,7 +147,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 165,
     priceAmount: 4900000,
-    priceCurrency: 'AED',
   },
   // Этаж 7
   {
@@ -174,7 +156,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 86,
     priceAmount: 2520000,
-    priceCurrency: 'AED',
   },
   {
     id: '20',
@@ -183,7 +164,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 115,
     priceAmount: 3400000,
-    priceCurrency: 'AED',
   },
   {
     id: '21',
@@ -192,7 +172,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 68,
     priceAmount: 1850000,
-    priceCurrency: 'AED',
   },
   {
     id: '22',
@@ -201,7 +180,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 158,
     priceAmount: 4700000,
-    priceCurrency: 'AED',
   },
   {
     id: '23',
@@ -210,7 +188,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 91,
     priceAmount: 2850000,
-    priceCurrency: 'AED',
   },
   {
     id: '24',
@@ -219,7 +196,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 142,
     priceAmount: 4100000,
-    priceCurrency: 'AED',
   },
   {
     id: '25',
@@ -228,7 +204,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 72,
     priceAmount: 2100000,
-    priceCurrency: 'AED',
   },
   {
     id: '26',
@@ -237,7 +212,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 93,
     priceAmount: 2750000,
-    priceCurrency: 'AED',
   },
   {
     id: '27',
@@ -246,7 +220,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 162,
     priceAmount: 4850000,
-    priceCurrency: 'AED',
   },
   // Этаж 6
   {
@@ -256,7 +229,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 88,
     priceAmount: 2600000,
-    priceCurrency: 'AED',
   },
   {
     id: '29',
@@ -265,7 +237,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 125,
     priceAmount: 3600000,
-    priceCurrency: 'AED',
   },
   {
     id: '30',
@@ -274,7 +245,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 70,
     priceAmount: 2000000,
-    priceCurrency: 'AED',
   },
   {
     id: '31',
@@ -283,7 +253,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 152,
     priceAmount: 4550000,
-    priceCurrency: 'AED',
   },
   {
     id: '32',
@@ -292,7 +261,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 94,
     priceAmount: 2820000,
-    priceCurrency: 'AED',
   },
   {
     id: '33',
@@ -301,7 +269,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 138,
     priceAmount: 4050000,
-    priceCurrency: 'AED',
   },
   {
     id: '34',
@@ -310,7 +277,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 58,
     priceAmount: 1600000,
-    priceCurrency: 'AED',
   },
   {
     id: '35',
@@ -319,7 +285,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 90,
     priceAmount: 2700000,
-    priceCurrency: 'AED',
   },
   {
     id: '36',
@@ -328,7 +293,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 168,
     priceAmount: 5000000,
-    priceCurrency: 'AED',
   },
   // Этаж 5
   {
@@ -338,7 +302,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 45,
     priceAmount: 800000,
-    priceCurrency: 'AED',
   },
   {
     id: '38',
@@ -347,7 +310,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 95,
     priceAmount: 2900000,
-    priceCurrency: 'AED',
   },
   {
     id: '39',
@@ -356,7 +318,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 65,
     priceAmount: 1900000,
-    priceCurrency: 'AED',
   },
   {
     id: '40',
@@ -365,7 +326,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 122,
     priceAmount: 3550000,
-    priceCurrency: 'AED',
   },
   {
     id: '41',
@@ -374,7 +334,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 96,
     priceAmount: 2920000,
-    priceCurrency: 'AED',
   },
   {
     id: '42',
@@ -383,7 +342,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 148,
     priceAmount: 4400000,
-    priceCurrency: 'AED',
   },
   {
     id: '43',
@@ -392,7 +350,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 67,
     priceAmount: 1950000,
-    priceCurrency: 'AED',
   },
   {
     id: '44',
@@ -401,7 +358,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 92,
     priceAmount: 2780000,
-    priceCurrency: 'AED',
   },
   {
     id: '45',
@@ -410,7 +366,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 130,
     priceAmount: 3800000,
-    priceCurrency: 'AED',
   },
   // Этаж 4
   {
@@ -420,7 +375,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 87,
     priceAmount: 2550000,
-    priceCurrency: 'AED',
   },
   {
     id: '47',
@@ -429,7 +383,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 118,
     priceAmount: 3300000,
-    priceCurrency: 'AED',
   },
   {
     id: '48',
@@ -438,7 +391,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 68,
     priceAmount: 1850000,
-    priceCurrency: 'AED',
   },
   {
     id: '49',
@@ -447,7 +399,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 145,
     priceAmount: 4350000,
-    priceCurrency: 'AED',
   },
   {
     id: '50',
@@ -456,7 +407,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 89,
     priceAmount: 2630000,
-    priceCurrency: 'AED',
   },
   {
     id: '51',
@@ -465,7 +415,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 132,
     priceAmount: 3850000,
-    priceCurrency: 'AED',
   },
   {
     id: '52',
@@ -474,7 +423,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 52,
     priceAmount: 950000,
-    priceCurrency: 'AED',
   },
   {
     id: '53',
@@ -483,7 +431,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 91,
     priceAmount: 2730000,
-    priceCurrency: 'AED',
   },
   {
     id: '54',
@@ -492,7 +439,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 155,
     priceAmount: 4650000,
-    priceCurrency: 'AED',
   },
   // Этаж 3
   {
@@ -502,7 +448,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 50,
     priceAmount: 900000,
-    priceCurrency: 'AED',
   },
   {
     id: '56',
@@ -511,7 +456,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 89,
     priceAmount: 2650000,
-    priceCurrency: 'AED',
   },
   {
     id: '57',
@@ -520,7 +464,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 93,
     priceAmount: 2750000,
-    priceCurrency: 'AED',
   },
   {
     id: '58',
@@ -529,7 +472,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 120,
     priceAmount: 3500000,
-    priceCurrency: 'AED',
   },
   {
     id: '59',
@@ -538,7 +480,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 66,
     priceAmount: 1920000,
-    priceCurrency: 'AED',
   },
   {
     id: '60',
@@ -547,7 +488,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 150,
     priceAmount: 4500000,
-    priceCurrency: 'AED',
   },
   {
     id: '61',
@@ -556,7 +496,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 88,
     priceAmount: 2580000,
-    priceCurrency: 'AED',
   },
   {
     id: '62',
@@ -565,7 +504,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 128,
     priceAmount: 3750000,
-    priceCurrency: 'AED',
   },
   {
     id: '63',
@@ -574,7 +512,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 64,
     priceAmount: 1880000,
-    priceCurrency: 'AED',
   },
   // Этаж 2
   {
@@ -584,7 +521,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 62,
     priceAmount: 1750000,
-    priceCurrency: 'AED',
   },
   {
     id: '65',
@@ -593,7 +529,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 122,
     priceAmount: 3550000,
-    priceCurrency: 'AED',
   },
   {
     id: '66',
@@ -602,7 +537,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 86,
     priceAmount: 2520000,
-    priceCurrency: 'AED',
   },
   {
     id: '67',
@@ -611,7 +545,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 142,
     priceAmount: 4250000,
-    priceCurrency: 'AED',
   },
   {
     id: '68',
@@ -620,7 +553,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 90,
     priceAmount: 2680000,
-    priceCurrency: 'AED',
   },
   {
     id: '69',
@@ -629,7 +561,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 126,
     priceAmount: 3700000,
-    priceCurrency: 'AED',
   },
   {
     id: '70',
@@ -638,7 +569,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 48,
     priceAmount: 850000,
-    priceCurrency: 'AED',
   },
   {
     id: '71',
@@ -647,7 +577,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 87,
     priceAmount: 2560000,
-    priceCurrency: 'AED',
   },
   {
     id: '72',
@@ -656,7 +585,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 160,
     priceAmount: 4800000,
-    priceCurrency: 'AED',
   },
   // Этаж 1
   {
@@ -666,7 +594,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 91,
     priceAmount: 2850000,
-    priceCurrency: 'AED',
   },
   {
     id: '74',
@@ -675,7 +602,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 64,
     priceAmount: 1880000,
-    priceCurrency: 'AED',
   },
   {
     id: '75',
@@ -684,7 +610,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 128,
     priceAmount: 3700000,
-    priceCurrency: 'AED',
   },
   {
     id: '76',
@@ -693,7 +618,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 148,
     priceAmount: 4450000,
-    priceCurrency: 'AED',
   },
   {
     id: '77',
@@ -702,7 +626,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 92,
     priceAmount: 2800000,
-    priceCurrency: 'AED',
   },
   {
     id: '78',
@@ -711,7 +634,6 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 124,
     priceAmount: 3620000,
-    priceCurrency: 'AED',
   },
   {
     id: '79',
@@ -720,7 +642,6 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 46,
     priceAmount: 820000,
-    priceCurrency: 'AED',
   },
   {
     id: '80',
@@ -729,7 +650,6 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 89,
     priceAmount: 2640000,
-    priceCurrency: 'AED',
   },
   {
     id: '81',
@@ -738,6 +658,5 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 162,
     priceAmount: 4850000,
-    priceCurrency: 'AED',
   },
 ]

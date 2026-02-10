@@ -12,6 +12,8 @@ import { RoiBadge } from '../ui/RoiBadge'
 import styles from './ProjectCard.module.scss'
 import type { Property } from '../types/property'
 import { splitCompletionDate } from './splitCompletionDate'
+import { useSettings } from '../features/Settings/Settings'
+import { formatPrice } from '../utils/format'
 
 const MOBILE_BREAKPOINT = 768
 
@@ -39,12 +41,6 @@ interface ProjectCardProps {
   compact?: boolean
 }
 
-const formatPrice = (price: number | undefined, currency: string | undefined) => {
-  if (price === undefined) return '—'
-  const formatted = (price / 1000000).toFixed(1)
-  return `${formatted}M ${currency || ''}`
-}
-
 export const ProjectCard = ({
   property,
   onFavoriteClick,
@@ -52,6 +48,7 @@ export const ProjectCard = ({
   compact,
 }: ProjectCardProps) => {
   const { t } = useTranslation()
+  const { currency } = useSettings()
   const isMobile = useIsMobile()
   const [isFavorited, setIsFavorited] = useState(false)
   const [isMouseHovered, setIsMouseHovered] = useState(false)
@@ -188,10 +185,7 @@ export const ProjectCard = ({
                           : { variant: 'h1' as const })}
                         className={styles.priceAmount}
                       >
-                        {formatPrice(
-                          property.priceFrom * (1 - property.discount / 100),
-                          property.currency
-                        )}
+                        {formatPrice(property.priceFrom * (1 - property.discount / 100), currency)}
                       </Typography>
                     </div>
                   </div>
@@ -214,7 +208,7 @@ export const ProjectCard = ({
                       : { variant: 'h1' as const })}
                     className={styles.priceAmount}
                   >
-                    {formatPrice(property.priceFrom, property.currency)}
+                    {formatPrice(property.priceFrom, currency)}
                   </Typography>
                 </div>
               </div>
@@ -263,7 +257,7 @@ export const ProjectCard = ({
                           className={styles.additionalInfoValue}
                         >
                           <span className={styles.from}>{t('from')}</span>{' '}
-                          {formatPrice(item.price, property.currency)}
+                          {formatPrice(item.price, currency)}
                         </Typography>
                       </div>
                     ))}

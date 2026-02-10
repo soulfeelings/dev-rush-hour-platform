@@ -7,12 +7,14 @@ import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
 import { BedsBathsSelect } from './BedsBathsSelect'
 import { PriceSelect } from './PriceSelect'
+import { useSettings } from '../../features/Settings/Settings'
 import styles from './HeroFilters.module.scss'
 import { HeroFiltersSkeleton } from './HeroFiltersSkeleton'
 
 export default function HeroFilters() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { currency } = useSettings()
   const { filters, options, isLoading, updateFilter, getFilteredProjects } = useFilters()
 
   // Prepare options with "all" option
@@ -73,7 +75,7 @@ export default function HeroFilters() {
         : `${filters.bathrooms.join(', ')} ${t('home.properties.baths')}`
     const priceLabel =
       filters.minPrice || filters.maxPrice
-        ? `${filters.minPrice || '0'} - ${filters.maxPrice || t('filters.price.any')} AED`
+        ? `${filters.minPrice || '0'} - ${filters.maxPrice || t('filters.price.any')} ${currency}`
         : t('filters.price.all')
 
     const message = `Hello! I'm interested in properties in Dubai.
