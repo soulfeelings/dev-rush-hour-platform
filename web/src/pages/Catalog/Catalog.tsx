@@ -101,7 +101,6 @@ const sortOptions: Array<{ value: SortValue; label: string }> = [
 
 export default function Catalog() {
   const { filters, updateFilter } = useFilters()
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
   const [layoutMode, setLayoutMode] = useState<DesktopView>(loadLayoutMode)
   const [mobileView, setMobileView] = useState<MobileView>(loadMobileView)
   const mapRef = useRef<PropertyMapRef | null>(null)
@@ -227,10 +226,6 @@ export default function Catalog() {
     setTimeout(() => mapRef.current?.refreshMap(), 350)
   }, [isDesktop])
 
-  const handlePropertyClick = (propertyId: string) => {
-    setSelectedPropertyId(propertyId === selectedPropertyId ? undefined : propertyId)
-  }
-
   const activeProperties = projects.filter(p => p.status === 'active')
   const totalResults = activeProperties.length
   const displayedResults = activeProperties.filter(p => !p.isFeatured).length
@@ -260,14 +255,7 @@ export default function Catalog() {
     </div>
   )
 
-  const mapContent = (
-    <PropertyMap
-      ref={mapRef}
-      properties={activeProperties}
-      selectedPropertyId={selectedPropertyId}
-      onPropertyClick={handlePropertyClick}
-    />
-  )
+  const mapContent = <PropertyMap ref={mapRef} properties={activeProperties} />
 
   return (
     <div className={styles.container}>

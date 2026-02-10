@@ -1,5 +1,5 @@
 import LotCard from '../../../components/LotCard'
-import { SkeletonCard } from '../../../ui/Skeleton'
+import { LotsViewSkeleton } from './LotsViewSkeleton'
 import styles from '../Catalog.module.scss'
 import type { Lot } from '../../../api'
 
@@ -14,13 +14,7 @@ export default function LotsView({ lots, isLoading, error, onFavoriteClick }: Lo
   const activeLots = lots.filter(lot => lot.status === 'active')
 
   if (isLoading) {
-    return (
-      <div className={styles.lotsGrid}>
-        {Array.from({ length: 6 }).map((_, i) => (
-          <SkeletonCard key={i} imageHeight={180} />
-        ))}
-      </div>
-    )
+    return <LotsViewSkeleton />
   }
 
   if (error) {

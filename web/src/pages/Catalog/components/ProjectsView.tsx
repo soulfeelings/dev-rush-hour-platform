@@ -1,5 +1,5 @@
 import { ProjectCard } from '../../../components/ProjectCard'
-import { SkeletonCard } from '../../../ui/Skeleton'
+import { ProjectsViewSkeleton } from './ProjectsViewSkeleton'
 import styles from '../Catalog.module.scss'
 import type { Property } from '../../../types/property'
 
@@ -13,13 +13,7 @@ export default function ProjectsView({ properties, isLoading, error }: ProjectsV
   const activeProperties = properties.filter(p => p.status === 'active')
 
   if (isLoading) {
-    return (
-      <div className={styles.grid}>
-        {Array.from({ length: 6 }).map((_, i) => (
-          <SkeletonCard key={i} imageHeight={180} />
-        ))}
-      </div>
-    )
+    return <ProjectsViewSkeleton />
   }
 
   if (error) {
