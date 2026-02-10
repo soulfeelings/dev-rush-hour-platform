@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ChevronLeft, ChevronRight, Building2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Typography } from '../../ui/Typography'
 import { Badge } from '../../ui/Badge'
 import { Button } from '../../ui/Button'
@@ -10,6 +11,7 @@ import { IconBed, IconBath, IconArea } from '../../components/icons'
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice, formatArea, capitalize } from '../../utils/format'
 import { getLotDetailRoute } from '../../constants/routes'
+import { useIsRTL } from '../../hooks/useDirection'
 import type { Lot } from '../../api'
 import styles from './ApartmentCard.module.scss'
 
@@ -39,6 +41,8 @@ export function ApartmentCard({
 }: ApartmentCardProps) {
   const { currency, unit } = useSettings()
   const navigate = useNavigate()
+  const { t } = useTranslation()
+  const isRTL = useIsRTL()
 
   const lotData = lot.data as LotData | undefined
   const coverImage = lotData?.media?.cover?.url
@@ -50,7 +54,7 @@ export function ApartmentCard({
   // Combine floor plan images + cover into gallery
   const galleryImages = [...floorPlanImages, ...(coverImage ? [coverImage] : [])]
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: isRTL ? 'rtl' : 'ltr' })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [canScroll, setCanScroll] = useState(false)
 
@@ -91,7 +95,7 @@ export function ApartmentCard({
       ? Math.round((1 - ourPrice / developerPrice) * 100)
       : null
 
-  const title = `${capitalize(lot.type)} - ${lot.bedrooms ?? 0} Bedrooms`
+  const title = t('apartmentCard.title', { type: capitalize(lot.type), count: lot.bedrooms ?? 0 })
 
   return (
     <div className={styles.card} onClick={() => lot.id && navigate(getLotDetailRoute(lot.id))}>
@@ -117,16 +121,24 @@ export function ApartmentCard({
                 <button
                   className={`${styles.galleryArrow} ${styles.galleryArrowPrev}`}
                   onClick={handlePrev}
-                  aria-label="Previous image"
+                  aria-label={t('apartmentCard.previousImage')}
                 >
-                  <ChevronLeft size={14} strokeWidth={2.5} />
+                  {isRTL ? (
+                    <ChevronRight size={14} strokeWidth={2.5} />
+                  ) : (
+                    <ChevronLeft size={14} strokeWidth={2.5} />
+                  )}
                 </button>
                 <button
                   className={`${styles.galleryArrow} ${styles.galleryArrowNext}`}
                   onClick={handleNext}
-                  aria-label="Next image"
+                  aria-label={t('apartmentCard.nextImage')}
                 >
-                  <ChevronRight size={14} strokeWidth={2.5} />
+                  {isRTL ? (
+                    <ChevronLeft size={14} strokeWidth={2.5} />
+                  ) : (
+                    <ChevronRight size={14} strokeWidth={2.5} />
+                  )}
                 </button>
               </>
             )}
@@ -166,12 +178,16 @@ export function ApartmentCard({
 
       {/* Info Section */}
       <div className={styles.infoSection}>
+        {/* Title */}
+        <div className={styles.titleRow}>
+          <Typography variant="h1" className={styles.title}>
+            {title}
+          </Typography>
+        </div>
+
         {/* Header Row */}
         <div className={styles.headerRow}>
           <div className={styles.headerLeft}>
-            <Typography variant="h1" className={styles.title}>
-              {title}
-            </Typography>
             <Typography className={styles.subtitle}>{projectName}</Typography>
             {areaName && <Typography className={styles.areaName}>{areaName}</Typography>}
           </div>
@@ -184,12 +200,12 @@ export function ApartmentCard({
             <div className={styles.ourPriceRow}>
               <div className={styles.priceLabelContainer}>
                 <Typography size="regular" weight="medium" className={styles.priceLabel}>
-                  Our price:
+                  {t('apartmentCard.ourPrice')}
                 </Typography>
                 {discount && <span className={styles.discountBadge}>-{discount}%</span>}
               </div>
               <div className={styles.priceValue}>
-                <Typography className={styles.from}>from</Typography>{' '}
+                <Typography className={styles.from}>{t('from')}</Typography>{' '}
                 <Typography size="large" weight="semibold">
                   {formatPrice(ourPrice, currency)}
                 </Typography>
@@ -198,10 +214,12 @@ export function ApartmentCard({
           )}
           <div className={styles.developerPriceRow}>
             <Typography size="regular" weight="medium" className={styles.priceLabel}>
-              {ourPrice && developerPrice ? 'Developer price:' : 'Price:'}
+              {ourPrice && developerPrice
+                ? t('apartmentCard.developerPrice')
+                : t('apartmentCard.price')}
             </Typography>
             <div className={styles.priceValue}>
-              <Typography className={styles.from}>from</Typography>{' '}
+              <Typography className={styles.from}>{t('from')}</Typography>{' '}
               <Typography size="large" weight="semibold">
                 {formatPrice(lot.priceAmount, currency)}
               </Typography>
@@ -235,7 +253,7 @@ export function ApartmentCard({
             className={styles.whatsappBtn}
             onClick={handleWhatsApp}
           >
-            Get Details on WhatsApp
+            {t('getDetailsOnWhatsApp')}
           </Button>
         </div>
       </div>

@@ -160,10 +160,20 @@
 
   &.prevButton {
     left: $spacing-4;
+
+    @include rtl {
+      left: auto;
+      right: $spacing-4;
+    }
   }
 
   &.nextButton {
     right: $spacing-4;
+
+    @include rtl {
+      right: auto;
+      left: $spacing-4;
+    }
   }
 }
 
@@ -171,6 +181,11 @@
   position: absolute;
   bottom: $spacing-4;
   right: $spacing-4;
+
+  @include rtl {
+    right: auto;
+    left: $spacing-4;
+  }
   background: rgba(0, 0, 0, 0.5);
   color: white;
   padding: $spacing-1 $spacing-3;
@@ -345,7 +360,7 @@
   font-size: $font-size-sm;
   color: $color-text;
   font-weight: $font-weight-medium;
-  text-align: right;
+  text-align: end;
 }
 
 .description {

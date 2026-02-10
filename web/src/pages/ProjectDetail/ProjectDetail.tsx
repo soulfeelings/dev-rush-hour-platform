@@ -1,5 +1,6 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import useEmblaCarousel from 'embla-carousel-react'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -15,6 +16,7 @@ import { RoiBadge } from '../../ui/RoiBadge'
 import { YouTubePreview } from '../../ui/YouTubePreview'
 import type { Project, Lot, Developer, Area, Badge as BadgeType } from '../../api'
 import { ROUTES } from '../../constants/routes'
+import { NotFound } from '../../ui/NotFound'
 import {
   MapPin,
   Check,
@@ -26,6 +28,7 @@ import {
 } from 'lucide-react'
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice, formatArea } from '../../utils/format'
+import { useIsRTL } from '../../hooks/useDirection'
 import { mockProject, mockLots } from './mockData'
 import { ApartmentsCarousel } from './ApartmentsCarousel'
 import { ApartmentCard } from './ApartmentCard'
@@ -84,14 +87,21 @@ interface LotGroup {
   maxArea: number
 }
 
-const formatDate = (dateStr?: string) => {
-  if (!dateStr) return null
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+const getDateLocale = (lang: string) => {
+  switch (lang) {
+    case 'ru':
+      return 'ru-RU'
+    case 'ar':
+      return 'ar-SA'
+    default:
+      return 'en-US'
+  }
 }
 
 export default function ProjectDetail() {
+  const { t, i18n } = useTranslation()
   const { currency, unit } = useSettings()
+  const isRTL = useIsRTL()
   const { slug } = useParams<{ slug: string }>()
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const [isFloorPlanModalOpen, setIsFloorPlanModalOpen] = useState(false)
@@ -100,8 +110,21 @@ export default function ProjectDetail() {
   const markerRef = useRef<L.Marker | null>(null)
   const [mapContainerEl, setMapContainerEl] = useState<HTMLDivElement | null>(null)
 
+  const formatDate = useCallback(
+    (dateStr?: string) => {
+      if (!dateStr) return null
+      const date = new Date(dateStr)
+      return date.toLocaleDateString(getDateLocale(i18n.language), {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    },
+    [i18n.language]
+  )
+
   // Embla Carousel
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: isRTL ? 'rtl' : 'ltr' })
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const scrollPrev = useCallback(() => {
@@ -292,15 +315,12 @@ export default function ProjectDetail() {
 
   if (error || !project) {
     return (
-      <div className={styles.container}>
-        <div className={styles.notFound}>
-          <h1>Property Not Found</h1>
-          <p>{error || `Property "${slug}" does not exist.`}</p>
-          <Link to={ROUTES.CATALOG} className={styles.backLink}>
-            Return to Catalog
-          </Link>
-        </div>
-      </div>
+      <NotFound
+        title={t('projectDetail.notFound.title')}
+        message={error || t('projectDetail.notFound.description', { slug })}
+        backTo={ROUTES.CATALOG}
+        backLabel={t('projectDetail.notFound.backToCatalog')}
+      />
     )
   }
 
@@ -333,26 +353,26 @@ export default function ProjectDetail() {
   const timelineItems = timeline
     ? [
         {
-          label: 'Project announcement',
+          label: t('projectDetail.timeline.projectAnnouncement'),
           value: timeline.projectAnnouncement
             ? formatDate(timeline.projectAnnouncement)
             : undefined,
           completed: !!timeline.projectAnnouncement,
         },
         {
-          label: 'Booking started',
+          label: t('projectDetail.timeline.bookingStarted'),
           value: timeline.bookingStarted ? formatDate(timeline.bookingStarted) : undefined,
           completed: !!timeline.bookingStarted,
         },
         {
-          label: 'Construction started',
+          label: t('projectDetail.timeline.constructionStarted'),
           value: timeline.constructionStarted
             ? formatDate(timeline.constructionStarted)
             : undefined,
           completed: !!timeline.constructionStarted,
         },
         {
-          label: 'Construction progress',
+          label: t('projectDetail.timeline.constructionProgress'),
           value:
             timeline.constructionProgressPercent != null
               ? `${timeline.constructionProgressPercent}%`
@@ -360,12 +380,15 @@ export default function ProjectDetail() {
           completed: !!timeline.constructionProgress,
         },
         {
-          label: 'Expected completion',
+          label: t('projectDetail.timeline.expectedCompletion'),
           value: timeline.expectedCompletion ? formatDate(timeline.expectedCompletion) : undefined,
           completed: false,
         },
       ]
     : []
+
+  const PrevIcon = isRTL ? ChevronRight : ChevronLeft
+  const NextIcon = isRTL ? ChevronLeft : ChevronRight
 
   return (
     <div className={styles.container}>
@@ -395,14 +418,14 @@ export default function ProjectDetail() {
                       onClick={scrollPrev}
                       aria-label="Previous image"
                     >
-                      <ChevronLeft size={18} strokeWidth={2.5} />
+                      <PrevIcon size={18} strokeWidth={2.5} />
                     </button>
                     <button
                       className={`${styles.navButton} ${styles.nextButton}`}
                       onClick={scrollNext}
                       aria-label="Next image"
                     >
-                      <ChevronRight size={18} strokeWidth={2.5} />
+                      <NextIcon size={18} strokeWidth={2.5} />
                     </button>
                     <div className={styles.progressBar}>
                       {allImages.map((_, idx) => (
@@ -417,7 +440,7 @@ export default function ProjectDetail() {
               </>
             ) : (
               <div className={styles.imagePlaceholder}>
-                <span>Project Image</span>
+                <span>{t('projectDetail.imagePlaceholder')}</span>
               </div>
             )}
           </div>
@@ -475,7 +498,7 @@ export default function ProjectDetail() {
                 <div className={styles.ourPriceRow}>
                   <div className={styles.priceLabelContainer}>
                     <Typography size="large" weight="medium" className={styles.priceLabel}>
-                      Our price:
+                      {t('projectDetail.ourPrice')}
                     </Typography>
                     {projectDataFields.developerPrice > projectDataFields.ourPrice && (
                       <span className={styles.discountBadge}>
@@ -488,7 +511,7 @@ export default function ProjectDetail() {
                     )}
                   </div>
                   <div className={styles.priceValue}>
-                    <Typography className={styles.priceFrom}>from</Typography>{' '}
+                    <Typography className={styles.priceFrom}>{t('from')}</Typography>{' '}
                     <Typography variant="h1" className={styles.priceAmount}>
                       {formatPrice(projectDataFields.ourPrice, currency)}
                     </Typography>
@@ -498,10 +521,10 @@ export default function ProjectDetail() {
               {projectDataFields?.developerPrice && (
                 <div className={styles.developerPriceRow}>
                   <Typography size="large" weight="medium" className={styles.priceLabel}>
-                    Developer price:
+                    {t('projectDetail.developerPrice')}
                   </Typography>
                   <div className={styles.priceValue}>
-                    <Typography className={styles.priceFrom}>from</Typography>{' '}
+                    <Typography className={styles.priceFrom}>{t('from')}</Typography>{' '}
                     <Typography variant="h1" className={styles.priceAmount}>
                       {formatPrice(projectDataFields.developerPrice, currency)}
                     </Typography>
@@ -542,7 +565,9 @@ export default function ProjectDetail() {
                 className={styles.seeMoreBtn}
                 onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
               >
-                <span>{isDescriptionExpanded ? 'See less' : 'See more'}</span>
+                <span>
+                  {isDescriptionExpanded ? t('projectDetail.seeLess') : t('projectDetail.seeMore')}
+                </span>
                 {isDescriptionExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
             )}
@@ -564,29 +589,30 @@ export default function ProjectDetail() {
         {/* Apartments Sections by Bedroom Count */}
         {groupedLots.length > 0 && (
           <Typography variant="h1" className={styles.allUnitsLabel}>
-            All Units
+            {t('projectDetail.allUnits')}
           </Typography>
         )}
         {groupedLots.map(group => (
           <section key={group.bedrooms} className={styles.apartmentsSection}>
             <div className={styles.apartmentsHeader}>
               <div className={styles.apartmentsHeaderTop}>
-                <Typography variant="h1">Apartments</Typography>
+                <Typography variant="h1">{t('projectDetail.apartments')}</Typography>
                 <button className={styles.viewAllBtn}>
                   <Typography variant="body" size="small" weight="regular">
-                    View the grid
+                    {t('projectDetail.viewTheGrid')}
                   </Typography>
                   <ArrowRight size={16} />
                 </button>
               </div>
               <div className={styles.apartmentsStats}>
-                <span>{group.bedrooms} beds</span>
+                <span>{t('projectDetail.beds', { count: group.bedrooms })}</span>
                 <span className={styles.statDivider} />
                 <span>
-                  from {formatPrice(group.minPrice === Infinity ? 0 : group.minPrice, currency)}
+                  {t('from')}{' '}
+                  {formatPrice(group.minPrice === Infinity ? 0 : group.minPrice, currency)}
                 </span>
                 <span className={styles.statDivider} />
-                <span>{group.totalUnits} units</span>
+                <span>{t('projectDetail.units', { count: group.totalUnits })}</span>
                 <span className={styles.statDivider} />
                 <span>
                   {group.minArea === Infinity
@@ -637,7 +663,7 @@ export default function ProjectDetail() {
         {/* Project Timeline */}
         {timelineItems.length > 0 && (
           <div className={styles.timelineSection}>
-            <h2>Project timeline</h2>
+            <h2>{t('projectDetail.timeline.title')}</h2>
             <div className={styles.timelineCard}>
               <div className={styles.timelineList}>
                 {timelineItems.map((item, idx) => (
@@ -663,7 +689,7 @@ export default function ProjectDetail() {
       <Modal
         open={is3DModalOpen}
         onClose={() => setIs3DModalOpen(false)}
-        title="3D Apartment Model"
+        title={t('projectDetail.modal3D')}
         className="wide transparent"
       >
         <Model3DViewer embedded />
@@ -672,7 +698,7 @@ export default function ProjectDetail() {
       <Modal
         open={isFloorPlanModalOpen}
         onClose={() => setIsFloorPlanModalOpen(false)}
-        title="Building Plan"
+        title={t('projectDetail.modalBuildingPlan')}
         size="large"
       >
         {lots.length > 0 ? (
@@ -681,7 +707,7 @@ export default function ProjectDetail() {
           <div
             style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}
           >
-            No apartments available
+            {t('projectDetail.noApartments')}
           </div>
         )}
       </Modal>

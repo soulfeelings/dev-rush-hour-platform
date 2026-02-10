@@ -1,10 +1,12 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useMemo } from 'react'
 import { useListDevelopers, useListProjects, type Project } from '../../api'
 import { Button } from '../../ui/Button'
 import { Badge } from '../../ui/Badge'
 import { ROUTES, getProjectDetailRoute } from '../../constants/routes'
+import { NotFound } from '../../ui/NotFound'
 import { MapPin, Building2, ArrowLeft } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice } from '../../utils/format'
 import { DeveloperDetailSkeleton } from './DeveloperDetailSkeleton'
@@ -18,6 +20,7 @@ export default function DeveloperDetail() {
   const { currency } = useSettings()
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const {
     data: developersData,
@@ -49,15 +52,12 @@ export default function DeveloperDetail() {
 
   if (error || !developer) {
     return (
-      <div className={styles.container}>
-        <div className={styles.notFound}>
-          <h1>Developer Not Found</h1>
-          <p>{error || `Developer "${slug}" does not exist.`}</p>
-          <Link to={ROUTES.CATALOG} className={styles.backLink}>
-            Return to Catalog
-          </Link>
-        </div>
-      </div>
+      <NotFound
+        title={t('developerDetail.notFound.title')}
+        message={error || t('developerDetail.notFound.description', { slug })}
+        backTo={ROUTES.CATALOG}
+        backLabel={t('developerDetail.notFound.backToCatalog')}
+      />
     )
   }
 
@@ -65,7 +65,7 @@ export default function DeveloperDetail() {
     <div className={styles.container}>
       <button className={styles.backButton} onClick={() => navigate(-1)}>
         <ArrowLeft size={20} />
-        <span>Back</span>
+        <span>{t('developerDetail.back')}</span>
       </button>
 
       <section className={styles.heroSection}>
@@ -81,17 +81,17 @@ export default function DeveloperDetail() {
         <div className={styles.statsRow}>
           <div className={styles.statItem}>
             <span className={styles.statValue}>{projects.length}</span>
-            <span className={styles.statLabel}>Projects</span>
+            <span className={styles.statLabel}>{t('developerDetail.projects')}</span>
           </div>
         </div>
       </section>
 
       <section className={styles.projectsSection}>
-        <h2>Projects by {developer.name}</h2>
+        <h2>{t('developerDetail.projectsBy', { name: developer.name })}</h2>
         {projects.length === 0 ? (
           <div className={styles.noProjects}>
             <Building2 size={48} />
-            <p>No projects available</p>
+            <p>{t('developerDetail.noProjects')}</p>
           </div>
         ) : (
           <div className={styles.projectsGrid}>
@@ -135,14 +135,14 @@ export default function DeveloperDetail() {
                     </div>
                     {priceFrom && (
                       <div className={styles.projectPrice}>
-                        <span className={styles.priceLabel}>From</span>
+                        <span className={styles.priceLabel}>{t('developerDetail.fromPrice')}</span>
                         <span className={styles.priceValue}>
                           {formatPrice(priceFrom, currency)}
                         </span>
                       </div>
                     )}
                     <Button variant="primary" size="sm" fullWidth>
-                      View Project
+                      {t('developerDetail.viewProject')}
                     </Button>
                   </div>
                 </div>

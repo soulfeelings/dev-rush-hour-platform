@@ -11,18 +11,30 @@
   gap: 30px;
 
   @media (max-width: $breakpoint-md) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 $spacing-4;
+    gap: 0;
   }
 }
 
 .leftContent {
   min-width: 0;
+
+  @media (max-width: $breakpoint-md) {
+    display: contents;
+  }
 }
 
 .mainGallery {
   display: flex;
   flex-direction: column;
   gap: $spacing-3;
+
+  @media (max-width: $breakpoint-md) {
+    order: 1;
+    margin: 0 (-$spacing-4);
+    gap: $spacing-2;
+  }
 }
 
 .galleryContainer {
@@ -34,7 +46,8 @@
   background: $color-border;
 
   @media (max-width: $breakpoint-md) {
-    height: 300px;
+    height: 260px;
+    border-radius: 0;
   }
 }
 
@@ -84,6 +97,11 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
+
+  @media (max-width: $breakpoint-md) {
+    width: 30px;
+    height: 30px;
+  }
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,10 +153,20 @@
 
   &.prevButton {
     left: $spacing-4;
+
+    @include rtl {
+      left: auto;
+      right: $spacing-4;
+    }
   }
 
   &.nextButton {
     right: $spacing-4;
+
+    @include rtl {
+      right: auto;
+      left: $spacing-4;
+    }
   }
 }
 
@@ -173,6 +201,11 @@
   padding-bottom: $spacing-2;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+
+  @media (max-width: $breakpoint-md) {
+    padding-left: $spacing-4;
+    padding-right: $spacing-4;
+  }
 
   // Hide scrollbar but keep functionality
   scrollbar-width: thin;
@@ -212,6 +245,11 @@
   &:hover {
     border-color: rgba($color-yellow, 0.5);
   }
+
+  @media (max-width: $breakpoint-md) {
+    flex: 0 0 112px;
+    height: 80px;
+  }
 }
 
 .thumbnailImage {
@@ -229,8 +267,7 @@
   top: $spacing-6;
 
   @media (max-width: $breakpoint-md) {
-    position: static;
-    gap: $spacing-3;
+    display: contents;
   }
 }
 
@@ -249,7 +286,10 @@
   }
 
   @media (max-width: $breakpoint-md) {
-    height: 140px !important;
+    order: 3;
+    width: auto !important;
+    height: 200px !important;
+    margin-bottom: $spacing-4;
   }
 }
 
@@ -261,7 +301,11 @@
   overflow: hidden;
 
   @media (max-width: $breakpoint-md) {
-    height: 140px;
+    order: 6;
+    width: auto;
+    height: 200px;
+    margin-bottom: $spacing-4;
+    border-radius: $radius-md;
   }
 }
 
@@ -301,6 +345,12 @@
 .projectHeader {
   margin-bottom: $spacing-6;
   margin-top: $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    order: 2;
+    margin-top: $spacing-4;
+    margin-bottom: $spacing-4;
+  }
 }
 
 .headerTop {
@@ -313,7 +363,7 @@
 
 .projectInfo {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: $spacing-2;
   flex: 1;
   min-width: 0;
@@ -331,6 +381,12 @@
   flex-shrink: 0;
   border: 1px solid $color-border;
   background: $color-bg-card;
+
+  @media (max-width: $breakpoint-md) {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+  }
 }
 
 .projectLogo {
@@ -448,6 +504,11 @@
 
 // Timeline
 .timelineSection {
+  @media (max-width: $breakpoint-md) {
+    order: 5;
+    margin-bottom: $spacing-4;
+  }
+
   h2 {
     font-size: $font-size-sm;
     font-weight: $font-weight-semibold;
@@ -533,6 +594,11 @@
 // Description Section
 .descriptionSection {
   margin-bottom: $spacing-8;
+
+  @media (max-width: $breakpoint-md) {
+    order: 4;
+    margin-bottom: $spacing-4;
+  }
 }
 
 .descriptionText {
@@ -540,6 +606,11 @@
   color: $color-text-secondary;
   line-height: $line-height-relaxed;
   margin: 0;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-sm;
+    line-height: 18px;
+  }
 }
 
 .collapsed {
@@ -591,6 +662,11 @@
   svg {
     flex-shrink: 0;
     padding-left: 0;
+
+    @include rtl {
+      padding-left: initial;
+      padding-right: 0;
+    }
   }
 
   &:hover {
@@ -601,6 +677,11 @@
 // Infrastructure Section
 .infrastructureSection {
   margin-bottom: $spacing-8;
+
+  @media (max-width: $breakpoint-md) {
+    order: 7;
+    margin-bottom: $spacing-4;
+  }
 
   h2 {
     font-size: $font-size-xl;
@@ -613,12 +694,21 @@
 // Apartments Section
 .apartmentsSection {
   margin-bottom: $spacing-8;
+
+  @media (max-width: $breakpoint-md) {
+    order: 9;
+    margin-bottom: $spacing-4;
+  }
 }
 
 .allUnitsLabel {
   display: block;
   color: $color-charcoal-black;
   margin-bottom: $spacing-4;
+
+  @media (max-width: $breakpoint-md) {
+    order: 8;
+  }
 }
 
 .apartmentsHeader {
@@ -640,6 +730,11 @@
   gap: $spacing-2;
   font-size: $font-size-sm;
   color: $color-text-secondary;
+  flex-wrap: wrap;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-xs;
+  }
 }
 
 .statDivider {
@@ -652,6 +747,11 @@
 
 .viewAllBtn {
   margin-left: auto;
+
+  @include rtl {
+    margin-left: initial;
+    margin-right: auto;
+  }
   background: none;
   border: none;
   padding: $spacing-2 $spacing-4;
@@ -726,10 +826,20 @@
 
 .carouselArrowPrev {
   left: -$spacing-2;
+
+  @include rtl {
+    left: auto;
+    right: -$spacing-2;
+  }
 }
 
 .carouselArrowNext {
   right: -$spacing-2;
+
+  @include rtl {
+    right: auto;
+    left: -$spacing-2;
+  }
 }
 
 @keyframes carouselArrowFadeIn {
@@ -830,6 +940,10 @@
 
 .skeletonDescription {
   margin-bottom: $spacing-8;
+
+  @media (max-width: $breakpoint-md) {
+    margin-bottom: $spacing-4;
+  }
 }
 
 .skeletonCards {

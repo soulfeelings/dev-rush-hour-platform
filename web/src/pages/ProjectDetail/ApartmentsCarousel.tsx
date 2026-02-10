@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useIsRTL } from '../../hooks/useDirection'
 import styles from './ProjectDetail.module.scss'
 
 interface ApartmentsCarouselProps {
@@ -8,11 +9,13 @@ interface ApartmentsCarouselProps {
 }
 
 export function ApartmentsCarousel({ children }: ApartmentsCarouselProps) {
+  const isRTL = useIsRTL()
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     align: 'start',
     slidesToScroll: 1,
     containScroll: 'trimSnaps',
+    direction: isRTL ? 'rtl' : 'ltr',
   })
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
@@ -45,7 +48,11 @@ export function ApartmentsCarousel({ children }: ApartmentsCarouselProps) {
           onClick={() => emblaApi?.scrollPrev()}
           aria-label="Previous"
         >
-          <ChevronLeft size={18} strokeWidth={2.5} />
+          {isRTL ? (
+            <ChevronRight size={18} strokeWidth={2.5} />
+          ) : (
+            <ChevronLeft size={18} strokeWidth={2.5} />
+          )}
         </button>
       )}
       {canScrollNext && (
@@ -54,7 +61,11 @@ export function ApartmentsCarousel({ children }: ApartmentsCarouselProps) {
           onClick={() => emblaApi?.scrollNext()}
           aria-label="Next"
         >
-          <ChevronRight size={18} strokeWidth={2.5} />
+          {isRTL ? (
+            <ChevronLeft size={18} strokeWidth={2.5} />
+          ) : (
+            <ChevronRight size={18} strokeWidth={2.5} />
+          )}
         </button>
       )}
     </div>
