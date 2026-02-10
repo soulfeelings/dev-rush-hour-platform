@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { Select } from '../../ui/Select'
 import { Button } from '../../ui/Button'
@@ -19,13 +20,6 @@ import styles from './Apartments.module.scss'
 
 type SortValue = 'default' | ListLotsSort
 
-const sortOptions: Array<{ value: SortValue; label: string }> = [
-  { value: 'default', label: 'Default' },
-  { value: ListLotsSort.price_asc, label: 'Price: Low to High' },
-  { value: ListLotsSort.price_desc, label: 'Price: High to Low' },
-  { value: ListLotsSort.newest, label: 'Date: Newest First' },
-]
-
 // =====================================
 // APARTMENTS PAGE
 // =====================================
@@ -33,6 +27,17 @@ const sortOptions: Array<{ value: SortValue; label: string }> = [
 export default function Apartments() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { filters, updateFilter } = useFilters()
+  const { t } = useTranslation()
+
+  const sortOptions: Array<{ value: SortValue; label: string }> = useMemo(
+    () => [
+      { value: 'default', label: t('apartments.sort.default') },
+      { value: ListLotsSort.price_asc, label: t('apartments.sort.priceAsc') },
+      { value: ListLotsSort.price_desc, label: t('apartments.sort.priceDesc') },
+      { value: ListLotsSort.newest, label: t('apartments.sort.newest') },
+    ],
+    [t]
+  )
 
   // Get project from URL params
   const projectSlug = searchParams.get('project')
@@ -140,30 +145,34 @@ export default function Apartments() {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.titleRow}>
-          <h1 className={styles.title}>Buy Apartments</h1>
+          <h1 className={styles.title}>{t('apartments.title')}</h1>
           {projectName && (
             <div className={styles.projectFilter}>
-              <span className={styles.projectLabel}>in {projectName}</span>
+              <span className={styles.projectLabel}>
+                {t('apartments.inProject', { name: projectName })}
+              </span>
               <Button
                 variant="ghost"
                 size="xs"
                 iconLeft={<X size={14} />}
                 onClick={handleClearProject}
-                aria-label="Clear project filter"
+                aria-label={t('apartments.clearProject')}
               />
             </div>
           )}
         </div>
 
         <div className={styles.resultsHeader}>
-          <span className={styles.resultsCount}>{activeLots.length} apartments</span>
+          <span className={styles.resultsCount}>
+            {t('apartments.resultsCount', { count: activeLots.length })}
+          </span>
           <div className={styles.sortContainer}>
-            <span className={styles.sortLabel}>Sort by</span>
+            <span className={styles.sortLabel}>{t('apartments.sortBy')}</span>
             <Select
               options={sortOptions}
               value={sortValue}
               onChange={value => updateFilter('sort', value)}
-              placeholder="Sort"
+              placeholder={t('apartments.sortBy')}
               triggerSize="xs"
             />
           </div>
@@ -179,15 +188,19 @@ export default function Apartments() {
           </div>
         ) : error ? (
           <div className={styles.error}>
-            <p>Loading error: {error instanceof Error ? error.message : 'Unknown error'}</p>
-            <button onClick={() => window.location.reload()}>Retry</button>
+            <p>
+              {t('apartments.error', {
+                message: error instanceof Error ? error.message : t('apartments.errorUnknown'),
+              })}
+            </p>
+            <button onClick={() => window.location.reload()}>{t('apartments.retry')}</button>
           </div>
         ) : activeLots.length === 0 ? (
           <div className={styles.empty}>
-            <p>No apartments found</p>
+            <p>{t('apartments.empty')}</p>
             {projectSlug && (
               <Button variant="secondary" size="sm" onClick={handleClearProject}>
-                View all apartments
+                {t('apartments.viewAll')}
               </Button>
             )}
           </div>

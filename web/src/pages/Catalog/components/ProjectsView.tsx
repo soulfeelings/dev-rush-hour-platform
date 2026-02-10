@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { ProjectCard } from '../../../components/ProjectCard'
 import { ProjectsViewSkeleton } from './ProjectsViewSkeleton'
 import styles from '../Catalog.module.scss'
@@ -10,6 +11,7 @@ interface ProjectsViewProps {
 }
 
 export default function ProjectsView({ properties, isLoading, error }: ProjectsViewProps) {
+  const { t } = useTranslation()
   const activeProperties = properties.filter(p => p.status === 'active')
 
   if (isLoading) {
@@ -19,8 +21,12 @@ export default function ProjectsView({ properties, isLoading, error }: ProjectsV
   if (error) {
     return (
       <div className={styles.error}>
-        <p>Loading error: {error instanceof Error ? error.message : 'Unknown error'}</p>
-        <button onClick={() => window.location.reload()}>Retry</button>
+        <p>
+          {t('error.loadingError', {
+            message: error instanceof Error ? error.message : t('error.unknownError'),
+          })}
+        </p>
+        <button onClick={() => window.location.reload()}>{t('error.retry')}</button>
       </div>
     )
   }

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import PropertyMap from '../../components/PropertyMap/PropertyMap'
 import { mockProperties } from '../../data/mockProperties'
 import { districts } from '../../data/dubai_districts_data'
@@ -6,16 +7,16 @@ import { getAreaDetailRoute } from '../../constants/routes'
 import styles from './ProjectArea.module.scss'
 
 export default function ProjectArea() {
+  const { t } = useTranslation()
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <Link to="/" className={styles.backLink}>
-          ← Назад на главную
+          {t('projectArea.back')}
         </Link>
-        <h1 className={styles.title}>Районы Дубая</h1>
-        <p className={styles.subtitle}>
-          Выберите район на карте или в списке ниже, чтобы посмотреть доступные объекты
-        </p>
+        <h1 className={styles.title}>{t('projectArea.title')}</h1>
+        <p className={styles.subtitle}>{t('projectArea.subtitle')}</p>
       </div>
 
       <div className={styles.content}>
@@ -24,7 +25,7 @@ export default function ProjectArea() {
         </div>
 
         <div className={styles.districtsList}>
-          <h2 className={styles.listTitle}>Все районы</h2>
+          <h2 className={styles.listTitle}>{t('projectArea.allDistricts')}</h2>
           <div className={styles.districtsGrid}>
             {districts.map(district => {
               const propertyCount =
@@ -35,7 +36,7 @@ export default function ProjectArea() {
                   key={district.id}
                   to={getAreaDetailRoute(district.id)}
                   className={styles.districtCard}
-                  style={{ borderLeftColor: district.color }}
+                  style={{ borderInlineStartColor: district.color }}
                 >
                   <div className={styles.districtHeader}>
                     <h3 className={styles.districtName}>{district.name}</h3>
@@ -46,17 +47,19 @@ export default function ProjectArea() {
 
                   <div className={styles.districtStats}>
                     <div className={styles.stat}>
-                      <span className={styles.statLabel}>Объектов на сайте:</span>
+                      <span className={styles.statLabel}>
+                        {t('projectArea.stats.propertiesOnSite')}
+                      </span>
                       <span className={styles.statValue}>{propertyCount}</span>
                     </div>
                     <div className={styles.stat}>
-                      <span className={styles.statLabel}>Средняя цена:</span>
+                      <span className={styles.statLabel}>{t('projectArea.stats.avgPrice')}</span>
                       <span className={styles.statValue}>
                         {(district.avg_price_aed / 1000000).toFixed(1)}M AED
                       </span>
                     </div>
                     <div className={styles.stat}>
-                      <span className={styles.statLabel}>Категория:</span>
+                      <span className={styles.statLabel}>{t('projectArea.stats.category')}</span>
                       <span className={styles.statValue}>{district.category}</span>
                     </div>
                   </div>

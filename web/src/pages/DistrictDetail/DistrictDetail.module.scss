@@ -184,7 +184,7 @@
 
     &::before {
       content: '🚇 ';
-      margin-right: $spacing-2;
+      margin-inline-end: $spacing-2;
     }
   }
 }
