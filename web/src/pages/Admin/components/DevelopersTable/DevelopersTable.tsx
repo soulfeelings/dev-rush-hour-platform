@@ -8,10 +8,6 @@ import styles from './DevelopersTable.module.scss'
 
 const { useAdminListDevelopers } = AdminApi
 
-type DeveloperDataFields = {
-  logoUrl?: string
-}
-
 type DevelopersTableProps = {
   onNewClick: () => void
   onEditClick: (developer: Developer) => void
@@ -191,9 +187,9 @@ export function DevelopersTable({
                   )}
                 </td>
                 <td className={styles.logoCell}>
-                  {(developer.data as DeveloperDataFields)?.logoUrl ? (
+                  {developer.logoUrl ? (
                     <img
-                      src={(developer.data as DeveloperDataFields).logoUrl}
+                      src={developer.logoUrl}
                       alt={`${developer.name} logo`}
                       className={styles.logoImage}
                     />

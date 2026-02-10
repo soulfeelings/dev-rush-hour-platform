@@ -7,10 +7,6 @@ import styles from './DeletedDevelopersTable.module.scss'
 
 const { useAdminListDeletedDevelopers } = AdminApi
 
-type DeveloperDataFields = {
-  logoUrl?: string
-}
-
 type DeletedDevelopersTableProps = {
   onRestore: (ids: string[]) => void
   onHardDelete: (ids: string[]) => void
@@ -218,9 +214,9 @@ export function DeletedDevelopersTable({
                 )}
               </td>
               <td className={styles.logoCell}>
-                {(developer.data as DeveloperDataFields)?.logoUrl ? (
+                {developer.logoUrl ? (
                   <img
-                    src={(developer.data as DeveloperDataFields).logoUrl}
+                    src={developer.logoUrl}
                     alt={`${developer.name} logo`}
                     className={styles.logoImage}
                   />

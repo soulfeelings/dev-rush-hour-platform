@@ -238,7 +238,7 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
                 <td>{lot.bathrooms ?? '-'}</td>
                 <td>{lot.areaSqm ?? '-'}</td>
                 <td>{lot.floor ?? '-'}</td>
-                <td>{formatPrice(lot.priceAmount, lot.priceCurrency)}</td>
+                <td>{formatPrice(lot.priceAmount, 'AED')}</td>
                 <td>{lot.status || '-'}</td>
                 <td>{lot.createdAt ? new Date(lot.createdAt).toLocaleDateString('en-US') : '-'}</td>
               </tr>
