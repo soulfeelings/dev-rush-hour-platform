@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import { createElement } from 'react'
 import type { Property } from '../../../types/property'
+import { SettingsProvider } from '../../../features/Settings/Settings'
 import { MarkerPopup } from './MarkerPopup'
 
 export const createMarkerPopupElement = (property: Property): HTMLElement => {
@@ -8,10 +9,7 @@ export const createMarkerPopupElement = (property: Property): HTMLElement => {
   const root = createRoot(container)
 
   root.render(
-    createElement(MarkerPopup, {
-      property,
-      direction: 'top',
-    })
+    createElement(SettingsProvider, null, createElement(MarkerPopup, { property, direction: 'top' }))
   )
 
   return container

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import type { ReactNode } from 'react'
 import './MarkerPopup.scss'
+import { SettingsProvider } from '../../../features/Settings/Settings'
 import { MarkerPopup } from './MarkerPopup'
 import type { Property, PropertyBadge } from '../../../types/property'
 
@@ -92,9 +93,11 @@ const meta: Meta<typeof MarkerPopup> = {
   tags: ['autodocs'],
   decorators: [
     Story => (
-      <PopupWithArrow>
-        <Story />
-      </PopupWithArrow>
+      <SettingsProvider>
+        <PopupWithArrow>
+          <Story />
+        </PopupWithArrow>
+      </SettingsProvider>
     ),
   ],
 }
