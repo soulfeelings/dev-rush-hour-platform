@@ -5,18 +5,18 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: $spacing-6;
-}
-
-// Hero Section
-.heroSection {
   display: grid;
   grid-template-columns: 1fr 280px;
-  gap: $spacing-4;
-  margin-bottom: $spacing-6;
+  align-items: start;
+  gap: 30px;
 
   @media (max-width: $breakpoint-md) {
     grid-template-columns: 1fr;
   }
+}
+
+.leftContent {
+  min-width: 0;
 }
 
 .mainGallery {
@@ -220,24 +220,24 @@
   object-fit: cover;
 }
 
-// Media Sidebar
-.mediaSidebar {
+// Right Content (video, map, timeline)
+.rightContent {
   display: flex;
   flex-direction: column;
   gap: $spacing-4;
-  height: 450px;
+  position: sticky;
+  top: $spacing-6;
 
   @media (max-width: $breakpoint-md) {
-    flex-direction: row;
-    height: auto;
+    position: static;
+    gap: $spacing-3;
   }
 }
 
 .videoPreview {
   width: 100% !important;
-  height: unset !important;
-  flex: 1 1 0 !important;
-  min-height: 0;
+  height: 160px !important;
+  flex: none !important;
 
   img {
     height: 100%;
@@ -249,7 +249,6 @@
   }
 
   @media (max-width: $breakpoint-md) {
-    flex: 1;
     height: 140px !important;
   }
 }
@@ -257,13 +256,11 @@
 .mapThumbnail {
   position: relative;
   width: 100%;
-  flex: 1 1 0;
-  min-height: 0;
+  height: 180px;
   border-radius: $radius-lg;
   overflow: hidden;
 
   @media (max-width: $breakpoint-md) {
-    flex: 1;
     height: 140px;
   }
 }
@@ -302,159 +299,159 @@
 
 // Project Header
 .projectHeader {
+  margin-bottom: $spacing-6;
+  margin-top: $spacing-6;
+}
+
+.headerTop {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: $spacing-6;
-  flex-wrap: wrap;
-  gap: $spacing-4;
-}
-
-.developerInfo {
-  display: flex;
   align-items: center;
-  gap: $spacing-4;
-}
-
-.developerLogo {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: contain;
-  background: white;
-  padding: $spacing-2;
-  box-shadow: $shadow-card;
-}
-
-.projectTitle {
-  h1 {
-    font-size: $font-size-2xl;
-    font-weight: $font-weight-bold;
-    color: $color-text;
-    margin: 0;
-  }
-}
-
-.titleRow {
-  display: flex;
-  align-items: center;
+  padding-bottom: $spacing-4;
   gap: $spacing-3;
-  margin-bottom: $spacing-1;
-}
-
-.projectLocation {
-  display: flex;
-  align-items: center;
-  gap: $spacing-1;
-  color: $color-text-secondary;
-  font-size: $font-size-sm;
-}
-
-.badgesRow {
-  display: flex;
-  gap: $spacing-2;
-  flex-wrap: wrap;
-}
-
-// Info + Timeline Section
-.infoSection {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-8;
-  margin-bottom: $spacing-8;
-  padding: $spacing-6;
-  background: $color-bg-card;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-card;
-
-  @media (max-width: $breakpoint-md) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .projectInfo {
   display: flex;
-  flex-direction: column;
-  gap: $spacing-4;
+  align-items: flex-start;
+  gap: $spacing-2;
+  flex: 1;
+  min-width: 0;
 }
 
-.priceBlock {
+.projectLogoContainer {
+  width: 68px;
+  height: 68px;
+  min-width: 68px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid $color-border;
+  background: $color-bg-card;
+}
+
+.projectLogo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.projectNameContainer {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: $spacing-3;
+  gap: 2px;
 }
 
-.ourPrice,
-.developerPrice {
+.projectTitle {
+  @include truncate;
+  color: $color-charcoal-black;
+}
+
+.projectArea {
+  @include truncate;
+  color: $color-charcoal-black;
+}
+
+.projectDeveloper {
+  @include truncate;
+  color: $color-charcoal-grey-50;
+}
+
+.priceRows {
+  display: flex;
+  flex-direction: column;
+  border-top: 0.5px solid $color-charcoal-grey-10;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
+}
+
+.ourPriceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0 calc($spacing-1 + 2px) 0;
+  min-height: 32px;
+}
+
+.developerPriceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc($spacing-1 + 2px) 0;
+  min-height: 32px;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
+}
+
+.priceLabelContainer {
   display: flex;
   align-items: center;
   gap: $spacing-2;
 }
 
 .priceLabel {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  min-width: 100px;
-}
-
-.priceDiscount {
-  background: $color-yellow;
   color: $color-charcoal-black;
-  padding: 2px $spacing-2;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
 }
 
-.priceArrow {
-  color: $color-text-secondary;
-  font-size: $font-size-sm;
+.discountBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: $radius-full;
+  background: $color-marker-red-bg;
+  color: $color-marker-red;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.priceFrom {
+  color: $color-charcoal-grey-50;
 }
 
 .priceValue {
-  font-size: $font-size-xl;
-  font-weight: $font-weight-bold;
-  color: $color-text;
+  color: $color-charcoal-black;
+  white-space: nowrap;
 }
 
-.priceValueStrike {
-  font-size: $font-size-md;
-  color: $color-text-secondary;
-  text-decoration: line-through;
-}
-
-.yearIndicator {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-}
-
-.handoverInfo {
+.headerBottom {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: $spacing-2;
-  padding-top: $spacing-3;
-  border-top: 1px solid $color-border;
+  padding: 10px 0 6px;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
 }
 
-.handoverLabel {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
+.dateValue {
+  .quarter {
+    color: $color-charcoal-grey-50;
+  }
+
+  .year {
+    color: $color-charcoal-black;
+  }
 }
 
-.handoverDate {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-text;
+.planValue {
+  .planLabel {
+    color: $color-charcoal-grey-50;
+  }
+
+  .planNumbers {
+    color: $color-charcoal-black;
+  }
 }
 
 // Timeline
 .timelineSection {
-  margin-bottom: $spacing-6;
-
   h2 {
-    font-size: $font-size-xl;
+    font-size: $font-size-sm;
     font-weight: $font-weight-semibold;
-    margin: 0 0 $spacing-4 0;
+    margin: 0 0 $spacing-3 0;
     color: $color-text;
   }
 }
@@ -463,7 +460,7 @@
   background: $color-bg-card;
   border-radius: $radius-lg;
   border: 1px solid $color-border;
-  padding: $spacing-6;
+  padding: $spacing-4;
 }
 
 .timelineList {
@@ -476,17 +473,17 @@
 .timelineItem {
   display: flex;
   align-items: flex-start;
-  gap: $spacing-3;
-  padding-bottom: $spacing-6;
+  gap: $spacing-2;
+  padding-bottom: $spacing-4;
   position: relative;
 
   &:not(:last-child)::before {
     content: '';
     position: absolute;
-    left: 11px;
-    top: 24px;
+    left: 9px;
+    top: 20px;
     width: 2px;
-    height: calc(100% - 24px);
+    height: calc(100% - 20px);
     background: $color-border;
   }
 
@@ -496,8 +493,8 @@
 }
 
 .timelineDot {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: transparent;
   border: 2px solid $color-border;
@@ -518,56 +515,86 @@
 .timelineContent {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-top: 2px;
+  gap: 1px;
+  padding-top: 1px;
 }
 
 .timelineLabel {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
   color: $color-text;
 }
 
 .timelineDate {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   color: $color-text-secondary;
 }
 
 // Description Section
 .descriptionSection {
   margin-bottom: $spacing-8;
+}
 
-  p {
-    font-size: $font-size-md;
-    color: $color-text-secondary;
-    line-height: $line-height-relaxed;
-    margin: 0;
+.descriptionText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+  margin: 0;
+}
 
-    &.collapsed {
-      display: -webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
-    &.expanded {
-      display: block;
-    }
-  }
+.expanded {
+  display: block;
 }
 
 .seeMoreBtn {
-  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-1;
+  width: 100%;
+  background: transparent;
   border: none;
-  color: $color-yellow;
+  color: $color-charcoal-grey-50;
   font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
+  font-weight: $font-weight-regular;
   cursor: pointer;
-  padding: $spacing-2 0;
-  text-decoration: underline;
+  padding: 0 $spacing-4;
+  margin-top: $spacing-3;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 0.5px;
+    background: $color-charcoal-grey-10;
+    z-index: 0;
+  }
+
+  span,
+  svg {
+    position: relative;
+    z-index: 1;
+    background: white;
+    padding: 0 $spacing-2;
+  }
+
+  svg {
+    flex-shrink: 0;
+    padding-left: 0;
+  }
 
   &:hover {
-    color: $color-yellow-hover;
+    color: $color-charcoal-black;
   }
 }
 
@@ -590,24 +617,21 @@
 
 .allUnitsLabel {
   display: block;
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  margin-bottom: $spacing-1;
+  color: $color-charcoal-black;
+  margin-bottom: $spacing-4;
 }
 
 .apartmentsHeader {
   display: flex;
-  align-items: center;
-  gap: $spacing-4;
+  flex-direction: column;
+  gap: $spacing-2;
   margin-bottom: $spacing-4;
-  flex-wrap: wrap;
+}
 
-  h2 {
-    font-size: $font-size-xl;
-    font-weight: $font-weight-semibold;
-    margin: 0;
-    color: $color-text;
-  }
+.apartmentsHeaderTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .apartmentsStats {
@@ -619,256 +643,214 @@
 }
 
 .statDivider {
-  color: $color-border;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: $color-charcoal-black;
+  flex-shrink: 0;
 }
 
 .viewAllBtn {
   margin-left: auto;
   background: none;
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
+  border: none;
   padding: $spacing-2 $spacing-4;
   font-size: $font-size-sm;
-  color: $color-text;
+  color: $color-charcoal-black;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  white-space: nowrap;
   transition: all $transition-fast;
 
+  svg {
+    flex-shrink: 0;
+    transition: transform $transition-fast;
+  }
+
   &:hover {
-    border-color: $color-yellow;
-    color: $color-yellow;
-  }
-}
+    opacity: 0.7;
 
-.apartmentsScroll {
-  display: flex;
-  gap: $spacing-4;
-  overflow-x: auto;
-  padding-bottom: $spacing-4;
-  scroll-snap-type: x mandatory;
-
-  &::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: $color-border;
-    border-radius: $radius-full;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: $color-charcoal-grey-30;
-    border-radius: $radius-full;
-
-    &:hover {
-      background: $color-charcoal-grey-50;
+    svg {
+      transform: translateX(2px);
     }
   }
 }
 
-// Apartment Card
-.apartmentCard {
-  flex: 0 0 320px;
-  background: $color-bg-card;
-  border-radius: $radius-lg;
-  overflow: hidden;
-  box-shadow: $shadow-card;
-  cursor: pointer;
-  scroll-snap-align: start;
-  transition: all $transition-fast;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: $shadow-lg;
-  }
-}
-
-.apartmentCardImage {
+// Apartments Carousel
+.apartmentsCarousel {
   position: relative;
-  height: 200px;
-  background: $color-bg;
 }
 
-.apartmentCardImg {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: white;
+.apartmentsViewport {
+  overflow: hidden;
 }
 
-.apartmentCardPlaceholder {
-  width: 100%;
-  height: 100%;
+.apartmentsContainer {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: $color-text-secondary;
+  gap: $spacing-4;
 }
 
-.apartmentCardTags {
+.carouselArrow {
   position: absolute;
-  top: $spacing-3;
-  left: $spacing-3;
-  display: flex;
-  gap: $spacing-2;
-}
-
-.apartmentTag {
-  background: $color-yellow;
-  color: $color-charcoal-black;
-  padding: 2px $spacing-2;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-
-  &.tagPink {
-    background: #ff6b9d;
-    color: white;
-  }
-
-  &.tagTeal {
-    background: #2dd4bf;
-    color: $color-charcoal-black;
-  }
-}
-
-.favoriteBtn {
-  position: absolute;
-  top: $spacing-3;
-  right: $spacing-3;
+  top: 50%;
+  transform: translateY(-50%);
+  background: $color-snow-white-60;
+  backdrop-filter: blur(8px);
+  color: $color-text;
+  border: none;
   width: 36px;
   height: 36px;
-  background: white;
-  border: none;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: $color-text-secondary;
-  box-shadow: $shadow-sm;
-  transition: all $transition-fast;
+  z-index: 10;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  animation: carouselArrowFadeIn 0.3s ease forwards;
 
   &:hover {
-    color: $color-error;
+    background: $color-snow-white;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.95);
   }
 }
 
-.apartmentCardContent {
-  padding: $spacing-4;
+.carouselArrowPrev {
+  left: -$spacing-2;
 }
 
-.apartmentCardTitle {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
-  margin: 0 0 $spacing-2 0;
-  line-height: $line-height-tight;
+.carouselArrowNext {
+  right: -$spacing-2;
 }
 
-.apartmentCardBadges {
+@keyframes carouselArrowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+// Skeleton States
+.skeletonGallery {
+  border-radius: $radius-lg;
+  height: 450px !important;
+
+  @media (max-width: $breakpoint-md) {
+    height: 300px !important;
+  }
+}
+
+.skeletonThumbnails {
   display: flex;
-  gap: $spacing-2;
-  margin-bottom: $spacing-3;
-}
-
-.buildingBadge {
-  display: flex;
-  align-items: center;
   gap: 4px;
-  background: $color-charcoal-grey-10;
-  color: $color-text-secondary;
-  padding: 2px $spacing-2;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
+  overflow: hidden;
+
+  > * {
+    flex: 0 0 224px;
+    border-radius: 6px;
+  }
 }
 
-.roiBadge {
-  background: $color-yellow;
-  color: $color-charcoal-black;
-  padding: 2px $spacing-2;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-}
-
-.apartmentCardPrices {
-  margin-bottom: $spacing-3;
-}
-
-.apartmentOurPrice,
-.apartmentDevPrice {
+.skeletonSidebar {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: $spacing-4;
+  height: 450px;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: row;
+    height: auto;
+  }
+}
+
+.skeletonSidebarItem {
+  flex: 1 1 0;
+  min-height: 0;
+  border-radius: $radius-lg !important;
+
+  @media (max-width: $breakpoint-md) {
+    height: 140px !important;
+  }
+}
+
+.skeletonHeader {
+  margin-bottom: $spacing-6;
+}
+
+.skeletonHeaderTop {
+  display: flex;
+  align-items: flex-start;
   gap: $spacing-2;
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  margin-bottom: 4px;
+  padding-bottom: $spacing-4;
 }
 
-.discountTag {
-  background: $color-yellow;
-  color: $color-charcoal-black;
-  padding: 1px 4px;
-  border-radius: 2px;
-  font-size: 10px;
-  font-weight: $font-weight-semibold;
-}
-
-.priceAmount {
-  font-weight: $font-weight-semibold;
-  color: $color-text;
-}
-
-.priceAmountStrike {
-  text-decoration: line-through;
-}
-
-.apartmentCardSpecs {
+.skeletonHeaderText {
+  flex: 1;
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeletonPriceRows {
+  border-top: 0.5px solid $color-charcoal-grey-10;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
+}
+
+.skeletonPriceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc($spacing-1 + 2px) 0;
+  min-height: 32px;
+
+  &:not(:last-child) {
+    border-bottom: 0.5px solid $color-charcoal-grey-10;
+  }
+}
+
+.skeletonFooterRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-3 0;
+}
+
+.skeletonDescription {
+  margin-bottom: $spacing-8;
+}
+
+.skeletonCards {
+  display: flex;
+  gap: $spacing-4;
+  overflow: hidden;
+}
+
+.skeletonCard {
+  flex: 0 0 320px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+}
+
+.skeletonCardContent {
+  padding: $spacing-4;
+  display: flex;
+  flex-direction: column;
   gap: $spacing-3;
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  padding: $spacing-2 0;
-  border-top: 1px solid $color-border;
-  margin-bottom: $spacing-3;
-
-  span {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  svg {
-    width: 14px;
-    height: 14px;
-  }
-}
-
-.specLabel {
-  color: $color-text;
-  font-weight: $font-weight-medium;
-}
-
-.whatsappBtn {
-  background: $color-yellow !important;
-  color: $color-charcoal-black !important;
-
-  &:hover {
-    background: $color-yellow-hover !important;
-  }
-}
-
-// Loading and Error States
-.loading {
-  text-align: center;
-  padding: $spacing-20 0;
-
-  h1 {
-    font-size: $font-size-2xl;
-    font-weight: $font-weight-medium;
-    color: $color-text-secondary;
-    margin: 0;
-  }
 }
 
 .notFound {

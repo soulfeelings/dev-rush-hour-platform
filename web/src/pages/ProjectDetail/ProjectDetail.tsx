@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import * as L from 'leaflet'
@@ -8,15 +8,28 @@ import { developerLogos } from '../../data/mockProperties'
 import ProjectFeatures from '../../components/ProjectFeatures'
 import Model3DViewer from '../../components/Model3DViewer'
 import FloorPlanTable from '../../components/FloorPlanTable'
+import { splitCompletionDate } from '../../components/splitCompletionDate'
 import { Modal } from '../../ui/Modal'
-import { Button } from '../../ui/Button'
-import { Badge } from '../../ui/Badge'
+import { Typography } from '../../ui/Typography'
+import { RoiBadge } from '../../ui/RoiBadge'
 import { YouTubePreview } from '../../ui/YouTubePreview'
-import { useGetProject, useListLots } from '../../api'
 import type { Project, Lot, Developer, Area, Badge as BadgeType } from '../../api'
-import { IconBed, IconBath, IconArea } from '../../components/icons'
-import { ROUTES, getLotDetailRoute } from '../../constants/routes'
-import { Heart, MapPin, Building2, Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ROUTES } from '../../constants/routes'
+import {
+  MapPin,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight,
+} from 'lucide-react'
+import { useSettings } from '../../features/Settings/Settings'
+import { formatPrice, formatArea } from '../../utils/format'
+import { mockProject, mockLots } from './mockData'
+import { ApartmentsCarousel } from './ApartmentsCarousel'
+import { ApartmentCard } from './ApartmentCard'
+import { ProjectDetailSkeleton } from './ProjectDetailSkeleton'
 import styles from './ProjectDetail.module.scss'
 
 const MAP_ZOOM_DEFAULT = 13
@@ -77,17 +90,9 @@ const formatDate = (dateStr?: string) => {
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
-const formatPrice = (price: number | undefined, currency = 'AED') => {
-  if (price === undefined) return '-'
-  if (price >= 1000000) {
-    return `${(price / 1000000).toFixed(1)}M ${currency}`
-  }
-  return `${price.toLocaleString()} ${currency}`
-}
-
 export default function ProjectDetail() {
+  const { currency, unit } = useSettings()
   const { slug } = useParams<{ slug: string }>()
-  const navigate = useNavigate()
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const [isFloorPlanModalOpen, setIsFloorPlanModalOpen] = useState(false)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
@@ -130,27 +135,31 @@ export default function ProjectDetail() {
     }
   }, [emblaApi, onSelect])
 
-  const {
-    data: projectData,
-    isLoading: projectLoading,
-    error: projectError,
-  } = useGetProject(slug || '', undefined, {
-    query: {
-      enabled: !!slug,
-    },
-  })
+  // TODO: restore API calls when done with UI work
+  // const {
+  //   data: projectData,
+  //   isLoading: projectLoading,
+  //   error: projectError,
+  // } = useGetProject(slug || '', undefined, {
+  //   query: {
+  //     enabled: !!slug,
+  //   },
+  // })
+  //
+  // const { data: lotsData, isLoading: lotsLoading } = useListLots(
+  //   { project: slug || '' },
+  //   {
+  //     query: {
+  //       enabled: !!slug,
+  //     },
+  //   }
+  // )
+  //
+  // const project = (projectData as ProjectWithRelations | undefined) || null
+  // const lots: Lot[] = lotsData?.items || []
 
-  const { data: lotsData, isLoading: lotsLoading } = useListLots(
-    { project: slug || '' },
-    {
-      query: {
-        enabled: !!slug,
-      },
-    }
-  )
-
-  const project = (projectData as ProjectWithRelations | undefined) || null
-  const lots: Lot[] = lotsData?.items || []
+  const project = mockProject as unknown as ProjectWithRelations
+  const lots: Lot[] = mockLots
 
   const groupedLots = useMemo<LotGroup[]>(() => {
     const groups: Record<number, LotGroup> = {}
@@ -181,11 +190,8 @@ export default function ProjectDetail() {
     return Object.values(groups).sort((a, b) => a.bedrooms - b.bedrooms)
   }, [lots])
 
-  const loading = projectLoading || lotsLoading
-  const error =
-    projectError instanceof Error
-      ? projectError.message
-      : (projectError as { error?: { message?: string } })?.error?.message || null
+  const loading = false
+  const error = null
 
   const hasCoordinates =
     project?.lat !== undefined &&
@@ -281,13 +287,7 @@ export default function ProjectDetail() {
   }, [])
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>
-          <h1>Loading...</h1>
-        </div>
-      </div>
-    )
+    return <ProjectDetailSkeleton />
   }
 
   if (error || !project) {
@@ -315,8 +315,7 @@ export default function ProjectDetail() {
 
   const projectLogoUrl = project.data?.media?.logo?.url
   const developerLogoUrl =
-    (project.developer?.data as { logoUrl?: string } | undefined)?.logoUrl ||
-    developerLogos[project.developer?.name || '']
+    project.developer?.logoUrl || developerLogos[project.developer?.name || '']
   const displayLogoUrl = projectLogoUrl || developerLogoUrl
 
   const description =
@@ -327,6 +326,9 @@ export default function ProjectDetail() {
         : null
 
   const timeline = projectDataFields?.timeline
+  const { firstPart: completionFirstPart, rest: completionRest } = splitCompletionDate(
+    projectDataFields?.completionDate
+  )
 
   const timelineItems = timeline
     ? [
@@ -367,8 +369,8 @@ export default function ProjectDetail() {
 
   return (
     <div className={styles.container}>
-      {/* Hero Section */}
-      <section className={styles.heroSection}>
+      <div className={styles.leftContent}>
+        {/* Hero Gallery */}
         <div className={styles.mainGallery}>
           <div className={styles.galleryContainer}>
             {allImages.length > 0 ? (
@@ -428,7 +430,6 @@ export default function ProjectDetail() {
                   className={`${styles.thumbnailWrapper} ${
                     idx === selectedIndex ? styles.activeThumbnail : ''
                   }`}
-                  onMouseEnter={() => scrollTo(idx, true)}
                   onClick={() => scrollTo(idx, true)}
                 >
                   <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
@@ -438,285 +439,225 @@ export default function ProjectDetail() {
           )}
         </div>
 
-        <div className={styles.mediaSidebar}>
-          {projectDataFields?.youtubeUrl && (
-            <YouTubePreview
-              url={projectDataFields.youtubeUrl}
-              size="medium"
-              className={styles.videoPreview}
-            />
-          )}
-
-          {hasCoordinates && (
-            <div className={styles.mapThumbnail}>
-              <div ref={setMapContainerEl} className={styles.miniMap} />
-              <div className={styles.mapLocationLabel}>
-                <MapPin size={14} />
-                <span>{project.area?.name || 'Location'}</span>
+        {/* Project Header */}
+        <section className={styles.projectHeader}>
+          <div className={styles.headerTop}>
+            <div className={styles.projectInfo}>
+              {displayLogoUrl && (
+                <div className={styles.projectLogoContainer}>
+                  <img
+                    src={displayLogoUrl}
+                    alt={project.name || project.developer?.name}
+                    className={styles.projectLogo}
+                  />
+                </div>
+              )}
+              <div className={styles.projectNameContainer}>
+                <Typography variant="h1" className={styles.projectTitle}>
+                  {project.name}
+                </Typography>
+                <Typography className={styles.projectArea}>
+                  {project.area?.name || 'Dubai'}
+                </Typography>
+                {project.developer?.name && (
+                  <Typography className={styles.projectDeveloper}>
+                    {project.developer.name}
+                  </Typography>
+                )}
               </div>
             </div>
-          )}
-        </div>
-      </section>
+            {projectDataFields?.roi && <RoiBadge value={projectDataFields.roi} />}
+          </div>
 
-      {/* Project Timeline */}
-      {timelineItems.length > 0 && (
-        <section className={styles.timelineSection}>
-          <h2>Project timeline</h2>
-          <div className={styles.timelineCard}>
-            <div className={styles.timelineList}>
-              {timelineItems.map((item, idx) => (
-                <div key={idx} className={styles.timelineItem}>
-                  <div
-                    className={`${styles.timelineDot} ${item.completed ? styles.timelineDotCompleted : ''}`}
-                  >
-                    {item.completed && <Check size={12} />}
+          {(projectDataFields?.ourPrice || projectDataFields?.developerPrice) && (
+            <div className={styles.priceRows}>
+              {projectDataFields?.ourPrice && projectDataFields?.developerPrice && (
+                <div className={styles.ourPriceRow}>
+                  <div className={styles.priceLabelContainer}>
+                    <Typography size="large" weight="medium" className={styles.priceLabel}>
+                      Our price:
+                    </Typography>
+                    {projectDataFields.developerPrice > projectDataFields.ourPrice && (
+                      <span className={styles.discountBadge}>
+                        -
+                        {Math.round(
+                          (1 - projectDataFields.ourPrice / projectDataFields.developerPrice) * 100
+                        )}
+                        %
+                      </span>
+                    )}
                   </div>
-                  <div className={styles.timelineContent}>
-                    <span className={styles.timelineLabel}>{item.label}</span>
-                    {item.value && <span className={styles.timelineDate}>{item.value}</span>}
+                  <div className={styles.priceValue}>
+                    <Typography className={styles.priceFrom}>from</Typography>{' '}
+                    <Typography variant="h1" className={styles.priceAmount}>
+                      {formatPrice(projectDataFields.ourPrice, currency)}
+                    </Typography>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Project Header */}
-      <section className={styles.projectHeader}>
-        <div className={styles.developerInfo}>
-          {displayLogoUrl && (
-            <img
-              src={displayLogoUrl}
-              alt={project.name || project.developer?.name}
-              className={styles.developerLogo}
-            />
-          )}
-          <div className={styles.projectTitle}>
-            <div className={styles.titleRow}>
-              <h1>{project.name}</h1>
-              {project.badges?.[0] && (
-                <Badge
-                  text={project.badges[0].name || ''}
-                  backgroundColor={project.badges[0].backgroundColor || '#000'}
-                  textColor={project.badges[0].textColor || '#fff'}
-                  iconName={project.badges[0].icon || undefined}
-                  iconColor={project.badges[0].iconColor}
-                />
+              )}
+              {projectDataFields?.developerPrice && (
+                <div className={styles.developerPriceRow}>
+                  <Typography size="large" weight="medium" className={styles.priceLabel}>
+                    Developer price:
+                  </Typography>
+                  <div className={styles.priceValue}>
+                    <Typography className={styles.priceFrom}>from</Typography>{' '}
+                    <Typography variant="h1" className={styles.priceAmount}>
+                      {formatPrice(projectDataFields.developerPrice, currency)}
+                    </Typography>
+                  </div>
+                </div>
               )}
             </div>
-            <div className={styles.projectLocation}>
-              <MapPin size={16} />
-              <span>{project.area?.name || 'Dubai'}</span>
-            </div>
-          </div>
-        </div>
-      </section>
+          )}
 
-      {/* Info + Timeline Section */}
-      <section className={styles.infoSection}>
-        <div className={styles.projectInfo}>
-          <div className={styles.priceBlock}>
-            {projectDataFields?.ourPrice && projectDataFields?.developerPrice && (
-              <div className={styles.ourPrice}>
-                <span className={styles.priceLabel}>Our price</span>
-                {projectDataFields.developerPrice > projectDataFields.ourPrice && (
-                  <span className={styles.priceDiscount}>
-                    -
-                    {Math.round(
-                      (1 - projectDataFields.ourPrice / projectDataFields.developerPrice) * 100
-                    )}
-                    %
-                  </span>
-                )}
-                <span className={styles.priceArrow}>→</span>
-                <span className={styles.priceValue}>{formatPrice(projectDataFields.ourPrice)}</span>
-              </div>
+          {(completionFirstPart || projectDataFields?.paymentPlan) && (
+            <div className={styles.headerBottom}>
+              {completionFirstPart && (
+                <Typography size="large" className={styles.dateValue}>
+                  <span className={styles.quarter}>{completionFirstPart}</span>
+                  {completionRest && <span className={styles.year}> {completionRest}</span>}
+                </Typography>
+              )}
+              {projectDataFields?.paymentPlan && (
+                <Typography size="large" weight="medium" className={styles.planValue}>
+                  <span className={styles.planLabel}>PP:</span>{' '}
+                  <span className={styles.planNumbers}>{projectDataFields.paymentPlan}</span>
+                </Typography>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* Description Section */}
+        {description && (
+          <section className={styles.descriptionSection}>
+            <p
+              className={`${styles.descriptionText} ${isDescriptionExpanded ? styles.expanded : styles.collapsed}`}
+            >
+              {description}
+            </p>
+            {description.length > 300 && (
+              <button
+                className={styles.seeMoreBtn}
+                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+              >
+                <span>{isDescriptionExpanded ? 'See less' : 'See more'}</span>
+                {isDescriptionExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
             )}
-            {projectDataFields?.developerPrice && (
-              <div className={styles.developerPrice}>
-                <span className={styles.priceLabel}>Developer price</span>
-                <span className={styles.priceArrow}>→</span>
-                <span
-                  className={
-                    projectDataFields?.ourPrice ? styles.priceValueStrike : styles.priceValue
-                  }
-                >
-                  {formatPrice(projectDataFields.developerPrice)}
+          </section>
+        )}
+
+        {/* Infrastructure Section */}
+        {project.infrastructures && project.infrastructures.length > 0 && (
+          <section className={styles.infrastructureSection}>
+            <ProjectFeatures
+              features={project.infrastructures
+                .filter((i): i is Infrastructure & { name: string } => !!i.name)
+                .map(i => ({ name: i.name, icon: i.icon }))}
+              maxItems={12}
+            />
+          </section>
+        )}
+
+        {/* Apartments Sections by Bedroom Count */}
+        {groupedLots.length > 0 && (
+          <Typography variant="h1" className={styles.allUnitsLabel}>
+            All Units
+          </Typography>
+        )}
+        {groupedLots.map(group => (
+          <section key={group.bedrooms} className={styles.apartmentsSection}>
+            <div className={styles.apartmentsHeader}>
+              <div className={styles.apartmentsHeaderTop}>
+                <Typography variant="h1">Apartments</Typography>
+                <button className={styles.viewAllBtn}>
+                  <Typography variant="body" size="small" weight="regular">
+                    View the grid
+                  </Typography>
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+              <div className={styles.apartmentsStats}>
+                <span>{group.bedrooms} beds</span>
+                <span className={styles.statDivider} />
+                <span>
+                  from {formatPrice(group.minPrice === Infinity ? 0 : group.minPrice, currency)}
+                </span>
+                <span className={styles.statDivider} />
+                <span>{group.totalUnits} units</span>
+                <span className={styles.statDivider} />
+                <span>
+                  {group.minArea === Infinity
+                    ? '-'
+                    : group.minArea === group.maxArea
+                      ? formatArea(group.minArea, unit)
+                      : `${formatArea(group.minArea, unit)} - ${formatArea(group.maxArea, unit)}`}
                 </span>
               </div>
-            )}
-          </div>
-          {projectDataFields?.completionDate && (
-            <div className={styles.yearIndicator}>{projectDataFields.completionDate}</div>
-          )}
-          {projectDataFields?.paymentPlan && (
-            <div className={styles.handoverInfo}>
-              <span className={styles.handoverLabel}>PP:</span>
-              <span className={styles.handoverDate}>{projectDataFields.paymentPlan}</span>
             </div>
-          )}
-        </div>
-      </section>
 
-      {/* Description Section */}
-      {description && (
-        <section className={styles.descriptionSection}>
-          <p className={isDescriptionExpanded ? styles.expanded : styles.collapsed}>
-            {description}
-          </p>
-          {description.length > 300 && (
-            <button
-              className={styles.seeMoreBtn}
-              onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-            >
-              {isDescriptionExpanded ? 'See less' : 'See more'}
-            </button>
-          )}
-        </section>
-      )}
-
-      {/* Infrastructure Section */}
-      {project.infrastructures && project.infrastructures.length > 0 && (
-        <section className={styles.infrastructureSection}>
-          <h2>Residential complex infrastructure</h2>
-          <ProjectFeatures
-            features={project.infrastructures
-              .filter((i): i is Infrastructure & { name: string } => !!i.name)
-              .map(i => ({ name: i.name, icon: i.icon }))}
-            maxItems={12}
-          />
-        </section>
-      )}
-
-      {/* Apartments Sections by Bedroom Count */}
-      {groupedLots.map(group => (
-        <section key={group.bedrooms} className={styles.apartmentsSection}>
-          <span className={styles.allUnitsLabel}>All Units</span>
-          <div className={styles.apartmentsHeader}>
-            <h2>Apartments</h2>
-            <div className={styles.apartmentsStats}>
-              <span>{group.bedrooms} beds</span>
-              <span className={styles.statDivider}>|</span>
-              <span>from {formatPrice(group.minPrice === Infinity ? 0 : group.minPrice)}</span>
-              <span className={styles.statDivider}>|</span>
-              <span>{group.totalUnits} units</span>
-              <span className={styles.statDivider}>|</span>
-              <span>
-                {group.minArea === Infinity
-                  ? '-'
-                  : group.minArea === group.maxArea
-                    ? `${group.minArea} m²`
-                    : `${group.minArea}-${group.maxArea} m²`}
-              </span>
-            </div>
-            <button className={styles.viewAllBtn}>View the grid</button>
-          </div>
-
-          <div className={styles.apartmentsScroll}>
-            {group.lots.map((lot, index) => {
-              const lotCoverImage = (
-                lot.data as { media?: { cover?: { url?: string } } } | undefined
-              )?.media?.cover?.url
-              const lotFloorPlan = (
-                lot.data as { media?: { floorPlanImages?: { url?: string }[] } } | undefined
-              )?.media?.floorPlanImages?.[0]?.url
-              const lotTags = (lot.data as { tags?: string[] } | undefined)?.tags || []
-
-              return (
-                <div
+            <ApartmentsCarousel>
+              {group.lots.map((lot, index) => (
+                <ApartmentCard
                   key={lot.id || index}
-                  className={styles.apartmentCard}
-                  onClick={() => lot.id && navigate(getLotDetailRoute(lot.id))}
-                >
-                  <div className={styles.apartmentCardImage}>
-                    {lotFloorPlan || lotCoverImage ? (
-                      <img
-                        src={lotFloorPlan || lotCoverImage}
-                        alt={`${lot.type} floor plan`}
-                        className={styles.apartmentCardImg}
-                      />
-                    ) : (
-                      <div className={styles.apartmentCardPlaceholder}>
-                        <Building2 size={48} />
-                      </div>
-                    )}
-                    <div className={styles.apartmentCardTags}>
-                      {lotTags.slice(0, 2).map((tag, i) => {
-                        const tagLower = tag.toLowerCase()
-                        let tagClass = styles.apartmentTag
-                        if (tagLower.includes('special') || tagLower.includes('price')) {
-                          tagClass = `${styles.apartmentTag} ${styles.tagPink}`
-                        } else if (tagLower.includes('new')) {
-                          tagClass = `${styles.apartmentTag} ${styles.tagTeal}`
-                        }
-                        return (
-                          <span key={i} className={tagClass}>
-                            {tag}
-                          </span>
-                        )
-                      })}
-                    </div>
-                    <button
-                      className={styles.favoriteBtn}
-                      onClick={e => {
-                        e.stopPropagation()
-                      }}
-                    >
-                      <Heart size={20} />
-                    </button>
-                  </div>
+                  lot={lot}
+                  projectName={project.name}
+                  areaName={project.area?.name}
+                  roi={projectDataFields?.roi}
+                  ourPrice={projectDataFields?.ourPrice}
+                  developerPrice={projectDataFields?.developerPrice}
+                />
+              ))}
+            </ApartmentsCarousel>
+          </section>
+        ))}
+      </div>
 
-                  <div className={styles.apartmentCardContent}>
-                    <h3 className={styles.apartmentCardTitle}>
-                      {lot.type || 'Unit'} - {lot.bedrooms} Bedrooms {lot.type || 'Mansion'}
-                    </h3>
+      <div className={styles.rightContent}>
+        {projectDataFields?.youtubeUrl && (
+          <YouTubePreview
+            url={projectDataFields.youtubeUrl}
+            size="medium"
+            className={styles.videoPreview}
+          />
+        )}
 
-                    <div className={styles.apartmentCardBadges}>
-                      <span className={styles.buildingBadge}>
-                        <Building2 size={14} />
-                        Building
-                      </span>
-                      {projectDataFields?.roi && (
-                        <span className={styles.roiBadge}>ROI {projectDataFields.roi}%</span>
-                      )}
-                    </div>
-
-                    <div className={styles.apartmentCardPrices}>
-                      {lot.priceAmount && (
-                        <div className={styles.apartmentOurPrice}>
-                          <span>Price</span>
-                          <span className={styles.priceAmount}>
-                            {formatPrice(lot.priceAmount, lot.priceCurrency)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={styles.apartmentCardSpecs}>
-                      <span className={styles.specLabel}>Apartments</span>
-                      <span>
-                        <IconBed /> {lot.bedrooms ?? '-'}
-                      </span>
-                      <span>
-                        <IconBath /> {lot.bathrooms ?? '-'}
-                      </span>
-                      <span>
-                        <IconArea /> {lot.areaSqm ?? '-'} m²
-                      </span>
-                    </div>
-
-                    <Button variant="primary" size="md" fullWidth className={styles.whatsappBtn}>
-                      Get Details on WhatsApp
-                    </Button>
-                  </div>
-                </div>
-              )
-            })}
+        {hasCoordinates && (
+          <div className={styles.mapThumbnail}>
+            <div ref={setMapContainerEl} className={styles.miniMap} />
+            <div className={styles.mapLocationLabel}>
+              <MapPin size={14} />
+              <span>{project.area?.name || 'Location'}</span>
+            </div>
           </div>
-        </section>
-      ))}
+        )}
+
+        {/* Project Timeline */}
+        {timelineItems.length > 0 && (
+          <div className={styles.timelineSection}>
+            <h2>Project timeline</h2>
+            <div className={styles.timelineCard}>
+              <div className={styles.timelineList}>
+                {timelineItems.map((item, idx) => (
+                  <div key={idx} className={styles.timelineItem}>
+                    <div
+                      className={`${styles.timelineDot} ${item.completed ? styles.timelineDotCompleted : ''}`}
+                    >
+                      {item.completed && <Check size={12} />}
+                    </div>
+                    <div className={styles.timelineContent}>
+                      <span className={styles.timelineLabel}>{item.label}</span>
+                      {item.value && <span className={styles.timelineDate}>{item.value}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Modals */}
       <Modal
