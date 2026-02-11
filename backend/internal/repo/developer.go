@@ -2,7 +2,6 @@ package repo
 
 import (
 	"database/sql"
-	"encoding/json"
 	"log/slog"
 	"rush-hour-platform/backend/internal/domain"
 
@@ -27,20 +26,11 @@ func (r *DeveloperRepo) Create(dev *domain.Developer) error {
 		"developer_name", dev.Name,
 	)
 
-	dataJSON, err := json.Marshal(dev.Data)
-	if err != nil {
-		r.logger.Error("developer_repo_create_marshal_failed",
-			"developer_slug", dev.Slug,
-			"error", err.Error(),
-		)
-		return err
-	}
-
-	err = r.db.QueryRow(`
-		INSERT INTO developers (slug, name, status, data)
+	err := r.db.QueryRow(`
+		INSERT INTO developers (slug, name, status, logo_url)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, created_at, updated_at, deleted_at
-	`, dev.Slug, dev.Name, dev.Status, dataJSON).Scan(
+	`, dev.Slug, dev.Name, dev.Status, nullableString(dev.LogoURL)).Scan(
 		&dev.ID, &dev.CreatedAt, &dev.UpdatedAt, &dev.DeletedAt,
 	)
 
@@ -65,21 +55,12 @@ func (r *DeveloperRepo) Update(id uuid.UUID, dev *domain.Developer) error {
 		"developer_id", id,
 	)
 
-	dataJSON, err := json.Marshal(dev.Data)
-	if err != nil {
-		r.logger.Error("developer_repo_update_marshal_failed",
-			"developer_id", id,
-			"error", err.Error(),
-		)
-		return err
-	}
-
-	err = r.db.QueryRow(`
+	err := r.db.QueryRow(`
 		UPDATE developers
-		SET slug = $1, name = $2, status = $3, data = $4, updated_at = NOW()
+		SET slug = $1, name = $2, status = $3, logo_url = $4, updated_at = NOW()
 		WHERE id = $5 AND deleted_at IS NULL
 		RETURNING updated_at
-	`, dev.Slug, dev.Name, dev.Status, dataJSON, id).Scan(&dev.UpdatedAt)
+	`, dev.Slug, dev.Name, dev.Status, nullableString(dev.LogoURL), id).Scan(&dev.UpdatedAt)
 
 	if err != nil {
 		r.logger.Error("developer_repo_update_failed",
@@ -103,14 +84,14 @@ func (r *DeveloperRepo) GetByID(id uuid.UUID) (*domain.Developer, error) {
 	)
 
 	var dev domain.Developer
-	var dataJSON []byte
+	var logoURL sql.NullString
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, data, created_at, updated_at, deleted_at
+		SELECT id, slug, name, status, logo_url, created_at, updated_at, deleted_at
 		FROM developers
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id).Scan(
-		&dev.ID, &dev.Slug, &dev.Name, &dev.Status, &dataJSON,
+		&dev.ID, &dev.Slug, &dev.Name, &dev.Status, &logoURL,
 		&dev.CreatedAt, &dev.UpdatedAt, &dev.DeletedAt,
 	)
 
@@ -128,16 +109,8 @@ func (r *DeveloperRepo) GetByID(id uuid.UUID) (*domain.Developer, error) {
 		return nil, err
 	}
 
-	if len(dataJSON) > 0 {
-		if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
-			r.logger.Error("developer_repo_get_by_id_unmarshal_failed",
-				"developer_id", id,
-				"error", err.Error(),
-			)
-			return nil, err
-		}
-	} else {
-		dev.Data = make(map[string]interface{})
+	if logoURL.Valid {
+		dev.LogoURL = logoURL.String
 	}
 
 	r.logger.Info("developer_repo_get_by_id_completed",
@@ -154,14 +127,14 @@ func (r *DeveloperRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Developer, err
 	)
 
 	var dev domain.Developer
-	var dataJSON []byte
+	var logoURL sql.NullString
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, data, created_at, updated_at, deleted_at
+		SELECT id, slug, name, status, logo_url, created_at, updated_at, deleted_at
 		FROM developers
 		WHERE id = $1
 	`, id).Scan(
-		&dev.ID, &dev.Slug, &dev.Name, &dev.Status, &dataJSON,
+		&dev.ID, &dev.Slug, &dev.Name, &dev.Status, &logoURL,
 		&dev.CreatedAt, &dev.UpdatedAt, &dev.DeletedAt,
 	)
 
@@ -179,16 +152,8 @@ func (r *DeveloperRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Developer, err
 		return nil, err
 	}
 
-	if len(dataJSON) > 0 {
-		if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
-			r.logger.Error("developer_repo_get_by_id_with_deleted_unmarshal_failed",
-				"developer_id", id,
-				"error", err.Error(),
-			)
-			return nil, err
-		}
-	} else {
-		dev.Data = make(map[string]interface{})
+	if logoURL.Valid {
+		dev.LogoURL = logoURL.String
 	}
 
 	r.logger.Info("developer_repo_get_by_id_with_deleted_completed",
@@ -199,11 +164,36 @@ func (r *DeveloperRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Developer, err
 	return &dev, nil
 }
 
+func (r *DeveloperRepo) scanDeveloperRows(rows *sql.Rows) ([]domain.Developer, error) {
+	var developers []domain.Developer
+	for rows.Next() {
+		var dev domain.Developer
+		var logoURL sql.NullString
+
+		if err := rows.Scan(
+			&dev.ID, &dev.Slug, &dev.Name, &dev.Status, &logoURL,
+			&dev.CreatedAt, &dev.UpdatedAt, &dev.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		if logoURL.Valid {
+			dev.LogoURL = logoURL.String
+		}
+
+		developers = append(developers, dev)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return developers, nil
+}
+
 func (r *DeveloperRepo) List() ([]domain.Developer, error) {
 	r.logger.Info("developer_repo_list_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, data, created_at, updated_at, deleted_at
+		SELECT id, slug, name, status, logo_url, created_at, updated_at, deleted_at
 		FROM developers
 		WHERE deleted_at IS NULL
 		ORDER BY name
@@ -216,39 +206,9 @@ func (r *DeveloperRepo) List() ([]domain.Developer, error) {
 	}
 	defer rows.Close()
 
-	var developers []domain.Developer
-	for rows.Next() {
-		var dev domain.Developer
-		var dataJSON []byte
-
-		if err := rows.Scan(
-			&dev.ID, &dev.Slug, &dev.Name, &dev.Status, &dataJSON,
-			&dev.CreatedAt, &dev.UpdatedAt, &dev.DeletedAt,
-		); err != nil {
-			r.logger.Error("developer_repo_list_scan_failed",
-				"error", err.Error(),
-			)
-			return nil, err
-		}
-
-		if len(dataJSON) > 0 {
-			if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
-				r.logger.Error("developer_repo_list_unmarshal_failed",
-					"developer_id", dev.ID,
-					"error", err.Error(),
-				)
-				return nil, err
-			}
-		} else {
-			dev.Data = make(map[string]interface{})
-		}
-
-		developers = append(developers, dev)
-	}
-
-	err = rows.Err()
+	developers, err := r.scanDeveloperRows(rows)
 	if err != nil {
-		r.logger.Error("developer_repo_list_rows_error",
+		r.logger.Error("developer_repo_list_scan_failed",
 			"error", err.Error(),
 		)
 		return nil, err
@@ -265,7 +225,7 @@ func (r *DeveloperRepo) ListDeleted() ([]domain.Developer, error) {
 	r.logger.Info("developer_repo_list_deleted_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, data, created_at, updated_at, deleted_at
+		SELECT id, slug, name, status, logo_url, created_at, updated_at, deleted_at
 		FROM developers
 		WHERE deleted_at IS NOT NULL
 		ORDER BY deleted_at DESC
@@ -278,39 +238,9 @@ func (r *DeveloperRepo) ListDeleted() ([]domain.Developer, error) {
 	}
 	defer rows.Close()
 
-	var developers []domain.Developer
-	for rows.Next() {
-		var dev domain.Developer
-		var dataJSON []byte
-
-		if err := rows.Scan(
-			&dev.ID, &dev.Slug, &dev.Name, &dev.Status, &dataJSON,
-			&dev.CreatedAt, &dev.UpdatedAt, &dev.DeletedAt,
-		); err != nil {
-			r.logger.Error("developer_repo_list_deleted_scan_failed",
-				"error", err.Error(),
-			)
-			return nil, err
-		}
-
-		if len(dataJSON) > 0 {
-			if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
-				r.logger.Error("developer_repo_list_deleted_unmarshal_failed",
-					"developer_id", dev.ID,
-					"error", err.Error(),
-				)
-				return nil, err
-			}
-		} else {
-			dev.Data = make(map[string]interface{})
-		}
-
-		developers = append(developers, dev)
-	}
-
-	err = rows.Err()
+	developers, err := r.scanDeveloperRows(rows)
 	if err != nil {
-		r.logger.Error("developer_repo_list_deleted_rows_error",
+		r.logger.Error("developer_repo_list_deleted_scan_failed",
 			"error", err.Error(),
 		)
 		return nil, err
@@ -327,7 +257,7 @@ func (r *DeveloperRepo) ListWithDeleted() ([]domain.Developer, error) {
 	r.logger.Info("developer_repo_list_with_deleted_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, data, created_at, updated_at, deleted_at
+		SELECT id, slug, name, status, logo_url, created_at, updated_at, deleted_at
 		FROM developers
 		ORDER BY name
 	`)
@@ -339,39 +269,9 @@ func (r *DeveloperRepo) ListWithDeleted() ([]domain.Developer, error) {
 	}
 	defer rows.Close()
 
-	var developers []domain.Developer
-	for rows.Next() {
-		var dev domain.Developer
-		var dataJSON []byte
-
-		if err := rows.Scan(
-			&dev.ID, &dev.Slug, &dev.Name, &dev.Status, &dataJSON,
-			&dev.CreatedAt, &dev.UpdatedAt, &dev.DeletedAt,
-		); err != nil {
-			r.logger.Error("developer_repo_list_with_deleted_scan_failed",
-				"error", err.Error(),
-			)
-			return nil, err
-		}
-
-		if len(dataJSON) > 0 {
-			if err := json.Unmarshal(dataJSON, &dev.Data); err != nil {
-				r.logger.Error("developer_repo_list_with_deleted_unmarshal_failed",
-					"developer_id", dev.ID,
-					"error", err.Error(),
-				)
-				return nil, err
-			}
-		} else {
-			dev.Data = make(map[string]interface{})
-		}
-
-		developers = append(developers, dev)
-	}
-
-	err = rows.Err()
+	developers, err := r.scanDeveloperRows(rows)
 	if err != nil {
-		r.logger.Error("developer_repo_list_with_deleted_rows_error",
+		r.logger.Error("developer_repo_list_with_deleted_scan_failed",
 			"error", err.Error(),
 		)
 		return nil, err

@@ -1,5 +1,6 @@
 import type { Lot } from '../../api'
-import { formatPrice } from './formatPrice'
+import { useSettings } from '../../features/Settings/Settings'
+import { formatPrice, formatArea } from '../../utils/format'
 import styles from './FloorPlanTable.module.scss'
 
 interface ApartmentCellProps {
@@ -17,7 +18,7 @@ export const ApartmentCell = ({
   onMouseLeave,
   onClick,
 }: ApartmentCellProps) => {
-  const price = formatPrice(lot.priceAmount, lot.priceCurrency)
+  const { currency, unit } = useSettings()
 
   return (
     <div
@@ -35,14 +36,12 @@ export const ApartmentCell = ({
         )}
         {lot.areaSqm !== undefined && lot.areaSqm !== null && (
           <div className={styles.apartmentArea}>
-            <span className={styles.areaValue}>{lot.areaSqm}</span>
-            <span className={styles.areaUnit}>m²</span>
+            <span className={styles.areaValue}>{formatArea(lot.areaSqm, unit)}</span>
           </div>
         )}
         {lot.priceAmount !== undefined && (
           <div className={styles.apartmentPrice}>
-            <span className={styles.priceValue}>{price.value}</span>
-            <span className={styles.priceCurrency}>{price.currency}</span>
+            <span className={styles.priceValue}>{formatPrice(lot.priceAmount, currency)}</span>
           </div>
         )}
       </div>

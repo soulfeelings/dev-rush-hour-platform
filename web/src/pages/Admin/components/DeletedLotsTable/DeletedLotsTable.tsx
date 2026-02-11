@@ -211,11 +211,7 @@ export function DeletedLotsTable({
               </td>
               <td>{lot.id?.slice(0, 8)}...</td>
               <td>{lot.type || '-'}</td>
-              <td>
-                {lot.priceAmount
-                  ? `${lot.priceAmount.toLocaleString()} ${lot.priceCurrency || ''}`
-                  : '-'}
-              </td>
+              <td>{lot.priceAmount ? `${lot.priceAmount.toLocaleString()} AED` : '-'}</td>
               <td>{lot.deletedAt ? new Date(lot.deletedAt).toLocaleDateString('en-US') : '-'}</td>
             </tr>
           ))}

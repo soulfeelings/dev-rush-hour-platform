@@ -1,0 +1,3 @@
+-- Rollback: This migration removes data, so rollback is not possible
+-- The discount field was removed from specs and cannot be restored without original values
+-- If needed, discount can be manually added back to specific projects

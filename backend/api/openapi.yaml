@@ -2097,17 +2097,12 @@ components:
             - type: object
               additionalProperties:
                 type: string
-        specs:
-          type: object
-          additionalProperties: true
         featuresAmenities:
           type: array
-          items: {}
+          items:
+            type: string
         media:
           $ref: "#/components/schemas/Media"
-        isRecommended:
-          type: boolean
-          description: Рекомендуемый проект
         isFeatured:
           type: boolean
           description: Избранный проект
@@ -2133,6 +2128,41 @@ components:
         paymentPlan:
           type: string
           description: Payment plan description
+        completionDate:
+          type: string
+          description: Expected completion date (e.g., Q4 2025, 2026)
+        priceFrom:
+          type: number
+          description: Starting price (AED)
+        currency:
+          type: string
+          description: Currency code (e.g., AED, USD)
+        propertyTypes:
+          type: array
+          items:
+            type: string
+          description: Available property types
+        bedrooms:
+          type: array
+          items:
+            type: string
+          description: Available bedroom configurations
+        areaSize:
+          type: number
+          description: Area size
+        areaUnit:
+          type: string
+          description: Unit for area measurement (sqm, sqft)
+        pricesByType:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              price:
+                type: number
+          description: Prices broken down by property type
 
     ProjectTimeline:
       type: object
@@ -2154,6 +2184,11 @@ components:
           type: string
           format: date
           description: Date of construction progress milestone
+        constructionProgressPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Construction progress percentage (0-100)
         expectedCompletion:
           type: string
           format: date
@@ -2167,6 +2202,9 @@ components:
         hover:
           $ref: "#/components/schemas/MediaItem"
           description: Hover image for the project card
+        logo:
+          $ref: "#/components/schemas/MediaItem"
+          description: Project logo
         gallery:
           type: array
           items:
@@ -2208,15 +2246,21 @@ components:
           type: number
         floor:
           type: integer
-        priceCurrency:
-          type: string
-          default: AED
         priceAmount:
           type: number
         bonusKeys:
           type: array
           items:
             type: string
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        badges:
+          type: array
+          items:
+            $ref: "#/components/schemas/Badge"
         data:
           $ref: "#/components/schemas/LotData"
         project:
@@ -2340,15 +2384,21 @@ components:
           type: number
         floor:
           type: integer
-        priceCurrency:
-          type: string
-          default: AED
         priceAmount:
           type: number
         bonusKeys:
           type: array
           items:
             type: string
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        badges:
+          type: array
+          items:
+            $ref: "#/components/schemas/Badge"
         data:
           $ref: "#/components/schemas/LotData"
         project:
@@ -2524,9 +2574,9 @@ components:
         status:
           type: string
           enum: [active, inactive]
-        data:
-          type: object
-          additionalProperties: true
+        logoUrl:
+          type: string
+          description: URL логотипа застройщика
         createdAt:
           type: string
           format: date-time
@@ -2549,8 +2599,6 @@ components:
           type: string
         name:
           type: string
-        status:
-          $ref: "#/components/schemas/CityStatus"
         createdAt:
           type: string
           format: date-time
@@ -2562,10 +2610,6 @@ components:
           format: date-time
           nullable: true
           description: Время мягкого удаления (если null - не удален)
-
-    CityStatus:
-      type: string
-      enum: [active, inactive]
 
     Badge:
       type: object
@@ -2586,8 +2630,9 @@ components:
         icon:
           type: string
           description: Icon name or URL
-        status:
-          $ref: "#/components/schemas/BadgeStatus"
+        iconColor:
+          type: string
+          description: Hex color code for icon (e.g. "#FFD400")
         sortOrder:
           type: integer
         createdAt:
@@ -2601,10 +2646,6 @@ components:
           format: date-time
           nullable: true
           description: Время мягкого удаления (если null - не удален)
-
-    BadgeStatus:
-      type: string
-      enum: [active, inactive]
 
     BadgeCreateRequest:
       type: object
@@ -2624,9 +2665,9 @@ components:
           default: "#FFFFFF"
         icon:
           type: string
-        status:
-          $ref: "#/components/schemas/BadgeStatus"
-          default: active
+        iconColor:
+          type: string
+          default: "#FFD400"
         sortOrder:
           type: integer
           default: 0
@@ -2644,8 +2685,8 @@ components:
           type: string
         icon:
           type: string
-        status:
-          $ref: "#/components/schemas/BadgeStatus"
+        iconColor:
+          type: string
         sortOrder:
           type: integer
 
@@ -2668,8 +2709,6 @@ components:
         icon:
           type: string
           description: Icon name or URL
-        status:
-          $ref: "#/components/schemas/InfrastructureStatus"
         sortOrder:
           type: integer
         createdAt:
@@ -2683,10 +2722,6 @@ components:
           format: date-time
           nullable: true
           description: Время мягкого удаления (если null - не удален)
-
-    InfrastructureStatus:
-      type: string
-      enum: [active, inactive]
 
     InfrastructureCreateRequest:
       type: object
@@ -2706,9 +2741,6 @@ components:
           default: "#FFFFFF"
         icon:
           type: string
-        status:
-          $ref: "#/components/schemas/InfrastructureStatus"
-          default: active
         sortOrder:
           type: integer
           default: 0
@@ -2726,8 +2758,6 @@ components:
           type: string
         icon:
           type: string
-        status:
-          $ref: "#/components/schemas/InfrastructureStatus"
         sortOrder:
           type: integer
 
@@ -2741,9 +2771,6 @@ components:
           type: string
         name:
           type: string
-        status:
-          $ref: "#/components/schemas/CityStatus"
-          default: active
 
     CityUpdateRequest:
       type: object
@@ -2752,8 +2779,6 @@ components:
           type: string
         name:
           type: string
-        status:
-          $ref: "#/components/schemas/CityStatus"
 
     FilterOptions:
       type: object
@@ -2820,9 +2845,9 @@ components:
           type: string
           enum: [active, inactive]
           default: active
-        data:
-          type: object
-          additionalProperties: true
+        logoUrl:
+          type: string
+          description: URL логотипа застройщика
 
     DeveloperUpdateRequest:
       type: object
@@ -2834,9 +2859,9 @@ components:
         status:
           type: string
           enum: [active, inactive]
-        data:
-          type: object
-          additionalProperties: true
+        logoUrl:
+          type: string
+          description: URL логотипа застройщика
 
     AreaCreateRequest:
       type: object
@@ -3005,15 +3030,17 @@ components:
           type: number
         floor:
           type: integer
-        priceCurrency:
-          type: string
-          default: AED
         priceAmount:
           type: number
         bonusKeys:
           type: array
           items:
             type: string
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
         data:
           $ref: "#/components/schemas/LotData"
 
@@ -3042,14 +3069,17 @@ components:
           type: number
         floor:
           type: integer
-        priceCurrency:
-          type: string
         priceAmount:
           type: number
         bonusKeys:
           type: array
           items:
             type: string
+        badgeIds:
+          type: array
+          items:
+            type: string
+            format: uuid
         data:
           $ref: "#/components/schemas/LotData"
 

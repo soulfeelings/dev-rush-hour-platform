@@ -58,41 +58,42 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	var bedrooms, bathrooms, floor sql.NullInt64
 	var areaSqm sql.NullFloat64
 	var bonusKeys pq.StringArray
-	
+	var badgeIDs pq.StringArray
+
 	// Переменные для вложенных объектов
 	var projSlug, projName, projSale, projStatus sql.NullString
-	var projDataJSON []byte
+	var projMediaJSON []byte
+	var projIsFeatured sql.NullBool
 	var projLat, projLng sql.NullFloat64
 	var projCreatedAt, projUpdatedAt sql.NullTime
-	
-	var devSlug, devName, devStatus sql.NullString
-	var devDataJSON []byte
+
+	var devSlug, devName, devStatus, devLogoURL sql.NullString
 	var devCreatedAt, devUpdatedAt sql.NullTime
-	
+
 	var areaSlug, areaName, areaCity, areaStatus sql.NullString
 	var areaDataJSON []byte
 	var areaLat, areaLng sql.NullFloat64
 	var areaCreatedAt, areaUpdatedAt sql.NullTime
 
 	err := r.db.QueryRow(`
-		SELECT 
+		SELECT
 			l.id, l.status, l.project_id, l.developer_id, l.area_id, l.type, l.bedrooms, l.bathrooms,
-			l.area_sqm, l.floor, l.price_currency, l.price_amount, l.bonus_keys, l.data, l.created_at, l.updated_at, l.deleted_at,
-			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.data, p.created_at, p.updated_at,
-			d.slug, d.name, d.status, d.data, d.created_at, d.updated_at,
+			l.area_sqm, l.floor, l.price_amount, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
+			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at,
+			d.slug, d.name, d.status, d.logo_url, d.created_at, d.updated_at,
 			a.slug, a.name, a.city, a.status, a.lat, a.lng, a.data, a.created_at, a.updated_at
 		FROM lots l
 		LEFT JOIN projects p ON l.project_id = p.id
 		LEFT JOIN developers d ON l.developer_id = d.id
 		LEFT JOIN areas a ON l.area_id = a.id
-		WHERE l.id = $1 AND l.deleted_at IS NULL 
+		WHERE l.id = $1 AND l.deleted_at IS NULL
 	`, id).Scan(
 		&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
 		&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-		&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+		&lot.PriceAmount, &bonusKeys, &badgeIDs, &dataJSON,
 		&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
-		&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projDataJSON, &projCreatedAt, &projUpdatedAt,
-		&devSlug, &devName, &devStatus, &devDataJSON, &devCreatedAt, &devUpdatedAt,
+		&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projMediaJSON, &projIsFeatured, &projCreatedAt, &projUpdatedAt,
+		&devSlug, &devName, &devStatus, &devLogoURL, &devCreatedAt, &devUpdatedAt,
 		&areaSlug, &areaName, &areaCity, &areaStatus, &areaLat, &areaLng, &areaDataJSON, &areaCreatedAt, &areaUpdatedAt,
 	)
 
@@ -138,6 +139,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		lot.Floor = &f
 	}
 	lot.BonusKeys = []string(bonusKeys)
+	lot.BadgeIDs = parseUUIDs([]string(badgeIDs))
 
 	if len(dataJSON) > 0 {
 		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
@@ -154,20 +156,20 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	// Заполняем вложенный проект, если данные есть
 	if projSlug.Valid {
 		projID := uuid.MustParse(projectID.String)
-		var projData domain.ProjectData
-		if len(projDataJSON) > 0 {
-			if err := json.Unmarshal(projDataJSON, &projData); err == nil {
-				// ignore unmarshal errors for now
-			}
-		}
 		lot.Project = &domain.Project{
-			ID:          projID,
-			Slug:        projSlug.String,
-			Name:        projName.String,
-			Status:      domain.ProjectStatus(projStatus.String),
-			Data:        projData,
-			CreatedAt:   projCreatedAt.Time,
-			UpdatedAt:   projUpdatedAt.Time,
+			ID:        projID,
+			Slug:      projSlug.String,
+			Name:      projName.String,
+			Status:    domain.ProjectStatus(projStatus.String),
+			CreatedAt: projCreatedAt.Time,
+			UpdatedAt: projUpdatedAt.Time,
+		}
+		if len(projMediaJSON) > 0 {
+			lot.Project.Media = &domain.Media{}
+			json.Unmarshal(projMediaJSON, lot.Project.Media)
+		}
+		if projIsFeatured.Valid {
+			lot.Project.IsFeatured = projIsFeatured.Bool
 		}
 		if projSale.Valid {
 			lot.Project.Sale = projSale.String
@@ -191,18 +193,12 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	// Заполняем вложенного застройщика, если данные есть
 	if devSlug.Valid {
 		devID := uuid.MustParse(developerID.String)
-		var devData map[string]interface{}
-		if len(devDataJSON) > 0 {
-			if err := json.Unmarshal(devDataJSON, &devData); err == nil {
-				// ignore unmarshal errors for now
-			}
-		}
 		lot.Developer = &domain.Developer{
 			ID:        devID,
 			Slug:      devSlug.String,
 			Name:      devName.String,
 			Status:    domain.DeveloperStatus(devStatus.String),
-			Data:      devData,
+			LogoURL:   devLogoURL.String,
 			CreatedAt: devCreatedAt.Time,
 			UpdatedAt: devUpdatedAt.Time,
 		}
@@ -247,9 +243,9 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 	query := `SELECT
 			l.id, l.status, l.project_id, l.developer_id, l.area_id, l.type, l.bedrooms, l.bathrooms,
-			l.area_sqm, l.floor, l.price_currency, l.price_amount, l.bonus_keys, l.data, l.created_at, l.updated_at,
-			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.data, p.created_at, p.updated_at,
-			d.slug, d.name, d.status, d.data, d.created_at, d.updated_at,
+			l.area_sqm, l.floor, l.price_amount, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at,
+			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at,
+			d.slug, d.name, d.status, d.logo_url, d.created_at, d.updated_at,
 			a.slug, a.name, a.city, a.status, a.lat, a.lng, a.data, a.created_at, a.updated_at
 		FROM lots l
 		LEFT JOIN projects p ON l.project_id = p.id
@@ -393,15 +389,16 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		var bedrooms, bathrooms, floor sql.NullInt64
 		var areaSqm sql.NullFloat64
 		var bonusKeys pq.StringArray
+		var badgeIDs pq.StringArray
 
 		// Переменные для вложенных объектов
 		var projSlug, projName, projSale, projStatus sql.NullString
-		var projDataJSON []byte
+		var projMediaJSON []byte
+		var projIsFeatured sql.NullBool
 		var projLat, projLng sql.NullFloat64
 		var projCreatedAt, projUpdatedAt sql.NullTime
 
-		var devSlug, devName, devStatus sql.NullString
-		var devDataJSON []byte
+		var devSlug, devName, devStatus, devLogoURL sql.NullString
 		var devCreatedAt, devUpdatedAt sql.NullTime
 
 		var areaSlug, areaName, areaCity, areaStatus sql.NullString
@@ -412,10 +409,10 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		if err := rows.Scan(
 			&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
 			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-			&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+			&lot.PriceAmount, &bonusKeys, &badgeIDs, &dataJSON,
 			&lot.CreatedAt, &lot.UpdatedAt,
-			&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projDataJSON, &projCreatedAt, &projUpdatedAt,
-			&devSlug, &devName, &devStatus, &devDataJSON, &devCreatedAt, &devUpdatedAt,
+			&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projMediaJSON, &projIsFeatured, &projCreatedAt, &projUpdatedAt,
+			&devSlug, &devName, &devStatus, &devLogoURL, &devCreatedAt, &devUpdatedAt,
 			&areaSlug, &areaName, &areaCity, &areaStatus, &areaLat, &areaLng, &areaDataJSON, &areaCreatedAt, &areaUpdatedAt,
 		); err != nil {
 			return nil, 0, err
@@ -449,6 +446,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 			lot.Floor = &f
 		}
 		lot.BonusKeys = []string(bonusKeys)
+		lot.BadgeIDs = parseUUIDs([]string(badgeIDs))
 
 		if len(dataJSON) > 0 {
 			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
@@ -465,20 +463,20 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		// Заполняем вложенный проект, если данные есть
 		if projSlug.Valid {
 			projID := uuid.MustParse(projectID.String)
-			var projData domain.ProjectData
-			if len(projDataJSON) > 0 {
-				if err := json.Unmarshal(projDataJSON, &projData); err == nil {
-					// ignore unmarshal errors for now
-				}
-			}
 			lot.Project = &domain.Project{
-				ID:          projID,
-				Slug:        projSlug.String,
-				Name:        projName.String,
-				Status:      domain.ProjectStatus(projStatus.String),
-				Data:        projData,
-				CreatedAt:   projCreatedAt.Time,
-				UpdatedAt:   projUpdatedAt.Time,
+				ID:        projID,
+				Slug:      projSlug.String,
+				Name:      projName.String,
+				Status:    domain.ProjectStatus(projStatus.String),
+				CreatedAt: projCreatedAt.Time,
+				UpdatedAt: projUpdatedAt.Time,
+			}
+			if len(projMediaJSON) > 0 {
+				lot.Project.Media = &domain.Media{}
+				json.Unmarshal(projMediaJSON, lot.Project.Media)
+			}
+			if projIsFeatured.Valid {
+				lot.Project.IsFeatured = projIsFeatured.Bool
 			}
 			if projSale.Valid {
 				lot.Project.Sale = projSale.String
@@ -502,20 +500,14 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		// Заполняем вложенного разработчика, если данные есть
 		if devSlug.Valid {
 			devID := uuid.MustParse(developerID.String)
-			var devData map[string]interface{}
-			if len(devDataJSON) > 0 {
-				if err := json.Unmarshal(devDataJSON, &devData); err == nil {
-					// ignore unmarshal errors for now
-				}
-			}
 			lot.Developer = &domain.Developer{
-				ID:          devID,
-				Slug:        devSlug.String,
-				Name:        devName.String,
-				Status:      domain.DeveloperStatus(devStatus.String),
-				Data:        devData,
-				CreatedAt:   devCreatedAt.Time,
-				UpdatedAt:   devUpdatedAt.Time,
+				ID:        devID,
+				Slug:      devSlug.String,
+				Name:      devName.String,
+				Status:    domain.DeveloperStatus(devStatus.String),
+				LogoURL:   devLogoURL.String,
+				CreatedAt: devCreatedAt.Time,
+				UpdatedAt: devUpdatedAt.Time,
 			}
 		}
 
@@ -607,10 +599,10 @@ func (r *LotRepo) Create(lot *domain.Lot) error {
 	}
 
 	err = r.db.QueryRow(`
-		INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bathrooms, area_sqm, floor, price_currency, price_amount, bonus_keys, data)
+		INSERT INTO lots (status, project_id, developer_id, area_id, type, bedrooms, bathrooms, area_sqm, floor, price_amount, bonus_keys, badge_ids, data)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 		RETURNING id, created_at, updated_at
-	`, lot.Status, projectID, developerID, areaID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceCurrency, lot.PriceAmount, pq.Array(lot.BonusKeys), dataJSON).Scan(
+	`, lot.Status, projectID, developerID, areaID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceAmount, pq.Array(lot.BonusKeys), pq.Array(uuidsToStrings(lot.BadgeIDs)), dataJSON).Scan(
 		&lot.ID, &lot.CreatedAt, &lot.UpdatedAt,
 	)
 
@@ -673,10 +665,10 @@ func (r *LotRepo) Update(id uuid.UUID, lot *domain.Lot) error {
 
 	err = r.db.QueryRow(`
 		UPDATE lots
-		SET status = $1, project_id = $2, developer_id = $3, area_id = $4, type = $5, bedrooms = $6, bathrooms = $7, area_sqm = $8, floor = $9, price_currency = $10, price_amount = $11, bonus_keys = $12, data = $13, updated_at = NOW()
+		SET status = $1, project_id = $2, developer_id = $3, area_id = $4, type = $5, bedrooms = $6, bathrooms = $7, area_sqm = $8, floor = $9, price_amount = $10, bonus_keys = $11, badge_ids = $12, data = $13, updated_at = NOW()
 		WHERE id = $14 AND deleted_at IS NULL
 		RETURNING updated_at
-	`, lot.Status, projectID, developerID, areaID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceCurrency, lot.PriceAmount, pq.Array(lot.BonusKeys), dataJSON, id).Scan(&lot.UpdatedAt)
+	`, lot.Status, projectID, developerID, areaID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceAmount, pq.Array(lot.BonusKeys), pq.Array(uuidsToStrings(lot.BadgeIDs)), dataJSON, id).Scan(&lot.UpdatedAt)
 
 	if err != nil {
 		r.logger.Error("lot_repo_update_failed",
@@ -709,7 +701,7 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 
 	query := `
 		SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
-		       area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at
+		       area_sqm, floor, price_amount, bonus_keys, badge_ids, data, created_at, updated_at
 		FROM lots
 		WHERE project_id = $1 AND status = 'active'
 		ORDER BY created_at DESC
@@ -735,11 +727,12 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 		var bedrooms, bathrooms, floor sql.NullInt64
 		var areaSqm sql.NullFloat64
 		var bonusKeys pq.StringArray
+		var badgeIDs pq.StringArray
 
 		if err := rows.Scan(
 			&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
 			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-			&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+			&lot.PriceAmount, &bonusKeys, &badgeIDs, &dataJSON,
 			&lot.CreatedAt, &lot.UpdatedAt,
 		); err != nil {
 			return nil, err
@@ -773,6 +766,7 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 			lot.Floor = &f
 		}
 		lot.BonusKeys = []string(bonusKeys)
+		lot.BadgeIDs = parseUUIDs([]string(badgeIDs))
 
 		if len(dataJSON) > 0 {
 			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
@@ -837,7 +831,7 @@ func (r *LotRepo) ListAll() ([]domain.Lot, error) {
 
 	rows, err := r.db.Query(`
 		SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
-		       area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at, deleted_at
+		       area_sqm, floor, price_amount, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
 		FROM lots
 		WHERE deleted_at IS NULL
 		ORDER BY created_at DESC
@@ -858,11 +852,12 @@ func (r *LotRepo) ListAll() ([]domain.Lot, error) {
 		var bedrooms, bathrooms, floor sql.NullInt64
 		var areaSqm sql.NullFloat64
 		var bonusKeys pq.StringArray
+		var badgeIDs pq.StringArray
 
 		if err := rows.Scan(
 			&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
 			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-			&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+			&lot.PriceAmount, &bonusKeys, &badgeIDs, &dataJSON,
 			&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -896,6 +891,7 @@ func (r *LotRepo) ListAll() ([]domain.Lot, error) {
 			lot.Floor = &f
 		}
 		lot.BonusKeys = []string(bonusKeys)
+		lot.BadgeIDs = parseUUIDs([]string(badgeIDs))
 
 		if len(dataJSON) > 0 {
 			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
@@ -920,7 +916,7 @@ func (r *LotRepo) ListDeleted() ([]domain.Lot, error) {
 
 	rows, err := r.db.Query(`
 		SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
-		       area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at, deleted_at
+		       area_sqm, floor, price_amount, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
 		FROM lots
 		WHERE deleted_at IS NOT NULL
 		ORDER BY deleted_at DESC
@@ -941,11 +937,12 @@ func (r *LotRepo) ListDeleted() ([]domain.Lot, error) {
 		var bedrooms, bathrooms, floor sql.NullInt64
 		var areaSqm sql.NullFloat64
 		var bonusKeys pq.StringArray
+		var badgeIDs pq.StringArray
 
 		if err := rows.Scan(
 			&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
 			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-			&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+			&lot.PriceAmount, &bonusKeys, &badgeIDs, &dataJSON,
 			&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 		); err != nil {
 			r.logger.Error("lot_repo_list_deleted_scan_failed",
@@ -982,6 +979,7 @@ func (r *LotRepo) ListDeleted() ([]domain.Lot, error) {
 			lot.Floor = &f
 		}
 		lot.BonusKeys = []string(bonusKeys)
+		lot.BadgeIDs = parseUUIDs([]string(badgeIDs))
 
 		if len(dataJSON) > 0 {
 			if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
@@ -1012,16 +1010,17 @@ func (r *LotRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Lot, error) {
 	var bedrooms, bathrooms, floor sql.NullInt64
 	var areaSqm sql.NullFloat64
 	var bonusKeys pq.StringArray
+	var badgeIDs pq.StringArray
 
 	err := r.db.QueryRow(`
 		SELECT id, status, project_id, developer_id, area_id, type, bedrooms, bathrooms,
-		       area_sqm, floor, price_currency, price_amount, bonus_keys, data, created_at, updated_at, deleted_at
+		       area_sqm, floor, price_amount, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
 		FROM lots
 		WHERE id = $1
 	`, id).Scan(
 		&lot.ID, &lot.Status, &projectID, &developerID, &areaID,
 		&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-		&lot.PriceCurrency, &lot.PriceAmount, &bonusKeys, &dataJSON,
+		&lot.PriceAmount, &bonusKeys, &badgeIDs, &dataJSON,
 		&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 	)
 
@@ -1060,6 +1059,7 @@ func (r *LotRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Lot, error) {
 		lot.Floor = &f
 	}
 	lot.BonusKeys = []string(bonusKeys)
+	lot.BadgeIDs = parseUUIDs([]string(badgeIDs))
 
 	if len(dataJSON) > 0 {
 		if err := json.Unmarshal(dataJSON, &lot.Data); err != nil {
@@ -1102,4 +1102,22 @@ func (r *LotRepo) HardDelete(id uuid.UUID) error {
 
 	r.logger.Info("lot_repo_hard_delete_completed", "lot_id", id)
 	return nil
+}
+
+func parseUUIDs(strs []string) []uuid.UUID {
+	result := make([]uuid.UUID, 0, len(strs))
+	for _, s := range strs {
+		if id, err := uuid.Parse(s); err == nil {
+			result = append(result, id)
+		}
+	}
+	return result
+}
+
+func uuidsToStrings(ids []uuid.UUID) []string {
+	result := make([]string, len(ids))
+	for i, id := range ids {
+		result[i] = id.String()
+	}
+	return result
 }

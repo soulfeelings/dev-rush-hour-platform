@@ -23,6 +23,11 @@ export * from './YouTubePreview'
 export * from './Typography'
 export * from './Link'
 
+// Data Display
+export * from './Badge'
+export * from './RoiBadge'
+export * from './InfrastructureTag'
+
 // Feedback
 export * from './Toast'
 export * from './Tooltip'

@@ -1,107 +1,12 @@
 import type { Property, PriceByType, PropertyBadge } from '../types/property'
-
-// Тип для API проекта (фактическая структура из backend)
-interface ApiProject {
-  id?: string
-  slug?: string
-  name?: string
-  status?: string
-  sale?: string
-  developerId?: string
-  areaId?: string
-  lat?: number
-  lng?: number
-  data?: {
-    description?: string
-    specs?: Record<string, unknown>
-    featuresAmenities?: unknown[]
-    media?: {
-      cover?: {
-        url?: string
-      }
-      hover?: {
-        url?: string
-      }
-      gallery?: Array<{
-        url: string
-      }>
-    }
-    // Эти поля находятся в корне data, не в specs
-    isRecommended?: boolean
-    isFeatured?: boolean
-    tags?: string[]
-  }
-  // Вложенные данные от бэкенда (если включены)
-  developer?: {
-    name?: string
-    data?: {
-      logoUrl?: string
-    }
-  }
-  area?: {
-    name?: string
-    city?: string
-  }
-  badges?: Array<{
-    id?: string
-    slug?: string
-    name?: string
-    backgroundColor?: string
-    textColor?: string
-    icon?: string
-  }>
-  createdAt?: string
-  updatedAt?: string
-}
+import type { Project } from '../api/generated/schemas/project'
+import type { LotListItem } from '../api/generated/schemas/lotListItem'
 
 // Функция для преобразования API Project в Property формат
-export function apiProjectToProperty(apiProject: ApiProject): Property {
-  // Извлекаем данные из API ответа
-  const specs = apiProject.data?.specs as Record<string, unknown> | undefined
-  const media = apiProject.data?.media
-  const description = apiProject.data?.description
-
-  // Получаем основные поля
-  // Используем slug как ID для навигации к деталям проекта
-  const id = apiProject.slug || apiProject.id || ''
-  const title = apiProject.name || ''
-  const location = apiProject.area?.name || 'Dubai'
-  const developer = apiProject.developer?.name || 'Developer'
-  const logoUrl = apiProject.developer?.data?.logoUrl
-  const status = apiProject.status === 'active' ? 'active' : 'inactive'
-
-  // Получаем specs данные
-  const priceFrom = (specs?.priceFrom as number) ?? 0
-  const currency = (specs?.currency as string) ?? 'AED'
-  const types = (specs?.types as string[]) ?? ['Первичная']
-  const bedrooms = (specs?.bedrooms as string[]) ?? ['Ст']
-  const completionDate = (specs?.completionDate as string) ?? '2025-01-01'
-
-  // Новые поля для карточки
-  const discount = (specs?.discount as number) ?? undefined
-  const roi = (specs?.roi as number) ?? undefined
-  const paymentPlan = (specs?.paymentPlan as string) ?? undefined
-  const pricesByType = (specs?.pricesByType as PriceByType[]) ?? undefined
-
-  // Получаем изображения
-  const image =
-    media?.cover?.url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
-  const hoverImage = media?.hover?.url
-  const gallery = media?.gallery?.map(item => item.url)
-
-  // Получаем координаты
-  const coordinates: [number, number] = [
-    apiProject.lat ? Number(apiProject.lat) : 25.1972,
-    apiProject.lng ? Number(apiProject.lng) : 55.2744,
-  ]
-
-  // Получаем sale из базы данных
-  const sale = getSaleFromStatus(apiProject.sale)
-
-  // isRecommended, isFeatured, tags находятся в корне data, не в specs!
-  const isRecommended = apiProject.data?.isRecommended ?? false
-  const isFeatured = apiProject.data?.isFeatured ?? false
-  const tags = apiProject.data?.tags ?? []
+export function apiProjectToProperty(apiProject: Project): Property {
+  const data = apiProject.data
+  const media = data?.media
+  const description = data?.description
 
   // Transform badges
   const badges: PropertyBadge[] = (apiProject.badges ?? [])
@@ -113,36 +18,49 @@ export function apiProjectToProperty(apiProject: ApiProject): Property {
       backgroundColor: b.backgroundColor ?? '#000000',
       textColor: b.textColor ?? '#FFFFFF',
       icon: b.icon,
+      iconColor: b.iconColor,
     }))
 
+  // Coordinates tuple
+  const coordinates: [number, number] | undefined =
+    apiProject.lat !== undefined && apiProject.lng !== undefined
+      ? [apiProject.lat, apiProject.lng]
+      : undefined
+
+  // Calculate discount from ourPrice and developerPrice
+  const ourPrice = data?.ourPrice
+  const developerPrice = data?.developerPrice
+  let discount: number | undefined
+  if (ourPrice && developerPrice && developerPrice > ourPrice) {
+    discount = Math.round((1 - ourPrice / developerPrice) * 100)
+  }
+
   return {
-    id,
-    title,
-    location,
-    developer,
-    logoUrl,
-    priceFrom,
-    currency,
-    types,
-    bedrooms,
-    completionDate,
-    area: (specs?.area as number) ?? 0,
-    areaUnit: (specs?.areaUnit as string) ?? 'sq. ft.',
-    image,
-    hoverImage,
-    gallery,
+    id: apiProject.slug || apiProject.id || '',
+    title: apiProject.name || '',
+    location: apiProject.area?.name,
+    developer: apiProject.developer?.name,
+    logoUrl: media?.logo?.url,
+    priceFrom: data?.ourPrice ?? data?.priceFrom,
+    currency: data?.currency,
+    types: data?.propertyTypes,
+    bedrooms: data?.bedrooms,
+    completionDate: data?.completionDate,
+    area: data?.areaSize,
+    areaUnit: data?.areaUnit,
+    image: media?.cover?.url,
+    hoverImage: media?.hover?.url,
+    gallery: media?.gallery?.map(item => item.url).filter((url): url is string => !!url),
     coordinates,
-    sale,
-    status,
-    description: typeof description === 'string' ? description : '',
-    isRecommended,
-    isFeatured,
-    tags,
-    // Новые поля для карточки
+    sale: getSaleFromStatus(apiProject.sale),
+    status: apiProject.status === 'active' ? 'active' : 'inactive',
+    description: typeof description === 'string' ? description : undefined,
+    isFeatured: data?.isFeatured,
+    tags: data?.tags,
     discount,
-    roi,
-    paymentPlan,
-    pricesByType,
+    roi: data?.roi,
+    paymentPlan: data?.paymentPlan,
+    pricesByType: data?.pricesByType as PriceByType[] | undefined,
     badges: badges.length > 0 ? badges : undefined,
   }
 }
@@ -157,123 +75,51 @@ function getSaleFromStatus(sale?: string): Property['sale'] {
     case 'sales announcement':
       return 'sales announcement'
     default:
-      return 'sale'
+      return undefined
   }
 }
 
 // Функция для преобразования массива API проектов
-export function apiProjectsToProperties(apiProjects: unknown[]): Property[] {
-  return (apiProjects as ApiProject[]).map(apiProjectToProperty)
-}
-
-// Тип для API лота с вложенными данными
-interface ApiLot {
-  id?: string
-  projectId?: string
-  type?: string
-  bedrooms?: number
-  bathrooms?: number
-  areaSqm?: number
-  floor?: number
-  priceCurrency?: string
-  priceAmount?: number
-  data?: {
-    media?: {
-      cover?: {
-        url?: string
-      }
-      photos?: Array<{
-        url?: string
-      }>
-    }
-  }
-  project?: {
-    id?: string
-    slug?: string
-    name?: string
-    lat?: number
-    lng?: number
-    sale?: string
-    status?: string
-    developer?: {
-      name?: string
-      data?: {
-        logoUrl?: string
-      }
-    }
-    area?: {
-      name?: string
-    }
-  }
-  developer?: {
-    name?: string
-    data?: {
-      logoUrl?: string
-    }
-  }
-  area?: {
-    name?: string
-  }
+export function apiProjectsToProperties(apiProjects: Project[]): Property[] {
+  return apiProjects.map(apiProjectToProperty)
 }
 
 // Функция для преобразования лота в Property для карты (использует координаты проекта)
-export function apiLotToPropertyForMap(apiLot: ApiLot): Property | null {
-  // Для карты нужны координаты проекта
+export function apiLotToPropertyForMap(apiLot: LotListItem): Property | null {
   const project = apiLot.project
+  // Для карты нужны координаты проекта
   if (!project || project.lat === undefined || project.lng === undefined) {
     return null
   }
 
-  const projectName = project.name || 'Project'
-  const developerName = project.developer?.name || apiLot.developer?.name || 'Developer'
-  const location = project.area?.name || apiLot.area?.name || 'Dubai'
-  const logoUrl = project.developer?.data?.logoUrl || apiLot.developer?.data?.logoUrl
+  const logoUrl =
+    project.data?.media?.logo?.url || project.developer?.logoUrl || apiLot.developer?.logoUrl
 
   const typeLabel = apiLot.type ? apiLot.type.charAt(0).toUpperCase() + apiLot.type.slice(1) : ''
   const bedroomsLabel = apiLot.bedrooms ? `${apiLot.bedrooms} BR` : ''
-  const price = apiLot.priceAmount || 0
-  const currency = apiLot.priceCurrency || 'AED'
-
-  const image =
-    apiLot.data?.media?.cover?.url ||
-    apiLot.data?.media?.photos?.[0]?.url ||
-    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
-
-  const coordinates: [number, number] = [
-    project.lat ? Number(project.lat) : 25.1972,
-    project.lng ? Number(project.lng) : 55.2744,
-  ]
-
-  const sale = getSaleFromStatus(project.sale)
-  const status = project.status === 'active' ? 'active' : 'inactive'
 
   return {
     id: apiLot.id || '',
-    title: `${projectName} - ${typeLabel} ${bedroomsLabel}`.trim(),
-    location,
-    developer: developerName,
+    title: [project.name, typeLabel, bedroomsLabel].filter(Boolean).join(' - '),
+    location: project.area?.name || apiLot.area?.name,
+    developer: project.developer?.name || apiLot.developer?.name,
     logoUrl,
-    priceFrom: price,
-    currency,
-    types: [typeLabel],
-    bedrooms: bedroomsLabel ? [bedroomsLabel] : [],
-    completionDate: '',
-    area: apiLot.areaSqm || 0,
-    areaUnit: 'sqm',
-    image,
-    coordinates,
-    sale,
-    status,
-    description: '',
-    isRecommended: false,
-    isFeatured: false,
-    tags: [],
+    priceFrom: apiLot.priceAmount,
+    types: typeLabel ? [typeLabel] : undefined,
+    bedrooms: bedroomsLabel ? [bedroomsLabel] : undefined,
+    completionDate: undefined,
+    area: apiLot.areaSqm,
+    areaUnit: apiLot.areaSqm ? 'sqm' : undefined,
+    image: apiLot.data?.media?.cover?.url || apiLot.data?.media?.photos?.[0]?.url,
+    coordinates: [project.lat, project.lng],
+    sale: getSaleFromStatus(project.sale),
+    status: project.status === 'active' ? 'active' : 'inactive',
   }
 }
 
 // Функция для преобразования массива лотов в Property для карты
-export function apiLotsToPropertiesForMap(apiLots: unknown[]): Property[] {
-  return (apiLots as ApiLot[])
+export function apiLotsToPropertiesForMap(apiLots: LotListItem[]): Property[] {
+  return apiLots
     .map(apiLotToPropertyForMap)
     .filter((property): property is Property => property !== null)
 }

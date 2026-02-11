@@ -7,6 +7,30 @@
   box-sizing: border-box;
 }
 
+/* Global scrollbar styles — consistent across all platforms */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e0d8 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #e5e0d8;
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #cdc8c0;
+}
+
 html {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -24,6 +48,10 @@ body {
   height: 100vh;
 }
 
+[dir='rtl'] {
+  font-family: 'Noto Naskh Arabic', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
 #root {
   display: flex;
   flex-direction: column;
@@ -37,6 +65,7 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   max-width: none !important;
   width: auto !important;
+  background: transparent !important;
 }
 
 .marker-popup .leaflet-popup-content {

@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Map, LayoutGrid, ChevronRight } from 'lucide-react'
 import { Select } from '../../ui/Select'
 import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
@@ -88,24 +89,27 @@ const useIsDesktop = () => {
 
 type SortValue = 'default' | ListProjectsSort
 
-const sortOptions: Array<{ value: SortValue; label: string }> = [
-  { value: 'default', label: 'Default' },
-  { value: ListProjectsSort.price_asc, label: 'Price: Low to High' },
-  { value: ListProjectsSort.price_desc, label: 'Price: High to Low' },
-  { value: ListProjectsSort.newest, label: 'Date: Newest First' },
-]
-
 // =====================================
 // CATALOG COMPONENT (PROJECTS ONLY)
 // =====================================
 
 export default function Catalog() {
   const { filters, updateFilter } = useFilters()
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | undefined>()
   const [layoutMode, setLayoutMode] = useState<DesktopView>(loadLayoutMode)
   const [mobileView, setMobileView] = useState<MobileView>(loadMobileView)
   const mapRef = useRef<PropertyMapRef | null>(null)
   const isDesktop = useIsDesktop()
+  const { t } = useTranslation()
+
+  const sortOptions = useMemo(
+    () => [
+      { value: 'default' as SortValue, label: t('catalog.sort.default') },
+      { value: ListProjectsSort.price_asc as SortValue, label: t('catalog.sort.priceAsc') },
+      { value: ListProjectsSort.price_desc as SortValue, label: t('catalog.sort.priceDesc') },
+      { value: ListProjectsSort.newest as SortValue, label: t('catalog.sort.dateAsc') },
+    ],
+    [t]
+  )
 
   const sortValue = (filters.sort || 'default') as SortValue
 
@@ -227,10 +231,6 @@ export default function Catalog() {
     setTimeout(() => mapRef.current?.refreshMap(), 350)
   }, [isDesktop])
 
-  const handlePropertyClick = (propertyId: string) => {
-    setSelectedPropertyId(propertyId === selectedPropertyId ? undefined : propertyId)
-  }
-
   const activeProperties = projects.filter(p => p.status === 'active')
   const totalResults = activeProperties.length
   const displayedResults = activeProperties.filter(p => !p.isFeatured).length
@@ -239,11 +239,11 @@ export default function Catalog() {
     <div className={styles.catalogContent}>
       <div className={styles.resultsHeader}>
         <span className={styles.resultsCount}>
-          {displayedResults} of {totalResults} projects
+          {t('catalog.results.count', { displayed: displayedResults, total: totalResults })}
         </span>
         <div className={styles.headerActions}>
           <div className={styles.sortContainer}>
-            <span className={styles.sortLabel}>Sort by</span>
+            <span className={styles.sortLabel}>{t('catalog.sort.label')}</span>
             <Select
               options={sortOptions}
               value={sortValue}
@@ -260,14 +260,7 @@ export default function Catalog() {
     </div>
   )
 
-  const mapContent = (
-    <PropertyMap
-      ref={mapRef}
-      properties={activeProperties}
-      selectedPropertyId={selectedPropertyId}
-      onPropertyClick={handlePropertyClick}
-    />
-  )
+  const mapContent = <PropertyMap ref={mapRef} properties={activeProperties} />
 
   return (
     <div className={styles.container}>
@@ -308,11 +301,11 @@ export default function Catalog() {
             >
               {mobileView === 'list' ? (
                 <>
-                  <Map size={18} /> Map
+                  <Map size={18} /> {t('catalog.map.button')}
                 </>
               ) : (
                 <>
-                  <LayoutGrid size={18} /> List
+                  <LayoutGrid size={18} /> {t('catalog.list.button')}
                 </>
               )}
             </button>

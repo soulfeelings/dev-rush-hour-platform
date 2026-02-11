@@ -17,9 +17,9 @@ type Lot struct {
 	Bathrooms     *int
 	AreaSqm       *float64
 	Floor         *int
-	PriceCurrency string
 	PriceAmount   float64
 	BonusKeys     []string
+	BadgeIDs      []uuid.UUID
 	Data          LotData
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
@@ -28,6 +28,7 @@ type Lot struct {
 	Project       *Project   `json:"project,omitempty"`
 	Developer     *Developer `json:"developer,omitempty"`
 	Area          *Area      `json:"area,omitempty"`
+	Badges        []Badge    `json:"badges,omitempty"`
 }
 
 type LotData struct {

@@ -24,9 +24,9 @@ func (r *BadgeRepo) List() ([]domain.Badge, error) {
 	r.logger.Info("badge_repo_list_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at
+		SELECT id, slug, name, background_color, text_color, icon, icon_color, sort_order, created_at, updated_at
 		FROM badges
-		WHERE status = 'active' AND deleted_at IS NULL
+		WHERE deleted_at IS NULL
 		ORDER BY sort_order, name
 	`)
 	if err != nil {
@@ -43,7 +43,7 @@ func (r *BadgeRepo) List() ([]domain.Badge, error) {
 
 		if err := rows.Scan(
 			&badge.ID, &badge.Slug, &badge.Name, &badge.BackgroundColor, &badge.TextColor,
-			&badge.Icon, &badge.Status, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt,
+			&badge.Icon, &badge.IconColor, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt,
 		); err != nil {
 			r.logger.Error("badge_repo_list_scan_failed",
 				"error", err.Error(),
@@ -73,7 +73,7 @@ func (r *BadgeRepo) ListAll() ([]domain.Badge, error) {
 	r.logger.Info("badge_repo_list_all_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at, deleted_at
+		SELECT id, slug, name, background_color, text_color, icon, icon_color, sort_order, created_at, updated_at, deleted_at
 		FROM badges
 		WHERE deleted_at IS NULL
 		ORDER BY sort_order, name
@@ -92,7 +92,7 @@ func (r *BadgeRepo) ListAll() ([]domain.Badge, error) {
 
 		if err := rows.Scan(
 			&badge.ID, &badge.Slug, &badge.Name, &badge.BackgroundColor, &badge.TextColor,
-			&badge.Icon, &badge.Status, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt, &badge.DeletedAt,
+			&badge.Icon, &badge.IconColor, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt, &badge.DeletedAt,
 		); err != nil {
 			r.logger.Error("badge_repo_list_all_scan_failed",
 				"error", err.Error(),
@@ -126,12 +126,12 @@ func (r *BadgeRepo) GetByID(id uuid.UUID) (*domain.Badge, error) {
 	var badge domain.Badge
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at, deleted_at
+		SELECT id, slug, name, background_color, text_color, icon, icon_color, sort_order, created_at, updated_at, deleted_at
 		FROM badges
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id).Scan(
 		&badge.ID, &badge.Slug, &badge.Name, &badge.BackgroundColor, &badge.TextColor,
-		&badge.Icon, &badge.Status, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt, &badge.DeletedAt,
+		&badge.Icon, &badge.IconColor, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt, &badge.DeletedAt,
 	)
 
 	if err != nil {
@@ -164,12 +164,12 @@ func (r *BadgeRepo) GetBySlug(slug string) (*domain.Badge, error) {
 	var badge domain.Badge
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at
+		SELECT id, slug, name, background_color, text_color, icon, icon_color, sort_order, created_at, updated_at
 		FROM badges
 		WHERE slug = $1 AND deleted_at IS NULL
 	`, slug).Scan(
 		&badge.ID, &badge.Slug, &badge.Name, &badge.BackgroundColor, &badge.TextColor,
-		&badge.Icon, &badge.Status, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt,
+		&badge.Icon, &badge.IconColor, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt,
 	)
 
 	if err != nil {
@@ -201,10 +201,10 @@ func (r *BadgeRepo) Create(badge *domain.Badge) error {
 	)
 
 	err := r.db.QueryRow(`
-		INSERT INTO badges (slug, name, background_color, text_color, icon, status, sort_order)
+		INSERT INTO badges (slug, name, background_color, text_color, icon, icon_color, sort_order)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at
-	`, badge.Slug, badge.Name, badge.BackgroundColor, badge.TextColor, badge.Icon, badge.Status, badge.SortOrder).Scan(
+	`, badge.Slug, badge.Name, badge.BackgroundColor, badge.TextColor, badge.Icon, badge.IconColor, badge.SortOrder).Scan(
 		&badge.ID, &badge.CreatedAt, &badge.UpdatedAt,
 	)
 
@@ -231,10 +231,10 @@ func (r *BadgeRepo) Update(id uuid.UUID, badge *domain.Badge) error {
 
 	err := r.db.QueryRow(`
 		UPDATE badges
-		SET slug = $1, name = $2, background_color = $3, text_color = $4, icon = $5, status = $6, sort_order = $7, updated_at = NOW()
+		SET slug = $1, name = $2, background_color = $3, text_color = $4, icon = $5, icon_color = $6, sort_order = $7, updated_at = NOW()
 		WHERE id = $8 AND deleted_at IS NULL
 		RETURNING updated_at
-	`, badge.Slug, badge.Name, badge.BackgroundColor, badge.TextColor, badge.Icon, badge.Status, badge.SortOrder, id).Scan(&badge.UpdatedAt)
+	`, badge.Slug, badge.Name, badge.BackgroundColor, badge.TextColor, badge.Icon, badge.IconColor, badge.SortOrder, id).Scan(&badge.UpdatedAt)
 
 	if err != nil {
 		r.logger.Error("badge_repo_update_failed",
@@ -286,10 +286,10 @@ func (r *BadgeRepo) GetProjectBadges(projectID uuid.UUID) ([]domain.Badge, error
 	)
 
 	rows, err := r.db.Query(`
-		SELECT b.id, b.slug, b.name, b.background_color, b.text_color, b.icon, b.status, b.sort_order, b.created_at, b.updated_at
+		SELECT b.id, b.slug, b.name, b.background_color, b.text_color, b.icon, b.icon_color, b.sort_order, b.created_at, b.updated_at
 		FROM badges b
 		INNER JOIN project_badges pb ON b.id = pb.badge_id
-		WHERE pb.project_id = $1 AND b.status = 'active' AND b.deleted_at IS NULL
+		WHERE pb.project_id = $1 AND b.deleted_at IS NULL
 		ORDER BY pb.sort_order, b.sort_order
 	`, projectID)
 	if err != nil {
@@ -306,7 +306,7 @@ func (r *BadgeRepo) GetProjectBadges(projectID uuid.UUID) ([]domain.Badge, error
 		var badge domain.Badge
 		if err := rows.Scan(
 			&badge.ID, &badge.Slug, &badge.Name, &badge.BackgroundColor, &badge.TextColor,
-			&badge.Icon, &badge.Status, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt,
+			&badge.Icon, &badge.IconColor, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt,
 		); err != nil {
 			r.logger.Error("badge_repo_get_project_badges_scan_failed",
 				"error", err.Error(),
@@ -381,10 +381,10 @@ func (r *BadgeRepo) GetLotBadges(lotID uuid.UUID) ([]domain.Badge, error) {
 	)
 
 	rows, err := r.db.Query(`
-		SELECT b.id, b.slug, b.name, b.background_color, b.text_color, b.icon, b.status, b.sort_order, b.created_at, b.updated_at
+		SELECT b.id, b.slug, b.name, b.background_color, b.text_color, b.icon, b.icon_color, b.sort_order, b.created_at, b.updated_at
 		FROM badges b
 		INNER JOIN lot_badges lb ON b.id = lb.badge_id
-		WHERE lb.lot_id = $1 AND b.status = 'active' AND b.deleted_at IS NULL
+		WHERE lb.lot_id = $1 AND b.deleted_at IS NULL
 		ORDER BY lb.sort_order, b.sort_order
 	`, lotID)
 	if err != nil {
@@ -401,7 +401,7 @@ func (r *BadgeRepo) GetLotBadges(lotID uuid.UUID) ([]domain.Badge, error) {
 		var badge domain.Badge
 		if err := rows.Scan(
 			&badge.ID, &badge.Slug, &badge.Name, &badge.BackgroundColor, &badge.TextColor,
-			&badge.Icon, &badge.Status, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt,
+			&badge.Icon, &badge.IconColor, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt,
 		); err != nil {
 			r.logger.Error("badge_repo_get_lot_badges_scan_failed",
 				"error", err.Error(),
@@ -472,7 +472,7 @@ func (r *BadgeRepo) ListDeleted() ([]domain.Badge, error) {
 	r.logger.Info("badge_repo_list_deleted_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at, deleted_at
+		SELECT id, slug, name, background_color, text_color, icon, icon_color, sort_order, created_at, updated_at, deleted_at
 		FROM badges
 		WHERE deleted_at IS NOT NULL
 		ORDER BY deleted_at DESC
@@ -491,7 +491,7 @@ func (r *BadgeRepo) ListDeleted() ([]domain.Badge, error) {
 
 		if err := rows.Scan(
 			&badge.ID, &badge.Slug, &badge.Name, &badge.BackgroundColor, &badge.TextColor,
-			&badge.Icon, &badge.Status, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt, &badge.DeletedAt,
+			&badge.Icon, &badge.IconColor, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt, &badge.DeletedAt,
 		); err != nil {
 			r.logger.Error("badge_repo_list_deleted_scan_failed",
 				"error", err.Error(),
@@ -513,12 +513,12 @@ func (r *BadgeRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Badge, error) {
 	var badge domain.Badge
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, background_color, text_color, icon, status, sort_order, created_at, updated_at, deleted_at
+		SELECT id, slug, name, background_color, text_color, icon, icon_color, sort_order, created_at, updated_at, deleted_at
 		FROM badges
 		WHERE id = $1
 	`, id).Scan(
 		&badge.ID, &badge.Slug, &badge.Name, &badge.BackgroundColor, &badge.TextColor,
-		&badge.Icon, &badge.Status, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt, &badge.DeletedAt,
+		&badge.Icon, &badge.IconColor, &badge.SortOrder, &badge.CreatedAt, &badge.UpdatedAt, &badge.DeletedAt,
 	)
 
 	if err != nil {

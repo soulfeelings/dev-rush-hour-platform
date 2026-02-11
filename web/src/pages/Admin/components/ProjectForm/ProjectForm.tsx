@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Button,
   Input,
@@ -7,6 +8,7 @@ import {
   YouTubePreview,
   Checkbox,
   Textarea,
+  Badge as BadgeUI,
 } from '../../../../ui'
 import { Plus, X } from 'lucide-react'
 import {
@@ -19,7 +21,23 @@ import { MapPicker } from '../MapPicker'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './ProjectForm.module.scss'
 
-const STORAGE_KEY = 'admin_project_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.PROJECT_FORM
+
+// Функции для работы с датой формата YYYY-MM
+const parseCompletionDate = (dateStr: string): { month: string; year: string } => {
+  if (!dateStr || !dateStr.match(/^\d{4}-\d{2}$/)) {
+    return { month: '', year: '' }
+  }
+  const [year, month] = dateStr.split('-')
+  return { month, year }
+}
+
+const formatCompletionDate = (month: string, year: string): string => {
+  if (!month || !year) return ''
+  return `${year}-${month}`
+}
 
 type Developer = {
   id?: string
@@ -35,6 +53,27 @@ type ValidationErrors = {
   status?: string
   sale?: string
   hoverUrl?: string
+  paymentPlan?: string
+}
+
+// Payment plan validation: numbers separated by slashes, total must equal 100
+const validatePaymentPlan = (value: string): string | undefined => {
+  if (!value) return undefined // Optional field
+
+  // Check format: only digits and slashes, must start and end with digit
+  const formatRegex = /^\d+(?:\/\d+)*$/
+  if (!formatRegex.test(value)) {
+    return 'Payment plan must be numbers separated by slashes (e.g., 60/40 or 30/10/60)'
+  }
+
+  // Check that total equals 100
+  const numbers = value.split('/').map(n => parseInt(n, 10))
+  const total = numbers.reduce((sum, n) => sum + n, 0)
+  if (total !== 100) {
+    return `Payment plan must total 100% (currently ${total}%)`
+  }
+
+  return undefined
 }
 
 type FormData = {
@@ -48,6 +87,7 @@ type FormData = {
   lng: string
   coverUrl: string
   hoverUrl: string
+  logoUrl: string
   gallery: string[]
   youtubeUrl: string
   timeline: {
@@ -55,6 +95,7 @@ type FormData = {
     bookingStarted: string
     constructionStarted: string
     constructionProgress: string
+    constructionProgressPercent: string
     expectedCompletion: string
   }
   description: string
@@ -62,6 +103,8 @@ type FormData = {
   ourPrice: string
   developerPrice: string
   paymentPlan: string
+  completionDate: string
+  isFeatured: boolean
   badgeIds: string[]
   infrastructureIds: string[]
 }
@@ -87,6 +130,36 @@ export function ProjectForm({
   initialData,
   isEditMode = false,
 }: ProjectFormProps) {
+  const { t } = useTranslation()
+
+  // Получаем переведенные месяцы
+  const MONTHS = useMemo(
+    () => [
+      { value: '01', label: t('admin.projectForm.completionDate.months.january') },
+      { value: '02', label: t('admin.projectForm.completionDate.months.february') },
+      { value: '03', label: t('admin.projectForm.completionDate.months.march') },
+      { value: '04', label: t('admin.projectForm.completionDate.months.april') },
+      { value: '05', label: t('admin.projectForm.completionDate.months.may') },
+      { value: '06', label: t('admin.projectForm.completionDate.months.june') },
+      { value: '07', label: t('admin.projectForm.completionDate.months.july') },
+      { value: '08', label: t('admin.projectForm.completionDate.months.august') },
+      { value: '09', label: t('admin.projectForm.completionDate.months.september') },
+      { value: '10', label: t('admin.projectForm.completionDate.months.october') },
+      { value: '11', label: t('admin.projectForm.completionDate.months.november') },
+      { value: '12', label: t('admin.projectForm.completionDate.months.december') },
+    ],
+    [t]
+  )
+
+  // Годы от 2000 до 2050
+  const YEARS = useMemo(
+    () =>
+      Array.from({ length: 51 }, (_, i) => {
+        const year = 2000 + i
+        return { value: year.toString(), label: year.toString() }
+      }),
+    []
+  )
   const defaultForm = useMemo(
     () => ({
       slug: '',
@@ -99,6 +172,7 @@ export function ProjectForm({
       lng: '',
       coverUrl: '',
       hoverUrl: '',
+      logoUrl: '',
       gallery: [] as string[],
       youtubeUrl: '',
       timeline: {
@@ -106,6 +180,7 @@ export function ProjectForm({
         bookingStarted: '',
         constructionStarted: '',
         constructionProgress: '',
+        constructionProgressPercent: '',
         expectedCompletion: '',
       },
       description: '',
@@ -113,6 +188,8 @@ export function ProjectForm({
       ourPrice: '',
       developerPrice: '',
       paymentPlan: '',
+      completionDate: '',
+      isFeatured: false,
       badgeIds: [] as string[],
       infrastructureIds: [] as string[],
     }),
@@ -139,6 +216,7 @@ export function ProjectForm({
         lng: initialData.lng?.toString() || '',
         coverUrl: initialData.data?.media?.cover?.url || '',
         hoverUrl: initialData.data?.media?.hover?.url || '',
+        logoUrl: initialData.data?.media?.logo?.url || '',
         gallery:
           initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
         youtubeUrl: initialData.data?.youtubeUrl || '',
@@ -147,6 +225,8 @@ export function ProjectForm({
           bookingStarted: initialData.data?.timeline?.bookingStarted || '',
           constructionStarted: initialData.data?.timeline?.constructionStarted || '',
           constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+          constructionProgressPercent:
+            initialData.data?.timeline?.constructionProgressPercent?.toString() || '',
           expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
         },
         description: descriptionStr,
@@ -154,6 +234,8 @@ export function ProjectForm({
         ourPrice: initialData.data?.ourPrice?.toString() || '',
         developerPrice: initialData.data?.developerPrice?.toString() || '',
         paymentPlan: initialData.data?.paymentPlan || '',
+        completionDate: initialData.data?.completionDate || '',
+        isFeatured: initialData.data?.isFeatured ?? false,
         badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
         infrastructureIds:
           initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -175,9 +257,41 @@ export function ProjectForm({
 
   const [form, setForm] = useState(initialForm)
 
+  // Парсим completionDate на месяц и год для начального состояния
+  const initialDateParsed = useMemo(
+    () => parseCompletionDate(initialForm.completionDate),
+    [initialForm.completionDate]
+  )
+
+  const [selectedMonth, setSelectedMonth] = useState(initialDateParsed.month)
+  const [selectedYear, setSelectedYear] = useState(initialDateParsed.year)
+
+  // Синхронизируем локальное состояние с form.completionDate при изменении initialForm
   useEffect(() => {
     setForm(initialForm)
+    const parsed = parseCompletionDate(initialForm.completionDate)
+    setSelectedMonth(parsed.month)
+    setSelectedYear(parsed.year)
   }, [initialForm])
+
+  // Обновляем form.completionDate при изменении месяца или года
+  useEffect(() => {
+    const newDate = formatCompletionDate(selectedMonth, selectedYear)
+    const currentDate = form.completionDate
+    if (newDate !== currentDate) {
+      setForm(prev => ({ ...prev, completionDate: newDate }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMonth, selectedYear])
+
+  // Обработчики для изменения месяца и года
+  const handleMonthChange = (month: string) => {
+    setSelectedMonth(month)
+  }
+
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year)
+  }
 
   // Cache form data to localStorage for new forms
   useEffect(() => {
@@ -210,6 +324,7 @@ export function ProjectForm({
       lng: initialData.lng?.toString() || '',
       coverUrl: initialData.data?.media?.cover?.url || '',
       hoverUrl: initialData.data?.media?.hover?.url || '',
+      logoUrl: initialData.data?.media?.logo?.url || '',
       gallery: initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
       youtubeUrl: initialData.data?.youtubeUrl || '',
       timeline: {
@@ -217,6 +332,10 @@ export function ProjectForm({
         bookingStarted: initialData.data?.timeline?.bookingStarted || '',
         constructionStarted: initialData.data?.timeline?.constructionStarted || '',
         constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+        constructionProgressPercent:
+          (
+            initialData.data?.timeline as Record<string, unknown> | undefined
+          )?.constructionProgressPercent?.toString() || '',
         expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
       },
       description: descriptionStr,
@@ -224,6 +343,8 @@ export function ProjectForm({
       ourPrice: initialData.data?.ourPrice?.toString() || '',
       developerPrice: initialData.data?.developerPrice?.toString() || '',
       paymentPlan: initialData.data?.paymentPlan || '',
+      completionDate: initialData.data?.completionDate || '',
+      isFeatured: initialData.data?.isFeatured ?? false,
       badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
       infrastructureIds:
         initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -240,6 +361,8 @@ export function ProjectForm({
       form.timeline.bookingStarted !== initialFormData.timeline.bookingStarted ||
       form.timeline.constructionStarted !== initialFormData.timeline.constructionStarted ||
       form.timeline.constructionProgress !== initialFormData.timeline.constructionProgress ||
+      form.timeline.constructionProgressPercent !==
+        initialFormData.timeline.constructionProgressPercent ||
       form.timeline.expectedCompletion !== initialFormData.timeline.expectedCompletion
     const badgeIdsChanged =
       form.badgeIds.length !== initialFormData.badgeIds.length ||
@@ -258,12 +381,15 @@ export function ProjectForm({
       form.lng !== initialFormData.lng ||
       form.coverUrl !== initialFormData.coverUrl ||
       form.hoverUrl !== initialFormData.hoverUrl ||
+      form.logoUrl !== initialFormData.logoUrl ||
       form.youtubeUrl !== initialFormData.youtubeUrl ||
       form.description !== initialFormData.description ||
       form.roi !== initialFormData.roi ||
       form.ourPrice !== initialFormData.ourPrice ||
       form.developerPrice !== initialFormData.developerPrice ||
       form.paymentPlan !== initialFormData.paymentPlan ||
+      form.completionDate !== initialFormData.completionDate ||
+      form.isFeatured !== initialFormData.isFeatured ||
       galleryChanged ||
       timelineChanged ||
       badgeIdsChanged ||
@@ -284,6 +410,10 @@ export function ProjectForm({
     }
     if (!form.hoverUrl) {
       newErrors.hoverUrl = 'Hover image URL is required'
+    }
+    const paymentPlanError = validatePaymentPlan(form.paymentPlan)
+    if (paymentPlanError) {
+      newErrors.paymentPlan = paymentPlanError
     }
     return newErrors
   }
@@ -324,6 +454,9 @@ export function ProjectForm({
     if (form.hoverUrl) {
       mediaData.hover = { url: form.hoverUrl }
     }
+    if (form.logoUrl) {
+      mediaData.logo = { url: form.logoUrl }
+    }
     if (form.gallery.length > 0) {
       mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
     }
@@ -335,7 +468,7 @@ export function ProjectForm({
       dataPayload.youtubeUrl = form.youtubeUrl
     }
 
-    const timelineData: Record<string, string> = {}
+    const timelineData: Record<string, string | number> = {}
     if (form.timeline.projectAnnouncement)
       timelineData.projectAnnouncement = form.timeline.projectAnnouncement
     if (form.timeline.bookingStarted) timelineData.bookingStarted = form.timeline.bookingStarted
@@ -343,6 +476,11 @@ export function ProjectForm({
       timelineData.constructionStarted = form.timeline.constructionStarted
     if (form.timeline.constructionProgress)
       timelineData.constructionProgress = form.timeline.constructionProgress
+    if (form.timeline.constructionProgressPercent)
+      timelineData.constructionProgressPercent = parseInt(
+        form.timeline.constructionProgressPercent,
+        10
+      )
     if (form.timeline.expectedCompletion)
       timelineData.expectedCompletion = form.timeline.expectedCompletion
     if (Object.keys(timelineData).length > 0) {
@@ -364,6 +502,10 @@ export function ProjectForm({
     if (form.paymentPlan) {
       dataPayload.paymentPlan = form.paymentPlan
     }
+    if (form.completionDate) {
+      dataPayload.completionDate = form.completionDate
+    }
+    dataPayload.isFeatured = form.isFeatured
 
     if (Object.keys(dataPayload).length > 0) {
       payload.data = dataPayload
@@ -438,6 +580,13 @@ export function ProjectForm({
         onChange={value => setForm({ ...form, sale: value })}
         error={errors.sale}
       />
+      <label className={styles.badgeItem}>
+        <Checkbox
+          checked={form.isFeatured}
+          onChange={() => setForm({ ...form, isFeatured: !form.isFeatured })}
+        />
+        <span>Featured Project</span>
+      </label>
       <Select
         label="Developer"
         options={[
@@ -460,7 +609,7 @@ export function ProjectForm({
         <h3 className={styles.sectionTitle}>Pricing & ROI</h3>
         <div className={styles.priceRow}>
           <Input
-            label="Our Price (AED)"
+            label="Our Price From (AED)"
             type="number"
             step="any"
             value={form.ourPrice}
@@ -468,7 +617,7 @@ export function ProjectForm({
             placeholder="Enter our price"
           />
           <Input
-            label="Developer Price (AED)"
+            label="Developer Price From (AED)"
             type="number"
             step="any"
             value={form.developerPrice}
@@ -488,8 +637,36 @@ export function ProjectForm({
           label="Payment Plan"
           value={form.paymentPlan}
           onChange={e => setForm({ ...form, paymentPlan: e.target.value })}
-          placeholder="e.g., 60/40, 50/50, etc."
+          onBlur={() => {
+            const error = validatePaymentPlan(form.paymentPlan)
+            setErrors(prev => ({ ...prev, paymentPlan: error }))
+          }}
+          placeholder="e.g., 60/40 or 30/10/60 (must total 100%)"
+          error={errors.paymentPlan}
         />
+      </div>
+      <div className={styles.mediaSection}>
+        <h3 className={styles.sectionTitle}>Completion</h3>
+        <div className={styles.completionDateRow}>
+          <Select
+            label={t('admin.projectForm.completionDate.year')}
+            options={[
+              { value: '', label: t('admin.projectForm.completionDate.selectYear') },
+              ...YEARS,
+            ]}
+            value={selectedYear}
+            onChange={handleYearChange}
+          />
+          <Select
+            label={t('admin.projectForm.completionDate.month')}
+            options={[
+              { value: '', label: t('admin.projectForm.completionDate.selectMonth') },
+              ...MONTHS,
+            ]}
+            value={selectedMonth}
+            onChange={handleMonthChange}
+          />
+        </div>
       </div>
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Description</h3>
@@ -511,15 +688,14 @@ export function ProjectForm({
                   checked={badge.id ? form.badgeIds.includes(badge.id) : false}
                   onChange={() => badge.id && toggleBadge(badge.id)}
                 />
-                <span
-                  className={styles.badgeLabel}
-                  style={{
-                    backgroundColor: badge.backgroundColor || '#e0e0e0',
-                    color: badge.textColor || '#000000',
-                  }}
-                >
-                  {badge.name}
-                </span>
+                <BadgeUI
+                  text={badge.name || ''}
+                  backgroundColor={badge.backgroundColor || '#e0e0e0'}
+                  textColor={badge.textColor || '#000000'}
+                  iconName={badge.icon}
+                  iconColor={badge.iconColor}
+                  size="small"
+                />
               </label>
             ))}
           </div>
@@ -591,6 +767,16 @@ export function ProjectForm({
             required
           />
           {form.hoverUrl && <ImagePreview src={form.hoverUrl} alt="Hover preview" />}
+        </div>
+        <div className={styles.coverImageWrapper}>
+          <Input
+            label="Project Logo URL"
+            type="url"
+            value={form.logoUrl}
+            onChange={e => setForm({ ...form, logoUrl: e.target.value })}
+            placeholder="https://example.com/logo.png"
+          />
+          {form.logoUrl && <ImagePreview src={form.logoUrl} alt="Logo preview" />}
         </div>
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
@@ -669,17 +855,37 @@ export function ProjectForm({
             })
           }
         />
-        <Input
-          label="Construction Progress"
-          type="date"
-          value={form.timeline.constructionProgress}
-          onChange={e =>
-            setForm({
-              ...form,
-              timeline: { ...form.timeline, constructionProgress: e.target.value },
-            })
-          }
-        />
+        <div className={styles.progressRow}>
+          <Input
+            label="Construction Progress"
+            type="date"
+            value={form.timeline.constructionProgress}
+            onChange={e =>
+              setForm({
+                ...form,
+                timeline: { ...form.timeline, constructionProgress: e.target.value },
+              })
+            }
+          />
+          <Input
+            label="Progress (%)"
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            value={form.timeline.constructionProgressPercent}
+            onChange={e => {
+              const val = e.target.value
+              if (val === '' || (parseInt(val, 10) >= 0 && parseInt(val, 10) <= 100)) {
+                setForm({
+                  ...form,
+                  timeline: { ...form.timeline, constructionProgressPercent: val },
+                })
+              }
+            }}
+            placeholder="0–100"
+          />
+        </div>
         <Input
           label="Expected Completion"
           type="date"

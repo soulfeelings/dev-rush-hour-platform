@@ -44,6 +44,11 @@
   display: flex;
   gap: $spacing-2;
   flex-wrap: wrap;
+
+  @include rtl {
+    left: auto;
+    right: $spacing-3;
+  }
 }
 
 .tag {

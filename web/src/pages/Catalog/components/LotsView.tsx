@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import LotCard from '../../../components/LotCard'
-import { SkeletonCard } from '../../../ui/Skeleton'
+import { LotsViewSkeleton } from './LotsViewSkeleton'
 import styles from '../Catalog.module.scss'
 import type { Lot } from '../../../api'
 
@@ -11,23 +12,22 @@ interface LotsViewProps {
 }
 
 export default function LotsView({ lots, isLoading, error, onFavoriteClick }: LotsViewProps) {
+  const { t } = useTranslation()
   const activeLots = lots.filter(lot => lot.status === 'active')
 
   if (isLoading) {
-    return (
-      <div className={styles.lotsGrid}>
-        {Array.from({ length: 6 }).map((_, i) => (
-          <SkeletonCard key={i} imageHeight={180} />
-        ))}
-      </div>
-    )
+    return <LotsViewSkeleton />
   }
 
   if (error) {
     return (
       <div className={styles.error}>
-        <p>Loading error: {error instanceof Error ? error.message : 'Unknown error'}</p>
-        <button onClick={() => window.location.reload()}>Retry</button>
+        <p>
+          {t('error.loadingError', {
+            message: error instanceof Error ? error.message : t('error.unknownError'),
+          })}
+        </p>
+        <button onClick={() => window.location.reload()}>{t('error.retry')}</button>
       </div>
     )
   }

@@ -4,17 +4,15 @@ import { type DeveloperCreateRequest, type Developer } from '../../../../api'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './DeveloperForm.module.scss'
 
-const STORAGE_KEY = 'admin_developer_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.DEVELOPER_FORM
 
 type DeveloperFormProps = {
   onSubmit: (data: DeveloperCreateRequest) => void
   loading: boolean
   initialData?: Developer | null
   isEditMode?: boolean
-}
-
-type DeveloperDataFields = {
-  logoUrl?: string
 }
 
 type FormData = {
@@ -40,11 +38,10 @@ export function DeveloperForm({
 
   const initialForm = useMemo(() => {
     if (initialData) {
-      const dataFields = initialData.data as DeveloperDataFields | undefined
       return {
         slug: initialData.slug || '',
         name: initialData.name || '',
-        logoUrl: dataFields?.logoUrl || '',
+        logoUrl: initialData.logoUrl || '',
       }
     }
     // Load from localStorage for new forms
@@ -80,11 +77,10 @@ export function DeveloperForm({
 
   const initialFormData = useMemo(() => {
     if (!initialData) return null
-    const dataFields = initialData.data as DeveloperDataFields | undefined
     return {
       slug: initialData.slug || '',
       name: initialData.name || '',
-      logoUrl: dataFields?.logoUrl || '',
+      logoUrl: initialData.logoUrl || '',
     }
   }, [initialData])
 
@@ -103,9 +99,7 @@ export function DeveloperForm({
       slug: form.slug,
       name: form.name,
       status: 'active',
-      data: {
-        logoUrl: form.logoUrl || undefined,
-      },
+      logoUrl: form.logoUrl || undefined,
     }
     if (!isEditMode) {
       clearCache()

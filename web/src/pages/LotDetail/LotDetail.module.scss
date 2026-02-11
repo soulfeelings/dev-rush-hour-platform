@@ -160,10 +160,20 @@
 
   &.prevButton {
     left: $spacing-4;
+
+    @include rtl {
+      left: auto;
+      right: $spacing-4;
+    }
   }
 
   &.nextButton {
     right: $spacing-4;
+
+    @include rtl {
+      right: auto;
+      left: $spacing-4;
+    }
   }
 }
 
@@ -171,6 +181,11 @@
   position: absolute;
   bottom: $spacing-4;
   right: $spacing-4;
+
+  @include rtl {
+    right: auto;
+    left: $spacing-4;
+  }
   background: rgba(0, 0, 0, 0.5);
   color: white;
   padding: $spacing-1 $spacing-3;
@@ -345,7 +360,7 @@
   font-size: $font-size-sm;
   color: $color-text;
   font-weight: $font-weight-medium;
-  text-align: right;
+  text-align: end;
 }
 
 .description {
@@ -518,14 +533,85 @@
   }
 }
 
-.loading {
-  text-align: center;
-  padding: $spacing-20 0;
+// Skeleton
+.skeletonGallery {
+  width: 100%;
+  height: 500px !important;
+  border-radius: $radius-lg !important;
+  margin-bottom: $spacing-4;
+}
 
-  h1 {
-    font-size: $font-size-2xl;
-    font-weight: $font-weight-medium;
-    color: $color-text-secondary;
-    margin: 0;
+.skeletonContentCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+  margin-top: $spacing-6;
+  margin-bottom: $spacing-6;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.skeletonFeatureRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+}
+
+.skeletonFeatureIcon {
+  border-radius: $radius-md !important;
+}
+
+.skeletonMapCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+}
+
+.skeletonMapHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-4;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+.skeletonMap {
+  width: 100%;
+  height: 320px !important;
+  border-radius: $radius-lg !important;
+}
+
+.skeletonInfoCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+}
+
+.skeletonInfoRows {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonInfoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-3 0;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
   }
 }

@@ -7,12 +7,14 @@ import { Button } from '../../ui/Button'
 import { Select } from '../../ui/Select'
 import { BedsBathsSelect } from './BedsBathsSelect'
 import { PriceSelect } from './PriceSelect'
+import { useSettings } from '../../features/Settings/Settings'
 import styles from './HeroFilters.module.scss'
 import { HeroFiltersSkeleton } from './HeroFiltersSkeleton'
 
 export default function HeroFilters() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { currency } = useSettings()
   const { filters, options, isLoading, updateFilter, getFilteredProjects } = useFilters()
 
   // Prepare options with "all" option
@@ -73,17 +75,19 @@ export default function HeroFilters() {
         : `${filters.bathrooms.join(', ')} ${t('home.properties.baths')}`
     const priceLabel =
       filters.minPrice || filters.maxPrice
-        ? `${filters.minPrice || '0'} - ${filters.maxPrice || t('filters.price.any')} AED`
+        ? `${filters.minPrice || '0'} - ${filters.maxPrice || t('filters.price.any')} ${currency}`
         : t('filters.price.all')
 
-    const message = `Hello! I'm interested in properties in Dubai.
-Filters:
-- City: ${cityLabel}
-- Developer: ${developerLabel}
-- Project: ${projectLabel}
-- Bedrooms: ${bedsLabel}
-- Bathrooms: ${bathsLabel}
-- Price: ${priceLabel}`
+    const message = [
+      t('heroFilters.whatsappMessage.greeting'),
+      t('heroFilters.whatsappMessage.filters'),
+      t('heroFilters.whatsappMessage.city', { value: cityLabel }),
+      t('heroFilters.whatsappMessage.developer', { value: developerLabel }),
+      t('heroFilters.whatsappMessage.project', { value: projectLabel }),
+      t('heroFilters.whatsappMessage.bedrooms', { value: bedsLabel }),
+      t('heroFilters.whatsappMessage.bathrooms', { value: bathsLabel }),
+      t('heroFilters.whatsappMessage.price', { value: priceLabel }),
+    ].join('\n')
 
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
   }

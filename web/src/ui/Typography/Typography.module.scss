@@ -48,6 +48,14 @@
   @include typography-body-small-regular;
 }
 
+.typography--body-xs-regular {
+  @include typography-body-xs-regular;
+}
+
+.typography--body-xs-medium {
+  @include typography-body-xs-medium;
+}
+
 // Color variants
 .typography--color-white {
   color: white;

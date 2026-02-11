@@ -9,7 +9,8 @@ var (
 	ErrCityNotFound      = errors.New("city not found")
 	ErrLotNotFound       = errors.New("lot not found")
 	ErrLeadNotFound      = errors.New("lead not found")
-	ErrBadgeNotFound     = errors.New("badge not found")
+	ErrBadgeNotFound          = errors.New("badge not found")
+	ErrInfrastructureNotFound = errors.New("infrastructure not found")
 
 	// Media errors
 	ErrMediaNotFound       = errors.New("media not found")

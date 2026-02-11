@@ -5,7 +5,6 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
-import type { BadgeStatus } from './badgeStatus'
 
 export interface BadgeCreateRequest {
   slug: string
@@ -13,6 +12,6 @@ export interface BadgeCreateRequest {
   backgroundColor?: string
   textColor?: string
   icon?: string
-  status?: BadgeStatus
+  iconColor?: string
   sortOrder?: number
 }

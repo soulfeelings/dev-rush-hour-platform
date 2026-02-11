@@ -1,9 +1,12 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import { Button, Input, Select } from '../../../../ui'
+import { useEffect, useMemo, useState, useCallback } from 'react'
+import { Button, Input } from '../../../../ui'
+import { generateSlug } from '../../../../utils/generateSlug'
 import { type CityCreateRequest, type City } from '../../../../api'
 import styles from './CityForm.module.scss'
 
-const STORAGE_KEY = 'admin_city_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.CITY_FORM
 
 type CityFormProps = {
   onSubmit: (data: CityCreateRequest) => void
@@ -12,14 +15,9 @@ type CityFormProps = {
   isEditMode?: boolean
 }
 
-type ValidationErrors = {
-  status?: string
-}
-
 type FormData = {
   slug: string
   name: string
-  status: string
 }
 
 export function CityForm({ onSubmit, loading, initialData, isEditMode = false }: CityFormProps) {
@@ -27,7 +25,6 @@ export function CityForm({ onSubmit, loading, initialData, isEditMode = false }:
     () => ({
       slug: '',
       name: '',
-      status: '',
     }),
     []
   )
@@ -37,7 +34,6 @@ export function CityForm({ onSubmit, loading, initialData, isEditMode = false }:
       return {
         slug: initialData.slug || '',
         name: initialData.name || '',
-        status: (initialData.status as string) || '',
       }
     }
     // Load from localStorage for new forms
@@ -76,48 +72,19 @@ export function CityForm({ onSubmit, loading, initialData, isEditMode = false }:
     return {
       slug: initialData.slug || '',
       name: initialData.name || '',
-      status: (initialData.status as string) || '',
     }
   }, [initialData])
 
   const hasChanges = useMemo(() => {
     if (!isEditMode || !initialFormData) return false
-    return (
-      form.slug !== initialFormData.slug ||
-      form.name !== initialFormData.name ||
-      form.status !== initialFormData.status
-    )
+    return form.slug !== initialFormData.slug || form.name !== initialFormData.name
   }, [form, initialFormData, isEditMode])
-
-  const [errors, setErrors] = useState<ValidationErrors>({})
-  const [touched, setTouched] = useState(false)
-
-  const validate = (): ValidationErrors => {
-    const newErrors: ValidationErrors = {}
-    if (!form.status) {
-      newErrors.status = 'Status is required'
-    }
-    return newErrors
-  }
-
-  useEffect(() => {
-    if (touched) {
-      setErrors(validate())
-    }
-  }, [form, touched])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setTouched(true)
-    const validationErrors = validate()
-    setErrors(validationErrors)
-    if (Object.keys(validationErrors).length > 0) {
-      return
-    }
     const payload: CityCreateRequest = {
       slug: form.slug,
       name: form.name,
-      status: form.status as 'active' | 'inactive',
     }
     if (!isEditMode) {
       clearCache()
@@ -128,28 +95,15 @@ export function CityForm({ onSubmit, loading, initialData, isEditMode = false }:
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
       <Input
-        label="Slug"
-        value={form.slug}
-        onChange={e => setForm({ ...form, slug: e.target.value })}
-        required
-      />
-      <Input
         label="Name"
         value={form.name}
-        onChange={e => setForm({ ...form, name: e.target.value })}
+        onChange={e => {
+          const newName = e.target.value
+          setForm({ ...form, name: newName, slug: generateSlug(newName) })
+        }}
         required
       />
-      <Select
-        label="Status"
-        options={[
-          { value: '', label: 'Select Status' },
-          { value: 'active', label: 'Active' },
-          { value: 'inactive', label: 'Inactive' },
-        ]}
-        value={form.status}
-        onChange={value => setForm({ ...form, status: value })}
-        error={errors.status}
-      />
+      <Input label="Slug" value={form.slug} disabled />
       <Button
         type="submit"
         disabled={loading || (isEditMode && !hasChanges)}

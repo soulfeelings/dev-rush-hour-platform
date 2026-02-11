@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import styles from './Typography.module.scss'
 
 export type TypographyVariant = 'h1' | 'body'
-export type TypographySize = 'large' | 'regular' | 'small'
+export type TypographySize = 'large' | 'regular' | 'small' | 'xs'
 export type TypographyWeight = 'medium' | 'regular' | 'semibold' | 'bold'
 export type TypographyColor = 'default' | 'white' | 'inherit'
 

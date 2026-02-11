@@ -3,30 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { getLotDetailRoute } from '../constants/routes'
+import { useSettings } from '../features/Settings/Settings'
+import { formatPrice, formatArea } from '../utils/format'
 import styles from './LotCard.module.scss'
 import type { Lot } from '../api'
 
 interface LotWithProject extends Lot {
-  project?: {
-    name?: string
-    slug?: string
-    lat?: number
-    lng?: number
-    image?: string
-    data?: {
-      specs?: { [key: string]: unknown }
-    }
-    developer?: {
-      name?: string
-      data?: { logoUrl?: string }
-    }
-    area?: { name?: string }
-  }
-  developer?: {
-    name?: string
-    data?: { logoUrl?: string }
-  }
-  area?: { name?: string; city?: string }
   completionDate?: string
 }
 
@@ -43,10 +25,6 @@ interface LotMedia {
 interface LotCardProps {
   lot: LotWithProject
   onFavoriteClick?: (lotId: string) => void
-}
-
-const formatPrice = (price: number, currency: string) => {
-  return `${(price / 1000000).toFixed(1)}M ${currency}`
 }
 
 // Функция для разделения completionDate на первые 2 символа и остальное
@@ -71,6 +49,7 @@ const splitCompletionDate = (dateString: string) => {
 
 export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   const { t } = useTranslation()
+  const { currency, unit } = useSettings()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isFavorited, setIsFavorited] = useState(false)
 
@@ -110,7 +89,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   const areaName = lot.area?.name || lot.project?.area?.name
   const cityName = lot.area?.city
   const location = [areaName, cityName].filter(Boolean).join(', ') || 'Dubai'
-  const logoUrl = lot.project?.developer?.data?.logoUrl || lot.developer?.data?.logoUrl
+  const logoUrl = lot.project?.developer?.logoUrl || lot.developer?.logoUrl
 
   const lotMedia = lot.data?.media as LotMedia | undefined
   const allImages = [
@@ -125,12 +104,9 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
 
   const typeLabel = lot.type ? lot.type.charAt(0).toUpperCase() + lot.type.slice(1) : 'Apartment'
   const price = lot.priceAmount || 0
-  const currency = lot.priceCurrency || 'AED'
   const discountedPrice = price * 0.75 // Скидка 25%
 
-  const { firstPart, rest } = splitCompletionDate(
-    (lot.project?.data?.specs?.completionDate as string) || 'Q1 2026'
-  )
+  const { firstPart, rest } = splitCompletionDate(lot.project?.data?.completionDate || 'Q1 2026')
 
   if (!lot.id) return null
 
@@ -149,7 +125,9 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                 <button
                   className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
                   onClick={handleFavoriteClick}
-                  aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                  aria-label={
+                    isFavorited ? t('lotCard.removeFromFavorites') : t('lotCard.addToFavorites')
+                  }
                 >
                   <Heart size={20} />
                 </button>
@@ -193,7 +171,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
           ) : (
             <div className={styles.imagePlaceholder}>
               <Building2 size={48} />
-              <span>Unit Image</span>
+              <span>{t('lotCard.imagePlaceholder')}</span>
             </div>
           )}
         </div>
@@ -260,8 +238,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                   <div className={styles.iconContainer}>
                     <Move className={styles.icon} size={16} />
                   </div>
-                  <span className={styles.areaValue}>{lot.areaSqm}</span>
-                  <span className={styles.areaUnit}>m²</span>
+                  <span className={styles.areaValue}>{formatArea(lot.areaSqm, unit)}</span>
                 </div>
               )}
             </div>
@@ -270,9 +247,9 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
             <div className={styles.priceSection}>
               <div className={styles.priceItem}>
                 <div className={styles.priceLabel}>
-                  <span className={styles.priceLabelText}>Our price:</span>
+                  <span className={styles.priceLabelText}>{t('lotCard.ourPrice')}</span>
                   <div className={styles.discountBadge}>
-                    <span className={styles.discountValue}>-25%</span>
+                    <span className={styles.discountValue}>{t('lotCard.discount')}</span>
                   </div>
                 </div>
                 <span className={styles.priceValue}>
@@ -282,7 +259,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
               </div>
 
               <div className={styles.priceItem}>
-                <span className={styles.priceLabelText}>Developer price:</span>
+                <span className={styles.priceLabelText}>{t('lotCard.developerPrice')}</span>
                 <span className={styles.priceValue}>
                   <span className={styles.from}>{t('from')}</span>
                   {formatPrice(price, currency)}
@@ -303,9 +280,9 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
             {/* Кнопка WhatsApp */}
             <div className={styles.buttonSection}>
               <button className={styles.whatsappButton} onClick={handleWhatsAppClick}>
-                <span className={styles.whatsappText}>Get Details on WhatsApp</span>
+                <span className={styles.whatsappText}>{t('getDetailsOnWhatsApp')}</span>
               </button>
-              <div className={styles.whatsappNote}>Investment details. No spam</div>
+              <div className={styles.whatsappNote}>{t('investmentDetailsNoSpam')}</div>
             </div>
           </div>
         </div>

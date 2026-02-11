@@ -1,53 +1,63 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { Heart, ChevronLeft, ChevronRight } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Heart } from 'lucide-react'
+import clsx from 'clsx'
 import { getProjectDetailRoute } from '../constants/routes'
 import { Typography } from '../ui/Typography'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
+import { RoiBadge } from '../ui/RoiBadge'
 import styles from './ProjectCard.module.scss'
 import type { Property } from '../types/property'
+import { splitCompletionDate } from './splitCompletionDate'
+import { useSettings } from '../features/Settings/Settings'
+import { formatPrice } from '../utils/format'
+
+const MOBILE_BREAKPOINT = 768
+
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_BREAKPOINT : false
+  )
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  return isMobile
+}
 
 interface ProjectCardProps {
   property: Property
   onFavoriteClick?: (propertyId: string) => void
+  forceHovered?: boolean
+  compact?: boolean
 }
 
-const formatPrice = (price: number, currency: string) => {
-  const formatted = (price / 1000000).toFixed(1)
-  return `${formatted}M ${currency}`
-}
-
-const splitCompletionDate = (dateString: string) => {
-  if (dateString.length <= 2) {
-    return {
-      firstPart: dateString,
-      rest: '',
-    }
-  }
-
-  const firstPart = dateString.substring(0, 2)
-  const rest = dateString.substring(2)
-
-  return {
-    firstPart,
-    rest: rest.trim(),
-  }
-}
-
-export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => {
+export const ProjectCard = ({
+  property,
+  onFavoriteClick,
+  forceHovered,
+  compact,
+}: ProjectCardProps) => {
   const { t } = useTranslation()
+  const { currency } = useSettings()
+  const isMobile = useIsMobile()
   const [isFavorited, setIsFavorited] = useState(false)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [isMouseHovered, setIsMouseHovered] = useState(false)
+  const isHovered = forceHovered ?? isMouseHovered
+  const isCompact = compact === true
 
   const { firstPart, rest } = splitCompletionDate(property.completionDate)
   const hoverImage = property.hoverImage
   const badges = property.badges ?? []
-
-  // Build array of all images: cover + gallery
-  const allImages = [property.image, ...(property.gallery || [])]
-  const totalImages = allImages.length
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -56,83 +66,33 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
     onFavoriteClick?.(property.id)
   }
 
-  const handlePrevImage = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      setCurrentImageIndex(prev => (prev === 0 ? totalImages - 1 : prev - 1))
-    },
-    [totalImages]
-  )
-
-  const handleNextImage = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      setCurrentImageIndex(prev => (prev === totalImages - 1 ? 0 : prev + 1))
-    },
-    [totalImages]
-  )
-
-  const handleDotClick = useCallback((e: React.MouseEvent, index: number) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setCurrentImageIndex(index)
-  }, [])
-
   return (
     <Link to={getProjectDetailRoute(property.id)} className={styles.cardLink}>
-      <div className={styles.card} onMouseEnter={() => setCurrentImageIndex(0)}>
+      <div
+        className={clsx(styles.card, {
+          [styles.compact]: compact === true,
+          [styles.autoCompact]: compact === undefined,
+        })}
+        onMouseEnter={() => setIsMouseHovered(true)}
+        onMouseLeave={() => setIsMouseHovered(false)}
+      >
         <div className={styles.cardInner}>
           {/* Область картинок */}
           <div className={styles.imagesWrapper}>
-            {/* Основная картинка (текущий слайд) */}
+            {/* Основная картинка */}
             <div className={styles.imageContainer}>
-              <img src={allImages[currentImageIndex]} alt={property.title} />
+              {property.image && <img src={property.image} alt={property.title} />}
             </div>
 
-            {/* Hover картинка - только для первого слайда на desktop */}
-            {currentImageIndex === 0 && hoverImage && (
-              <div className={styles.hoverImageContainer}>
+            {/* Hover картинка */}
+            {hoverImage && (
+              <motion.div
+                className={styles.hoverImageContainer}
+                animate={{ opacity: isHovered || isMobile ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
                 <img src={hoverImage} alt={`${property.title} - hover`} />
-              </div>
-            )}
-
-            {/* Navigation arrows - show only if more than 1 image */}
-            {totalImages > 1 && (
-              <>
-                <button
-                  type="button"
-                  className={`${styles.navButton} ${styles.navButtonPrev}`}
-                  onClick={handlePrevImage}
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.navButton} ${styles.navButtonNext}`}
-                  onClick={handleNextImage}
-                  aria-label="Next image"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </>
-            )}
-
-            {/* Navigation dots */}
-            {totalImages > 1 && (
-              <div className={styles.dotsContainer}>
-                {allImages.map((_, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    className={`${styles.dot} ${index === currentImageIndex ? styles.dotActive : ''}`}
-                    onClick={e => handleDotClick(e, index)}
-                    aria-label={`Go to image ${index + 1}`}
-                  />
-                ))}
-              </div>
+              </motion.div>
             )}
 
             {/* Бейджи */}
@@ -145,6 +105,7 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
                     backgroundColor={badge.backgroundColor}
                     textColor={badge.textColor}
                     iconName={badge.icon}
+                    iconColor={badge.iconColor}
                   />
                 ))}
               </div>
@@ -153,9 +114,11 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
             {/* Кнопка избранного */}
             <button
               type="button"
-              className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
+              className={clsx(styles.favoriteButton, isFavorited && styles.favorited)}
               onClick={handleFavoriteClick}
-              aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+              aria-label={
+                isFavorited ? t('projectCard.removeFromFavorites') : t('projectCard.addToFavorites')
+              }
             >
               <Heart />
             </button>
@@ -165,119 +128,155 @@ export const ProjectCard = ({ property, onFavoriteClick }: ProjectCardProps) => 
           <div className={styles.infoSection}>
             {/* Верхний блок: логотип + название + ROI */}
             <div className={styles.headerRow}>
-              <div className={styles.developerInfo}>
-                <div className={styles.developerLogoContainer}>
+              <div className={styles.projectInfo}>
+                <div className={styles.projectLogoContainer}>
                   {property.logoUrl && (
-                    <div className={styles.developerLogo}>
-                      <img src={property.logoUrl} alt={property.developer} />
+                    <div className={styles.projectLogo}>
+                      <img src={property.logoUrl} alt={property.title} />
                     </div>
                   )}
                 </div>
                 <div className={styles.projectNameContainer}>
-                  <Typography size="large" weight="medium" className={styles.projectTitle}>
+                  <Typography
+                    {...(isCompact
+                      ? { size: 'large', weight: 'semibold' }
+                      : { variant: 'h1' as const })}
+                    className={styles.projectTitle}
+                  >
                     {property.title}
                   </Typography>
-                  <Typography size="small" className={styles.developerName}>
-                    {property.developer}
-                  </Typography>
-                  <Typography size="small" className={styles.regionName}>
-                    {property.location}
-                  </Typography>
+                  {property.developer && (
+                    <Typography className={styles.developerName}>{property.developer}</Typography>
+                  )}
+                  {property.location && (
+                    <Typography className={styles.regionName}>{property.location}</Typography>
+                  )}
                 </div>
               </div>
               {property.roi && (
-                <div className={styles.roiContainer}>
-                  <Typography size="small" weight="medium" className={styles.roiValue}>
-                    ROI {property.roi}%
-                  </Typography>
-                </div>
+                <RoiBadge value={property.roi} size={isCompact ? 'small' : 'default'} />
               )}
             </div>
 
             {/* Цены */}
             <div className={styles.pricesSection}>
-              {/* Our price (со скидкой) */}
-              {property.discount && property.discount > 0 && (
-                <div className={styles.priceRow}>
-                  <div className={styles.priceLabelContainer}>
-                    <Typography size="small" className={styles.priceLabel}>
-                      {t('ourPrice')}
-                    </Typography>
-                    <span className={styles.discountBadge}>-{property.discount}%</span>
+              {/* Our price (со скидкой, только при наведении) */}
+              {property.discount && property.discount > 0 && property.priceFrom && (
+                <motion.div
+                  initial={false}
+                  animate={{ height: isHovered || isMobile ? 'auto' : 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  style={{ overflow: 'hidden' }}
+                >
+                  <div className={styles.priceRow}>
+                    <div className={styles.priceLabelContainer}>
+                      <Typography
+                        size={isCompact ? 'regular' : 'large'}
+                        weight="medium"
+                        className={styles.priceLabel}
+                      >
+                        {t('ourPrice')}:
+                      </Typography>
+                      <span className={styles.discountBadge}>-{property.discount}%</span>
+                    </div>
+                    <div className={styles.priceValue}>
+                      <Typography className={styles.from}>{t('from')}</Typography>{' '}
+                      <Typography
+                        {...(isCompact
+                          ? { size: 'large', weight: 'semibold' }
+                          : { variant: 'h1' as const })}
+                        className={styles.priceAmount}
+                      >
+                        {formatPrice(property.priceFrom * (1 - property.discount / 100), currency)}
+                      </Typography>
+                    </div>
                   </div>
-                  <Typography size="small" weight="medium" className={styles.priceValue}>
-                    <span className={styles.from}>{t('from')}</span>{' '}
-                    {formatPrice(
-                      property.priceFrom * (1 - property.discount / 100),
-                      property.currency
-                    )}
-                  </Typography>
-                </div>
+                </motion.div>
               )}
               {/* Developer price */}
               <div className={styles.priceRow}>
-                <Typography size="small" className={styles.priceLabel}>
+                <Typography
+                  size={isCompact ? 'regular' : 'large'}
+                  weight="medium"
+                  className={styles.priceLabel}
+                >
                   {t('developerPrice')}:
                 </Typography>
-                <Typography size="small" weight="medium" className={styles.priceValue}>
-                  <span className={styles.from}>{t('from')}</span>{' '}
-                  {formatPrice(property.priceFrom, property.currency)}
-                </Typography>
+                <div className={styles.priceValue}>
+                  <Typography className={styles.from}>{t('from')}</Typography>{' '}
+                  <Typography
+                    {...(isCompact
+                      ? { size: 'large', weight: 'semibold' }
+                      : { variant: 'h1' as const })}
+                    className={styles.priceAmount}
+                  >
+                    {formatPrice(property.priceFrom, currency)}
+                  </Typography>
+                </div>
               </div>
             </div>
 
             {/* Дата и payment plan */}
-            <div className={styles.footerRow}>
-              <Typography size="small" className={styles.dateValue}>
-                <span className={styles.quarter}>{firstPart}</span>
-                {rest && <span className={styles.year}> {rest}</span>}
-              </Typography>
-              {property.paymentPlan && (
-                <Typography size="small" className={styles.planValue}>
-                  <span className={styles.planLabel}>PP:</span>{' '}
-                  <span className={styles.planNumbers}>{property.paymentPlan}</span>
-                </Typography>
-              )}
-            </div>
-
-            {/* Дополнительная информация (появляется при наведении) */}
-            <div className={styles.additionalInfo}>
-              <div className={styles.additionalInfoGrid}>
-                {property.pricesByType && property.pricesByType.length > 0 ? (
-                  property.pricesByType.map((item, index) => (
-                    <div key={index} className={styles.additionalInfoItem}>
-                      <Typography size="small" className={styles.additionalInfoLabel}>
-                        {item.type}
-                      </Typography>
-                      <Typography
-                        size="small"
-                        weight="medium"
-                        className={styles.additionalInfoValue}
-                      >
-                        {t('from')} {formatPrice(item.price, property.currency)}
-                      </Typography>
-                    </div>
-                  ))
-                ) : (
-                  <div className={styles.additionalInfoItem}>
-                    <Typography size="small" className={styles.additionalInfoLabel}>
-                      {property.types.join(', ')}
-                    </Typography>
-                    <Typography size="small" weight="medium" className={styles.additionalInfoValue}>
-                      {t('from')} {formatPrice(property.priceFrom, property.currency)}
-                    </Typography>
-                  </div>
+            {(firstPart || property.paymentPlan) && (
+              <div className={styles.footerRow}>
+                {firstPart && (
+                  <Typography size={isCompact ? 'regular' : 'large'} className={styles.dateValue}>
+                    <span className={styles.quarter}>{firstPart}</span>
+                    {rest && <span className={styles.year}> {rest}</span>}
+                  </Typography>
+                )}
+                {property.paymentPlan && (
+                  <Typography
+                    size={isCompact ? 'regular' : 'large'}
+                    weight="medium"
+                    className={styles.planValue}
+                  >
+                    <span className={styles.planLabel}>PP:</span>{' '}
+                    <span className={styles.planNumbers}>{property.paymentPlan}</span>
+                  </Typography>
                 )}
               </div>
+            )}
 
-              <Button variant="primary" size="md" fullWidth align="center">
-                {t('getDetailsOnWhatsApp')}
-              </Button>
+            {/* Дополнительная информация (появляется при наведении) */}
+            <motion.div
+              initial={false}
+              animate={{ height: isHovered || isMobile ? 'auto' : 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              style={{ overflow: 'hidden' }}
+            >
+              <div className={styles.additionalInfo}>
+                {property.pricesByType && property.pricesByType.length > 0 ? (
+                  <div className={styles.additionalInfoGrid}>
+                    {property.pricesByType.map((item, index) => (
+                      <div key={index} className={styles.additionalInfoItem}>
+                        <Typography size="small" className={styles.additionalInfoLabel}>
+                          {item.type}
+                        </Typography>
+                        <Typography
+                          size="small"
+                          weight="medium"
+                          className={styles.additionalInfoValue}
+                        >
+                          <span className={styles.from}>{t('from')}</span>{' '}
+                          {formatPrice(item.price, currency)}
+                        </Typography>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
 
-              <Typography size="small" className={styles.disclaimer}>
-                {t('investmentDetailsNoSpam')}
-              </Typography>
-            </div>
+                <div className={styles.buttonContainer}>
+                  <Button variant="primary" size="sm" fullWidth align="center">
+                    {t('getDetailsOnWhatsApp')}
+                  </Button>
+
+                  <Typography size="small" className={styles.disclaimer}>
+                    {t('investmentDetailsNoSpam')}
+                  </Typography>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>

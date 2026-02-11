@@ -11,9 +11,14 @@ import type { Project, Developer, Area } from '../../api'
 import { IconBed, IconBath, IconFloor, IconArea } from '../../components/icons'
 import { getViewIcon } from '../../components/icons/viewIconMap'
 import { ROUTES, getProjectDetailRoute } from '../../constants/routes'
+import { NotFound } from '../../ui/NotFound'
+import { useSettings } from '../../features/Settings/Settings'
+import { formatPrice, formatArea } from '../../utils/format'
+import { LotDetailSkeleton } from './LotDetailSkeleton'
 import styles from './LotDetail.module.scss'
 import { saveCatalogViewMode } from '../../utils/catalogViewMode'
 import { translateBonusKeys } from '../../utils/bonusTranslations'
+import { useTranslation } from 'react-i18next'
 
 const MAP_ZOOM_DEFAULT = 13
 
@@ -26,6 +31,8 @@ L.Icon.Default.mergeOptions({
 })
 
 export default function LotDetail() {
+  const { currency, unit } = useSettings()
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -193,40 +200,31 @@ export default function LotDetail() {
   }, [])
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>
-          <h1>Loading...</h1>
-        </div>
-      </div>
-    )
+    return <LotDetailSkeleton />
   }
 
   if (error || !lot) {
     return (
-      <div className={styles.container}>
-        <div className={styles.notFound}>
-          <h1>Unit Not Found</h1>
-          <p>{error || `Unit "${id}" does not exist.`}</p>
-          <Link to={ROUTES.CATALOG} className={styles.backLink}>
-            Return to Catalog
-          </Link>
-        </div>
-      </div>
+      <NotFound
+        title={t('lotDetail.notFound.title')}
+        message={error || t('lotDetail.notFound.description', { id })}
+        backTo={ROUTES.CATALOG}
+        backLabel={t('lotDetail.notFound.backToCatalog')}
+      />
     )
   }
 
   const getLotStatusText = (status: string | undefined) => {
-    if (!status) return 'Unknown'
+    if (!status) return t('lotDetail.status.unknown')
     switch (status) {
       case 'active':
-        return 'Available'
+        return t('lotDetail.status.available')
       case 'hidden':
-        return 'Hidden'
+        return t('lotDetail.status.hidden')
       case 'reserved':
-        return 'Reserved'
+        return t('lotDetail.status.reserved')
       case 'sold':
-        return 'Sold'
+        return t('lotDetail.status.sold')
       default:
         return status
     }
@@ -269,10 +267,7 @@ export default function LotDetail() {
     setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
   }
 
-  const priceText =
-    lot.priceAmount !== undefined && typeof lot.priceAmount === 'number'
-      ? `${(lot.priceAmount / 1000000).toFixed(1)}M ${lot.priceCurrency || 'AED'}`
-      : '-'
+  const priceText = formatPrice(lot.priceAmount, currency)
 
   return (
     <div className={styles.container}>
@@ -282,14 +277,14 @@ export default function LotDetail() {
           className={styles.backLink}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
         >
-          ← Back
+          {t('lotDetail.back')}
         </button>
         {finalProject && finalProject.slug && (
           <Link to={getProjectDetailRoute(finalProject.slug)} className={styles.projectLink}>
             {finalProject.name}
           </Link>
         )}
-        <h1 className={styles.title}>Unit Details</h1>
+        <h1 className={styles.title}>{t('lotDetail.title')}</h1>
       </div>
 
       <div className={styles.content}>
@@ -327,7 +322,7 @@ export default function LotDetail() {
                 </>
               ) : (
                 <div className={styles.imagePlaceholder}>
-                  <span>Unit Image</span>
+                  <span>{t('lotDetail.imagePlaceholder')}</span>
                 </div>
               )}
             </div>
@@ -356,7 +351,7 @@ export default function LotDetail() {
             <div className={styles.contentCard}>
               {lotDataFields?.view && (
                 <div className={styles.viewSection}>
-                  <h3 className={styles.viewTitle}>View</h3>
+                  <h3 className={styles.viewTitle}>{t('lotDetail.view')}</h3>
                   <div className={styles.viewItem}>
                     {(() => {
                       const ViewIcon = getViewIcon(lotDataFields.view)
@@ -374,13 +369,13 @@ export default function LotDetail() {
               )}
               {lotDataFields?.furnishing && (
                 <div className={styles.description}>
-                  <h3>Furnishing</h3>
+                  <h3>{t('lotDetail.furnishing')}</h3>
                   <p>{lotDataFields.furnishing}</p>
                 </div>
               )}
               {lotDataFields?.orientation && (
                 <div className={styles.description}>
-                  <h3>Orientation</h3>
+                  <h3>{t('lotDetail.orientation')}</h3>
                   <p>{lotDataFields.orientation}</p>
                 </div>
               )}
@@ -394,8 +389,8 @@ export default function LotDetail() {
             <div className={styles.mapCard}>
               <div className={styles.mapHeader}>
                 <div>
-                  <h3 className={styles.mapTitle}>Location on Map</h3>
-                  <p className={styles.mapSubtitle}>Project coordinates</p>
+                  <h3 className={styles.mapTitle}>{t('lotDetail.locationOnMap')}</h3>
+                  <p className={styles.mapSubtitle}>{t('lotDetail.projectCoordinates')}</p>
                 </div>
                 <span className={styles.coordinates}>
                   {finalProject.lat !== undefined && finalProject.lng !== undefined
@@ -411,25 +406,25 @@ export default function LotDetail() {
         <div className={styles.infoSection}>
           <div className={styles.infoCard}>
             <div className={styles.infoCardHeader}>
-              <h2>Unit Information</h2>
+              <h2>{t('lotDetail.unitInformation')}</h2>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.label}>Price:</span>
+              <span className={styles.label}>{t('lotDetail.labels.price')}</span>
               <span className={styles.value}>{priceText}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.label}>Status:</span>
+              <span className={styles.label}>{t('lotDetail.labels.status')}</span>
               <span className={styles.value}>{getLotStatusText(lot.status)}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.label}>Type:</span>
+              <span className={styles.label}>{t('lotDetail.labels.type')}</span>
               <span className={styles.value}>{lot.type || '-'}</span>
             </div>
             {lot.bedrooms !== undefined && lot.bedrooms !== null && (
               <div className={styles.infoRow}>
                 <span className={styles.label}>
                   <IconBed size={20} />
-                  Bedrooms:
+                  {t('lotDetail.labels.bedrooms')}
                 </span>
                 <span className={styles.value}>{lot.bedrooms}</span>
               </div>
@@ -438,7 +433,7 @@ export default function LotDetail() {
               <div className={styles.infoRow}>
                 <span className={styles.label}>
                   <IconBath size={20} />
-                  Bathrooms:
+                  {t('lotDetail.labels.bathrooms')}
                 </span>
                 <span className={styles.value}>{lot.bathrooms}</span>
               </div>
@@ -447,23 +442,23 @@ export default function LotDetail() {
               <div className={styles.infoRow}>
                 <span className={styles.label}>
                   <IconArea size={20} />
-                  Area:
+                  {t('lotDetail.labels.area')}
                 </span>
-                <span className={styles.value}>{lot.areaSqm} sqm</span>
+                <span className={styles.value}>{formatArea(lot.areaSqm, unit)}</span>
               </div>
             )}
             {lot.floor !== undefined && lot.floor !== null && (
               <div className={styles.infoRow}>
                 <span className={styles.label}>
                   <IconFloor size={20} />
-                  Floor:
+                  {t('lotDetail.labels.floor')}
                 </span>
                 <span className={styles.value}>{lot.floor}</span>
               </div>
             )}
             {lot.project && lot.project.slug && (
               <div className={styles.infoRow}>
-                <span className={styles.label}>Project:</span>
+                <span className={styles.label}>{t('lotDetail.labels.project')}</span>
                 <span className={styles.value}>
                   <Link
                     to={getProjectDetailRoute(lot.project.slug)}
@@ -476,19 +471,19 @@ export default function LotDetail() {
             )}
             {lot.developer && (
               <div className={styles.infoRow}>
-                <span className={styles.label}>Developer:</span>
+                <span className={styles.label}>{t('lotDetail.labels.developer')}</span>
                 <span className={styles.value}>{lot.developer.name}</span>
               </div>
             )}
             {lot.area && (
               <div className={styles.infoRow}>
-                <span className={styles.label}>Location:</span>
+                <span className={styles.label}>{t('lotDetail.labels.location')}</span>
                 <span className={styles.value}>{lot.area.name}</span>
               </div>
             )}
             {lot.bonusKeys && lot.bonusKeys.length > 0 && (
               <div className={styles.infoRow}>
-                <span className={styles.label}>Special Conditions:</span>
+                <span className={styles.label}>{t('lotDetail.labels.specialConditions')}</span>
                 <span className={styles.value}>{translateBonusKeys(lot.bonusKeys).join(', ')}</span>
               </div>
             )}
@@ -499,7 +494,7 @@ export default function LotDetail() {
       <Modal
         open={is3DModalOpen}
         onClose={() => setIs3DModalOpen(false)}
-        title="3D Apartment Model"
+        title={t('lotDetail.modal3D')}
         className="wide transparent"
       >
         <Model3DViewer embedded />

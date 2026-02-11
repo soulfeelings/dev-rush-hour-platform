@@ -196,9 +196,81 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 	if updates.Lng != nil {
 		existing.Lng = updates.Lng
 	}
-	// For Data struct, we'll assume it's always updated if present
-	// (can be improved by checking individual fields if needed)
-	existing.Data = updates.Data
+	// Merge flat data fields
+	if updates.Description != nil {
+		existing.Description = updates.Description
+	}
+	if updates.FeaturesAmenities != nil {
+		existing.FeaturesAmenities = updates.FeaturesAmenities
+	}
+	if updates.Media != nil {
+		// Merge media fields
+		if existing.Media == nil {
+			existing.Media = updates.Media
+		} else {
+			if updates.Media.Cover != nil {
+				existing.Media.Cover = updates.Media.Cover
+			}
+			if updates.Media.Hover != nil {
+				existing.Media.Hover = updates.Media.Hover
+			}
+			if updates.Media.Logo != nil {
+				existing.Media.Logo = updates.Media.Logo
+			}
+			if updates.Media.Gallery != nil {
+				existing.Media.Gallery = updates.Media.Gallery
+			}
+		}
+	}
+	if updates.YoutubeURL != "" {
+		existing.YoutubeURL = updates.YoutubeURL
+	}
+	if updates.Timeline != nil {
+		existing.Timeline = updates.Timeline
+	}
+	// Boolean fields - always take from updates
+	existing.IsFeatured = updates.IsFeatured
+	if updates.Tags != nil {
+		existing.Tags = updates.Tags
+	}
+	// Merge pricing fields
+	if updates.ROI != nil {
+		existing.ROI = updates.ROI
+	}
+	if updates.OurPrice != nil {
+		existing.OurPrice = updates.OurPrice
+	}
+	if updates.DeveloperPrice != nil {
+		existing.DeveloperPrice = updates.DeveloperPrice
+	}
+	if updates.PaymentPlan != "" {
+		existing.PaymentPlan = updates.PaymentPlan
+	}
+	if updates.CompletionDate != "" {
+		existing.CompletionDate = updates.CompletionDate
+	}
+	// Merge specs fields
+	if updates.PriceFrom != nil {
+		existing.PriceFrom = updates.PriceFrom
+	}
+	if updates.Currency != "" {
+		existing.Currency = updates.Currency
+	}
+	if updates.PropertyTypes != nil {
+		existing.PropertyTypes = updates.PropertyTypes
+	}
+	if updates.Bedrooms != nil {
+		existing.Bedrooms = updates.Bedrooms
+	}
+	if updates.AreaSize != nil {
+		existing.AreaSize = updates.AreaSize
+	}
+	if updates.AreaUnit != "" {
+		existing.AreaUnit = updates.AreaUnit
+	}
+	if updates.PricesByType != nil {
+		existing.PricesByType = updates.PricesByType
+	}
 
 	err = s.projectRepo.Update(id, existing)
 	if err != nil {

@@ -11,7 +11,7 @@ type Developer struct {
 	Slug      string
 	Name      string
 	Status    DeveloperStatus
-	Data      map[string]interface{}
+	LogoURL   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time

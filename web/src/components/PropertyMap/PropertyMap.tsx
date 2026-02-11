@@ -1,5 +1,6 @@
-import { useEffect, useRef, useCallback, useState, useImperativeHandle, forwardRef } from 'react'
+import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import i18n from '../../i18n'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster'
@@ -22,16 +23,15 @@ declare module 'leaflet' {
   interface MarkerClusterGroup extends L.FeatureGroup {
     clearLayers(): this
     addLayer(layer: L.Layer): this
+    unspiderfy(): void
   }
   function markerClusterGroup(options?: MarkerClusterGroupOptions): MarkerClusterGroup
 }
 import styles from './PropertyMap.module.scss'
 import { createMarkerPopupElement } from './MarkerPopup'
 import type { Property } from '../../types/property'
-import { districts } from '../../data/dubai_districts_data'
 import { createPropertyMarkerIcon } from './markerIcon'
-import { createDistrictPopupHTML } from './districtPopup'
-import { getProjectDetailRoute, getAreaDetailRoute } from '../../constants/routes'
+import { createClusterIcon } from './clusterIcon'
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -41,38 +41,9 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 })
 
-// Custom cluster icon matching our marker design
-const createClusterIcon = (cluster: { getChildCount(): number }) => {
-  const count = cluster.getChildCount()
-  const size = count < 10 ? 28 : count < 100 ? 32 : 36
-
-  return L.divIcon({
-    html: `<div style="
-      width: ${size}px;
-      height: ${size}px;
-      background: #1C1C1E;
-      border: 1.5px solid rgba(255, 255, 255, 0.85);
-      border-radius: 50%;
-      box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 600;
-      font-family: system-ui, -apple-system, sans-serif;
-      cursor: pointer;
-    ">${count}</div>`,
-    className: '',
-    iconSize: L.point(size, size),
-    iconAnchor: L.point(size / 2, size / 2),
-  })
-}
-
 interface PropertyMapProps {
   properties: Property[]
   selectedPropertyId?: string
-  onPropertyClick?: (propertyId: string) => void
   showDistrictFilter?: boolean
 }
 
@@ -82,21 +53,11 @@ export interface PropertyMapRef {
 }
 
 const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
-  ({ properties, selectedPropertyId, onPropertyClick, showDistrictFilter = true }, ref) => {
+  ({ properties, selectedPropertyId }, ref) => {
     const navigate = useNavigate()
     const mapRef = useRef<L.Map | null>(null)
     const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null)
-    const districtLayersRef = useRef<L.Polygon[]>([])
-    const [showDistricts, setShowDistricts] = useState(false)
-    const popupCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-    const isPopupHoveredRef = useRef(false)
-
-    const clearPopupTimeout = useCallback(() => {
-      if (popupCloseTimeoutRef.current) {
-        clearTimeout(popupCloseTimeoutRef.current)
-        popupCloseTimeoutRef.current = null
-      }
-    }, [])
+    const spiderfiedMarkersRef = useRef<Set<L.Marker>>(new Set())
 
     const updateMarkers = useCallback(() => {
       if (!mapRef.current) return
@@ -116,94 +77,103 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           zoomToBoundsOnClick: true,
           disableClusteringAtZoom: 15,
         })
+
+        clusterGroupRef.current.on('spiderfied', (e: unknown) => {
+          const evt = e as { cluster: L.MarkerCluster }
+          spiderfiedMarkersRef.current = new Set(evt.cluster.getAllChildMarkers())
+        })
+        clusterGroupRef.current.on('unspiderfied', () => {
+          spiderfiedMarkersRef.current.clear()
+        })
+
         map.addLayer(clusterGroupRef.current)
       }
 
-      properties.forEach(property => {
-        const marker = L.marker(property.coordinates, {
+      // Filter out properties without coordinates
+      const propertiesWithCoords = properties.filter(p => p.coordinates)
+
+      propertiesWithCoords.forEach(property => {
+        const marker = L.marker(property.coordinates!, {
           icon: createPropertyMarkerIcon(),
         })
 
-        const popupElement = createMarkerPopupElement(property, {
-          onMouseEnter: () => {
-            clearPopupTimeout()
-            isPopupHoveredRef.current = true
-          },
-          onMouseLeave: () => {
-            isPopupHoveredRef.current = false
-            marker.closePopup()
-          },
-        })
+        const popupElement = createMarkerPopupElement(property)
+
+        const popup = L.popup({
+          offset: [0, -42],
+          className: 'marker-popup marker-popup--top',
+          closeButton: false,
+          autoPan: false,
+          maxWidth: 320,
+          minWidth: 280,
+        }).setContent(popupElement)
+
+        // Simple hover tooltip with image, name & price
+        const price = property.priceFrom
+          ? `${i18n.t('map.from')} ${(property.priceFrom / 1000000).toFixed(1)}M ${property.currency || ''}`
+          : ''
+        const tooltipHtml = `<div class="mp-tooltip">
+          <span class="mp-tooltip-name">${property.title}</span>
+          ${price ? `<span class="mp-tooltip-price">${price}</span>` : ''}
+        </div>`
+
+        const bindTooltipToMarker = () => {
+          marker.bindTooltip(tooltipHtml, {
+            direction: 'top',
+            offset: L.point(0, -42),
+            opacity: 1,
+            className: 'marker-tooltip',
+          })
+        }
+
+        bindTooltipToMarker()
 
         marker.on('click', () => {
-          onPropertyClick?.(property.id)
-          navigate(getProjectDetailRoute(property.id))
-        })
+          const isSpiderfied = spiderfiedMarkersRef.current.has(marker)
 
-        marker.on('mouseover', () => {
-          clearPopupTimeout()
-
-          const markerPoint = map.latLngToContainerPoint(property.coordinates)
-          const mapSize = map.getSize()
-          const popupWidth = 290
-          const popupHeight = 400
-          const markerSize = 12
-          const gap = 12
-
-          const spaceAbove = markerPoint.y
-          const spaceBelow = mapSize.y - markerPoint.y
-          const spaceLeft = markerPoint.x
-          const spaceRight = mapSize.x - markerPoint.x
-
-          let offsetX = 0
-          let offsetY = 0
-          let popupDirection = 'top'
-
-          if (spaceAbove > popupHeight + markerSize / 2 + gap) {
-            offsetX = 0
-            offsetY = -(markerSize / 2 + gap)
-            popupDirection = 'top'
-          } else if (spaceBelow > popupHeight + markerSize / 2 + gap) {
-            offsetX = 0
-            offsetY = markerSize / 2 + gap + popupHeight
-            popupDirection = 'bottom'
-          } else if (spaceRight > popupWidth / 2 + markerSize / 2 + gap) {
-            offsetX = markerSize / 2 + gap + popupWidth / 2
-            offsetY = popupHeight / 2
-            popupDirection = 'right'
-          } else if (spaceLeft > popupWidth / 2 + markerSize / 2 + gap) {
-            offsetX = -(markerSize / 2 + gap + popupWidth / 2)
-            offsetY = popupHeight / 2
-            popupDirection = 'left'
-          } else {
-            offsetX = 0
-            offsetY = -(markerSize / 2 + gap)
-            popupDirection = 'top'
+          if (isSpiderfied) {
+            // In spiderfy mode: zoom to this marker, collapse the spider
+            clusterGroupRef.current?.unspiderfy()
+            map.flyTo(property.coordinates!, Math.max(map.getZoom() + 2, 16), {
+              animate: true,
+              duration: 0.5,
+            })
+            return
           }
 
-          const popup = L.popup({
-            offset: [offsetX, offsetY],
-            className: `marker-popup marker-popup--${popupDirection}`,
-            closeButton: false,
-            autoPan: false,
-            maxWidth: 320,
-            minWidth: 280,
-          }).setContent(popupElement)
+          // Standalone marker: offset center and open popup
+          const targetPoint = map.project(property.coordinates!, map.getZoom())
+          const pinHeightOffset = 21
+          const mapOffset = map.getSize().y * 0.15
+          const centerLatLng = map.unproject(
+            L.point(targetPoint.x, targetPoint.y - mapOffset - pinHeightOffset),
+            map.getZoom()
+          )
+          map.flyTo(centerLatLng, map.getZoom(), {
+            animate: true,
+            duration: 0.3,
+          })
 
+          marker.closeTooltip()
+          marker.unbindTooltip()
           marker.bindPopup(popup).openPopup()
         })
 
-        marker.on('mouseout', () => {
-          popupCloseTimeoutRef.current = setTimeout(() => {
-            if (!isPopupHoveredRef.current) {
-              marker.closePopup()
-            }
-          }, 150)
+        marker.on('popupopen', () => {
+          const iconEl = marker.getElement()
+          if (iconEl) iconEl.style.pointerEvents = 'none'
+        })
+
+        marker.on('popupclose', () => {
+          marker.unbindPopup()
+          const iconEl = marker.getElement()
+          if (iconEl) iconEl.style.pointerEvents = ''
+          bindTooltipToMarker()
         })
 
         clusterGroupRef.current?.addLayer(marker)
       })
-    }, [properties, onPropertyClick, navigate, clearPopupTimeout])
+    }, [properties, navigate])
 
     useImperativeHandle(ref, () => ({
       invalidateSize: () => {
@@ -215,101 +185,9 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         if (mapRef.current) {
           mapRef.current.invalidateSize()
           updateMarkers()
-          if (showDistricts) {
-            districtLayersRef.current.forEach(layer => layer.remove())
-            districtLayersRef.current = []
-            districts.forEach(district => {
-              const polygon = L.polygon(
-                district.geometry.coordinates[0].map(coord => [coord[1], coord[0]]),
-                {
-                  color: '#9333ea',
-                  weight: 2,
-                  fillColor: '#9333ea',
-                  fillOpacity: 0.2,
-                }
-              ).addTo(mapRef.current!)
-
-              const popup = L.popup({
-                className: 'marker-popup',
-                closeButton: false,
-                autoPan: true,
-              }).setContent(createDistrictPopupHTML(district, properties))
-
-              polygon.on('mouseover', e => {
-                polygon.setStyle({ weight: 4 })
-                polygon.bindPopup(popup).openPopup(e.latlng)
-              })
-
-              polygon.on('mousemove', e => {
-                popup.setLatLng(e.latlng)
-              })
-
-              polygon.on('mouseout', () => {
-                polygon.setStyle({ weight: 2 })
-                polygon.closePopup()
-              })
-
-              polygon.on('click', () => {
-                navigate(getAreaDetailRoute(district.id))
-              })
-
-              districtLayersRef.current.push(polygon)
-            })
-          }
         }
       },
     }))
-
-    const toggleDistricts = useCallback(() => {
-      if (!mapRef.current) return
-
-      const map = mapRef.current
-
-      if (showDistricts) {
-        districtLayersRef.current.forEach(layer => layer.remove())
-        districtLayersRef.current = []
-        setShowDistricts(false)
-      } else {
-        districts.forEach(district => {
-          const polygon = L.polygon(
-            district.geometry.coordinates[0].map(coord => [coord[1], coord[0]]),
-            {
-              color: '#9333ea',
-              weight: 2,
-              fillColor: '#9333ea',
-              fillOpacity: 0.2,
-            }
-          ).addTo(map)
-
-          const popup = L.popup({
-            className: 'marker-popup',
-            closeButton: false,
-            autoPan: true,
-          }).setContent(createDistrictPopupHTML(district, properties))
-
-          polygon.on('mouseover', e => {
-            polygon.setStyle({ weight: 4 })
-            polygon.bindPopup(popup).openPopup(e.latlng)
-          })
-
-          polygon.on('mousemove', e => {
-            popup.setLatLng(e.latlng)
-          })
-
-          polygon.on('mouseout', () => {
-            polygon.setStyle({ weight: 2 })
-            polygon.closePopup()
-          })
-
-          polygon.on('click', () => {
-            navigate(getAreaDetailRoute(district.id))
-          })
-
-          districtLayersRef.current.push(polygon)
-        })
-        setShowDistricts(true)
-      }
-    }, [showDistricts, properties, navigate])
 
     useEffect(() => {
       if (!mapRef.current) {
@@ -332,8 +210,9 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
       updateMarkers()
 
-      if (properties.length > 0 && mapRef.current) {
-        const bounds = L.latLngBounds(properties.map(p => p.coordinates))
+      const propertiesWithCoords = properties.filter(p => p.coordinates)
+      if (propertiesWithCoords.length > 0 && mapRef.current) {
+        const bounds = L.latLngBounds(propertiesWithCoords.map(p => p.coordinates!))
         mapRef.current.fitBounds(bounds, { padding: [50, 50] })
       }
 
@@ -341,16 +220,14 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         if (clusterGroupRef.current) {
           clusterGroupRef.current.clearLayers()
         }
-        districtLayersRef.current.forEach(layer => layer.remove())
-        clearPopupTimeout()
       }
-    }, [properties, selectedPropertyId, onPropertyClick, updateMarkers, clearPopupTimeout])
+    }, [properties, selectedPropertyId, updateMarkers])
 
     useEffect(() => {
       if (!mapRef.current || !selectedPropertyId) return
 
       const selectedProperty = properties.find(p => p.id === selectedPropertyId)
-      if (selectedProperty) {
+      if (selectedProperty?.coordinates) {
         mapRef.current.setView(selectedProperty.coordinates, 14, {
           animate: true,
           duration: 0.5,
@@ -361,19 +238,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
     return (
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         <div id="property-map" className={styles.map} />
-        {showDistrictFilter && (
-          <button
-            className={styles.districtFilterButton}
-            onClick={toggleDistricts}
-            title={showDistricts ? 'Скрыть районы' : 'Показать районы'}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-              <line x1="12" y1="22.08" x2="12" y2="12" />
-            </svg>
-          </button>
-        )}
       </div>
     )
   }

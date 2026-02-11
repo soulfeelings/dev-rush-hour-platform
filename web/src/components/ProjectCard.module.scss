@@ -1,5 +1,80 @@
 @use '@/styles' as *;
 
+@mixin compact-overrides {
+  .cardInner {
+    border-radius: 12px;
+  }
+
+  .imagesWrapper {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .infoSection {
+    border-radius: 0 0 12px 12px;
+  }
+
+  .badgesContainer {
+    top: 8px;
+    left: 8px;
+  }
+
+  .favoriteButton {
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .headerRow {
+    padding: $spacing-2 $spacing-3;
+  }
+
+  .projectLogoContainer {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+  }
+
+  .priceRow {
+    padding: calc($spacing-1 + 2px) $spacing-3;
+  }
+
+  .discountBadge {
+    padding: 2px 8px;
+  }
+
+  .footerRow {
+    padding: $spacing-2 $spacing-3;
+  }
+
+  .additionalInfoGrid {
+    padding: $spacing-2 $spacing-3;
+  }
+
+  .buttonContainer {
+    padding: $spacing-2 $spacing-3;
+  }
+
+  // Typography downgrades: h1 (20px) → 16px, large (16px) → 14px
+  .projectTitle,
+  .priceAmount {
+    font-size: 16px;
+    line-height: 20px;
+  }
+
+  .priceLabel,
+  .dateValue,
+  .planValue {
+    font-size: 14px;
+    line-height: 18px;
+  }
+}
+
 .cardLink {
   text-decoration: none;
   color: inherit;
@@ -7,6 +82,19 @@
   width: 100%;
   min-width: 0;
   position: relative;
+  container-type: inline-size;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.compact {
+  @include compact-overrides;
+}
+
+@container (max-width: 360px) {
+  .autoCompact {
+    @include compact-overrides;
+  }
 }
 
 .card {
@@ -22,26 +110,6 @@
   box-sizing: border-box;
   overflow: hidden;
   padding: $spacing-2;
-
-  // On mobile, always show expanded state (no hover capability)
-  @include max-md {
-    .additionalInfo {
-      max-height: 500px;
-      opacity: 1;
-      padding: $spacing-3 $spacing-4;
-    }
-  }
-
-  // On desktop, show on hover
-  @include md {
-    &:hover {
-      .additionalInfo {
-        max-height: 500px;
-        opacity: 1;
-        padding: $spacing-3 $spacing-4;
-      }
-    }
-  }
 }
 
 .cardInner {
@@ -97,99 +165,6 @@
     height: 100%;
     object-fit: cover;
   }
-
-  // On mobile, always show hover image (no hover capability)
-  @include max-md {
-    opacity: 1;
-  }
-
-  // On desktop, show on hover
-  @include md {
-    .card:hover & {
-      opacity: 1;
-    }
-  }
-}
-
-// Navigation arrows for gallery
-.navButton {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  cursor: pointer;
-  z-index: 3;
-  transition:
-    opacity $transition-fast,
-    background $transition-fast;
-  @include flex-center;
-
-  // On mobile, always show arrows (no hover capability)
-  @include max-md {
-    opacity: 1;
-  }
-
-  // On desktop, hidden by default, show on hover
-  @include md {
-    opacity: 0;
-
-    .card:hover & {
-      opacity: 1;
-    }
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 1);
-  }
-
-  svg {
-    color: $color-charcoal-black;
-  }
-}
-
-.navButtonPrev {
-  left: 12px;
-}
-
-.navButtonNext {
-  right: 12px;
-}
-
-// Navigation dots
-.dotsContainer {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  z-index: 3;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  padding: 0;
-  transition:
-    background $transition-fast,
-    transform $transition-fast;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.8);
-    transform: scale(1.1);
-  }
-}
-
-.dotActive {
-  background: rgba(255, 255, 255, 1);
 }
 
 // Бейджи
@@ -202,6 +177,11 @@
   align-items: flex-start;
   gap: 6px;
   z-index: 2;
+
+  @include rtl {
+    left: auto;
+    right: 12px;
+  }
 }
 
 // Кнопка избранного
@@ -219,6 +199,11 @@
   transition: all $transition-fast;
   z-index: 2;
   padding: 0;
+
+  @include rtl {
+    right: auto;
+    left: 12px;
+  }
 
   &:hover {
     transform: scale(1.05);
@@ -253,19 +238,20 @@
   flex-direction: column;
   background: $color-bg-card;
   border-radius: 0 0 16px 16px;
+  margin-top: $spacing-2;
 }
 
 // Верхний блок с логотипом, названием и ROI
 .headerRow {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   padding: $spacing-3 $spacing-4;
   gap: $spacing-3;
   border-bottom: 0.5px solid $color-charcoal-grey-10;
 }
 
-.developerInfo {
+.projectInfo {
   display: flex;
   align-items: flex-start;
   gap: $spacing-2;
@@ -273,10 +259,10 @@
   min-width: 0;
 }
 
-.developerLogoContainer {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+.projectLogoContainer {
+  width: 68px;
+  height: 68px;
+  min-width: 68px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -287,7 +273,7 @@
   background: $color-bg-card;
 }
 
-.developerLogo {
+.projectLogo {
   width: 100%;
   height: 100%;
   display: flex;
@@ -297,7 +283,7 @@
   img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
   }
 }
@@ -325,34 +311,19 @@
   color: $color-charcoal-grey-50;
 }
 
-// ROI Badge
-.roiContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-1 $spacing-2;
-  border-radius: $radius-full;
-  background: $color-label-lightgreen;
-  flex-shrink: 0;
-}
-
-.roiValue {
-  color: $color-label-green;
-  white-space: nowrap;
-}
-
 // Секция цен
 .pricesSection {
   display: flex;
   flex-direction: column;
   border-bottom: 0.5px solid $color-charcoal-grey-10;
+  margin-top: $spacing-1;
 }
 
 .priceRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: $spacing-2 $spacing-4;
+  padding: calc($spacing-1 + 2px) $spacing-4;
   min-height: 32px;
 
   &:not(:last-child) {
@@ -374,20 +345,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 2px 8px;
+  padding: 4px 12px;
   border-radius: $radius-full;
-  background: #ff3b30;
-  color: white;
+  background: $color-marker-red-bg;
+  color: $color-marker-red;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
+}
+
+.from {
+  color: $color-charcoal-grey-50;
 }
 
 .priceValue {
   color: $color-charcoal-black;
   white-space: nowrap;
 
-  .from {
-    color: $color-charcoal-grey-50;
+  .priceAmount {
+    text-transform: uppercase;
   }
 }
 
@@ -398,6 +373,8 @@
   align-items: center;
   padding: $spacing-2 $spacing-4;
   min-height: 32px;
+  margin-top: $spacing-1;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
 }
 
 .dateValue {
@@ -420,15 +397,10 @@
   }
 }
 
-// Блок с дополнительной информацией (скрыт по умолчанию)
+// Блок с дополнительной информацией (управляется framer-motion)
 .additionalInfo {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: all $transition-normal;
   background: $color-bg-card;
-  padding: 0 $spacing-4;
-  border-top: 0.5px solid $color-charcoal-grey-10;
+  margin-top: $spacing-1;
 
   // Style for the WhatsApp button
   > button {
@@ -439,8 +411,10 @@
 .additionalInfoGrid {
   display: flex;
   flex-direction: column;
-  gap: $spacing-2;
+  gap: $spacing-1;
   margin-bottom: $spacing-3;
+  padding: $spacing-2 $spacing-4;
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
 }
 
 .additionalInfoItem {
@@ -455,6 +429,14 @@
 
 .additionalInfoValue {
   color: $color-charcoal-black;
+}
+
+.buttonContainer {
+  padding: $spacing-2 $spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  margin-bottom: $spacing-2;
 }
 
 .disclaimer {

@@ -1,0 +1,103 @@
+import type { ComponentType, ReactNode } from 'react'
+import {
+  ConciergeBell,
+  UtensilsCrossed,
+  Crown,
+  ChefHat,
+  Dumbbell,
+  Sparkles,
+  Waves,
+  Car,
+  CreditCard,
+  Shield,
+  Baby,
+  Zap,
+  Umbrella,
+  Trees,
+  Store,
+  ShoppingCart,
+  Bike,
+  BookOpen,
+  Film,
+  Flower2,
+  Flame,
+  Users,
+  Trophy,
+  Anchor,
+  Presentation,
+  Wifi,
+  Wine,
+  Dog,
+} from 'lucide-react'
+
+// Map icon names from backend to lucide-react components
+export const infrastructureIconMap: Record<string, ReactNode> = {
+  concierge: <ConciergeBell size={14} />,
+  restaurant: <UtensilsCrossed size={14} />,
+  crown: <Crown size={14} />,
+  chef: <ChefHat size={14} />,
+  dumbbell: <Dumbbell size={14} />,
+  sparkles: <Sparkles size={14} />,
+  waves: <Waves size={14} />,
+  car: <Car size={14} />,
+  'credit-card': <CreditCard size={14} />,
+  shield: <Shield size={14} />,
+  baby: <Baby size={14} />,
+  zap: <Zap size={14} />,
+  umbrella: <Umbrella size={14} />,
+  trees: <Trees size={14} />,
+  store: <Store size={14} />,
+  'shopping-cart': <ShoppingCart size={14} />,
+  bike: <Bike size={14} />,
+  'book-open': <BookOpen size={14} />,
+  film: <Film size={14} />,
+  flower: <Flower2 size={14} />,
+  flame: <Flame size={14} />,
+  users: <Users size={14} />,
+  trophy: <Trophy size={14} />,
+  anchor: <Anchor size={14} />,
+  presentation: <Presentation size={14} />,
+  wifi: <Wifi size={14} />,
+  wine: <Wine size={14} />,
+  dog: <Dog size={14} />,
+}
+
+export const getInfrastructureIcon = (iconName?: string): ReactNode | undefined => {
+  if (!iconName) return undefined
+  return infrastructureIconMap[iconName]
+}
+
+export const AVAILABLE_INFRASTRUCTURE_ICONS: {
+  name: string
+  component: ComponentType<{ size?: number }>
+  label: string
+}[] = [
+  { name: 'concierge', component: ConciergeBell, label: 'Concierge' },
+  { name: 'restaurant', component: UtensilsCrossed, label: 'Restaurant' },
+  { name: 'crown', component: Crown, label: 'VIP Lounge' },
+  { name: 'chef', component: ChefHat, label: 'Chef' },
+  { name: 'dumbbell', component: Dumbbell, label: 'Gym' },
+  { name: 'sparkles', component: Sparkles, label: 'Spa' },
+  { name: 'waves', component: Waves, label: 'Pool' },
+  { name: 'car', component: Car, label: 'Parking' },
+  { name: 'credit-card', component: CreditCard, label: 'Access Card' },
+  { name: 'shield', component: Shield, label: 'Security' },
+  { name: 'baby', component: Baby, label: 'Playground' },
+  { name: 'zap', component: Zap, label: 'EV Charging' },
+  { name: 'umbrella', component: Umbrella, label: 'Beach' },
+  { name: 'trees', component: Trees, label: 'Garden' },
+  { name: 'store', component: Store, label: 'Retail' },
+  { name: 'shopping-cart', component: ShoppingCart, label: 'Supermarket' },
+  { name: 'bike', component: Bike, label: 'Bicycle' },
+  { name: 'book-open', component: BookOpen, label: 'Library' },
+  { name: 'film', component: Film, label: 'Cinema' },
+  { name: 'flower', component: Flower2, label: 'Yoga' },
+  { name: 'flame', component: Flame, label: 'Sauna' },
+  { name: 'users', component: Users, label: 'Kids Club' },
+  { name: 'trophy', component: Trophy, label: 'Sports' },
+  { name: 'anchor', component: Anchor, label: 'Yacht Dock' },
+  { name: 'presentation', component: Presentation, label: 'Conference' },
+  { name: 'wifi', component: Wifi, label: 'Internet' },
+  { name: 'wine', component: Wine, label: 'Bar' },
+  { name: 'dog', component: Dog, label: 'Pet-friendly' },
+]

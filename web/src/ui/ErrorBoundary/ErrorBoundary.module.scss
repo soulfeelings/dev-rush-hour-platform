@@ -1,0 +1,151 @@
+@use '../../styles' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: $spacing-6;
+  background: $color-bg;
+}
+
+.card {
+  max-width: 480px;
+  width: 100%;
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-10 $spacing-8;
+  box-shadow: $shadow-lg;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.iconWrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: $color-marker-red-bg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-6;
+
+  svg {
+    color: $color-marker-red;
+  }
+}
+
+.title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-charcoal-black;
+  margin: 0 0 $spacing-2 0;
+}
+
+.message {
+  font-size: $font-size-md;
+  color: $color-charcoal-grey-50;
+  margin: 0 0 $spacing-8 0;
+  line-height: $line-height-relaxed;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-3;
+  width: 100%;
+}
+
+.primaryBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  background: $color-yellow;
+  color: $color-charcoal-black;
+  border: none;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  padding: $spacing-3 $spacing-6;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $color-yellow-hover;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($color-yellow, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.secondaryBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  background: transparent;
+  color: $color-charcoal-grey-50;
+  border: 1px solid $color-charcoal-grey-10;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  padding: $spacing-3 $spacing-6;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $color-charcoal-grey-30;
+    color: $color-charcoal-black;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.details {
+  width: 100%;
+  margin-top: $spacing-6;
+  padding-top: $spacing-6;
+  border-top: 0.5px solid $color-charcoal-grey-10;
+}
+
+.detailsToggle {
+  background: none;
+  border: none;
+  color: $color-charcoal-grey-50;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  margin: 0 auto;
+  padding: 0;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $color-charcoal-black;
+  }
+}
+
+.errorText {
+  margin-top: $spacing-3;
+  padding: $spacing-3;
+  background: $color-charcoal-grey-10;
+  border-radius: $radius-md;
+  font-size: $font-size-xs;
+  color: $color-charcoal-grey-50;
+  font-family: monospace;
+  text-align: left;
+  word-break: break-word;
+  max-height: 120px;
+  overflow-y: auto;
+}

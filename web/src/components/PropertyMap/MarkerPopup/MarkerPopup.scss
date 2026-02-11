@@ -1,118 +1,393 @@
-// Not a CSS Module: popup HTML is generated via createMarkerPopupHTML() string template,
-// so we need global class names. CSS Modules would be tree-shaken without local class usage.
+// Global styles for MarkerPopup React component rendered inside Leaflet popups.
+// CSS Modules don't work reliably with Leaflet's DOM management,
+// so we use global class names prefixed with "mp-".
 @use '../../../styles' as *;
 
-.marker-popup-content {
+// ============================================
+// MarkerPopup Card Component (Global classes)
+// ============================================
+
+.mp-wrapper {
   display: flex;
-  gap: $spacing-2;
-  padding: 0;
-  width: 506.43px;
-  height: 169.65px;
-  border-radius: 10.13px;
-  background: var(--Snow_White, rgba(253, 253, 253, 1));
-  font-family: $font-family-primary;
-  align-items: stretch;
-  overflow: hidden;
-  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+
+  // top (default): popup above marker → [card, arrow↓]
+  &.mp-wrapper-top .mp-card {
+    border-radius: $radius-2xl;
+    padding-bottom: $spacing-2;
+  }
+
+  &.mp-wrapper-bottom {
+    flex-direction: column-reverse;
+
+    .mp-card {
+      border-radius: 0 0 $radius-2xl $radius-2xl;
+    }
+
+    .mp-image-container {
+      border-radius: 0;
+    }
+  }
+
+  &.mp-wrapper-left {
+    flex-direction: row;
+    align-items: center;
+
+    .mp-card {
+      border-radius: $radius-2xl 0 0 $radius-2xl;
+    }
+
+    .mp-image-container {
+      border-radius: $radius-lg 0 0 0;
+    }
+  }
+
+  &.mp-wrapper-right {
+    flex-direction: row-reverse;
+    align-items: center;
+
+    .mp-card {
+      border-radius: 0 $radius-2xl $radius-2xl 0;
+    }
+
+    .mp-image-container {
+      border-radius: 0 $radius-lg 0 0;
+    }
+  }
 }
 
-.marker-popup-image {
-  flex-shrink: 0;
-  width: 187.38px;
-  height: 131.67px;
-  border-radius: 10.13px;
-  overflow: hidden;
+.mp-card {
+  @include card;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
   position: relative;
-  margin: $spacing-2;
-  align-self: center;
+  cursor: pointer;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  &:hover {
+    transform: none;
+  }
+}
+
+.mp-image-container {
+  position: relative;
+  height: 180px;
+  width: 100%;
+  overflow: hidden;
+  background: $color-bg;
+  border-radius: $radius-lg $radius-lg 0 0;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 10.13px;
   }
 }
 
-.marker-popup-text {
+.mp-badges-container {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: calc(100% - 50px);
+  z-index: 2;
+}
+
+.mp-info-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  box-sizing: border-box;
+  background: $color-bg-card;
+}
+
+.mp-project-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   min-width: 0;
-  padding: $spacing-3 $spacing-2;
+  overflow: hidden;
+}
+
+.mp-project-logo-container {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid $color-border;
+  background: $color-bg-card;
+}
+
+.mp-project-logo {
+  width: 100%;
   height: 100%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
 }
 
-.marker-popup-title {
-  width: 258.28px;
-  height: 26px;
-  color: $color-charcoal-black;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-style: normal;
-  font-size: 20.26px;
-  font-weight: 500;
-  line-height: 26px;
-  letter-spacing: 0%;
-  text-align: left;
-  margin: 0 !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.marker-popup-developer {
-  width: 258.28px;
-  height: 15px;
-  color: $color-charcoal-black;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-style: normal;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 15px;
-  letter-spacing: 0%;
-  text-align: left;
-  margin-top: 8px !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Стили для блока с информацией о цене и опциях */
-.marker-popup-price-info {
-  width: 283.6px;
-  height: 38px;
-  color: $color-charcoal-black;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-style: normal;
-  font-size: 15.19px;
-  line-height: 19px;
-  letter-spacing: 0%;
-  text-align: left;
-  margin-top: 8px !important;
+.mp-project-name-container {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: 3px;
+}
+
+.mp-project-title-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.mp-project-title {
+  @include truncate;
+  color: $color-charcoal-black;
+  line-height: 100%;
+}
+
+.mp-developer-row,
+.mp-region-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.mp-developer-name,
+.mp-region-name {
+  color: $color-charcoal-black;
+  line-height: 100%;
+}
+
+.mp-region-name {
+  color: $color-charcoal-grey-50;
+}
+
+.mp-price-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border-top: 0.5px solid $color-charcoal-grey-10;
+  background: $color-bg-card;
+  margin-top: 2px;
+}
+
+.mp-price-row {
+  width: 100%;
+  height: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mp-attribute-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  flex: 1;
+}
+
+.mp-attribute-label {
+  color: $color-charcoal-black;
+  font-family: $font-family-primary;
+  font-size: 11px;
+  font-weight: $font-weight-medium;
+  line-height: 14px;
+  white-space: nowrap;
+}
+
+.mp-discount-badge {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  padding: 2px 6px;
+  border-radius: $radius-full;
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff4757;
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
 }
 
-/* Если цена содержит разное форматирование в одной строке */
-.marker-popup-price {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-style: normal;
-  font-size: 15.19px;
-  line-height: 19px;
-  letter-spacing: 0%;
-  text-align: left;
-  margin: 0 !important;
+.mp-price-value-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
-/* Альтернатива: если цена состоит из двух частей с разным начертанием */
-.marker-price-regular {
-  font-weight: 400; /* Regular */
+.mp-price-value {
+  font-family: $font-family-primary;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  line-height: 14px;
+  color: $color-charcoal-black;
+  white-space: nowrap;
+
+  .mp-from {
+    color: $color-charcoal-grey-50;
+    font-size: 10px;
+    font-weight: $font-weight-regular;
+    margin-right: 2px;
+  }
 }
 
-.marker-price-medium {
-  font-weight: 500; /* Medium */
+.mp-payment-plan-container {
+  width: 100%;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 12px;
+  background: $color-bg-card;
+  border-top: 0.5px solid $color-charcoal-grey-10;
+  margin-top: 2px;
+}
+
+.mp-date-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+}
+
+.mp-plan-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.mp-date-value,
+.mp-plan-value {
+  font-family: $font-family-primary;
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.mp-date-value {
+  .mp-quarter {
+    color: $color-charcoal-grey-50;
+  }
+
+  .mp-year {
+    color: $color-charcoal-black;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.mp-plan-value {
+  text-align: right;
+
+  .mp-plan-label {
+    color: $color-charcoal-grey-50;
+  }
+
+  .mp-plan-numbers {
+    color: $color-charcoal-black;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.mp-prices-by-type-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-1 $spacing-3;
+  background: $color-bg-card;
+  gap: 2px;
+  border-top: 0.5px solid $color-charcoal-grey-10;
+  border-radius: 0 0 $radius-lg $radius-lg;
+  margin-top: 2px;
+  margin-bottom: $spacing-2;
+}
+
+.mp-price-by-type-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mp-type-label {
+  color: $color-charcoal-grey-50;
+  font-family: $font-family-primary;
+  font-size: 10px;
+  font-weight: $font-weight-regular;
+  line-height: 14px;
+}
+
+.mp-type-price {
+  font-family: $font-family-primary;
+  font-size: 10px;
+  font-weight: $font-weight-medium;
+  line-height: 14px;
+  color: $color-charcoal-black;
+
+  .mp-from {
+    color: $color-charcoal-grey-50;
+    font-weight: $font-weight-regular;
+    margin-right: 2px;
+  }
+}
+
+$arrow-w: 60px;
+$arrow-h: 33px;
+// Correction for rotated layout box: (60 - 33) / 2 = 13.5px
+$arrow-rot-fix: calc(($arrow-w - $arrow-h) / 2);
+$arrow-overlap: 6px;
+
+.mp-arrow {
+  display: block;
+  width: $arrow-w;
+  height: $arrow-h;
+  flex-shrink: 0;
+  color: $color-snow-white;
+}
+
+// top: arrow at bottom of popup, pointing down ↓
+.mp-arrow.mp-arrow-top {
+  margin: -$arrow-overlap auto 0;
+}
+
+// bottom: arrow at top of popup, pointing up ↑
+.mp-arrow.mp-arrow-bottom {
+  margin: 0 auto (-$arrow-overlap);
+  transform: rotate(180deg);
+}
+
+// left: arrow at right of popup, pointing right → (flex row: [card, arrow])
+.mp-arrow.mp-arrow-left {
+  margin: auto calc(-1 * $arrow-rot-fix) auto calc(-1 * $arrow-rot-fix - $arrow-overlap);
+  transform: rotate(-90deg);
+}
+
+// right: arrow at left of popup, pointing left ← (flex row-reverse: [arrow, card])
+.mp-arrow.mp-arrow-right {
+  margin: auto calc(-1 * $arrow-rot-fix - $arrow-overlap) auto calc(-1 * $arrow-rot-fix);
+  transform: rotate(90deg);
 }
 
 // ============================================
@@ -123,11 +398,7 @@
   .leaflet-popup-content-wrapper {
     padding: 0;
     border-radius: 12px;
-    box-shadow:
-      0 10px 40px rgba(0, 0, 0, 0.15),
-      0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: visible;
-    background: white;
   }
 
   .leaflet-popup-content {
@@ -136,114 +407,55 @@
   }
 }
 
-// Base tip container styles - reset Leaflet defaults
+// Hide Leaflet popup tip/arrow
 .marker-popup .leaflet-popup-tip-container {
-  width: 24px;
-  height: 12px;
-  margin: 0;
-  padding: 0;
-  overflow: visible;
+  display: none;
+}
 
-  .leaflet-popup-tip {
-    width: 0;
-    height: 0;
-    margin: 0;
-    padding: 0;
-    box-shadow: none;
-    background: transparent;
-    // Reset Leaflet's default rotation transform
-    transform: none !important;
+// ============================================
+// Hover Tooltip Styles
+// ============================================
+
+.marker-tooltip {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  &::before {
+    display: none;
   }
 }
 
-// TOP: popup above marker, arrow points DOWN (default Leaflet behavior)
-.marker-popup--top {
-  .leaflet-popup-tip-container {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    top: auto;
-    right: auto;
-    transform: translateX(-50%) translateY(100%);
-    width: 24px;
-    height: 12px;
-
-    .leaflet-popup-tip {
-      transform: none !important;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-      border-top: 12px solid white;
-      border-bottom: none;
-      filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.08));
-    }
-  }
+.mp-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 1px 4px rgba(0, 0, 0, 0.1);
+  max-width: 220px;
 }
 
-// BOTTOM: popup below marker, arrow points UP
-.marker-popup--bottom {
-  .leaflet-popup-tip-container {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: auto;
-    right: auto;
-    transform: translateX(-50%) translateY(-100%);
-    width: 24px;
-    height: 12px;
-
-    .leaflet-popup-tip {
-      transform: none !important;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-      border-bottom: 12px solid white;
-      border-top: none;
-      filter: drop-shadow(0 -2px 3px rgba(0, 0, 0, 0.08));
-    }
-  }
+.mp-tooltip-name {
+  font-family: $font-family-primary;
+  font-size: 12px;
+  font-weight: $font-weight-semibold;
+  color: $color-charcoal-black;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-// RIGHT: popup to the right of marker, arrow points LEFT
-.marker-popup--right {
-  .leaflet-popup-tip-container {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    bottom: auto;
-    right: auto;
-    transform: translateX(-100%) translateY(-50%);
-    width: 12px;
-    height: 24px;
-
-    .leaflet-popup-tip {
-      transform: none !important;
-      border-top: 12px solid transparent;
-      border-bottom: 12px solid transparent;
-      border-right: 12px solid white;
-      border-left: none;
-      filter: drop-shadow(-2px 0 3px rgba(0, 0, 0, 0.08));
-    }
-  }
-}
-
-// LEFT: popup to the left of marker, arrow points RIGHT
-.marker-popup--left {
-  .leaflet-popup-tip-container {
-    position: absolute;
-    right: 0;
-    left: auto;
-    top: 50%;
-    bottom: auto;
-    transform: translateX(100%) translateY(-50%);
-    width: 12px;
-    height: 24px;
-
-    .leaflet-popup-tip {
-      transform: none !important;
-      border-top: 12px solid transparent;
-      border-bottom: 12px solid transparent;
-      border-left: 12px solid white;
-      border-right: none;
-      filter: drop-shadow(2px 0 3px rgba(0, 0, 0, 0.08));
-    }
-  }
+.mp-tooltip-price {
+  font-family: $font-family-primary;
+  font-size: 11px;
+  font-weight: $font-weight-medium;
+  color: $color-charcoal-grey-50;
+  line-height: 1.2;
+  white-space: nowrap;
 }

@@ -177,7 +177,6 @@ export function CitiesTable({
                 <td>{city.id}</td>
                 <td>{city.name || '-'}</td>
                 <td>{city.slug || '-'}</td>
-                <td>{city.status || '-'}</td>
                 <td>
                   {city.createdAt ? new Date(city.createdAt).toLocaleDateString('en-US') : '-'}
                 </td>

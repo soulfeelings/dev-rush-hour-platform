@@ -1,22 +1,33 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useCallback, useMemo, createContext, useContext, type ReactNode } from 'react'
+import {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  createContext,
+  useContext,
+  type ReactNode,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { Modal, ModalBody } from '../../ui/Modal/Modal'
 import { Button, Typography } from '../../ui'
 import styles from './Settings.module.scss'
 import headerStyles from '../Header/Header.module.scss'
 import ukFlag from '@assets/uk.svg'
-
-// TODO: Add other languages and currencies and units when backend will be ready for this
+import ruFlag from '@assets/ru.svg'
+import arFlag from '@assets/ar.svg'
+import i18n from '../../i18n'
 
 const Language = {
   EN: 'en',
+  RU: 'ru',
+  AR: 'ar',
 } as const
 type Language = (typeof Language)[keyof typeof Language]
 
 const Currency = {
   AED: 'AED',
-  // USD: 'USD',
+  USD: 'USD',
   // EUR: 'EUR',
   // RUB: 'RUB',
   // CNY: 'CNY',
@@ -24,7 +35,7 @@ const Currency = {
 type Currency = (typeof Currency)[keyof typeof Currency]
 
 const Unit = {
-  // M2: 'm²',
+  M2: 'm²',
   FT2: 'ft²',
 } as const
 type Unit = (typeof Unit)[keyof typeof Unit]
@@ -54,15 +65,19 @@ const UNITS = Object.values(Unit)
 
 const LANGUAGE_LABELS: Record<Language, string> = {
   [Language.EN]: 'settings.languages.english',
+  [Language.RU]: 'settings.languages.russian',
+  [Language.AR]: 'settings.languages.arabic',
 }
 
 const UNIT_LABELS: Record<Unit, string> = {
-  // [Unit.M2]: 'settings.units.squareMeters',
+  [Unit.M2]: 'settings.units.squareMeters',
   [Unit.FT2]: 'settings.units.squareFeet',
 }
 
 const LANGUAGE_FLAGS: Record<Language, string> = {
   [Language.EN]: ukFlag,
+  [Language.RU]: ruFlag,
+  [Language.AR]: arFlag,
 }
 
 const FlagIcon = ({ src, alt }: { src: string; alt: string }) => (
@@ -71,10 +86,57 @@ const FlagIcon = ({ src, alt }: { src: string; alt: string }) => (
 
 const DotIcon = () => <div className={headerStyles.DotIcon}></div>
 
+const STORAGE_KEYS = {
+  currency: 'rh_currency',
+  unit: 'rh_unit',
+  language: 'rh_language',
+} as const
+
+function readStorage<T extends string>(key: string, validValues: readonly T[], fallback: T): T {
+  try {
+    const stored = localStorage.getItem(key)
+    if (stored && (validValues as readonly string[]).includes(stored)) return stored as T
+  } catch {
+    // localStorage unavailable
+  }
+  return fallback
+}
+
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>(Language.EN)
-  const [currency, setCurrency] = useState<Currency>(Currency.AED)
-  const [unit, setUnit] = useState<Unit>(Unit.FT2)
+  const [language, setLanguage] = useState<Language>(() =>
+    readStorage(STORAGE_KEYS.language, LANGUAGES, Language.EN)
+  )
+  const [currency, setCurrency] = useState<Currency>(() =>
+    readStorage(STORAGE_KEYS.currency, CURRENCIES, Currency.AED)
+  )
+  const [unit, setUnit] = useState<Unit>(() => readStorage(STORAGE_KEYS.unit, UNITS, Unit.FT2))
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.language, language)
+    } catch {
+      /* noop */
+    }
+    i18n.changeLanguage(language)
+    document.documentElement.lang = language
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr'
+  }, [language])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.currency, currency)
+    } catch {
+      /* noop */
+    }
+  }, [currency])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.unit, unit)
+    } catch {
+      /* noop */
+    }
+  }, [unit])
 
   const value = useMemo(
     () => ({
@@ -132,7 +194,7 @@ const SettingsContent = () => {
           key={lang}
           variant={language === lang ? 'primary' : 'secondary'}
           size="sm"
-          iconLeft={<img src={ukFlag} alt="UK Flag" />}
+          iconLeft={<img src={LANGUAGE_FLAGS[lang]} alt={`${lang} flag`} />}
           selected={language === lang}
           onClick={handleLanguageChange(lang)}
         >
@@ -238,9 +300,5 @@ const SettingsContent = () => {
 }
 
 export const Settings = () => {
-  return (
-    <SettingsProvider>
-      <SettingsContent />
-    </SettingsProvider>
-  )
+  return <SettingsContent />
 }

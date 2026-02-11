@@ -4,7 +4,9 @@ import { Plus, X } from 'lucide-react'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import styles from './LotForm.module.scss'
 
-const STORAGE_KEY = 'admin_lot_form_draft'
+import { STORAGE_KEYS } from '../../../../constants/storage'
+
+const STORAGE_KEY = STORAGE_KEYS.LOT_FORM
 
 type Project = {
   id?: string
@@ -31,7 +33,6 @@ type LotFormData = {
   bathrooms: string
   areaSqm: string
   floor: string
-  priceCurrency: string
   priceAmount: string
   coverUrl: string
   photos: string[]
@@ -42,7 +43,6 @@ type ValidationErrors = {
   projectId?: string
   type?: string
   status?: string
-  priceCurrency?: string
 }
 
 type LotFormProps = {
@@ -75,7 +75,6 @@ export function LotForm({
       bathrooms: '',
       areaSqm: '',
       floor: '',
-      priceCurrency: '',
       priceAmount: '',
       coverUrl: '',
       photos: [],
@@ -96,7 +95,6 @@ export function LotForm({
         bathrooms: initialData.bathrooms?.toString() || '',
         areaSqm: initialData.areaSqm?.toString() || '',
         floor: initialData.floor?.toString() || '',
-        priceCurrency: initialData.priceCurrency || '',
         priceAmount: initialData.priceAmount?.toString() || '',
         coverUrl: initialData.data?.media?.cover?.url || '',
         photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
@@ -147,7 +145,6 @@ export function LotForm({
       bathrooms: initialData.bathrooms?.toString() || '',
       areaSqm: initialData.areaSqm?.toString() || '',
       floor: initialData.floor?.toString() || '',
-      priceCurrency: initialData.priceCurrency || '',
       priceAmount: initialData.priceAmount?.toString() || '',
       coverUrl: initialData.data?.media?.cover?.url || '',
       photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
@@ -174,7 +171,6 @@ export function LotForm({
       form.bathrooms !== initialFormData.bathrooms ||
       form.areaSqm !== initialFormData.areaSqm ||
       form.floor !== initialFormData.floor ||
-      form.priceCurrency !== initialFormData.priceCurrency ||
       form.priceAmount !== initialFormData.priceAmount ||
       form.coverUrl !== initialFormData.coverUrl ||
       photosChanged ||
@@ -195,9 +191,6 @@ export function LotForm({
     }
     if (!form.status) {
       newErrors.status = 'Status is required'
-    }
-    if (!form.priceCurrency) {
-      newErrors.priceCurrency = 'Currency is required'
     }
     return newErrors
   }
@@ -220,7 +213,6 @@ export function LotForm({
       projectId: form.projectId,
       type: form.type,
       status: form.status,
-      priceCurrency: form.priceCurrency,
       priceAmount: parseFloat(form.priceAmount),
     }
 
@@ -329,18 +321,6 @@ export function LotForm({
         value={form.status}
         onChange={value => setForm({ ...form, status: value })}
         error={errors.status}
-      />
-      <Select
-        label="Price Currency"
-        options={[
-          { value: '', label: 'Select Currency' },
-          { value: 'AED', label: 'AED' },
-          { value: 'USD', label: 'USD' },
-          { value: 'EUR', label: 'EUR' },
-        ]}
-        value={form.priceCurrency}
-        onChange={value => setForm({ ...form, priceCurrency: value })}
-        error={errors.priceCurrency}
       />
       <Input
         label="Price Amount"

@@ -16,9 +16,28 @@ type Project struct {
 	AreaID      *uuid.UUID
 	Lat         *float64
 	Lng         *float64
-	Data        ProjectData
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	// Structured data fields (formerly in JSONB `data` column)
+	Description       interface{}
+	Media             *Media
+	FeaturesAmenities []string
+	Tags              []string
+	IsFeatured        bool
+	YoutubeURL        string
+	ROI               *float64
+	OurPrice          *float64
+	DeveloperPrice    *float64
+	PaymentPlan       string
+	CompletionDate    string
+	PriceFrom         *float64
+	Currency          string
+	PropertyTypes     []string
+	Bedrooms          []string
+	AreaSize          *float64
+	AreaUnit          string
+	PricesByType      []PriceByType
+	Timeline          *ProjectTimeline
 	// Embedded related data (populated by joins)
 	Developer *Developer
 	Area      *Area
@@ -26,29 +45,24 @@ type Project struct {
 	DeletedAt *time.Time
 }
 
-type ProjectData struct {
-	Description       interface{}            `json:"description,omitempty"`
-	Specs             map[string]interface{} `json:"specs,omitempty"`
-	FeaturesAmenities []interface{}          `json:"featuresAmenities,omitempty"`
-	Media             *Media                 `json:"media,omitempty"`
-	IsRecommended     bool                   `json:"isRecommended,omitempty"`
-	IsFeatured        bool                   `json:"isFeatured,omitempty"`
-	Tags              []string               `json:"tags,omitempty"`
-	YoutubeURL        string                 `json:"youtubeUrl,omitempty"`
-	Timeline          *ProjectTimeline       `json:"timeline,omitempty"`
+type PriceByType struct {
+	Type  string  `json:"type"`
+	Price float64 `json:"price"`
 }
 
 type ProjectTimeline struct {
-	ProjectAnnouncement  *time.Time `json:"projectAnnouncement,omitempty"`
-	BookingStarted       *time.Time `json:"bookingStarted,omitempty"`
-	ConstructionStarted  *time.Time `json:"constructionStarted,omitempty"`
-	ConstructionProgress *time.Time `json:"constructionProgress,omitempty"`
-	ExpectedCompletion   *time.Time `json:"expectedCompletion,omitempty"`
+	ProjectAnnouncement          *time.Time `json:"projectAnnouncement,omitempty"`
+	BookingStarted               *time.Time `json:"bookingStarted,omitempty"`
+	ConstructionStarted          *time.Time `json:"constructionStarted,omitempty"`
+	ConstructionProgress         *time.Time `json:"constructionProgress,omitempty"`
+	ConstructionProgressPercent  *int       `json:"constructionProgressPercent,omitempty"`
+	ExpectedCompletion           *time.Time `json:"expectedCompletion,omitempty"`
 }
 
 type Media struct {
 	Cover   *MediaItem  `json:"cover,omitempty"`
 	Hover   *MediaItem  `json:"hover,omitempty"`
+	Logo    *MediaItem  `json:"logo,omitempty"`
 	Gallery []MediaItem `json:"gallery,omitempty"`
 }
 

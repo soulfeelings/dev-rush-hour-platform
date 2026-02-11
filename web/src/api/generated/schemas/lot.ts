@@ -7,6 +7,7 @@
  */
 import type { LotStatus } from './lotStatus'
 import type { LotType } from './lotType'
+import type { Badge } from './badge'
 import type { LotData } from './lotData'
 import type { Project } from './project'
 import type { Developer } from './developer'
@@ -23,9 +24,10 @@ export interface Lot {
   bathrooms?: number
   areaSqm?: number
   floor?: number
-  priceCurrency?: string
   priceAmount?: number
   bonusKeys?: string[]
+  badgeIds?: string[]
+  badges?: Badge[]
   data?: LotData
   /** Вложенный объект проекта (если загружен) */
   project?: Project

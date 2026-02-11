@@ -13,19 +13,12 @@ type Badge struct {
 	BackgroundColor string
 	TextColor       string
 	Icon            *string
-	Status          BadgeStatus
+	IconColor       string
 	SortOrder       int
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time
 }
-
-type BadgeStatus string
-
-const (
-	BadgeStatusActive   BadgeStatus = "active"
-	BadgeStatusInactive BadgeStatus = "inactive"
-)
 
 type ProjectBadge struct {
 	ProjectID uuid.UUID

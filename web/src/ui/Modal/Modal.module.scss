@@ -48,7 +48,7 @@
 .closeBtn {
   position: absolute;
   top: $spacing-4;
-  right: $spacing-4;
+  inset-inline-end: $spacing-4;
   padding: 0;
   width: $spacing-4;
   height: $spacing-4;

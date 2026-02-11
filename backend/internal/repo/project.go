@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type ProjectRepo struct {
@@ -23,22 +24,172 @@ func NewProjectRepo(db *sql.DB) *ProjectRepo {
 	}
 }
 
+// projectColumns is the list of project columns to SELECT (without table alias).
+const projectColumns = `id, slug, name, status, sale, developer_id, area_id, lat, lng,
+	description, media, features_amenities, tags, is_featured, youtube_url,
+	roi, our_price, developer_price, payment_plan, completion_date,
+	price_from, currency, property_types, bedrooms, area_size, area_unit, prices_by_type,
+	timeline_announcement, timeline_booking_started, timeline_construction_started,
+	timeline_construction_progress, timeline_construction_progress_pct, timeline_expected_completion,
+	created_at, updated_at, deleted_at`
+
+// projectColumnsAliased returns project columns with a table alias prefix.
+func projectColumnsAliased(alias string) string {
+	return fmt.Sprintf(`%[1]s.id, %[1]s.slug, %[1]s.name, %[1]s.status, %[1]s.sale, %[1]s.developer_id, %[1]s.area_id, %[1]s.lat, %[1]s.lng,
+	%[1]s.description, %[1]s.media, %[1]s.features_amenities, %[1]s.tags, %[1]s.is_featured, %[1]s.youtube_url,
+	%[1]s.roi, %[1]s.our_price, %[1]s.developer_price, %[1]s.payment_plan, %[1]s.completion_date,
+	%[1]s.price_from, %[1]s.currency, %[1]s.property_types, %[1]s.bedrooms, %[1]s.area_size, %[1]s.area_unit, %[1]s.prices_by_type,
+	%[1]s.timeline_announcement, %[1]s.timeline_booking_started, %[1]s.timeline_construction_started,
+	%[1]s.timeline_construction_progress, %[1]s.timeline_construction_progress_pct, %[1]s.timeline_expected_completion,
+	%[1]s.created_at, %[1]s.updated_at`, alias)
+}
+
+// populateProjectFromScan fills project fields from nullable scan variables.
+func populateProjectFromScan(
+	project *domain.Project,
+	developerID, areaID sql.NullString,
+	lat, lng sql.NullFloat64,
+	descJSON, mediaJSON, pricesByTypeJSON []byte,
+	featuresAmenities, tags, propertyTypes, bedroomArr pq.StringArray,
+	sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit sql.NullString,
+	isFeatured sql.NullBool,
+	roi, ourPrice, developerPrice, priceFrom, areaSize sql.NullFloat64,
+	timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime,
+	timelineConstProgPct sql.NullInt64,
+) error {
+	if sale.Valid {
+		project.Sale = sale.String
+	}
+	if developerID.Valid {
+		id := uuid.MustParse(developerID.String)
+		project.DeveloperID = &id
+	}
+	if areaID.Valid {
+		id := uuid.MustParse(areaID.String)
+		project.AreaID = &id
+	}
+	if lat.Valid {
+		project.Lat = &lat.Float64
+	}
+	if lng.Valid {
+		project.Lng = &lng.Float64
+	}
+
+	// JSONB fields
+	if len(descJSON) > 0 {
+		if err := json.Unmarshal(descJSON, &project.Description); err != nil {
+			return err
+		}
+	}
+	if len(mediaJSON) > 0 {
+		project.Media = &domain.Media{}
+		if err := json.Unmarshal(mediaJSON, project.Media); err != nil {
+			return err
+		}
+	}
+	if len(pricesByTypeJSON) > 0 {
+		if err := json.Unmarshal(pricesByTypeJSON, &project.PricesByType); err != nil {
+			return err
+		}
+	}
+
+	// Array fields
+	project.FeaturesAmenities = []string(featuresAmenities)
+	project.Tags = []string(tags)
+	project.PropertyTypes = []string(propertyTypes)
+	project.Bedrooms = []string(bedroomArr)
+
+	// String fields
+	if youtubeURL.Valid {
+		project.YoutubeURL = youtubeURL.String
+	}
+	if paymentPlan.Valid {
+		project.PaymentPlan = paymentPlan.String
+	}
+	if completionDate.Valid {
+		project.CompletionDate = completionDate.String
+	}
+	if currency.Valid {
+		project.Currency = currency.String
+	}
+	if areaUnit.Valid {
+		project.AreaUnit = areaUnit.String
+	}
+
+	// Bool
+	if isFeatured.Valid {
+		project.IsFeatured = isFeatured.Bool
+	}
+
+	// Float fields
+	if roi.Valid {
+		project.ROI = &roi.Float64
+	}
+	if ourPrice.Valid {
+		project.OurPrice = &ourPrice.Float64
+	}
+	if developerPrice.Valid {
+		project.DeveloperPrice = &developerPrice.Float64
+	}
+	if priceFrom.Valid {
+		project.PriceFrom = &priceFrom.Float64
+	}
+	if areaSize.Valid {
+		project.AreaSize = &areaSize.Float64
+	}
+
+	// Timeline
+	hasTimeline := timelineAnn.Valid || timelineBook.Valid || timelineConstStart.Valid ||
+		timelineConstProg.Valid || timelineExp.Valid || timelineConstProgPct.Valid
+	if hasTimeline {
+		tl := &domain.ProjectTimeline{}
+		if timelineAnn.Valid {
+			tl.ProjectAnnouncement = &timelineAnn.Time
+		}
+		if timelineBook.Valid {
+			tl.BookingStarted = &timelineBook.Time
+		}
+		if timelineConstStart.Valid {
+			tl.ConstructionStarted = &timelineConstStart.Time
+		}
+		if timelineConstProg.Valid {
+			tl.ConstructionProgress = &timelineConstProg.Time
+		}
+		if timelineConstProgPct.Valid {
+			pct := int(timelineConstProgPct.Int64)
+			tl.ConstructionProgressPercent = &pct
+		}
+		if timelineExp.Valid {
+			tl.ExpectedCompletion = &timelineExp.Time
+		}
+		project.Timeline = tl
+	}
+
+	return nil
+}
+
 func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 	r.logger.Info("project_repo_get_by_slug_started",
 		"project_slug", slug,
 	)
 
 	var project domain.Project
-	var dataJSON []byte
-	var developerID, areaID sql.NullString
-	var lat, lng sql.NullFloat64
-	var devName, areaName, areaCity sql.NullString
-	var devDataJSON []byte
-	var sale sql.NullString
+	var (
+		developerID, areaID                                                          sql.NullString
+		lat, lng                                                                     sql.NullFloat64
+		descJSON, mediaJSON, pricesByTypeJSON                                        []byte
+		featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
+		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
+		isFeatured                                                                   sql.NullBool
+		roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
+		timelineConstProgPct                                                         sql.NullInt64
+	)
+	var devName, devLogoURL, areaName, areaCity sql.NullString
 
 	err := r.db.QueryRow(`
-		SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng, p.data, p.created_at, p.updated_at,
-		       d.name as dev_name, d.data as dev_data,
+		SELECT `+projectColumnsAliased("p")+`,
+		       d.name as dev_name, d.logo_url as dev_logo_url,
 		       a.name as area_name, a.city as area_city
 		FROM projects p
 		LEFT JOIN developers d ON p.developer_id = d.id
@@ -46,9 +197,14 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		WHERE p.slug = $1 AND p.deleted_at IS NULL
 	`, slug).Scan(
 		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
-		&developerID, &areaID, &lat, &lng, &dataJSON,
+		&developerID, &areaID, &lat, &lng,
+		&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
+		&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+		&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
+		&timelineAnn, &timelineBook, &timelineConstStart,
+		&timelineConstProg, &timelineConstProgPct, &timelineExp,
 		&project.CreatedAt, &project.UpdatedAt,
-		&devName, &devDataJSON,
+		&devName, &devLogoURL,
 		&areaName, &areaCity,
 	)
 
@@ -66,50 +222,27 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		return nil, err
 	}
 
-	if sale.Valid {
-		project.Sale = sale.String
-	}
-
-	if developerID.Valid {
-		id := uuid.MustParse(developerID.String)
-		project.DeveloperID = &id
-	}
-	if areaID.Valid {
-		id := uuid.MustParse(areaID.String)
-		project.AreaID = &id
-	}
-	if lat.Valid {
-		project.Lat = &lat.Float64
-	}
-	if lng.Valid {
-		project.Lng = &lng.Float64
-	}
-
-	if len(dataJSON) > 0 {
-		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-			r.logger.Error("project_repo_get_by_slug_unmarshal_failed",
-				"project_slug", slug,
-				"error", err.Error(),
-			)
-			return nil, err
-		}
-	} else {
-		project.Data = domain.ProjectData{
-			Specs:             make(map[string]interface{}),
-			FeaturesAmenities: []interface{}{},
-			Tags:              []string{},
-		}
+	if err := populateProjectFromScan(&project,
+		developerID, areaID, lat, lng,
+		descJSON, mediaJSON, pricesByTypeJSON,
+		featuresAmenities, tags, propertyTypes, bedroomArr,
+		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
+		isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
+		timelineConstProgPct,
+	); err != nil {
+		r.logger.Error("project_repo_get_by_slug_unmarshal_failed",
+			"project_slug", slug,
+			"error", err.Error(),
+		)
+		return nil, err
 	}
 
 	// Populate developer info
 	if devName.Valid {
 		project.Developer = &domain.Developer{
-			Name: devName.String,
-		}
-		if len(devDataJSON) > 0 {
-			if err := json.Unmarshal(devDataJSON, &project.Developer.Data); err != nil {
-				return nil, err
-			}
+			Name:    devName.String,
+			LogoURL: devLogoURL.String,
 		}
 	}
 
@@ -138,8 +271,8 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 	)
 
 	query := `
-		SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng, p.data, p.created_at, p.updated_at,
-		       d.name as dev_name, d.data as dev_data,
+		SELECT ` + projectColumnsAliased("p") + `,
+		       d.name as dev_name, d.logo_url as dev_logo_url,
 		       a.name as area_name, a.city as area_city
 		FROM projects p
 		LEFT JOIN developers d ON p.developer_id = d.id
@@ -168,16 +301,15 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 		argPos++
 	}
 
-	// Filter by project status (ready, construction, planning - stored in sale field or data)
+	// Filter by project status (ready, construction, planning - stored in sale field)
 	if filters.Status != nil {
 		whereClauses = append(whereClauses, fmt.Sprintf("p.sale = $%d", argPos))
 		args = append(args, *filters.Status)
 		argPos++
 	}
 
-	// Filter by bedrooms - match if project bedrooms is in the selected array
+	// Filter by bedrooms - uses TEXT[] column with overlap operator
 	if len(filters.Bedrooms) > 0 {
-		// Build IN clause for bedrooms
 		placeholders := make([]string, len(filters.Bedrooms))
 		for i, bed := range filters.Bedrooms {
 			placeholders[i] = fmt.Sprintf("$%d", argPos)
@@ -185,12 +317,12 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			argPos++
 		}
 		whereClauses = append(whereClauses, fmt.Sprintf(
-			"p.data->'specs'->>'bedrooms' IS NOT NULL AND p.data->'specs'->>'bedrooms' != '' AND (p.data->'specs'->>'bedrooms')::int IN (%s)",
+			"p.bedrooms && ARRAY[%s]::text[]",
 			strings.Join(placeholders, ", "),
 		))
 	}
 
-	// Filter by bathrooms - match if project bathrooms is in the selected array
+	// Filter by bathrooms
 	if len(filters.Bathrooms) > 0 {
 		placeholders := make([]string, len(filters.Bathrooms))
 		for i, bath := range filters.Bathrooms {
@@ -199,7 +331,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			argPos++
 		}
 		whereClauses = append(whereClauses, fmt.Sprintf(
-			"p.data->'specs'->>'bathrooms' IS NOT NULL AND p.data->'specs'->>'bathrooms' != '' AND (p.data->'specs'->>'bathrooms')::int IN (%s)",
+			"p.bedrooms && ARRAY[%s]::text[]",
 			strings.Join(placeholders, ", "),
 		))
 	}
@@ -212,13 +344,13 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 	}
 
 	if filters.PriceMin != nil {
-		whereClauses = append(whereClauses, fmt.Sprintf("p.data->'specs'->>'priceFrom' IS NOT NULL AND p.data->'specs'->>'priceFrom' != '' AND (p.data->'specs'->>'priceFrom')::numeric >= $%d", argPos))
+		whereClauses = append(whereClauses, fmt.Sprintf("p.price_from IS NOT NULL AND p.price_from >= $%d", argPos))
 		args = append(args, *filters.PriceMin)
 		argPos++
 	}
 
 	if filters.PriceMax != nil {
-		whereClauses = append(whereClauses, fmt.Sprintf("p.data->'specs'->>'priceFrom' IS NOT NULL AND p.data->'specs'->>'priceFrom' != '' AND (p.data->'specs'->>'priceFrom')::numeric <= $%d", argPos))
+		whereClauses = append(whereClauses, fmt.Sprintf("p.price_from IS NOT NULL AND p.price_from <= $%d", argPos))
 		args = append(args, *filters.PriceMax)
 		argPos++
 	}
@@ -228,9 +360,9 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 	// Apply sorting
 	switch sort {
 	case domain.ProjectSortPriceAsc:
-		query += ` ORDER BY (p.data->'specs'->>'priceFrom')::numeric ASC NULLS LAST`
+		query += ` ORDER BY p.price_from ASC NULLS LAST`
 	case domain.ProjectSortPriceDesc:
-		query += ` ORDER BY (p.data->'specs'->>'priceFrom')::numeric DESC NULLS LAST`
+		query += ` ORDER BY p.price_from DESC NULLS LAST`
 	case domain.ProjectSortNewest:
 		query += ` ORDER BY p.created_at DESC`
 	default:
@@ -250,63 +382,55 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 	projects := []domain.Project{}
 	for rows.Next() {
 		var project domain.Project
-		var dataJSON []byte
-		var developerID, areaID sql.NullString
-		var lat, lng sql.NullFloat64
-		var devName, areaName, areaCity sql.NullString
-		var devDataJSON []byte
-		var sale sql.NullString
+		var (
+			developerID, areaID                                                          sql.NullString
+			lat, lng                                                                     sql.NullFloat64
+			descJSON, mediaJSON, pricesByTypeJSON                                        []byte
+			featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
+			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
+			isFeatured                                                                   sql.NullBool
+			roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
+			timelineConstProgPct                                                         sql.NullInt64
+		)
+		var devName, devLogoURL, areaName, areaCity sql.NullString
 
 		if err := rows.Scan(
 			&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
-			&developerID, &areaID, &lat, &lng, &dataJSON,
+			&developerID, &areaID, &lat, &lng,
+			&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
+			&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+			&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
+			&timelineAnn, &timelineBook, &timelineConstStart,
+			&timelineConstProg, &timelineConstProgPct, &timelineExp,
 			&project.CreatedAt, &project.UpdatedAt,
-			&devName, &devDataJSON,
+			&devName, &devLogoURL,
 			&areaName, &areaCity,
 		); err != nil {
 			return nil, err
 		}
 
-		if sale.Valid {
-			project.Sale = sale.String
-		}
-
-		if developerID.Valid {
-			id := uuid.MustParse(developerID.String)
-			project.DeveloperID = &id
-		}
-		if areaID.Valid {
-			id := uuid.MustParse(areaID.String)
-			project.AreaID = &id
-		}
-		if lat.Valid {
-			project.Lat = &lat.Float64
-		}
-		if lng.Valid {
-			project.Lng = &lng.Float64
-		}
-
-		if len(dataJSON) > 0 {
-			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-				r.logger.Error("project_repo_list_unmarshal_failed",
-					"project_id", project.ID,
-					"error", err.Error(),
-				)
-				return nil, err
-			}
-		} else {
-			project.Data = domain.ProjectData{}
+		if err := populateProjectFromScan(&project,
+			developerID, areaID, lat, lng,
+			descJSON, mediaJSON, pricesByTypeJSON,
+			featuresAmenities, tags, propertyTypes, bedroomArr,
+			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
+			isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
+			timelineConstProgPct,
+		); err != nil {
+			r.logger.Error("project_repo_list_unmarshal_failed",
+				"project_id", project.ID,
+				"error", err.Error(),
+			)
+			return nil, err
 		}
 
 		// Populate developer info
 		if devName.Valid {
 			project.Developer = &domain.Developer{
-				Name: devName.String,
-			}
-			if len(devDataJSON) > 0 {
-				if err := json.Unmarshal(devDataJSON, &project.Developer.Data); err != nil {
-					return nil, err
-				}
+				Name:    devName.String,
+				LogoURL: devLogoURL.String,
 			}
 		}
 
@@ -369,13 +493,35 @@ func (r *ProjectRepo) GetIDBySlug(slug string) (*uuid.UUID, error) {
 	return &id, nil
 }
 
+func (r *ProjectRepo) marshalProjectJSONFields(project *domain.Project) (descJSON, mediaJSON, pricesByTypeJSON []byte, err error) {
+	if project.Description != nil {
+		descJSON, err = json.Marshal(project.Description)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+	}
+	if project.Media != nil {
+		mediaJSON, err = json.Marshal(project.Media)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+	}
+	if len(project.PricesByType) > 0 {
+		pricesByTypeJSON, err = json.Marshal(project.PricesByType)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+	}
+	return descJSON, mediaJSON, pricesByTypeJSON, nil
+}
+
 func (r *ProjectRepo) Create(project *domain.Project) error {
 	r.logger.Info("project_repo_create_started",
 		"project_slug", project.Slug,
 		"project_name", project.Name,
 	)
 
-	dataJSON, err := json.Marshal(project.Data)
+	descJSON, mediaJSON, pricesByTypeJSON, err := r.marshalProjectJSONFields(project)
 	if err != nil {
 		r.logger.Error("project_repo_create_marshal_failed",
 			"project_slug", project.Slug,
@@ -401,12 +547,36 @@ func (r *ProjectRepo) Create(project *domain.Project) error {
 	}
 
 	err = r.db.QueryRow(`
-		INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng, data)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
+			description, media, features_amenities, tags, is_featured, youtube_url,
+			roi, our_price, developer_price, payment_plan, completion_date,
+			price_from, currency, property_types, bedrooms, area_size, area_unit, prices_by_type,
+			timeline_announcement, timeline_booking_started, timeline_construction_started,
+			timeline_construction_progress, timeline_construction_progress_pct, timeline_expected_completion)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8,
+			$9, $10, $11, $12, $13, $14,
+			$15, $16, $17, $18, $19,
+			$20, $21, $22, $23, $24, $25, $26,
+			$27, $28, $29, $30, $31, $32)
 		RETURNING id, created_at, updated_at
-	`, project.Slug, project.Name, project.Status, project.Sale, developerID, areaID, lat, lng, dataJSON).Scan(
-		&project.ID, &project.CreatedAt, &project.UpdatedAt,
-	)
+	`,
+		project.Slug, project.Name, project.Status, project.Sale, developerID, areaID, lat, lng,
+		nullableJSON(descJSON), nullableJSON(mediaJSON),
+		pq.Array(project.FeaturesAmenities), pq.Array(project.Tags),
+		project.IsFeatured, nullableString(project.YoutubeURL),
+		nullableFloat(project.ROI), nullableFloat(project.OurPrice), nullableFloat(project.DeveloperPrice),
+		nullableString(project.PaymentPlan), nullableString(project.CompletionDate),
+		nullableFloat(project.PriceFrom), nullableString(project.Currency),
+		pq.Array(project.PropertyTypes), pq.Array(project.Bedrooms),
+		nullableFloat(project.AreaSize), nullableString(project.AreaUnit),
+		nullableJSON(pricesByTypeJSON),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "announcement") }),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "booking") }),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "constStart") }),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "constProgress") }),
+		nullableTimelineInt(project.Timeline),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "expected") }),
+	).Scan(&project.ID, &project.CreatedAt, &project.UpdatedAt)
 
 	if err != nil {
 		r.logger.Error("project_repo_create_failed",
@@ -429,7 +599,7 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 		"project_id", id,
 	)
 
-	dataJSON, err := json.Marshal(project.Data)
+	descJSON, mediaJSON, pricesByTypeJSON, err := r.marshalProjectJSONFields(project)
 	if err != nil {
 		r.logger.Error("project_repo_update_marshal_failed",
 			"project_id", id,
@@ -455,11 +625,35 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 	}
 
 	err = r.db.QueryRow(`
-		UPDATE projects
-		SET slug = $1, name = $2, status = $3, sale = $4, developer_id = $5, area_id = $6, lat = $7, lng = $8, data = $9, updated_at = NOW()
-		WHERE id = $10 AND deleted_at IS NULL
+		UPDATE projects SET
+			slug = $1, name = $2, status = $3, sale = $4, developer_id = $5, area_id = $6, lat = $7, lng = $8,
+			description = $9, media = $10, features_amenities = $11, tags = $12, is_featured = $13, youtube_url = $14,
+			roi = $15, our_price = $16, developer_price = $17, payment_plan = $18, completion_date = $19,
+			price_from = $20, currency = $21, property_types = $22, bedrooms = $23, area_size = $24, area_unit = $25, prices_by_type = $26,
+			timeline_announcement = $27, timeline_booking_started = $28, timeline_construction_started = $29,
+			timeline_construction_progress = $30, timeline_construction_progress_pct = $31, timeline_expected_completion = $32,
+			updated_at = NOW()
+		WHERE id = $33 AND deleted_at IS NULL
 		RETURNING updated_at
-	`, project.Slug, project.Name, project.Status, project.Sale, developerID, areaID, lat, lng, dataJSON, id).Scan(&project.UpdatedAt)
+	`,
+		project.Slug, project.Name, project.Status, project.Sale, developerID, areaID, lat, lng,
+		nullableJSON(descJSON), nullableJSON(mediaJSON),
+		pq.Array(project.FeaturesAmenities), pq.Array(project.Tags),
+		project.IsFeatured, nullableString(project.YoutubeURL),
+		nullableFloat(project.ROI), nullableFloat(project.OurPrice), nullableFloat(project.DeveloperPrice),
+		nullableString(project.PaymentPlan), nullableString(project.CompletionDate),
+		nullableFloat(project.PriceFrom), nullableString(project.Currency),
+		pq.Array(project.PropertyTypes), pq.Array(project.Bedrooms),
+		nullableFloat(project.AreaSize), nullableString(project.AreaUnit),
+		nullableJSON(pricesByTypeJSON),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "announcement") }),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "booking") }),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "constStart") }),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "constProgress") }),
+		nullableTimelineInt(project.Timeline),
+		nullableTime(project.Timeline, func(t *domain.ProjectTimeline) sql.NullTime { return timelineField(t, "expected") }),
+		id,
+	).Scan(&project.UpdatedAt)
 
 	if err != nil {
 		r.logger.Error("project_repo_update_failed",
@@ -484,18 +678,30 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 	)
 
 	var project domain.Project
-	var dataJSON []byte
-	var developerID, areaID sql.NullString
-	var lat, lng sql.NullFloat64
-	var sale sql.NullString
+	var (
+		developerID, areaID                                                          sql.NullString
+		lat, lng                                                                     sql.NullFloat64
+		descJSON, mediaJSON, pricesByTypeJSON                                        []byte
+		featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
+		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
+		isFeatured                                                                   sql.NullBool
+		roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
+		timelineConstProgPct                                                         sql.NullInt64
+	)
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
+		SELECT `+projectColumns+`
 		FROM projects
 		WHERE id = $1 AND deleted_at IS NULL
 	`, id).Scan(
 		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
-		&developerID, &areaID, &lat, &lng, &dataJSON,
+		&developerID, &areaID, &lat, &lng,
+		&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
+		&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+		&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
+		&timelineAnn, &timelineBook, &timelineConstStart,
+		&timelineConstProg, &timelineConstProgPct, &timelineExp,
 		&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
 	)
 
@@ -513,38 +719,20 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		return nil, err
 	}
 
-	if sale.Valid {
-		project.Sale = sale.String
-	}
-	if developerID.Valid {
-		id := uuid.MustParse(developerID.String)
-		project.DeveloperID = &id
-	}
-	if areaID.Valid {
-		id := uuid.MustParse(areaID.String)
-		project.AreaID = &id
-	}
-	if lat.Valid {
-		project.Lat = &lat.Float64
-	}
-	if lng.Valid {
-		project.Lng = &lng.Float64
-	}
-
-	if len(dataJSON) > 0 {
-		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-			r.logger.Error("project_repo_get_by_id_unmarshal_failed",
-				"project_id", id,
-				"error", err.Error(),
-			)
-			return nil, err
-		}
-	} else {
-		project.Data = domain.ProjectData{
-			Specs:             make(map[string]interface{}),
-			FeaturesAmenities: []interface{}{},
-			Tags:              []string{},
-		}
+	if err := populateProjectFromScan(&project,
+		developerID, areaID, lat, lng,
+		descJSON, mediaJSON, pricesByTypeJSON,
+		featuresAmenities, tags, propertyTypes, bedroomArr,
+		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
+		isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
+		timelineConstProgPct,
+	); err != nil {
+		r.logger.Error("project_repo_get_by_id_unmarshal_failed",
+			"project_id", id,
+			"error", err.Error(),
+		)
+		return nil, err
 	}
 
 	r.logger.Info("project_repo_get_by_id_completed",
@@ -559,7 +747,7 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 	r.logger.Info("project_repo_list_all_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
+		SELECT ` + projectColumns + `
 		FROM projects
 		WHERE deleted_at IS NULL
 		ORDER BY name
@@ -575,44 +763,45 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 	projects := []domain.Project{}
 	for rows.Next() {
 		var project domain.Project
-		var dataJSON []byte
-		var developerID, areaID sql.NullString
-		var lat, lng sql.NullFloat64
+		var (
+			developerID, areaID                                                          sql.NullString
+			lat, lng                                                                     sql.NullFloat64
+			descJSON, mediaJSON, pricesByTypeJSON                                        []byte
+			featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
+			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
+			isFeatured                                                                   sql.NullBool
+			roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
+			timelineConstProgPct                                                         sql.NullInt64
+		)
 
 		if err := rows.Scan(
-			&project.ID, &project.Slug, &project.Name, &project.Status, &project.Sale,
-			&developerID, &areaID, &lat, &lng, &dataJSON,
+			&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
+			&developerID, &areaID, &lat, &lng,
+			&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
+			&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+			&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
+			&timelineAnn, &timelineBook, &timelineConstStart,
+			&timelineConstProg, &timelineConstProgPct, &timelineExp,
 			&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
 
-
-		if developerID.Valid {
-			id := uuid.MustParse(developerID.String)
-			project.DeveloperID = &id
-		}
-		if areaID.Valid {
-			id := uuid.MustParse(areaID.String)
-			project.AreaID = &id
-		}
-		if lat.Valid {
-			project.Lat = &lat.Float64
-		}
-		if lng.Valid {
-			project.Lng = &lng.Float64
-		}
-
-		if len(dataJSON) > 0 {
-			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-				r.logger.Error("project_repo_list_all_unmarshal_failed",
-					"project_id", project.ID,
-					"error", err.Error(),
-				)
-				return nil, err
-			}
-		} else {
-			project.Data = domain.ProjectData{}
+		if err := populateProjectFromScan(&project,
+			developerID, areaID, lat, lng,
+			descJSON, mediaJSON, pricesByTypeJSON,
+			featuresAmenities, tags, propertyTypes, bedroomArr,
+			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
+			isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
+			timelineConstProgPct,
+		); err != nil {
+			r.logger.Error("project_repo_list_all_unmarshal_failed",
+				"project_id", project.ID,
+				"error", err.Error(),
+			)
+			return nil, err
 		}
 
 		projects = append(projects, project)
@@ -663,7 +852,7 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 	r.logger.Info("project_repo_list_deleted_started")
 
 	rows, err := r.db.Query(`
-		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
+		SELECT ` + projectColumns + `
 		FROM projects
 		WHERE deleted_at IS NOT NULL
 		ORDER BY deleted_at DESC
@@ -679,14 +868,26 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 	projects := []domain.Project{}
 	for rows.Next() {
 		var project domain.Project
-		var dataJSON []byte
-		var developerID, areaID sql.NullString
-		var lat, lng sql.NullFloat64
-		var sale sql.NullString
+		var (
+			developerID, areaID                                                          sql.NullString
+			lat, lng                                                                     sql.NullFloat64
+			descJSON, mediaJSON, pricesByTypeJSON                                        []byte
+			featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
+			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
+			isFeatured                                                                   sql.NullBool
+			roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
+			timelineConstProgPct                                                         sql.NullInt64
+		)
 
 		if err := rows.Scan(
 			&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
-			&developerID, &areaID, &lat, &lng, &dataJSON,
+			&developerID, &areaID, &lat, &lng,
+			&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
+			&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+			&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
+			&timelineAnn, &timelineBook, &timelineConstStart,
+			&timelineConstProg, &timelineConstProgPct, &timelineExp,
 			&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
 		); err != nil {
 			r.logger.Error("project_repo_list_deleted_scan_failed",
@@ -695,34 +896,20 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 			return nil, err
 		}
 
-		if sale.Valid {
-			project.Sale = sale.String
-		}
-		if developerID.Valid {
-			id := uuid.MustParse(developerID.String)
-			project.DeveloperID = &id
-		}
-		if areaID.Valid {
-			id := uuid.MustParse(areaID.String)
-			project.AreaID = &id
-		}
-		if lat.Valid {
-			project.Lat = &lat.Float64
-		}
-		if lng.Valid {
-			project.Lng = &lng.Float64
-		}
-
-		if len(dataJSON) > 0 {
-			if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-				r.logger.Error("project_repo_list_deleted_unmarshal_failed",
-					"project_id", project.ID,
-					"error", err.Error(),
-				)
-				return nil, err
-			}
-		} else {
-			project.Data = domain.ProjectData{}
+		if err := populateProjectFromScan(&project,
+			developerID, areaID, lat, lng,
+			descJSON, mediaJSON, pricesByTypeJSON,
+			featuresAmenities, tags, propertyTypes, bedroomArr,
+			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
+			isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
+			timelineConstProgPct,
+		); err != nil {
+			r.logger.Error("project_repo_list_deleted_unmarshal_failed",
+				"project_id", project.ID,
+				"error", err.Error(),
+			)
+			return nil, err
 		}
 
 		projects = append(projects, project)
@@ -737,18 +924,30 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 
 func (r *ProjectRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Project, error) {
 	var project domain.Project
-	var dataJSON []byte
-	var developerID, areaID sql.NullString
-	var lat, lng sql.NullFloat64
-	var sale sql.NullString
+	var (
+		developerID, areaID                                                          sql.NullString
+		lat, lng                                                                     sql.NullFloat64
+		descJSON, mediaJSON, pricesByTypeJSON                                        []byte
+		featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
+		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
+		isFeatured                                                                   sql.NullBool
+		roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
+		timelineConstProgPct                                                         sql.NullInt64
+	)
 
 	err := r.db.QueryRow(`
-		SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng, data, created_at, updated_at, deleted_at
+		SELECT `+projectColumns+`
 		FROM projects
 		WHERE id = $1
 	`, id).Scan(
 		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
-		&developerID, &areaID, &lat, &lng, &dataJSON,
+		&developerID, &areaID, &lat, &lng,
+		&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
+		&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+		&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
+		&timelineAnn, &timelineBook, &timelineConstStart,
+		&timelineConstProg, &timelineConstProgPct, &timelineExp,
 		&project.CreatedAt, &project.UpdatedAt, &project.DeletedAt,
 	)
 
@@ -759,30 +958,16 @@ func (r *ProjectRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Project, error) 
 		return nil, err
 	}
 
-	if sale.Valid {
-		project.Sale = sale.String
-	}
-	if developerID.Valid {
-		id := uuid.MustParse(developerID.String)
-		project.DeveloperID = &id
-	}
-	if areaID.Valid {
-		id := uuid.MustParse(areaID.String)
-		project.AreaID = &id
-	}
-	if lat.Valid {
-		project.Lat = &lat.Float64
-	}
-	if lng.Valid {
-		project.Lng = &lng.Float64
-	}
-
-	if len(dataJSON) > 0 {
-		if err := json.Unmarshal(dataJSON, &project.Data); err != nil {
-			return nil, err
-		}
-	} else {
-		project.Data = domain.ProjectData{}
+	if err := populateProjectFromScan(&project,
+		developerID, areaID, lat, lng,
+		descJSON, mediaJSON, pricesByTypeJSON,
+		featuresAmenities, tags, propertyTypes, bedroomArr,
+		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
+		isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
+		timelineConstProgPct,
+	); err != nil {
+		return nil, err
 	}
 
 	return &project, nil
@@ -818,4 +1003,70 @@ func (r *ProjectRepo) HardDelete(id uuid.UUID) error {
 
 	r.logger.Info("project_repo_hard_delete_completed", "project_id", id)
 	return nil
+}
+
+// Helper functions for nullable SQL values
+
+func nullableJSON(data []byte) interface{} {
+	if len(data) == 0 {
+		return nil
+	}
+	return data
+}
+
+func nullableString(s string) sql.NullString {
+	if s == "" {
+		return sql.NullString{}
+	}
+	return sql.NullString{String: s, Valid: true}
+}
+
+func nullableFloat(f *float64) sql.NullFloat64 {
+	if f == nil {
+		return sql.NullFloat64{}
+	}
+	return sql.NullFloat64{Float64: *f, Valid: true}
+}
+
+func timelineField(t *domain.ProjectTimeline, field string) sql.NullTime {
+	if t == nil {
+		return sql.NullTime{}
+	}
+	switch field {
+	case "announcement":
+		if t.ProjectAnnouncement != nil {
+			return sql.NullTime{Time: *t.ProjectAnnouncement, Valid: true}
+		}
+	case "booking":
+		if t.BookingStarted != nil {
+			return sql.NullTime{Time: *t.BookingStarted, Valid: true}
+		}
+	case "constStart":
+		if t.ConstructionStarted != nil {
+			return sql.NullTime{Time: *t.ConstructionStarted, Valid: true}
+		}
+	case "constProgress":
+		if t.ConstructionProgress != nil {
+			return sql.NullTime{Time: *t.ConstructionProgress, Valid: true}
+		}
+	case "expected":
+		if t.ExpectedCompletion != nil {
+			return sql.NullTime{Time: *t.ExpectedCompletion, Valid: true}
+		}
+	}
+	return sql.NullTime{}
+}
+
+func nullableTime(t *domain.ProjectTimeline, fn func(*domain.ProjectTimeline) sql.NullTime) sql.NullTime {
+	if t == nil {
+		return sql.NullTime{}
+	}
+	return fn(t)
+}
+
+func nullableTimelineInt(t *domain.ProjectTimeline) sql.NullInt64 {
+	if t == nil || t.ConstructionProgressPercent == nil {
+		return sql.NullInt64{}
+	}
+	return sql.NullInt64{Int64: int64(*t.ConstructionProgressPercent), Valid: true}
 }

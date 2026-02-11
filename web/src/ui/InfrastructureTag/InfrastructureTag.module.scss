@@ -1,0 +1,42 @@
+@use '@/styles' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: $radius-md;
+  white-space: nowrap;
+}
+
+.default {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.small {
+  padding: 4px 8px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: $color-yellow;
+  color: #000000;
+  flex-shrink: 0;
+
+  svg {
+    width: 11px;
+    height: 11px;
+  }
+}
+
+.text {
+  color: $color-text;
+  line-height: 1;
+}
