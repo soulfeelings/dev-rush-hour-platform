@@ -327,6 +327,9 @@
   "lotDetail.status.sold": "Sold",
   "lotDetail.status.unknown": "Unknown",
   "lotDetail.modal3D": "3D Apartment Model",
+  "lotDetail.viewDetails": "View Details",
+  "lotDetail.viewPhotos": "View Photos",
+  "lotDetail.orientationMap": "Orientation",
 
   "developerDetail.notFound.title": "Developer Not Found",
   "developerDetail.notFound.description": "Developer \"{{slug}}\" does not exist.",

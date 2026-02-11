@@ -327,6 +327,9 @@
   "lotDetail.status.sold": "Продан",
   "lotDetail.status.unknown": "Неизвестно",
   "lotDetail.modal3D": "3D модель квартиры",
+  "lotDetail.viewDetails": "Детали вида",
+  "lotDetail.viewPhotos": "Фотографии вида",
+  "lotDetail.orientationMap": "Ориентация",
 
   "developerDetail.notFound.title": "Застройщик не найден",
   "developerDetail.notFound.description": "Застройщик \"{{slug}}\" не существует.",

@@ -327,6 +327,9 @@
   "lotDetail.status.sold": "مباع",
   "lotDetail.status.unknown": "غير معروف",
   "lotDetail.modal3D": "نموذج ثلاثي الأبعاد للشقة",
+  "lotDetail.viewDetails": "تفاصيل الإطلالة",
+  "lotDetail.viewPhotos": "صور الإطلالة",
+  "lotDetail.orientationMap": "الاتجاه",
 
   "developerDetail.notFound.title": "المطور غير موجود",
   "developerDetail.notFound.description": "المطور \"{{slug}}\" غير موجود.",
