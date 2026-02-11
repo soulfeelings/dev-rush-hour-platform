@@ -10,15 +10,15 @@ type Lot struct {
 	ID            uuid.UUID
 	Status        LotStatus
 	ProjectID     *uuid.UUID
-	DeveloperID   *uuid.UUID
-	AreaID        *uuid.UUID
 	Type          LotType
 	Bedrooms      *int
 	Bathrooms     *int
 	AreaSqm       *float64
 	Floor         *int
-	PriceAmount   float64
-	BonusKeys     []string
+	PriceAmount    float64
+	DeveloperPrice *float64
+	ROI            *float64
+	BonusKeys      []string
 	BadgeIDs      []uuid.UUID
 	Data          LotData
 	CreatedAt     time.Time
@@ -26,8 +26,6 @@ type Lot struct {
 	DeletedAt     *time.Time
 	// Вложенные объекты (загружаются опционально)
 	Project       *Project   `json:"project,omitempty"`
-	Developer     *Developer `json:"developer,omitempty"`
-	Area          *Area      `json:"area,omitempty"`
 	Badges        []Badge    `json:"badges,omitempty"`
 }
 
@@ -48,6 +46,7 @@ type LotMedia struct {
 	Photos          []MediaItem `json:"photos,omitempty"`
 	Gallery         []MediaItem `json:"gallery,omitempty"`
 	FloorPlanImages []MediaItem `json:"floorPlanImages,omitempty"`
+	ViewPhotos      []MediaItem `json:"viewPhotos,omitempty"`
 	Cover           *MediaItem  `json:"cover,omitempty"`
 }
 

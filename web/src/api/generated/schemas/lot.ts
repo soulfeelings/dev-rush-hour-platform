@@ -10,31 +10,25 @@ import type { LotType } from './lotType'
 import type { Badge } from './badge'
 import type { LotData } from './lotData'
 import type { Project } from './project'
-import type { Developer } from './developer'
-import type { Area } from './area'
 
 export interface Lot {
   id?: string
   status?: LotStatus
   projectId?: string
-  developerId?: string
-  areaId?: string
   type?: LotType
   bedrooms?: number
   bathrooms?: number
   areaSqm?: number
   floor?: number
   priceAmount?: number
+  developerPrice?: number
+  roi?: number
   bonusKeys?: string[]
   badgeIds?: string[]
   badges?: Badge[]
   data?: LotData
   /** Вложенный объект проекта (если загружен) */
   project?: Project
-  /** Вложенный объект застройщика (если загружен) */
-  developer?: Developer
-  /** Вложенный объект района (если загружен) */
-  area?: Area
   createdAt?: string
   updatedAt?: string
   /**

@@ -11,8 +11,6 @@ import type { LotData } from './lotData'
 
 export interface LotUpdateRequest {
   projectId?: string
-  developerId?: string
-  areaId?: string
   type?: LotType
   status?: LotUpdateRequestStatus
   bedrooms?: number
@@ -20,6 +18,8 @@ export interface LotUpdateRequest {
   areaSqm?: number
   floor?: number
   priceAmount?: number
+  developerPrice?: number
+  roi?: number
   bonusKeys?: string[]
   badgeIds?: string[]
   data?: LotData

@@ -245,6 +245,12 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 		UpdatedAt:     timePtr(lot.UpdatedAt),
 	}
 
+	if lot.DeveloperPrice != nil {
+		result.DeveloperPrice = float32Ptr(float32(*lot.DeveloperPrice))
+	}
+	if lot.ROI != nil {
+		result.Roi = float32Ptr(float32(*lot.ROI))
+	}
 	if len(lot.BonusKeys) > 0 {
 		result.BonusKeys = &lot.BonusKeys
 	}
@@ -266,14 +272,6 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 		projectID := openapi_types.UUID(*lot.ProjectID)
 		result.ProjectId = &projectID
 	}
-	if lot.DeveloperID != nil {
-		devID := openapi_types.UUID(*lot.DeveloperID)
-		result.DeveloperId = &devID
-	}
-	if lot.AreaID != nil {
-		areaID := openapi_types.UUID(*lot.AreaID)
-		result.AreaId = &areaID
-	}
 	if lot.Bedrooms != nil {
 		result.Bedrooms = lot.Bedrooms
 	}
@@ -287,13 +285,19 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 		result.Floor = lot.Floor
 	}
 
-	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil {
+	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil || lot.Data.View != "" || lot.Data.Orientation != "" {
 		result.Data = &generated.LotData{
 			Media:         domainLotMediaToGenerated(lot.Data.Media),
 			PaymentPlan:   domainPaymentPlanToGenerated(lot.Data.PaymentPlan),
 			Bonuses:       domainBonusesToGenerated(lot.Data.Bonuses),
 			FloorPosition: domainFloorPositionToGenerated(lot.Data.FloorPosition),
 			Tags:          domainTagsToGenerated(lot.Data.Tags),
+		}
+		if lot.Data.View != "" {
+			result.Data.View = &lot.Data.View
+		}
+		if lot.Data.Orientation != "" {
+			result.Data.Orientation = &lot.Data.Orientation
 		}
 	}
 
@@ -316,6 +320,12 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 		UpdatedAt:     timePtr(lot.UpdatedAt),
 	}
 
+	if lot.DeveloperPrice != nil {
+		result.DeveloperPrice = float32Ptr(float32(*lot.DeveloperPrice))
+	}
+	if lot.ROI != nil {
+		result.Roi = float32Ptr(float32(*lot.ROI))
+	}
 	if len(lot.BonusKeys) > 0 {
 		result.BonusKeys = &lot.BonusKeys
 	}
@@ -337,14 +347,6 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 		projectID := openapi_types.UUID(*lot.ProjectID)
 		result.ProjectId = &projectID
 	}
-	if lot.DeveloperID != nil {
-		devID := openapi_types.UUID(*lot.DeveloperID)
-		result.DeveloperId = &devID
-	}
-	if lot.AreaID != nil {
-		areaID := openapi_types.UUID(*lot.AreaID)
-		result.AreaId = &areaID
-	}
 	if lot.Bedrooms != nil {
 		result.Bedrooms = lot.Bedrooms
 	}
@@ -358,7 +360,7 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 		result.Floor = lot.Floor
 	}
 
-	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil {
+	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil || lot.Data.View != "" || lot.Data.Orientation != "" {
 		result.Data = &generated.LotData{
 			Media:         domainLotMediaToGenerated(lot.Data.Media),
 			PaymentPlan:   domainPaymentPlanToGenerated(lot.Data.PaymentPlan),
@@ -366,17 +368,17 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 			FloorPosition: domainFloorPositionToGenerated(lot.Data.FloorPosition),
 			Tags:          domainTagsToGenerated(lot.Data.Tags),
 		}
+		if lot.Data.View != "" {
+			result.Data.View = &lot.Data.View
+		}
+		if lot.Data.Orientation != "" {
+			result.Data.Orientation = &lot.Data.Orientation
+		}
 	}
 
 	// Add nested objects
 	if lot.Project != nil {
 		result.Project = DomainProjectToGenerated(lot.Project)
-	}
-	if lot.Developer != nil {
-		result.Developer = DomainDeveloperToGenerated(lot.Developer)
-	}
-	if lot.Area != nil {
-		result.Area = DomainAreaToGenerated(lot.Area)
 	}
 
 	return result
@@ -528,6 +530,13 @@ func domainLotMediaToGenerated(media *domain.LotMedia) *generated.LotMedia {
 			images[i] = *domainMediaItemToGenerated(&media.FloorPlanImages[i])
 		}
 		result.FloorPlanImages = &images
+	}
+	if len(media.ViewPhotos) > 0 {
+		viewPhotos := make([]generated.MediaItem, len(media.ViewPhotos))
+		for i := range media.ViewPhotos {
+			viewPhotos[i] = *domainMediaItemToGenerated(&media.ViewPhotos[i])
+		}
+		result.ViewPhotos = &viewPhotos
 	}
 	if media.Cover != nil {
 		result.Cover = domainMediaItemToGenerated(media.Cover)
@@ -1067,18 +1076,18 @@ func GeneratedLotCreateToDomain(req *generated.LotCreateRequest) (*domain.Lot, e
 		PriceAmount:   float64(req.PriceAmount),
 		BonusKeys:     []string{},
 	}
+	if req.DeveloperPrice != nil {
+		dp := float64(*req.DeveloperPrice)
+		lot.DeveloperPrice = &dp
+	}
+	if req.Roi != nil {
+		roi := float64(*req.Roi)
+		lot.ROI = &roi
+	}
 	if req.BonusKeys != nil {
 		lot.BonusKeys = *req.BonusKeys
 	}
 
-	if req.DeveloperId != nil {
-		id := uuid.UUID(*req.DeveloperId)
-		lot.DeveloperID = &id
-	}
-	if req.AreaId != nil {
-		id := uuid.UUID(*req.AreaId)
-		lot.AreaID = &id
-	}
 	if req.Status != nil {
 		lot.Status = domain.LotStatus(*req.Status)
 	}
@@ -1121,14 +1130,6 @@ func GeneratedLotUpdateToDomain(req *generated.LotUpdateRequest) (*domain.Lot, e
 		id := uuid.UUID(*req.ProjectId)
 		lot.ProjectID = &id
 	}
-	if req.DeveloperId != nil {
-		id := uuid.UUID(*req.DeveloperId)
-		lot.DeveloperID = &id
-	}
-	if req.AreaId != nil {
-		id := uuid.UUID(*req.AreaId)
-		lot.AreaID = &id
-	}
 	if req.Type != nil {
 		lot.Type = domain.LotType(*req.Type)
 	}
@@ -1153,6 +1154,14 @@ func GeneratedLotUpdateToDomain(req *generated.LotUpdateRequest) (*domain.Lot, e
 	}
 	if req.PriceAmount != nil {
 		lot.PriceAmount = float64(*req.PriceAmount)
+	}
+	if req.DeveloperPrice != nil {
+		dp := float64(*req.DeveloperPrice)
+		lot.DeveloperPrice = &dp
+	}
+	if req.Roi != nil {
+		roi := float64(*req.Roi)
+		lot.ROI = &roi
 	}
 	if req.BonusKeys != nil {
 		lot.BonusKeys = *req.BonusKeys
@@ -1187,6 +1196,12 @@ func domainLotDataFromGenerated(data *generated.LotData) domain.LotData {
 	if data.Tags != nil {
 		result.Tags = *data.Tags
 	}
+	if data.View != nil {
+		result.View = *data.View
+	}
+	if data.Orientation != nil {
+		result.Orientation = *data.Orientation
+	}
 	return result
 }
 
@@ -1208,6 +1223,14 @@ func generatedLotMediaToDomain(media *generated.LotMedia) *domain.LotMedia {
 		for i, item := range *media.FloorPlanImages {
 			if m := generatedMediaItemToDomain(&item); m != nil {
 				result.FloorPlanImages[i] = *m
+			}
+		}
+	}
+	if media.ViewPhotos != nil {
+		result.ViewPhotos = make([]domain.MediaItem, len(*media.ViewPhotos))
+		for i, item := range *media.ViewPhotos {
+			if m := generatedMediaItemToDomain(&item); m != nil {
+				result.ViewPhotos[i] = *m
 			}
 		}
 	}

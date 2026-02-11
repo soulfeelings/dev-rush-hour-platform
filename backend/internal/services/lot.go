@@ -94,7 +94,6 @@ func (s *LotsService) Create(lot *domain.Lot) error {
 	s.logger.Info("lot_service_create_started",
 		"lot_type", lot.Type,
 		"project_id", lot.ProjectID,
-		"developer_id", lot.DeveloperID,
 	)
 
 	err := s.lotRepo.Create(lot)
@@ -139,12 +138,6 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 	}
 	if updates.ProjectID != nil {
 		existing.ProjectID = updates.ProjectID
-	}
-	if updates.DeveloperID != nil {
-		existing.DeveloperID = updates.DeveloperID
-	}
-	if updates.AreaID != nil {
-		existing.AreaID = updates.AreaID
 	}
 	if updates.Type != "" {
 		existing.Type = updates.Type
