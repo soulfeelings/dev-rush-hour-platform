@@ -68,7 +68,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	var projCreatedAt, projUpdatedAt sql.NullTime
 
 	// Переменные для developer
-	var devSlug, devName, devLogo sql.NullString
+	var devSlug, devName sql.NullString
 	var devCreatedAt, devUpdatedAt sql.NullTime
 
 	// Переменные для area
@@ -81,7 +81,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 			l.id, l.status, l.project_id, l.type, l.bedrooms, l.bathrooms,
 			l.area_sqm, l.floor, l.price_amount, l.developer_price, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
 			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at,
-			d.slug, d.name, d.logo, d.created_at, d.updated_at,
+			d.slug, d.name, d.created_at, d.updated_at,
 			a.slug, a.name, a.lat, a.lng, a.created_at, a.updated_at
 		FROM lots l
 		LEFT JOIN projects p ON l.project_id = p.id
@@ -94,7 +94,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		&lot.PriceAmount, &developerPrice, &roi, &bonusKeys, &badgeIDs, &dataJSON,
 		&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 		&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projMediaJSON, &projIsFeatured, &projCreatedAt, &projUpdatedAt,
-		&devSlug, &devName, &devLogo, &devCreatedAt, &devUpdatedAt,
+		&devSlug, &devName, &devCreatedAt, &devUpdatedAt,
 		&areaSlug, &areaName, &areaLat, &areaLng, &areaCreatedAt, &areaUpdatedAt,
 	)
 
