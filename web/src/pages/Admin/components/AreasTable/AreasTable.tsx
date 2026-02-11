@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { Area } from '../../../../api/generated/schemas/area'
 import { TableSkeleton } from '../TableSkeleton'
+import { TableActionButtons } from '../TableActionButtons'
 import styles from './AreasTable.module.scss'
 
 const { useAdminListAreas } = AdminApi
@@ -159,27 +160,12 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading }:
                   />
                 </td>
                 <td className={styles.actionsCell}>
-                  {hoveredRowId === area.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.editButton}
-                        onClick={() => onEditClick(area)}
-                        aria-label="Edit area"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={() => area.id && handleDeleteClick([area.id])}
-                        aria-label="Delete area"
-                        disabled={deleteLoading}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
+                  <TableActionButtons
+                    show={hoveredRowId === area.id}
+                    onEdit={() => onEditClick(area)}
+                    onDelete={() => area.id && handleDeleteClick([area.id])}
+                    deleteLoading={deleteLoading}
+                  />
                 </td>
                 <td>{area.id}</td>
                 <td>{area.name || '-'}</td>

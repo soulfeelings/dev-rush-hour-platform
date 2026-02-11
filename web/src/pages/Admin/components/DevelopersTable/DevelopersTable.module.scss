@@ -78,51 +78,10 @@
 }
 
 .actionsCell {
-  width: 70px;
+  width: 50px;
   padding: 0.5rem !important;
   text-align: center;
-}
-
-.actionButtons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-}
-
-.editButton,
-.deleteButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  color: #666;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #e0e0e0;
-    color: #333;
-  }
-
-  &:active {
-    background: #d0d0d0;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.deleteButton {
-  &:hover {
-    background: #fee2e2;
-    color: #dc2626;
-  }
+  position: relative;
 }
 
 .selectedRow {

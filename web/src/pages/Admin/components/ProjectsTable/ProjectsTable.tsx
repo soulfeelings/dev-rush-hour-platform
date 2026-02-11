@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { Project } from '../../../../api/generated/schemas/project'
 import { TableSkeleton } from '../TableSkeleton'
+import { TableActionButtons } from '../TableActionButtons'
 import styles from './ProjectsTable.module.scss'
 
 const { useAdminListProjects } = AdminApi
@@ -174,27 +175,12 @@ export function ProjectsTable({
                   />
                 </td>
                 <td className={styles.actionsCell}>
-                  {hoveredRowId === project.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.editButton}
-                        onClick={() => onEditClick(project)}
-                        aria-label="Edit project"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={() => project.id && handleDeleteClick([project.id])}
-                        aria-label="Delete project"
-                        disabled={deleteLoading}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
+                  <TableActionButtons
+                    show={hoveredRowId === project.id}
+                    onEdit={() => onEditClick(project)}
+                    onDelete={() => project.id && handleDeleteClick([project.id])}
+                    deleteLoading={deleteLoading}
+                  />
                 </td>
                 <td className={styles.imageCell}>
                   {getProjectImageUrl(project) ? (

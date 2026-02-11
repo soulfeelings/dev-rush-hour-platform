@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { getInfrastructureIcon } from '../../../../utils/infrastructureIcons'
 import type { Infrastructure } from '../../../../api/generated/schemas/infrastructure'
 import { TableSkeleton } from '../TableSkeleton'
+import { TableActionButtons } from '../TableActionButtons'
 import styles from './InfrastructuresTable.module.scss'
 
 const { useAdminListInfrastructures } = AdminApi
@@ -152,27 +153,12 @@ export function InfrastructuresTable({
                   />
                 </td>
                 <td className={styles.actionsCell}>
-                  {hoveredRowId === item.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.editButton}
-                        onClick={() => onEditClick(item)}
-                        aria-label="Edit infrastructure"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={() => item.id && handleDeleteClick([item.id])}
-                        aria-label="Delete infrastructure"
-                        disabled={deleteLoading}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
+                  <TableActionButtons
+                    show={hoveredRowId === item.id}
+                    onEdit={() => onEditClick(item)}
+                    onDelete={() => item.id && handleDeleteClick([item.id])}
+                    deleteLoading={deleteLoading}
+                  />
                 </td>
                 <td>{item.name || '-'}</td>
                 <td>{item.slug || '-'}</td>
