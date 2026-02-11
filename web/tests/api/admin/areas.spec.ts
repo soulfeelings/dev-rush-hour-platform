@@ -1,8 +1,13 @@
 import { test, expect } from '../fixtures/test';
-
-const uniq = () => `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+import {
+  expectApiErrorResponse,
+  expectRequiredFieldRejections,
+  invalidTypeValue,
+  uniq,
+} from '../helpers/assertions';
 
 test.describe('admin/areas', () => {
+  // Проверяем успешное создание района и сохранение в БД.
   test('create → area is created and saved in DB', async ({ api, db }) => {
     const suffix = uniq();
     const name = `test-area-name-${suffix}`;
@@ -72,6 +77,7 @@ test.describe('admin/areas', () => {
     });
   });
 
+  // Проверяем, что API не допускает дублирование slug для района.
   test('create → duplicate slug is rejected (DB unique constraint)', async ({ api, db }) => {
     const suffix = uniq();
     const slug = `test-area-dup-slug-${suffix}`;
@@ -102,11 +108,10 @@ test.describe('admin/areas', () => {
         status: 'active',
       });
 
-      expect(response.status()).toBeGreaterThanOrEqual(400);
-
-      const body = await response.json();
-      expect(body?.error?.code).toBeTruthy();
-      expect(body?.error?.message).toContain('duplicate');
+      await expectApiErrorResponse(response, {
+        minStatus: 400,
+        messageIncludes: 'duplicate',
+      });
     });
 
     await test.step('DB → only one areas record exists for slug', async () => {
@@ -120,6 +125,31 @@ test.describe('admin/areas', () => {
       );
 
       expect(Number(dbResult[0].count)).toBe(1);
+    });
+  });
+
+  // Проверяем, что API отклоняет некорректные значения обязательных полей района.
+  test('create → required fields are validated', async ({ api }) => {
+    const suffix = uniq();
+    const validPayload = {
+      slug: `required-area-slug-${suffix}`,
+      name: `required-area-name-${suffix}`,
+      city: `Required Area City ${suffix}`,
+      lat: 25.2048,
+      lng: 55.2708,
+      status: 'active',
+    };
+
+    await expectRequiredFieldRejections({
+      endpoint: '/api/admin/areas',
+      create: (payload) => api.admin.areas.create(payload),
+      cases: [
+        { field: 'slug', payload: { ...validPayload, slug: invalidTypeValue() } },
+        { field: 'name', payload: { ...validPayload, name: invalidTypeValue() } },
+        { field: 'city', payload: { ...validPayload, city: invalidTypeValue() } },
+        { field: 'lat', payload: { ...validPayload, lat: invalidTypeValue() } },
+        { field: 'lng', payload: { ...validPayload, lng: invalidTypeValue() } },
+      ],
     });
   });
 });

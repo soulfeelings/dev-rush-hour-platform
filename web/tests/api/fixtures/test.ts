@@ -1,6 +1,7 @@
 import { test as base, expect } from '@playwright/test';
 import { Pool, type PoolConfig } from 'pg';
 import { AdminClients } from '../clients/admin';
+import { PublicClients } from '../clients/public';
 
 type DbFixture = {
   pool: Pool;
@@ -9,6 +10,7 @@ type DbFixture = {
 
 type ApiClientsFixture = {
   admin: AdminClients;
+  public: PublicClients;
 };
 
 type WorkerFixtures = {
@@ -60,7 +62,10 @@ const test = base.extend<
     await use({ pool: dbPool, query });
   },
   api: async ({ request }, use) => {
-    await use({ admin: new AdminClients(request) });
+    await use({
+      admin: new AdminClients(request),
+      public: new PublicClients(request),
+    });
   },
 });
 

@@ -1,8 +1,8 @@
 import { test, expect } from '../fixtures/test';
-
-const uniq = () => `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+import { expectRequiredFieldRejections, invalidTypeValue, uniq } from '../helpers/assertions';
 
 test.describe('admin/developers', () => {
+  // Проверяем успешное создание застройщика и сохранение в БД.
   test('create → developer is created and saved in DB', async ({ api, db }) => {
     const suffix = uniq();
     const nameRandom = `testName-${suffix}`;
@@ -46,6 +46,25 @@ test.describe('admin/developers', () => {
       expect(dbDeveloper.slug).toBe(slugRandom);
       expect(dbDeveloper.status).toBe('active');
       expect(dbDeveloper.deleted_at).toBeNull();
+    });
+  });
+
+  // Проверяем, что API отклоняет некорректные значения обязательных полей застройщика.
+  test('create → required fields are validated', async ({ api }) => {
+    const suffix = uniq();
+    const validPayload = {
+      slug: `required-developer-slug-${suffix}`,
+      name: `required-developer-name-${suffix}`,
+      status: 'active',
+    };
+
+    await expectRequiredFieldRejections({
+      endpoint: '/api/admin/developers',
+      create: (payload) => api.admin.developers.create(payload),
+      cases: [
+        { field: 'slug', payload: { ...validPayload, slug: invalidTypeValue() } },
+        { field: 'name', payload: { ...validPayload, name: invalidTypeValue() } },
+      ],
     });
   });
 });

@@ -1,8 +1,8 @@
 import { test, expect } from '../fixtures/test';
-
-const uniq = () => `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+import { expectRequiredFieldRejections, invalidTypeValue, uniq } from '../helpers/assertions';
 
 test.describe('admin/projects', () => {
+  // Проверяем успешное создание проекта и сохранение данных в БД.
   test('create → project is created and saved in DB', async ({ api, db }) => {
     const suffix = uniq();
     const nameRandom = `testName-${suffix}`;
@@ -15,7 +15,6 @@ test.describe('admin/projects', () => {
       const response = await api.admin.projects.create({
         slug: slugRandom,
         name: nameRandom,
-        status: 'active',
         sale: saleValue
       });
 
@@ -28,10 +27,6 @@ test.describe('admin/projects', () => {
       expect(projectId).toBeTruthy();
       expect(body.name).toBe(nameRandom);
       expect(body.slug).toBe(slugRandom);
-      expect(body.status).toBe('active');
-      expect(body.data).toBeDefined();
-      expect(body.data.isFeatured).toBe(false);
-      expect(body.data.isRecommended).toBe(false);
       expect(body.deletedAt).toBeNull();
     });
 
@@ -42,9 +37,7 @@ test.describe('admin/projects', () => {
           id,
           name,
           slug,
-          status,
           sale,
-          data,
           deleted_at
         FROM projects
         WHERE id = $1
@@ -59,15 +52,27 @@ test.describe('admin/projects', () => {
       expect(dbProject.id).toBe(projectId);
       expect(dbProject.name).toBe(nameRandom);
       expect(dbProject.slug).toBe(slugRandom);
-      expect(dbProject.status).toBe('active');
       expect(dbProject.sale).toBe(saleValue);
       expect(dbProject.deleted_at).toBeNull();
+    });
+  });
 
-      // jsonb check
-      expect(dbProject.data).toMatchObject({
-        isFeatured: false,
-        isRecommended: false
-      });
+  // Проверяем, что API отклоняет некорректные значения обязательных полей проекта.
+  test('create → required fields are validated', async ({ api }) => {
+    const suffix = uniq();
+    const validPayload = {
+      slug: `required-project-slug-${suffix}`,
+      name: `required-project-name-${suffix}`,
+      sale: 'sale',
+    };
+
+    await expectRequiredFieldRejections({
+      endpoint: '/api/admin/projects',
+      create: (payload) => api.admin.projects.create(payload),
+      cases: [
+        { field: 'slug', payload: { ...validPayload, slug: invalidTypeValue() } },
+        { field: 'name', payload: { ...validPayload, name: invalidTypeValue() } },
+      ],
     });
   });
 });

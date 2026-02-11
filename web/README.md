@@ -30,11 +30,12 @@
 
 ### Запуск (из папки web)
 
+- pnpm test:e2e - прогон всех тестов
 - pnpm test:ui - только UI тесты
 - pnpm test:api - только API тесты
 - pnpm test:api:smoke - быстрый smoke (public)
 - pnpm test:api:smoke:admin - быстрый smoke (admin)
-- pnpm test:api:regress - полный прогон всех API GET
+- pnpm test:api:regress - полный прогон всех API/GET
 
 ### Локально
 

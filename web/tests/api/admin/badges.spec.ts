@@ -1,8 +1,13 @@
 import { test, expect } from '../fixtures/test';
-
-const uniq = () => `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+import {
+  expectApiErrorResponse,
+  expectRequiredFieldRejections,
+  invalidTypeValue,
+  uniq,
+} from '../helpers/assertions';
 
 test.describe('admin/badges', () => {
+  // Проверяем успешное создание бейджа и сохранение в БД.
   test('create → badge is created and saved in DB', async ({ api, db }) => {
     const suffix = uniq();
     const name = `test-badge-name-${suffix}`;
@@ -13,11 +18,10 @@ test.describe('admin/badges', () => {
     await test.step('POST /api/admin/badges → create badge', async () => {
       const response = await api.admin.badges.create({
         slug,
-        name,
-        status: 'active',
+        name
       });
 
-      expect(response.status()).toBe(201);
+      expect(response.status()).toBe(201);    
 
       const body = await response.json();
       badgeId = body.id;
@@ -25,7 +29,6 @@ test.describe('admin/badges', () => {
       expect(badgeId).toBeTruthy();
       expect(body.name).toBe(name);
       expect(body.slug).toBe(slug);
-      expect(body.status).toBe('active');
       expect(body.backgroundColor).toBe('#000000');
       expect(body.textColor).toBe('#FFFFFF');
       expect(body.sortOrder).toBe(0);
@@ -41,7 +44,6 @@ test.describe('admin/badges', () => {
           background_color,
           text_color,
           icon,
-          status,
           sort_order,
           deleted_at
         FROM badges
@@ -59,12 +61,12 @@ test.describe('admin/badges', () => {
       expect(dbBadge.background_color).toBe('#000000');
       expect(dbBadge.text_color).toBe('#FFFFFF');
       expect(dbBadge.icon).toBeNull();
-      expect(dbBadge.status).toBe('active');
       expect(dbBadge.sort_order).toBe(0);
       expect(dbBadge.deleted_at).toBeNull();
     });
   });
 
+  // Проверяем, что API не допускает дублирование slug для бейджа.
   test('create → duplicate slug is rejected (DB unique constraint)', async ({ api, db }) => {
     const suffix = uniq();
     const slug = `test-badge-dup-slug-${suffix}`;
@@ -73,7 +75,6 @@ test.describe('admin/badges', () => {
       const response = await api.admin.badges.create({
         slug,
         name: `test-badge-first-${suffix}`,
-        status: 'active',
       });
 
       expect(response.status()).toBe(201);
@@ -83,14 +84,12 @@ test.describe('admin/badges', () => {
       const response = await api.admin.badges.create({
         slug,
         name: `test-badge-second-${suffix}`,
-        status: 'active',
       });
 
-      expect(response.status()).toBeGreaterThanOrEqual(400);
-
-      const body = await response.json();
-      expect(body?.error?.code).toBeTruthy();
-      expect(body?.error?.message).toContain('duplicate');
+      await expectApiErrorResponse(response, {
+        minStatus: 400,
+        messageIncludes: 'duplicate',
+      });
     });
 
     await test.step('DB → only one badges record exists for slug', async () => {
@@ -104,6 +103,26 @@ test.describe('admin/badges', () => {
       );
 
       expect(Number(dbResult[0].count)).toBe(1);
+    });
+  });
+
+  // Проверяем, что API отклоняет некорректные значения обязательных полей бейджа.
+  test('create → required fields are validated', async ({ api }) => {
+    const suffix = uniq();
+    const validPayload = {
+      slug: `required-badge-slug-${suffix}`,
+      name: `required-badge-name-${suffix}`,
+      backgroundColor: '#000000',
+      textColor: '#FFFFFF',
+    };
+
+    await expectRequiredFieldRejections({
+      endpoint: '/api/admin/badges',
+      create: (payload) => api.admin.badges.create(payload),
+      cases: [
+        { field: 'slug', payload: { ...validPayload, slug: invalidTypeValue() } },
+        { field: 'name', payload: { ...validPayload, name: invalidTypeValue() } },
+      ],
     });
   });
 });

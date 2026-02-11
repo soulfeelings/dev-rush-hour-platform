@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/test';
+import { expectJsonByType } from './helpers/assertions';
 
 type Endpoint = {
   path: string;
@@ -58,6 +59,16 @@ const endpoints: Endpoint[] = [
   { path: '/api/admin/lots', type: 'object' },
   { path: '/api/admin/leads', type: 'array' },
   { path: '/api/admin/badges', type: 'array' },
+  { path: '/api/admin/infrastructures', type: 'array' },
+
+  // admin deleted collections
+  { path: '/api/admin/developers/deleted', type: 'array' },
+  { path: '/api/admin/areas/deleted', type: 'array' },
+  { path: '/api/admin/cities/deleted', type: 'array' },
+  { path: '/api/admin/projects/deleted', type: 'array' },
+  { path: '/api/admin/lots/deleted', type: 'object' },
+  { path: '/api/admin/badges/deleted', type: 'array' },
+  { path: '/api/admin/infrastructures/deleted', type: 'array' },
 
   // admin detail endpoints
   { path: '/api/admin/developers/{id}', type: 'object', listPath: '/api/admin/developers', paramName: 'id' },
@@ -70,12 +81,14 @@ const endpoints: Endpoint[] = [
 
   { path: '/api/admin/leads/{id}', type: 'object', listPath: '/api/admin/leads', paramName: 'id' },
   { path: '/api/admin/badges/{id}', type: 'object', listPath: '/api/admin/badges', paramName: 'id' },
+  { path: '/api/admin/infrastructures/{id}', type: 'object', listPath: '/api/admin/infrastructures', paramName: 'id' },
 ];
 
 test.describe('API regress (all GETs)', () => {
   for (const e of endpoints) {
     // Detail endpoints: resolve param from list endpoint
     if (e.listPath && e.paramName) {
+      // Проверяем детальный endpoint: берём параметр из списка и валидируем тип ответа.
       test(`GET ${e.path}`, async ({ request }, testInfo) => {
         const listResp = await request.get(e.listPath!);
         expect(listResp.ok(), `list ${e.listPath} should be OK`).toBeTruthy();
@@ -102,36 +115,17 @@ test.describe('API regress (all GETs)', () => {
         );
 
         const resp = await request.get(resolvedPath);
-        expect(resp.ok(), `${resolvedPath} should be OK`).toBeTruthy();
-
-        const body = await resp.json();
-
-        if (e.type === 'array') {
-          expect(Array.isArray(body), `${resolvedPath} should return array`).toBe(true);
-        } else {
-          expect(body, `${resolvedPath} should return body`).toBeTruthy();
-          expect(Array.isArray(body), `${resolvedPath} should not return array`).toBe(false);
-          expect(typeof body, `${resolvedPath} should return object`).toBe('object');
-        }
+        await expectJsonByType(resp, resolvedPath, e.type);
       });
 
       continue;
     }
 
     // Collection endpoints: simple validation by declared type
+    // Проверяем коллекционный endpoint на доступность и контрактный тип ответа.
     test(`GET ${e.path}`, async ({ request }) => {
       const resp = await request.get(e.path);
-      expect(resp.ok(), `${e.path} should be OK`).toBeTruthy();
-
-      const body = await resp.json();
-
-      if (e.type === 'array') {
-        expect(Array.isArray(body), `${e.path} should return array`).toBe(true);
-      } else {
-        expect(body, `${e.path} should return body`).toBeTruthy();
-        expect(Array.isArray(body), `${e.path} should not return array`).toBe(false);
-        expect(typeof body, `${e.path} should return object`).toBe('object');
-      }
+      await expectJsonByType(resp, e.path, e.type);
     });
   }
 });
