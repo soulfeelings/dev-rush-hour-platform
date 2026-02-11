@@ -567,7 +567,6 @@ type LeadUpdateRequestType string
 // Lot defines model for Lot.
 type Lot struct {
 	Area      *Area                 `json:"area,omitempty"`
-	AreaId    *openapi_types.UUID   `json:"areaId,omitempty"`
 	AreaSqm   *float32              `json:"areaSqm,omitempty"`
 	BadgeIds  *[]openapi_types.UUID `json:"badgeIds,omitempty"`
 	Badges    *[]Badge              `json:"badges,omitempty"`
@@ -580,7 +579,6 @@ type Lot struct {
 	// DeletedAt Время мягкого удаления (если null - не удален)
 	DeletedAt      *time.Time          `json:"deletedAt"`
 	Developer      *Developer          `json:"developer,omitempty"`
-	DeveloperId    *openapi_types.UUID `json:"developerId,omitempty"`
 	DeveloperPrice *float32            `json:"developerPrice,omitempty"`
 	Floor          *int                `json:"floor,omitempty"`
 	Id             *openapi_types.UUID `json:"id,omitempty"`
@@ -598,14 +596,12 @@ type LotStatus string
 
 // LotCreateRequest defines model for LotCreateRequest.
 type LotCreateRequest struct {
-	AreaId         *openapi_types.UUID     `json:"areaId,omitempty"`
 	AreaSqm        *float32                `json:"areaSqm,omitempty"`
 	BadgeIds       *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
 	Bathrooms      *int                    `json:"bathrooms,omitempty"`
 	Bedrooms       *int                    `json:"bedrooms,omitempty"`
 	BonusKeys      *[]string               `json:"bonusKeys,omitempty"`
 	Data           *LotData                `json:"data,omitempty"`
-	DeveloperId    *openapi_types.UUID     `json:"developerId,omitempty"`
 	DeveloperPrice *float32                `json:"developerPrice,omitempty"`
 	Floor          *int                    `json:"floor,omitempty"`
 	PriceAmount    float32                 `json:"priceAmount"`
@@ -674,14 +670,12 @@ type LotType string
 
 // LotUpdateRequest defines model for LotUpdateRequest.
 type LotUpdateRequest struct {
-	AreaId         *openapi_types.UUID     `json:"areaId,omitempty"`
 	AreaSqm        *float32                `json:"areaSqm,omitempty"`
 	BadgeIds       *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
 	Bathrooms      *int                    `json:"bathrooms,omitempty"`
 	Bedrooms       *int                    `json:"bedrooms,omitempty"`
 	BonusKeys      *[]string               `json:"bonusKeys,omitempty"`
 	Data           *LotData                `json:"data,omitempty"`
-	DeveloperId    *openapi_types.UUID     `json:"developerId,omitempty"`
 	DeveloperPrice *float32                `json:"developerPrice,omitempty"`
 	Floor          *int                    `json:"floor,omitempty"`
 	PriceAmount    *float32                `json:"priceAmount,omitempty"`

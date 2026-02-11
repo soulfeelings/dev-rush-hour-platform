@@ -5,6 +5,7 @@ import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
 import styles from './LotsTable.module.scss'
+import { TrashIcon } from 'lucide-react'
 
 const { useAdminListLots, useAdminListProjects } = AdminApi
 
@@ -190,7 +191,7 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
               variant="secondary"
               onClick={() => handleDeleteClick(Array.from(selectedIds))}
               disabled={deleteLoading}
-              iconLeft={<Trash2 size={16} />}
+              iconLeft={<TrashIcon size={16} />}
             >
               Delete ({selectedIds.size})
             </Button>

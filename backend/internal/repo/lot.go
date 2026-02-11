@@ -67,13 +67,26 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	var projLat, projLng sql.NullFloat64
 	var projCreatedAt, projUpdatedAt sql.NullTime
 
+	// Переменные для developer
+	var devSlug, devName, devLogo sql.NullString
+	var devCreatedAt, devUpdatedAt sql.NullTime
+
+	// Переменные для area
+	var areaSlug, areaName sql.NullString
+	var areaLat, areaLng sql.NullFloat64
+	var areaCreatedAt, areaUpdatedAt sql.NullTime
+
 	err := r.db.QueryRow(`
 		SELECT
 			l.id, l.status, l.project_id, l.type, l.bedrooms, l.bathrooms,
 			l.area_sqm, l.floor, l.price_amount, l.developer_price, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
-			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at
+			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at,
+			d.slug, d.name, d.logo, d.created_at, d.updated_at,
+			a.slug, a.name, a.lat, a.lng, a.created_at, a.updated_at
 		FROM lots l
 		LEFT JOIN projects p ON l.project_id = p.id
+		LEFT JOIN developers d ON p.developer_id = d.id
+		LEFT JOIN areas a ON p.area_id = a.id
 		WHERE l.id = $1 AND l.deleted_at IS NULL
 	`, id).Scan(
 		&lot.ID, &lot.Status, &projectID,
@@ -81,6 +94,8 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		&lot.PriceAmount, &developerPrice, &roi, &bonusKeys, &badgeIDs, &dataJSON,
 		&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 		&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projMediaJSON, &projIsFeatured, &projCreatedAt, &projUpdatedAt,
+		&devSlug, &devName, &devLogo, &devCreatedAt, &devUpdatedAt,
+		&areaSlug, &areaName, &areaLat, &areaLng, &areaCreatedAt, &areaUpdatedAt,
 	)
 
 	if err != nil {
@@ -163,6 +178,32 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		}
 		if projLng.Valid {
 			lot.Project.Lng = &projLng.Float64
+		}
+	}
+
+	// Заполняем developer, если данные есть (берем из проекта)
+	if devSlug.Valid {
+		lot.Developer = &domain.Developer{
+			Slug:      devSlug.String,
+			Name:      devName.String,
+			CreatedAt: devCreatedAt.Time,
+			UpdatedAt: devUpdatedAt.Time,
+		}
+	}
+
+	// Заполняем area, если данные есть (берем из проекта)
+	if areaSlug.Valid {
+		lot.Area = &domain.Area{
+			Slug:      areaSlug.String,
+			Name:      areaName.String,
+			CreatedAt: areaCreatedAt.Time,
+			UpdatedAt: areaUpdatedAt.Time,
+		}
+		if areaLat.Valid {
+			lot.Area.Lat = areaLat.Float64
+		}
+		if areaLng.Valid {
+			lot.Area.Lng = areaLng.Float64
 		}
 	}
 

@@ -10,6 +10,8 @@ import type { LotType } from './lotType'
 import type { Badge } from './badge'
 import type { LotData } from './lotData'
 import type { Project } from './project'
+import type { Developer } from './developer'
+import type { Area } from './area'
 
 export interface Lot {
   id?: string
@@ -29,6 +31,10 @@ export interface Lot {
   data?: LotData
   /** Вложенный объект проекта (если загружен) */
   project?: Project
+  /** Вложенный объект застройщика из проекта (если загружен) */
+  developer?: Developer
+  /** Вложенный объект района из проекта (если загружен) */
+  area?: Area
   createdAt?: string
   updatedAt?: string
   /**

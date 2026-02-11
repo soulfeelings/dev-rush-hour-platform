@@ -26,6 +26,8 @@ type Lot struct {
 	DeletedAt     *time.Time
 	// Вложенные объекты (загружаются опционально)
 	Project       *Project   `json:"project,omitempty"`
+	Developer     *Developer `json:"developer,omitempty"`
+	Area          *Area      `json:"area,omitempty"`
 	Badges        []Badge    `json:"badges,omitempty"`
 }
 
