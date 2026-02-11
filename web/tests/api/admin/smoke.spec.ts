@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/test';
 
 const endpoints = [
   { path: '/api/admin/projects', type: 'array' as const },
@@ -9,7 +9,7 @@ const endpoints = [
   { path: '/api/admin/badges', type: 'array' as const },
 ];
 
-test.describe('API smoke (admin core GET)', () => {
+test.describe('admin/smoke', { tag: '@smoke' }, () => {
   for (const e of endpoints) {
     test(`GET ${e.path}`, async ({ request }) => {
       const resp = await request.get(e.path);

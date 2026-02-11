@@ -87,7 +87,7 @@ pnpm exec playwright test tests/api/smoke.api.spec.ts
 ## Разделение smoke / regress
 
 - `tests/api/smoke.api.spec.ts` — public smoke (core GET, без detail).
-- `tests/api/smoke.admin.api.spec.ts` — admin smoke (core GET, без detail, без leads).
+- `tests/api/admin/smoke.spec.ts` — admin smoke (core GET, без detail, без leads).
 - `tests/api/all_gets.api.spec.ts` — regress (все GET-и, включая detail).
 
 Важно: не запускайте smoke и regress в одном ночном прогоне — это лишняя нагрузка и дублирование.
