@@ -15,6 +15,7 @@ import { Typography } from '../../ui/Typography'
 import { RoiBadge } from '../../ui/RoiBadge'
 import { YouTubePreview } from '../../ui/YouTubePreview'
 import type { Project, Lot, Developer, Area, Badge as BadgeType } from '../../api'
+import { useGetProject, useListLots } from '../../api'
 import { ROUTES } from '../../constants/routes'
 import { NotFound } from '../../ui/NotFound'
 import {
@@ -29,7 +30,6 @@ import {
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice, formatArea } from '../../utils/format'
 import { useIsRTL } from '../../hooks/useDirection'
-import { mockProject, mockLots } from './mockData'
 import { ApartmentsCarousel } from './ApartmentsCarousel'
 import { ApartmentCard } from './ApartmentCard'
 import { ProjectDetailSkeleton } from './ProjectDetailSkeleton'
@@ -158,31 +158,27 @@ export default function ProjectDetail() {
     }
   }, [emblaApi, onSelect])
 
-  // TODO: restore API calls when done with UI work
-  // const {
-  //   data: projectData,
-  //   isLoading: projectLoading,
-  //   error: projectError,
-  // } = useGetProject(slug || '', undefined, {
-  //   query: {
-  //     enabled: !!slug,
-  //   },
-  // })
-  //
-  // const { data: lotsData, isLoading: lotsLoading } = useListLots(
-  //   { project: slug || '' },
-  //   {
-  //     query: {
-  //       enabled: !!slug,
-  //     },
-  //   }
-  // )
-  //
-  // const project = (projectData as ProjectWithRelations | undefined) || null
-  // const lots: Lot[] = lotsData?.items || []
+  const {
+    data: projectData,
+    isLoading: projectLoading,
+    error: projectError,
+  } = useGetProject(slug || '', undefined, {
+    query: {
+      enabled: !!slug,
+    },
+  })
 
-  const project = mockProject as unknown as ProjectWithRelations
-  const lots: Lot[] = mockLots
+  const { data: lotsData, isLoading: lotsLoading } = useListLots(
+    { project: slug || '' },
+    {
+      query: {
+        enabled: !!slug,
+      },
+    }
+  )
+
+  const project = (projectData as ProjectWithRelations | undefined) || null
+  const lots: Lot[] = lotsData?.items || []
 
   const groupedLots = useMemo<LotGroup[]>(() => {
     const groups: Record<number, LotGroup> = {}
@@ -213,8 +209,8 @@ export default function ProjectDetail() {
     return Object.values(groups).sort((a, b) => a.bedrooms - b.bedrooms)
   }, [lots])
 
-  const loading = false
-  const error = null
+  const loading = projectLoading || lotsLoading
+  const error = projectError ? String(projectError) : null
 
   const hasCoordinates =
     project?.lat !== undefined &&
