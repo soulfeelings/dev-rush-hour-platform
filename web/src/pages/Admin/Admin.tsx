@@ -1478,8 +1478,7 @@ export default function Admin() {
           <LotForm
             key={formKey}
             projects={projects}
-            developers={developers}
-            areas={areas}
+            badges={badges}
             onSubmit={handleLotSubmit}
             loading={loading}
             initialData={
