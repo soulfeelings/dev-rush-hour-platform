@@ -28,7 +28,9 @@ interface LotCardProps {
 }
 
 // Функция для разделения completionDate на первые 2 символа и остальное
-const splitCompletionDate = (dateString: string) => {
+const splitCompletionDate = (dateString: string | undefined) => {
+  if (!dateString) return { firstPart: '', rest: '' }
+
   if (dateString.length <= 2) {
     return {
       firstPart: dateString,
@@ -103,10 +105,10 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   ]
 
   const typeLabel = lot.type ? lot.type.charAt(0).toUpperCase() + lot.type.slice(1) : 'Apartment'
-  const price = lot.priceAmount || 0
+  const price = lot.priceFromUs || 0
   const discountedPrice = price * 0.75 // Скидка 25%
 
-  const { firstPart, rest } = splitCompletionDate(lot.project?.data?.completionDate || 'Q1 2026')
+  const { firstPart, rest } = splitCompletionDate(lot.project?.completionDate)
 
   if (!lot.id) return null
 
@@ -158,9 +160,8 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                   {allImages.map((_, idx) => (
                     <button
                       key={idx}
-                      className={`${styles.paginationDot} ${
-                        idx === currentImageIndex ? styles.activePagination : ''
-                      }`}
+                      className={`${styles.paginationDot} ${idx === currentImageIndex ? styles.activePagination : ''
+                        }`}
                       onClick={e => handleImageClick(e, idx)}
                       aria-label={`Go to image ${idx + 1}`}
                     />

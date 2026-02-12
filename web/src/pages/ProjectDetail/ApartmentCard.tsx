@@ -221,7 +221,7 @@ export function ApartmentCard({
             <div className={styles.priceValue}>
               <Typography className={styles.from}>{t('from')}</Typography>{' '}
               <Typography size="large" weight="semibold">
-                {formatPrice(lot.priceAmount, currency)}
+                {formatPrice(lot.priceFromUs, currency)}
               </Typography>
             </div>
           </div>

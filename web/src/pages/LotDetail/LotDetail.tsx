@@ -394,7 +394,7 @@ export default function LotDetail() {
     setCurrentViewPhotoIndex(prev => (prev === viewPhotos.length - 1 ? 0 : prev + 1))
   }
 
-  const priceText = formatPrice(lot.priceAmount, currency)
+  const priceText = formatPrice(lot.priceFromUs, currency)
 
   return (
     <div className={styles.container}>

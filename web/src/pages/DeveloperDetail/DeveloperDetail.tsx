@@ -96,8 +96,8 @@ export default function DeveloperDetail() {
         ) : (
           <div className={styles.projectsGrid}>
             {projects.map(project => {
-              const coverImage = project.data?.media?.cover?.url
-              const priceFrom = project.data?.ourPrice ?? project.data?.priceFrom
+              const coverImage = project.media?.cover?.url
+              const priceFrom = project.priceFromUs ?? project.priceFrom
 
               return (
                 <div

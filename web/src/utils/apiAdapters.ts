@@ -4,9 +4,8 @@ import type { LotListItem } from '../api/generated/schemas/lotListItem'
 
 // Функция для преобразования API Project в Property формат
 export function apiProjectToProperty(apiProject: Project): Property {
-  const data = apiProject.data
-  const media = data?.media
-  const description = data?.description
+  const media = apiProject.media
+  const description = apiProject.description
 
   // Transform badges
   const badges: PropertyBadge[] = (apiProject.badges ?? [])
@@ -28,8 +27,8 @@ export function apiProjectToProperty(apiProject: Project): Property {
       : undefined
 
   // Calculate discount from ourPrice and developerPrice
-  const ourPrice = data?.ourPrice
-  const developerPrice = data?.developerPrice
+  const ourPrice = apiProject.priceFromUs
+  const developerPrice = apiProject.priceFromDeveloper
   let discount: number | undefined
   if (ourPrice && developerPrice && developerPrice > ourPrice) {
     discount = Math.round((1 - ourPrice / developerPrice) * 100)
@@ -41,13 +40,13 @@ export function apiProjectToProperty(apiProject: Project): Property {
     location: apiProject.area?.name,
     developer: apiProject.developer?.name,
     logoUrl: media?.logo?.url,
-    priceFrom: data?.ourPrice ?? data?.priceFrom,
-    currency: data?.currency,
-    types: data?.propertyTypes,
-    bedrooms: data?.bedrooms,
-    completionDate: data?.completionDate,
-    area: data?.areaSize,
-    areaUnit: data?.areaUnit,
+    priceFrom: apiProject.priceFromUs ?? apiProject.priceFrom,
+    currency: apiProject.currency,
+    types: apiProject.propertyTypes,
+    bedrooms: apiProject.bedrooms,
+    completionDate: apiProject.completionDate,
+    area: apiProject.areaSize,
+    areaUnit: apiProject.areaUnit,
     image: media?.cover?.url,
     hoverImage: media?.hover?.url,
     gallery: media?.gallery?.map(item => item.url).filter((url): url is string => !!url),
@@ -55,12 +54,12 @@ export function apiProjectToProperty(apiProject: Project): Property {
     sale: getSaleFromStatus(apiProject.sale),
     status: apiProject.status === 'active' ? 'active' : 'inactive',
     description: typeof description === 'string' ? description : undefined,
-    isFeatured: data?.isFeatured,
-    tags: data?.tags,
+    isFeatured: apiProject.isFeatured,
+    tags: apiProject.tags,
     discount,
-    roi: data?.roi,
-    paymentPlan: data?.paymentPlan,
-    pricesByType: data?.pricesByType as PriceByType[] | undefined,
+    roi: apiProject.roi,
+    paymentPlan: apiProject.paymentPlan,
+    pricesByType: apiProject.pricesByType as PriceByType[] | undefined,
     badges: badges.length > 0 ? badges : undefined,
   }
 }
@@ -93,7 +92,7 @@ export function apiLotToPropertyForMap(apiLot: LotListItem): Property | null {
   }
 
   const logoUrl =
-    project.data?.media?.logo?.url || project.developer?.logoUrl || apiLot.developer?.logoUrl
+    project.media?.logo?.url || project.developer?.logoUrl || apiLot.developer?.logoUrl
 
   const typeLabel = apiLot.type ? apiLot.type.charAt(0).toUpperCase() + apiLot.type.slice(1) : ''
   const bedroomsLabel = apiLot.bedrooms ? `${apiLot.bedrooms} BR` : ''
@@ -104,7 +103,7 @@ export function apiLotToPropertyForMap(apiLot: LotListItem): Property | null {
     location: project.area?.name || apiLot.area?.name,
     developer: project.developer?.name || apiLot.developer?.name,
     logoUrl,
-    priceFrom: apiLot.priceAmount,
+    priceFrom: apiLot.priceFromUs,
     types: typeLabel ? [typeLabel] : undefined,
     bedrooms: bedroomsLabel ? [bedroomsLabel] : undefined,
     completionDate: undefined,

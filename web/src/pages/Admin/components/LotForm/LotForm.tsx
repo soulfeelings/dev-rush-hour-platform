@@ -93,8 +93,8 @@ export function LotForm({
         bathrooms: initialData.bathrooms?.toString() || '',
         areaSqm: initialData.areaSqm?.toString() || '',
         floor: initialData.floor?.toString() || '',
-        priceAmount: initialData.priceAmount?.toString() || '',
-        developerPrice: initialData.developerPrice?.toString() || '',
+        priceAmount: initialData.priceFromUs?.toString() || '',
+        developerPrice: initialData.priceFromDeveloper?.toString() || '',
         roi: initialData.roi?.toString() || '',
         badgeIds: initialData.badgeIds?.filter((id): id is string => !!id) || [],
         view: (initialData.data as Record<string, unknown>)?.view as string || '',
@@ -148,8 +148,8 @@ export function LotForm({
       bathrooms: initialData.bathrooms?.toString() || '',
       areaSqm: initialData.areaSqm?.toString() || '',
       floor: initialData.floor?.toString() || '',
-      priceAmount: initialData.priceAmount?.toString() || '',
-      developerPrice: initialData.developerPrice?.toString() || '',
+      priceAmount: initialData.priceFromUs?.toString() || '',
+      developerPrice: initialData.priceFromDeveloper?.toString() || '',
       roi: initialData.roi?.toString() || '',
       badgeIds: initialData.badgeIds?.filter((id): id is string => !!id) || [],
       view: (initialData.data as Record<string, unknown>)?.view as string || '',
@@ -233,7 +233,7 @@ export function LotForm({
       projectId: form.projectId,
       type: form.type,
       status: form.status,
-      priceAmount: parseFloat(form.priceAmount),
+      priceFromUs: parseFloat(form.priceAmount),
     }
 
     if (form.bedrooms) {
@@ -249,7 +249,7 @@ export function LotForm({
       payload.floor = parseInt(form.floor, 10)
     }
     if (form.developerPrice) {
-      payload.developerPrice = parseFloat(form.developerPrice)
+      payload.priceFromDeveloper = parseFloat(form.developerPrice)
     }
     if (form.roi) {
       payload.roi = parseFloat(form.roi)

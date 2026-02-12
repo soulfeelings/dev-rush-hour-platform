@@ -9,7 +9,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 85,
-    priceAmount: 2500000,
+    priceFromUs: 2500000,
   },
   {
     id: '2',
@@ -17,7 +17,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 2,
     areaSqm: 120,
-    priceAmount: 3500000,
+    priceFromUs: 3500000,
   },
   {
     id: '3',
@@ -25,7 +25,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 65,
-    priceAmount: 1800000,
+    priceFromUs: 1800000,
   },
   {
     id: '4',
@@ -33,7 +33,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 150,
-    priceAmount: 4500000,
+    priceFromUs: 4500000,
   },
   {
     id: '5',
@@ -41,7 +41,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 90,
-    priceAmount: 2700000,
+    priceFromUs: 2700000,
   },
   {
     id: '6',
@@ -49,7 +49,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 3,
     areaSqm: 140,
-    priceAmount: 4200000,
+    priceFromUs: 4200000,
   },
   {
     id: '7',
@@ -57,7 +57,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 70,
-    priceAmount: 2000000,
+    priceFromUs: 2000000,
   },
   {
     id: '8',
@@ -65,7 +65,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 88,
-    priceAmount: 2600000,
+    priceFromUs: 2600000,
   },
   {
     id: '9',
@@ -73,7 +73,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 155,
-    priceAmount: 4600000,
+    priceFromUs: 4600000,
   },
   // Этаж 8
   {
@@ -82,7 +82,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 87,
-    priceAmount: 2550000,
+    priceFromUs: 2550000,
   },
   {
     id: '11',
@@ -90,7 +90,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 2,
     areaSqm: 118,
-    priceAmount: 3300000,
+    priceFromUs: 3300000,
   },
   {
     id: '12',
@@ -98,7 +98,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 60,
-    priceAmount: 1700000,
+    priceFromUs: 1700000,
   },
   {
     id: '13',
@@ -106,7 +106,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 160,
-    priceAmount: 4800000,
+    priceFromUs: 4800000,
   },
   {
     id: '14',
@@ -114,7 +114,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 92,
-    priceAmount: 2800000,
+    priceFromUs: 2800000,
   },
   {
     id: '15',
@@ -122,7 +122,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 3,
     areaSqm: 135,
-    priceAmount: 4000000,
+    priceFromUs: 4000000,
   },
   {
     id: '16',
@@ -130,7 +130,7 @@ export const mockLots: Lot[] = [
     bedrooms: 0,
     bathrooms: 1,
     areaSqm: 55,
-    priceAmount: 1500000,
+    priceFromUs: 1500000,
   },
   {
     id: '17',
@@ -138,7 +138,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 89,
-    priceAmount: 2650000,
+    priceFromUs: 2650000,
   },
   {
     id: '18',
@@ -146,7 +146,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 165,
-    priceAmount: 4900000,
+    priceFromUs: 4900000,
   },
   // Этаж 7
   {
@@ -155,7 +155,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 86,
-    priceAmount: 2520000,
+    priceFromUs: 2520000,
   },
   {
     id: '20',
@@ -163,7 +163,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 2,
     areaSqm: 115,
-    priceAmount: 3400000,
+    priceFromUs: 3400000,
   },
   {
     id: '21',
@@ -171,7 +171,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 68,
-    priceAmount: 1850000,
+    priceFromUs: 1850000,
   },
   {
     id: '22',
@@ -179,7 +179,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 158,
-    priceAmount: 4700000,
+    priceFromUs: 4700000,
   },
   {
     id: '23',
@@ -187,7 +187,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 91,
-    priceAmount: 2850000,
+    priceFromUs: 2850000,
   },
   {
     id: '24',
@@ -195,7 +195,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 3,
     areaSqm: 142,
-    priceAmount: 4100000,
+    priceFromUs: 4100000,
   },
   {
     id: '25',
@@ -203,7 +203,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 72,
-    priceAmount: 2100000,
+    priceFromUs: 2100000,
   },
   {
     id: '26',
@@ -211,7 +211,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 93,
-    priceAmount: 2750000,
+    priceFromUs: 2750000,
   },
   {
     id: '27',
@@ -219,7 +219,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 162,
-    priceAmount: 4850000,
+    priceFromUs: 4850000,
   },
   // Этаж 6
   {
@@ -228,7 +228,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 88,
-    priceAmount: 2600000,
+    priceFromUs: 2600000,
   },
   {
     id: '29',
@@ -236,7 +236,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 2,
     areaSqm: 125,
-    priceAmount: 3600000,
+    priceFromUs: 3600000,
   },
   {
     id: '30',
@@ -244,7 +244,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 70,
-    priceAmount: 2000000,
+    priceFromUs: 2000000,
   },
   {
     id: '31',
@@ -252,7 +252,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 152,
-    priceAmount: 4550000,
+    priceFromUs: 4550000,
   },
   {
     id: '32',
@@ -260,7 +260,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 94,
-    priceAmount: 2820000,
+    priceFromUs: 2820000,
   },
   {
     id: '33',
@@ -268,7 +268,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 3,
     areaSqm: 138,
-    priceAmount: 4050000,
+    priceFromUs: 4050000,
   },
   {
     id: '34',
@@ -276,7 +276,7 @@ export const mockLots: Lot[] = [
     bedrooms: 0,
     bathrooms: 1,
     areaSqm: 58,
-    priceAmount: 1600000,
+    priceFromUs: 1600000,
   },
   {
     id: '35',
@@ -284,7 +284,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 90,
-    priceAmount: 2700000,
+    priceFromUs: 2700000,
   },
   {
     id: '36',
@@ -292,7 +292,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 168,
-    priceAmount: 5000000,
+    priceFromUs: 5000000,
   },
   // Этаж 5
   {
@@ -301,7 +301,7 @@ export const mockLots: Lot[] = [
     bedrooms: 0,
     bathrooms: 1,
     areaSqm: 45,
-    priceAmount: 800000,
+    priceFromUs: 800000,
   },
   {
     id: '38',
@@ -309,7 +309,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 95,
-    priceAmount: 2900000,
+    priceFromUs: 2900000,
   },
   {
     id: '39',
@@ -317,7 +317,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 65,
-    priceAmount: 1900000,
+    priceFromUs: 1900000,
   },
   {
     id: '40',
@@ -325,7 +325,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 2,
     areaSqm: 122,
-    priceAmount: 3550000,
+    priceFromUs: 3550000,
   },
   {
     id: '41',
@@ -333,7 +333,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 96,
-    priceAmount: 2920000,
+    priceFromUs: 2920000,
   },
   {
     id: '42',
@@ -341,7 +341,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 148,
-    priceAmount: 4400000,
+    priceFromUs: 4400000,
   },
   {
     id: '43',
@@ -349,7 +349,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 67,
-    priceAmount: 1950000,
+    priceFromUs: 1950000,
   },
   {
     id: '44',
@@ -357,7 +357,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 92,
-    priceAmount: 2780000,
+    priceFromUs: 2780000,
   },
   {
     id: '45',
@@ -365,7 +365,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 3,
     areaSqm: 130,
-    priceAmount: 3800000,
+    priceFromUs: 3800000,
   },
   // Этаж 4
   {
@@ -374,7 +374,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 87,
-    priceAmount: 2550000,
+    priceFromUs: 2550000,
   },
   {
     id: '47',
@@ -382,7 +382,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 2,
     areaSqm: 118,
-    priceAmount: 3300000,
+    priceFromUs: 3300000,
   },
   {
     id: '48',
@@ -390,7 +390,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 68,
-    priceAmount: 1850000,
+    priceFromUs: 1850000,
   },
   {
     id: '49',
@@ -398,7 +398,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 145,
-    priceAmount: 4350000,
+    priceFromUs: 4350000,
   },
   {
     id: '50',
@@ -406,7 +406,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 89,
-    priceAmount: 2630000,
+    priceFromUs: 2630000,
   },
   {
     id: '51',
@@ -414,7 +414,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 3,
     areaSqm: 132,
-    priceAmount: 3850000,
+    priceFromUs: 3850000,
   },
   {
     id: '52',
@@ -422,7 +422,7 @@ export const mockLots: Lot[] = [
     bedrooms: 0,
     bathrooms: 1,
     areaSqm: 52,
-    priceAmount: 950000,
+    priceFromUs: 950000,
   },
   {
     id: '53',
@@ -430,7 +430,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 91,
-    priceAmount: 2730000,
+    priceFromUs: 2730000,
   },
   {
     id: '54',
@@ -438,7 +438,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 155,
-    priceAmount: 4650000,
+    priceFromUs: 4650000,
   },
   // Этаж 3
   {
@@ -447,7 +447,7 @@ export const mockLots: Lot[] = [
     bedrooms: 0,
     bathrooms: 1,
     areaSqm: 50,
-    priceAmount: 900000,
+    priceFromUs: 900000,
   },
   {
     id: '56',
@@ -455,7 +455,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 89,
-    priceAmount: 2650000,
+    priceFromUs: 2650000,
   },
   {
     id: '57',
@@ -463,7 +463,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 93,
-    priceAmount: 2750000,
+    priceFromUs: 2750000,
   },
   {
     id: '58',
@@ -471,7 +471,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 2,
     areaSqm: 120,
-    priceAmount: 3500000,
+    priceFromUs: 3500000,
   },
   {
     id: '59',
@@ -479,7 +479,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 66,
-    priceAmount: 1920000,
+    priceFromUs: 1920000,
   },
   {
     id: '60',
@@ -487,7 +487,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 150,
-    priceAmount: 4500000,
+    priceFromUs: 4500000,
   },
   {
     id: '61',
@@ -495,7 +495,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 88,
-    priceAmount: 2580000,
+    priceFromUs: 2580000,
   },
   {
     id: '62',
@@ -503,7 +503,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 3,
     areaSqm: 128,
-    priceAmount: 3750000,
+    priceFromUs: 3750000,
   },
   {
     id: '63',
@@ -511,7 +511,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 64,
-    priceAmount: 1880000,
+    priceFromUs: 1880000,
   },
   // Этаж 2
   {
@@ -520,7 +520,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 62,
-    priceAmount: 1750000,
+    priceFromUs: 1750000,
   },
   {
     id: '65',
@@ -528,7 +528,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 2,
     areaSqm: 122,
-    priceAmount: 3550000,
+    priceFromUs: 3550000,
   },
   {
     id: '66',
@@ -536,7 +536,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 86,
-    priceAmount: 2520000,
+    priceFromUs: 2520000,
   },
   {
     id: '67',
@@ -544,7 +544,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 142,
-    priceAmount: 4250000,
+    priceFromUs: 4250000,
   },
   {
     id: '68',
@@ -552,7 +552,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 90,
-    priceAmount: 2680000,
+    priceFromUs: 2680000,
   },
   {
     id: '69',
@@ -560,7 +560,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 3,
     areaSqm: 126,
-    priceAmount: 3700000,
+    priceFromUs: 3700000,
   },
   {
     id: '70',
@@ -568,7 +568,7 @@ export const mockLots: Lot[] = [
     bedrooms: 0,
     bathrooms: 1,
     areaSqm: 48,
-    priceAmount: 850000,
+    priceFromUs: 850000,
   },
   {
     id: '71',
@@ -576,7 +576,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 87,
-    priceAmount: 2560000,
+    priceFromUs: 2560000,
   },
   {
     id: '72',
@@ -584,7 +584,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 160,
-    priceAmount: 4800000,
+    priceFromUs: 4800000,
   },
   // Этаж 1
   {
@@ -593,7 +593,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 91,
-    priceAmount: 2850000,
+    priceFromUs: 2850000,
   },
   {
     id: '74',
@@ -601,7 +601,7 @@ export const mockLots: Lot[] = [
     bedrooms: 1,
     bathrooms: 1,
     areaSqm: 64,
-    priceAmount: 1880000,
+    priceFromUs: 1880000,
   },
   {
     id: '75',
@@ -609,7 +609,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 2,
     areaSqm: 128,
-    priceAmount: 3700000,
+    priceFromUs: 3700000,
   },
   {
     id: '76',
@@ -617,7 +617,7 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 148,
-    priceAmount: 4450000,
+    priceFromUs: 4450000,
   },
   {
     id: '77',
@@ -625,7 +625,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 92,
-    priceAmount: 2800000,
+    priceFromUs: 2800000,
   },
   {
     id: '78',
@@ -633,7 +633,7 @@ export const mockLots: Lot[] = [
     bedrooms: 3,
     bathrooms: 3,
     areaSqm: 124,
-    priceAmount: 3620000,
+    priceFromUs: 3620000,
   },
   {
     id: '79',
@@ -641,7 +641,7 @@ export const mockLots: Lot[] = [
     bedrooms: 0,
     bathrooms: 1,
     areaSqm: 46,
-    priceAmount: 820000,
+    priceFromUs: 820000,
   },
   {
     id: '80',
@@ -649,7 +649,7 @@ export const mockLots: Lot[] = [
     bedrooms: 2,
     bathrooms: 2,
     areaSqm: 89,
-    priceAmount: 2640000,
+    priceFromUs: 2640000,
   },
   {
     id: '81',
@@ -657,6 +657,6 @@ export const mockLots: Lot[] = [
     bedrooms: 4,
     bathrooms: 3,
     areaSqm: 162,
-    priceAmount: 4850000,
+    priceFromUs: 4850000,
   },
 ]

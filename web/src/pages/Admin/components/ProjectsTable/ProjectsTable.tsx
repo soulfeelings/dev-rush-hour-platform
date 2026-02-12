@@ -75,11 +75,11 @@ export function ProjectsTable({
   const isSomeSelected = selectedIds.size > 0
 
   const getProjectImageUrl = (project: (typeof projectsList)[0]) => {
-    if (project.data?.media?.cover?.url) {
-      return project.data.media.cover.url
+    if (project.media?.cover?.url) {
+      return project.media.cover.url
     }
-    if (project.data?.media?.gallery && project.data.media.gallery.length > 0) {
-      return project.data.media.gallery[0]?.url
+    if (project.media?.gallery && project.media.gallery.length > 0) {
+      return project.media.gallery[0]?.url
     }
     return null
   }

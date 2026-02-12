@@ -33,6 +33,7 @@ import type { Property } from '../../types/property'
 import { createPropertyMarkerIcon } from './markerIcon'
 import { createClusterIcon } from './clusterIcon'
 import { useSettings } from '../../features/Settings/Settings'
+import { getProjectDetailRoute } from '../../constants/routes'
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -100,6 +101,10 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         })
 
         const popupElement = createMarkerPopupElement(property, currency)
+        popupElement.style.cursor = 'pointer'
+        popupElement.addEventListener('click', () => {
+          window.open(getProjectDetailRoute(property.id), '_blank')
+        })
 
         const popup = L.popup({
           offset: [0, -42],
