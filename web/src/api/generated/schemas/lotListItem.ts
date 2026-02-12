@@ -24,8 +24,8 @@ export interface LotListItem {
   bathrooms?: number
   areaSqm?: number
   floor?: number
-  priceAmount?: number
-  developerPrice?: number
+  priceFromUs?: number
+  priceFromDeveloper?: number
   roi?: number
   bonusKeys?: string[]
   badgeIds?: string[]

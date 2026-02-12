@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type ProjectDataPricesByTypeItem = {
+export type ProjectCreateRequestPricesByTypeItem = {
   type?: string
   price?: number
 }
