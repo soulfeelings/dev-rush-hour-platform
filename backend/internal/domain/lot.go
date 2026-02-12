@@ -15,8 +15,8 @@ type Lot struct {
 	Bathrooms     *int
 	AreaSqm       *float64
 	Floor         *int
-	PriceAmount    float64
-	DeveloperPrice *float64
+	PriceFromUs    float64
+	PriceFromDeveloper *float64
 	ROI            *float64
 	BonusKeys      []string
 	BadgeIDs      []uuid.UUID

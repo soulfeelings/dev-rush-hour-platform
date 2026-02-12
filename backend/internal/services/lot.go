@@ -154,8 +154,8 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 	if updates.Floor != nil {
 		existing.Floor = updates.Floor
 	}
-	if updates.PriceAmount != 0 {
-		existing.PriceAmount = updates.PriceAmount
+	if updates.PriceFromUs != 0 {
+		existing.PriceFromUs = updates.PriceFromUs
 	}
 	if len(updates.BonusKeys) > 0 {
 		existing.BonusKeys = updates.BonusKeys

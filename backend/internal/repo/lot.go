@@ -56,7 +56,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	var dataJSON []byte
 	var projectID sql.NullString
 	var bedrooms, bathrooms, floor sql.NullInt64
-	var areaSqm, developerPrice, roi sql.NullFloat64
+	var areaSqm, priceFromDeveloper, roi sql.NullFloat64
 	var bonusKeys pq.StringArray
 	var badgeIDs pq.StringArray
 
@@ -79,7 +79,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	err := r.db.QueryRow(`
 		SELECT
 			l.id, l.status, l.project_id, l.type, l.bedrooms, l.bathrooms,
-			l.area_sqm, l.floor, l.price_amount, l.developer_price, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
+			l.area_sqm, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
 			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at,
 			d.slug, d.name, d.created_at, d.updated_at,
 			a.slug, a.name, a.lat, a.lng, a.created_at, a.updated_at
@@ -91,7 +91,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	`, id).Scan(
 		&lot.ID, &lot.Status, &projectID,
 		&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-		&lot.PriceAmount, &developerPrice, &roi, &bonusKeys, &badgeIDs, &dataJSON,
+		&lot.PriceFromUs, &priceFromDeveloper, &roi, &bonusKeys, &badgeIDs, &dataJSON,
 		&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 		&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projMediaJSON, &projIsFeatured, &projCreatedAt, &projUpdatedAt,
 		&devSlug, &devName, &devCreatedAt, &devUpdatedAt,
@@ -131,8 +131,8 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		f := int(floor.Int64)
 		lot.Floor = &f
 	}
-	if developerPrice.Valid {
-		lot.DeveloperPrice = &developerPrice.Float64
+	if priceFromDeveloper.Valid {
+		lot.PriceFromDeveloper = &priceFromDeveloper.Float64
 	}
 	if roi.Valid {
 		lot.ROI = &roi.Float64
@@ -223,7 +223,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 	query := `SELECT
 			l.id, l.status, l.project_id, l.type, l.bedrooms, l.bathrooms,
-			l.area_sqm, l.floor, l.price_amount, l.developer_price, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at,
+			l.area_sqm, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at,
 			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at
 		FROM lots l
 		LEFT JOIN projects p ON l.project_id = p.id
@@ -284,15 +284,15 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 	}
 
 	if filters.PriceMin != nil {
-		query += fmt.Sprintf(` AND price_amount >= $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND price_amount >= $%d`, argPos)
+		query += fmt.Sprintf(` AND price_from_us >= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND price_from_us >= $%d`, argPos)
 		args = append(args, *filters.PriceMin)
 		argPos++
 	}
 
 	if filters.PriceMax != nil {
-		query += fmt.Sprintf(` AND price_amount <= $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND price_amount <= $%d`, argPos)
+		query += fmt.Sprintf(` AND price_from_us <= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND price_from_us <= $%d`, argPos)
 		args = append(args, *filters.PriceMax)
 		argPos++
 	}
@@ -320,9 +320,9 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 	switch sort {
 	case LotSortPriceAsc:
-		query += ` ORDER BY l.price_amount ASC`
+		query += ` ORDER BY l.price_from_us ASC`
 	case LotSortPriceDesc:
-		query += ` ORDER BY l.price_amount DESC`
+		query += ` ORDER BY l.price_from_us DESC`
 	case LotSortAreaDesc:
 		query += ` ORDER BY l.area_sqm DESC NULLS LAST`
 	case LotSortNewest:
@@ -357,7 +357,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		var dataJSON []byte
 		var projectID sql.NullString
 		var bedrooms, bathrooms, floor sql.NullInt64
-		var areaSqm, developerPrice, roi sql.NullFloat64
+		var areaSqm, priceFromDeveloper, roi sql.NullFloat64
 		var bonusKeys pq.StringArray
 		var badgeIDs pq.StringArray
 
@@ -371,7 +371,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		if err := rows.Scan(
 			&lot.ID, &lot.Status, &projectID,
 			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-			&lot.PriceAmount, &developerPrice, &roi, &bonusKeys, &badgeIDs, &dataJSON,
+			&lot.PriceFromUs, &priceFromDeveloper, &roi, &bonusKeys, &badgeIDs, &dataJSON,
 			&lot.CreatedAt, &lot.UpdatedAt,
 			&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projMediaJSON, &projIsFeatured, &projCreatedAt, &projUpdatedAt,
 		); err != nil {
@@ -397,8 +397,8 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 			f := int(floor.Int64)
 			lot.Floor = &f
 		}
-		if developerPrice.Valid {
-			lot.DeveloperPrice = &developerPrice.Float64
+		if priceFromDeveloper.Valid {
+			lot.PriceFromDeveloper = &priceFromDeveloper.Float64
 		}
 		if roi.Valid {
 			lot.ROI = &roi.Float64
@@ -496,22 +496,22 @@ func (r *LotRepo) Create(lot *domain.Lot) error {
 		floor = sql.NullInt64{Int64: int64(*lot.Floor), Valid: true}
 	}
 
-	var areaSqm, developerPrice, roi sql.NullFloat64
+	var areaSqm, priceFromDeveloper, roi sql.NullFloat64
 	if lot.AreaSqm != nil {
 		areaSqm = sql.NullFloat64{Float64: *lot.AreaSqm, Valid: true}
 	}
-	if lot.DeveloperPrice != nil {
-		developerPrice = sql.NullFloat64{Float64: *lot.DeveloperPrice, Valid: true}
+	if lot.PriceFromDeveloper != nil {
+		priceFromDeveloper = sql.NullFloat64{Float64: *lot.PriceFromDeveloper, Valid: true}
 	}
 	if lot.ROI != nil {
 		roi = sql.NullFloat64{Float64: *lot.ROI, Valid: true}
 	}
 
 	err = r.db.QueryRow(`
-		INSERT INTO lots (status, project_id, type, bedrooms, bathrooms, area_sqm, floor, price_amount, developer_price, roi, bonus_keys, badge_ids, data)
+		INSERT INTO lots (status, project_id, type, bedrooms, bathrooms, area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 		RETURNING id, created_at, updated_at
-	`, lot.Status, projectID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceAmount, developerPrice, roi, pq.Array(lot.BonusKeys), pq.Array(uuidsToStrings(lot.BadgeIDs)), dataJSON).Scan(
+	`, lot.Status, projectID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceFromUs, priceFromDeveloper, roi, pq.Array(lot.BonusKeys), pq.Array(uuidsToStrings(lot.BadgeIDs)), dataJSON).Scan(
 		&lot.ID, &lot.CreatedAt, &lot.UpdatedAt,
 	)
 
@@ -561,12 +561,12 @@ func (r *LotRepo) Update(id uuid.UUID, lot *domain.Lot) error {
 		floor = sql.NullInt64{Int64: int64(*lot.Floor), Valid: true}
 	}
 
-	var areaSqm, developerPrice, roi sql.NullFloat64
+	var areaSqm, priceFromDeveloper, roi sql.NullFloat64
 	if lot.AreaSqm != nil {
 		areaSqm = sql.NullFloat64{Float64: *lot.AreaSqm, Valid: true}
 	}
-	if lot.DeveloperPrice != nil {
-		developerPrice = sql.NullFloat64{Float64: *lot.DeveloperPrice, Valid: true}
+	if lot.PriceFromDeveloper != nil {
+		priceFromDeveloper = sql.NullFloat64{Float64: *lot.PriceFromDeveloper, Valid: true}
 	}
 	if lot.ROI != nil {
 		roi = sql.NullFloat64{Float64: *lot.ROI, Valid: true}
@@ -574,10 +574,10 @@ func (r *LotRepo) Update(id uuid.UUID, lot *domain.Lot) error {
 
 	err = r.db.QueryRow(`
 		UPDATE lots
-		SET status = $1, project_id = $2, type = $3, bedrooms = $4, bathrooms = $5, area_sqm = $6, floor = $7, price_amount = $8, developer_price = $9, roi = $10, bonus_keys = $11, badge_ids = $12, data = $13, updated_at = NOW()
+		SET status = $1, project_id = $2, type = $3, bedrooms = $4, bathrooms = $5, area_sqm = $6, floor = $7, price_from_us = $8, price_from_developer = $9, roi = $10, bonus_keys = $11, badge_ids = $12, data = $13, updated_at = NOW()
 		WHERE id = $14 AND deleted_at IS NULL
 		RETURNING updated_at
-	`, lot.Status, projectID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceAmount, developerPrice, roi, pq.Array(lot.BonusKeys), pq.Array(uuidsToStrings(lot.BadgeIDs)), dataJSON, id).Scan(&lot.UpdatedAt)
+	`, lot.Status, projectID, lot.Type, bedrooms, bathrooms, areaSqm, floor, lot.PriceFromUs, priceFromDeveloper, roi, pq.Array(lot.BonusKeys), pq.Array(uuidsToStrings(lot.BadgeIDs)), dataJSON, id).Scan(&lot.UpdatedAt)
 
 	if err != nil {
 		r.logger.Error("lot_repo_update_failed",
@@ -610,7 +610,7 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 
 	query := `
 		SELECT id, status, project_id, type, bedrooms, bathrooms,
-		       area_sqm, floor, price_amount, developer_price, roi, bonus_keys, badge_ids, data, created_at, updated_at
+		       area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at
 		FROM lots
 		WHERE project_id = $1 AND status = 'active'
 		ORDER BY created_at DESC
@@ -634,14 +634,14 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 		var dataJSON []byte
 		var projectID sql.NullString
 		var bedrooms, bathrooms, floor sql.NullInt64
-		var areaSqm, developerPrice, roi sql.NullFloat64
+		var areaSqm, priceFromDeveloper, roi sql.NullFloat64
 		var bonusKeys pq.StringArray
 		var badgeIDs pq.StringArray
 
 		if err := rows.Scan(
 			&lot.ID, &lot.Status, &projectID,
 			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-			&lot.PriceAmount, &developerPrice, &roi, &bonusKeys, &badgeIDs, &dataJSON,
+			&lot.PriceFromUs, &priceFromDeveloper, &roi, &bonusKeys, &badgeIDs, &dataJSON,
 			&lot.CreatedAt, &lot.UpdatedAt,
 		); err != nil {
 			return nil, err
@@ -666,8 +666,8 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 			f := int(floor.Int64)
 			lot.Floor = &f
 		}
-		if developerPrice.Valid {
-			lot.DeveloperPrice = &developerPrice.Float64
+		if priceFromDeveloper.Valid {
+			lot.PriceFromDeveloper = &priceFromDeveloper.Float64
 		}
 		if roi.Valid {
 			lot.ROI = &roi.Float64
@@ -738,7 +738,7 @@ func (r *LotRepo) ListAll() ([]domain.Lot, error) {
 
 	rows, err := r.db.Query(`
 		SELECT id, status, project_id, type, bedrooms, bathrooms,
-		       area_sqm, floor, price_amount, developer_price, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
+		       area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
 		FROM lots
 		WHERE deleted_at IS NULL
 		ORDER BY created_at DESC
@@ -757,14 +757,14 @@ func (r *LotRepo) ListAll() ([]domain.Lot, error) {
 		var dataJSON []byte
 		var projectID sql.NullString
 		var bedrooms, bathrooms, floor sql.NullInt64
-		var areaSqm, developerPrice, roi sql.NullFloat64
+		var areaSqm, priceFromDeveloper, roi sql.NullFloat64
 		var bonusKeys pq.StringArray
 		var badgeIDs pq.StringArray
 
 		if err := rows.Scan(
 			&lot.ID, &lot.Status, &projectID,
 			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-			&lot.PriceAmount, &developerPrice, &roi, &bonusKeys, &badgeIDs, &dataJSON,
+			&lot.PriceFromUs, &priceFromDeveloper, &roi, &bonusKeys, &badgeIDs, &dataJSON,
 			&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -789,8 +789,8 @@ func (r *LotRepo) ListAll() ([]domain.Lot, error) {
 			f := int(floor.Int64)
 			lot.Floor = &f
 		}
-		if developerPrice.Valid {
-			lot.DeveloperPrice = &developerPrice.Float64
+		if priceFromDeveloper.Valid {
+			lot.PriceFromDeveloper = &priceFromDeveloper.Float64
 		}
 		if roi.Valid {
 			lot.ROI = &roi.Float64
@@ -821,7 +821,7 @@ func (r *LotRepo) ListDeleted() ([]domain.Lot, error) {
 
 	rows, err := r.db.Query(`
 		SELECT id, status, project_id, type, bedrooms, bathrooms,
-		       area_sqm, floor, price_amount, developer_price, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
+		       area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
 		FROM lots
 		WHERE deleted_at IS NOT NULL
 		ORDER BY deleted_at DESC
@@ -840,14 +840,14 @@ func (r *LotRepo) ListDeleted() ([]domain.Lot, error) {
 		var dataJSON []byte
 		var projectID sql.NullString
 		var bedrooms, bathrooms, floor sql.NullInt64
-		var areaSqm, developerPrice, roi sql.NullFloat64
+		var areaSqm, priceFromDeveloper, roi sql.NullFloat64
 		var bonusKeys pq.StringArray
 		var badgeIDs pq.StringArray
 
 		if err := rows.Scan(
 			&lot.ID, &lot.Status, &projectID,
 			&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-			&lot.PriceAmount, &developerPrice, &roi, &bonusKeys, &badgeIDs, &dataJSON,
+			&lot.PriceFromUs, &priceFromDeveloper, &roi, &bonusKeys, &badgeIDs, &dataJSON,
 			&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 		); err != nil {
 			r.logger.Error("lot_repo_list_deleted_scan_failed",
@@ -875,8 +875,8 @@ func (r *LotRepo) ListDeleted() ([]domain.Lot, error) {
 			f := int(floor.Int64)
 			lot.Floor = &f
 		}
-		if developerPrice.Valid {
-			lot.DeveloperPrice = &developerPrice.Float64
+		if priceFromDeveloper.Valid {
+			lot.PriceFromDeveloper = &priceFromDeveloper.Float64
 		}
 		if roi.Valid {
 			lot.ROI = &roi.Float64
@@ -911,19 +911,19 @@ func (r *LotRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Lot, error) {
 	var dataJSON []byte
 	var projectID sql.NullString
 	var bedrooms, bathrooms, floor sql.NullInt64
-	var areaSqm, developerPrice, roi sql.NullFloat64
+	var areaSqm, priceFromDeveloper, roi sql.NullFloat64
 	var bonusKeys pq.StringArray
 	var badgeIDs pq.StringArray
 
 	err := r.db.QueryRow(`
 		SELECT id, status, project_id, type, bedrooms, bathrooms,
-		       area_sqm, floor, price_amount, developer_price, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
+		       area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
 		FROM lots
 		WHERE id = $1
 	`, id).Scan(
 		&lot.ID, &lot.Status, &projectID,
 		&lot.Type, &bedrooms, &bathrooms, &areaSqm, &floor,
-		&lot.PriceAmount, &developerPrice, &roi, &bonusKeys, &badgeIDs, &dataJSON,
+		&lot.PriceFromUs, &priceFromDeveloper, &roi, &bonusKeys, &badgeIDs, &dataJSON,
 		&lot.CreatedAt, &lot.UpdatedAt, &lot.DeletedAt,
 	)
 
@@ -953,8 +953,8 @@ func (r *LotRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Lot, error) {
 		f := int(floor.Int64)
 		lot.Floor = &f
 	}
-	if developerPrice.Valid {
-		lot.DeveloperPrice = &developerPrice.Float64
+	if priceFromDeveloper.Valid {
+		lot.PriceFromDeveloper = &priceFromDeveloper.Float64
 	}
 	if roi.Valid {
 		lot.ROI = &roi.Float64

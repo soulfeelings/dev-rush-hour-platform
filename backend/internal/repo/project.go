@@ -27,7 +27,7 @@ func NewProjectRepo(db *sql.DB) *ProjectRepo {
 // projectColumns is the list of project columns to SELECT (without table alias).
 const projectColumns = `id, slug, name, status, sale, developer_id, area_id, lat, lng,
 	description, media, features_amenities, tags, is_featured, youtube_url,
-	roi, our_price, developer_price, payment_plan, completion_date,
+	roi, price_from_us, price_from_developer, payment_plan, completion_date,
 	price_from, currency, property_types, bedrooms, area_size, area_unit, prices_by_type,
 	timeline_announcement, timeline_booking_started, timeline_construction_started,
 	timeline_construction_progress, timeline_construction_progress_pct, timeline_expected_completion,
@@ -37,7 +37,7 @@ const projectColumns = `id, slug, name, status, sale, developer_id, area_id, lat
 func projectColumnsAliased(alias string) string {
 	return fmt.Sprintf(`%[1]s.id, %[1]s.slug, %[1]s.name, %[1]s.status, %[1]s.sale, %[1]s.developer_id, %[1]s.area_id, %[1]s.lat, %[1]s.lng,
 	%[1]s.description, %[1]s.media, %[1]s.features_amenities, %[1]s.tags, %[1]s.is_featured, %[1]s.youtube_url,
-	%[1]s.roi, %[1]s.our_price, %[1]s.developer_price, %[1]s.payment_plan, %[1]s.completion_date,
+	%[1]s.roi, %[1]s.price_from_us, %[1]s.price_from_developer, %[1]s.payment_plan, %[1]s.completion_date,
 	%[1]s.price_from, %[1]s.currency, %[1]s.property_types, %[1]s.bedrooms, %[1]s.area_size, %[1]s.area_unit, %[1]s.prices_by_type,
 	%[1]s.timeline_announcement, %[1]s.timeline_booking_started, %[1]s.timeline_construction_started,
 	%[1]s.timeline_construction_progress, %[1]s.timeline_construction_progress_pct, %[1]s.timeline_expected_completion,
@@ -53,7 +53,7 @@ func populateProjectFromScan(
 	featuresAmenities, tags, propertyTypes, bedroomArr pq.StringArray,
 	sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit sql.NullString,
 	isFeatured sql.NullBool,
-	roi, ourPrice, developerPrice, priceFrom, areaSize sql.NullFloat64,
+	roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize sql.NullFloat64,
 	timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime,
 	timelineConstProgPct sql.NullInt64,
 ) error {
@@ -125,11 +125,11 @@ func populateProjectFromScan(
 	if roi.Valid {
 		project.ROI = &roi.Float64
 	}
-	if ourPrice.Valid {
-		project.OurPrice = &ourPrice.Float64
+	if priceFromUs.Valid {
+		project.PriceFromUs = &priceFromUs.Float64
 	}
-	if developerPrice.Valid {
-		project.DeveloperPrice = &developerPrice.Float64
+	if priceFromDeveloper.Valid {
+		project.PriceFromDeveloper = &priceFromDeveloper.Float64
 	}
 	if priceFrom.Valid {
 		project.PriceFrom = &priceFrom.Float64
@@ -181,7 +181,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
 		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
 		isFeatured                                                                   sql.NullBool
-		roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+		roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize                           sql.NullFloat64
 		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
 		timelineConstProgPct                                                         sql.NullInt64
 	)
@@ -199,7 +199,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 		&developerID, &areaID, &lat, &lng,
 		&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
-		&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+		&roi, &priceFromUs, &priceFromDeveloper, &paymentPlan, &completionDate,
 		&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
 		&timelineAnn, &timelineBook, &timelineConstStart,
 		&timelineConstProg, &timelineConstProgPct, &timelineExp,
@@ -227,7 +227,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		descJSON, mediaJSON, pricesByTypeJSON,
 		featuresAmenities, tags, propertyTypes, bedroomArr,
 		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
-		isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+		isFeatured, roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize,
 		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
 		timelineConstProgPct,
 	); err != nil {
@@ -389,7 +389,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
 			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
 			isFeatured                                                                   sql.NullBool
-			roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+			roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize                           sql.NullFloat64
 			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
 			timelineConstProgPct                                                         sql.NullInt64
 		)
@@ -399,7 +399,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 			&developerID, &areaID, &lat, &lng,
 			&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
-			&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+			&roi, &priceFromUs, &priceFromDeveloper, &paymentPlan, &completionDate,
 			&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
 			&timelineAnn, &timelineBook, &timelineConstStart,
 			&timelineConstProg, &timelineConstProgPct, &timelineExp,
@@ -415,7 +415,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			descJSON, mediaJSON, pricesByTypeJSON,
 			featuresAmenities, tags, propertyTypes, bedroomArr,
 			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
-			isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+			isFeatured, roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize,
 			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
 			timelineConstProgPct,
 		); err != nil {
@@ -549,7 +549,7 @@ func (r *ProjectRepo) Create(project *domain.Project) error {
 	err = r.db.QueryRow(`
 		INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
 			description, media, features_amenities, tags, is_featured, youtube_url,
-			roi, our_price, developer_price, payment_plan, completion_date,
+			roi, price_from_us, price_from_developer, payment_plan, completion_date,
 			price_from, currency, property_types, bedrooms, area_size, area_unit, prices_by_type,
 			timeline_announcement, timeline_booking_started, timeline_construction_started,
 			timeline_construction_progress, timeline_construction_progress_pct, timeline_expected_completion)
@@ -564,7 +564,7 @@ func (r *ProjectRepo) Create(project *domain.Project) error {
 		nullableJSON(descJSON), nullableJSON(mediaJSON),
 		pq.Array(project.FeaturesAmenities), pq.Array(project.Tags),
 		project.IsFeatured, nullableString(project.YoutubeURL),
-		nullableFloat(project.ROI), nullableFloat(project.OurPrice), nullableFloat(project.DeveloperPrice),
+		nullableFloat(project.ROI), nullableFloat(project.PriceFromUs), nullableFloat(project.PriceFromDeveloper),
 		nullableString(project.PaymentPlan), nullableString(project.CompletionDate),
 		nullableFloat(project.PriceFrom), nullableString(project.Currency),
 		pq.Array(project.PropertyTypes), pq.Array(project.Bedrooms),
@@ -628,7 +628,7 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 		UPDATE projects SET
 			slug = $1, name = $2, status = $3, sale = $4, developer_id = $5, area_id = $6, lat = $7, lng = $8,
 			description = $9, media = $10, features_amenities = $11, tags = $12, is_featured = $13, youtube_url = $14,
-			roi = $15, our_price = $16, developer_price = $17, payment_plan = $18, completion_date = $19,
+			roi = $15, price_from_us = $16, price_from_developer = $17, payment_plan = $18, completion_date = $19,
 			price_from = $20, currency = $21, property_types = $22, bedrooms = $23, area_size = $24, area_unit = $25, prices_by_type = $26,
 			timeline_announcement = $27, timeline_booking_started = $28, timeline_construction_started = $29,
 			timeline_construction_progress = $30, timeline_construction_progress_pct = $31, timeline_expected_completion = $32,
@@ -640,7 +640,7 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 		nullableJSON(descJSON), nullableJSON(mediaJSON),
 		pq.Array(project.FeaturesAmenities), pq.Array(project.Tags),
 		project.IsFeatured, nullableString(project.YoutubeURL),
-		nullableFloat(project.ROI), nullableFloat(project.OurPrice), nullableFloat(project.DeveloperPrice),
+		nullableFloat(project.ROI), nullableFloat(project.PriceFromUs), nullableFloat(project.PriceFromDeveloper),
 		nullableString(project.PaymentPlan), nullableString(project.CompletionDate),
 		nullableFloat(project.PriceFrom), nullableString(project.Currency),
 		pq.Array(project.PropertyTypes), pq.Array(project.Bedrooms),
@@ -685,7 +685,7 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
 		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
 		isFeatured                                                                   sql.NullBool
-		roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+		roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize                           sql.NullFloat64
 		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
 		timelineConstProgPct                                                         sql.NullInt64
 	)
@@ -698,7 +698,7 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 		&developerID, &areaID, &lat, &lng,
 		&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
-		&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+		&roi, &priceFromUs, &priceFromDeveloper, &paymentPlan, &completionDate,
 		&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
 		&timelineAnn, &timelineBook, &timelineConstStart,
 		&timelineConstProg, &timelineConstProgPct, &timelineExp,
@@ -724,7 +724,7 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		descJSON, mediaJSON, pricesByTypeJSON,
 		featuresAmenities, tags, propertyTypes, bedroomArr,
 		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
-		isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+		isFeatured, roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize,
 		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
 		timelineConstProgPct,
 	); err != nil {
@@ -770,7 +770,7 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 			featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
 			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
 			isFeatured                                                                   sql.NullBool
-			roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+			roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize                           sql.NullFloat64
 			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
 			timelineConstProgPct                                                         sql.NullInt64
 		)
@@ -779,7 +779,7 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 			&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 			&developerID, &areaID, &lat, &lng,
 			&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
-			&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+			&roi, &priceFromUs, &priceFromDeveloper, &paymentPlan, &completionDate,
 			&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
 			&timelineAnn, &timelineBook, &timelineConstStart,
 			&timelineConstProg, &timelineConstProgPct, &timelineExp,
@@ -793,7 +793,7 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 			descJSON, mediaJSON, pricesByTypeJSON,
 			featuresAmenities, tags, propertyTypes, bedroomArr,
 			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
-			isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+			isFeatured, roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize,
 			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
 			timelineConstProgPct,
 		); err != nil {
@@ -875,7 +875,7 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 			featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
 			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
 			isFeatured                                                                   sql.NullBool
-			roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+			roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize                           sql.NullFloat64
 			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
 			timelineConstProgPct                                                         sql.NullInt64
 		)
@@ -884,7 +884,7 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 			&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 			&developerID, &areaID, &lat, &lng,
 			&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
-			&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+			&roi, &priceFromUs, &priceFromDeveloper, &paymentPlan, &completionDate,
 			&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
 			&timelineAnn, &timelineBook, &timelineConstStart,
 			&timelineConstProg, &timelineConstProgPct, &timelineExp,
@@ -901,7 +901,7 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 			descJSON, mediaJSON, pricesByTypeJSON,
 			featuresAmenities, tags, propertyTypes, bedroomArr,
 			sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
-			isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+			isFeatured, roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize,
 			timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
 			timelineConstProgPct,
 		); err != nil {
@@ -931,7 +931,7 @@ func (r *ProjectRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Project, error) 
 		featuresAmenities, tags, propertyTypes, bedroomArr                           pq.StringArray
 		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit            sql.NullString
 		isFeatured                                                                   sql.NullBool
-		roi, ourPrice, developerPrice, priceFrom, areaSize                           sql.NullFloat64
+		roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize                           sql.NullFloat64
 		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp sql.NullTime
 		timelineConstProgPct                                                         sql.NullInt64
 	)
@@ -944,7 +944,7 @@ func (r *ProjectRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Project, error) 
 		&project.ID, &project.Slug, &project.Name, &project.Status, &sale,
 		&developerID, &areaID, &lat, &lng,
 		&descJSON, &mediaJSON, &featuresAmenities, &tags, &isFeatured, &youtubeURL,
-		&roi, &ourPrice, &developerPrice, &paymentPlan, &completionDate,
+		&roi, &priceFromUs, &priceFromDeveloper, &paymentPlan, &completionDate,
 		&priceFrom, &currency, &propertyTypes, &bedroomArr, &areaSize, &areaUnit, &pricesByTypeJSON,
 		&timelineAnn, &timelineBook, &timelineConstStart,
 		&timelineConstProg, &timelineConstProgPct, &timelineExp,
@@ -963,7 +963,7 @@ func (r *ProjectRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Project, error) 
 		descJSON, mediaJSON, pricesByTypeJSON,
 		featuresAmenities, tags, propertyTypes, bedroomArr,
 		sale, youtubeURL, paymentPlan, completionDate, currency, areaUnit,
-		isFeatured, roi, ourPrice, developerPrice, priceFrom, areaSize,
+		isFeatured, roi, priceFromUs, priceFromDeveloper, priceFrom, areaSize,
 		timelineAnn, timelineBook, timelineConstStart, timelineConstProg, timelineExp,
 		timelineConstProgPct,
 	); err != nil {

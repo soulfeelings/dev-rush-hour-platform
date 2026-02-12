@@ -11,7 +11,7 @@ type LotResponse struct {
 	Bathrooms     *int                `json:"bathrooms,omitempty"`
 	AreaSqm       *float64            `json:"areaSqm,omitempty"`
 	Floor         *int                `json:"floor,omitempty"`
-	PriceAmount    float64             `json:"priceAmount"`
+	PriceFromUs    float64             `json:"priceAmount"`
 	DeveloperPrice *float64           `json:"developerPrice,omitempty"`
 	ROI            *float64           `json:"roi,omitempty"`
 	BonusKeys      []string           `json:"bonusKeys"`
@@ -44,7 +44,7 @@ func LotToResponse(lot *domain.Lot) *LotResponse {
 		ID:            lot.ID.String(),
 		Status:        string(lot.Status),
 		Type:          string(lot.Type),
-		PriceAmount:   lot.PriceAmount,
+		PriceFromUs:   lot.PriceFromUs,
 		BonusKeys:     lot.BonusKeys,
 		CreatedAt:     lot.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:     lot.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
@@ -73,8 +73,8 @@ func LotToResponse(lot *domain.Lot) *LotResponse {
 	if lot.Floor != nil {
 		resp.Floor = lot.Floor
 	}
-	if lot.DeveloperPrice != nil {
-		resp.DeveloperPrice = lot.DeveloperPrice
+	if lot.PriceFromDeveloper != nil {
+		resp.DeveloperPrice = lot.PriceFromDeveloper
 	}
 	if lot.ROI != nil {
 		resp.ROI = lot.ROI
