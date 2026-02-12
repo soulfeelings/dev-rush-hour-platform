@@ -1005,6 +1005,35 @@ func (r *ProjectRepo) HardDelete(id uuid.UUID) error {
 	return nil
 }
 
+// RecalculatePricesFromLots recalculates project price fields from active lots.
+func (r *ProjectRepo) RecalculatePricesFromLots(projectID uuid.UUID) error {
+	r.logger.Info("project_repo_recalculate_prices_started", "project_id", projectID)
+
+	_, err := r.db.Exec(`
+		UPDATE projects SET
+			price_from_us = (SELECT MIN(price_from_us) FROM lots WHERE project_id = $1 AND deleted_at IS NULL),
+			price_from_developer = (SELECT MIN(price_from_developer) FROM lots WHERE project_id = $1 AND deleted_at IS NULL AND price_from_developer IS NOT NULL),
+			roi = (SELECT MAX(roi) FROM lots WHERE project_id = $1 AND deleted_at IS NULL AND roi IS NOT NULL),
+			prices_by_type = (
+				SELECT json_agg(json_build_object('type', sub.type, 'price', sub.min_price) ORDER BY sub.type)
+				FROM (SELECT type, MIN(price_from_us) as min_price FROM lots WHERE project_id = $1 AND deleted_at IS NULL GROUP BY type) sub
+			),
+			updated_at = NOW()
+		WHERE id = $1 AND deleted_at IS NULL
+	`, projectID)
+
+	if err != nil {
+		r.logger.Error("project_repo_recalculate_prices_failed",
+			"project_id", projectID,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	r.logger.Info("project_repo_recalculate_prices_completed", "project_id", projectID)
+	return nil
+}
+
 // Helper functions for nullable SQL values
 
 func nullableJSON(data []byte) interface{} {
