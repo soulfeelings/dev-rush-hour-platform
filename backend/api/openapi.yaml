@@ -2053,44 +2053,6 @@ components:
           type: number
         lng:
           type: number
-        data:
-          $ref: "#/components/schemas/ProjectData"
-        developer:
-          $ref: "#/components/schemas/Developer"
-          description: Вложенный объект застройщика
-        area:
-          $ref: "#/components/schemas/Area"
-          description: Вложенный объект района
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        deletedAt:
-          type: string
-          format: date-time
-          nullable: true
-          description: Время мягкого удаления (если null - не удален)
-        lots:
-          type: array
-          items:
-            $ref: "#/components/schemas/Lot"
-          description: Первые N лотов проекта (если запрошено через includeLots)
-        badges:
-          type: array
-          items:
-            $ref: "#/components/schemas/Badge"
-          description: Бейджи проекта
-        infrastructures:
-          type: array
-          items:
-            $ref: "#/components/schemas/Infrastructure"
-          description: Инфраструктура комплекса
-
-    ProjectData:
-      type: object
-      properties:
         description:
           oneOf:
             - type: string
@@ -2119,10 +2081,10 @@ components:
         roi:
           type: number
           description: Return on Investment percentage
-        ourPrice:
+        priceFromUs:
           type: number
           description: Our company price (AED)
-        developerPrice:
+        priceFromDeveloper:
           type: number
           description: Original developer price (AED)
         paymentPlan:
@@ -2163,6 +2125,38 @@ components:
               price:
                 type: number
           description: Prices broken down by property type
+        developer:
+          $ref: "#/components/schemas/Developer"
+          description: Вложенный объект застройщика
+        area:
+          $ref: "#/components/schemas/Area"
+          description: Вложенный объект района
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время мягкого удаления (если null - не удален)
+        lots:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lot"
+          description: Первые N лотов проекта (если запрошено через includeLots)
+        badges:
+          type: array
+          items:
+            $ref: "#/components/schemas/Badge"
+          description: Бейджи проекта
+        infrastructures:
+          type: array
+          items:
+            $ref: "#/components/schemas/Infrastructure"
+          description: Инфраструктура комплекса
 
     ProjectTimeline:
       type: object
@@ -2240,9 +2234,9 @@ components:
           type: number
         floor:
           type: integer
-        priceAmount:
+        priceFromUs:
           type: number
-        developerPrice:
+        priceFromDeveloper:
           type: number
         roi:
           type: number
@@ -2390,9 +2384,9 @@ components:
           type: number
         floor:
           type: integer
-        priceAmount:
+        priceFromUs:
           type: number
-        developerPrice:
+        priceFromDeveloper:
           type: number
         roi:
           type: number
@@ -2957,8 +2951,78 @@ components:
           type: number
         lng:
           type: number
-        data:
-          $ref: "#/components/schemas/ProjectData"
+        description:
+          oneOf:
+            - type: string
+            - type: object
+              additionalProperties:
+                type: string
+        featuresAmenities:
+          type: array
+          items:
+            type: string
+        media:
+          $ref: "#/components/schemas/Media"
+        isFeatured:
+          type: boolean
+          description: Избранный проект
+        tags:
+          type: array
+          items:
+            type: string
+          description: Теги проекта
+        youtubeUrl:
+          type: string
+          description: YouTube video URL for the project
+        timeline:
+          $ref: "#/components/schemas/ProjectTimeline"
+        roi:
+          type: number
+          description: Return on Investment percentage
+        priceFromUs:
+          type: number
+          description: Our company price (AED)
+        priceFromDeveloper:
+          type: number
+          description: Original developer price (AED)
+        paymentPlan:
+          type: string
+          description: Payment plan description
+        completionDate:
+          type: string
+          description: Expected completion date (e.g., Q4 2025, 2026)
+        priceFrom:
+          type: number
+          description: Starting price (AED)
+        currency:
+          type: string
+          description: Currency code (e.g., AED, USD)
+        propertyTypes:
+          type: array
+          items:
+            type: string
+          description: Available property types
+        bedrooms:
+          type: array
+          items:
+            type: string
+          description: Available bedroom configurations
+        areaSize:
+          type: number
+          description: Area size
+        areaUnit:
+          type: string
+          description: Unit for area measurement (sqm, sqft)
+        pricesByType:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              price:
+                type: number
+          description: Prices broken down by property type
         badgeIds:
           type: array
           items:
@@ -2995,8 +3059,78 @@ components:
           type: number
         lng:
           type: number
-        data:
-          $ref: "#/components/schemas/ProjectData"
+        description:
+          oneOf:
+            - type: string
+            - type: object
+              additionalProperties:
+                type: string
+        featuresAmenities:
+          type: array
+          items:
+            type: string
+        media:
+          $ref: "#/components/schemas/Media"
+        isFeatured:
+          type: boolean
+          description: Избранный проект
+        tags:
+          type: array
+          items:
+            type: string
+          description: Теги проекта
+        youtubeUrl:
+          type: string
+          description: YouTube video URL for the project
+        timeline:
+          $ref: "#/components/schemas/ProjectTimeline"
+        roi:
+          type: number
+          description: Return on Investment percentage
+        priceFromUs:
+          type: number
+          description: Our company price (AED)
+        priceFromDeveloper:
+          type: number
+          description: Original developer price (AED)
+        paymentPlan:
+          type: string
+          description: Payment plan description
+        completionDate:
+          type: string
+          description: Expected completion date (e.g., Q4 2025, 2026)
+        priceFrom:
+          type: number
+          description: Starting price (AED)
+        currency:
+          type: string
+          description: Currency code (e.g., AED, USD)
+        propertyTypes:
+          type: array
+          items:
+            type: string
+          description: Available property types
+        bedrooms:
+          type: array
+          items:
+            type: string
+          description: Available bedroom configurations
+        areaSize:
+          type: number
+          description: Area size
+        areaUnit:
+          type: string
+          description: Unit for area measurement (sqm, sqft)
+        pricesByType:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              price:
+                type: number
+          description: Prices broken down by property type
         badgeIds:
           type: array
           items:
@@ -3015,7 +3149,7 @@ components:
       required:
         - projectId
         - type
-        - priceAmount
+        - priceFromUs
       properties:
         projectId:
           type: string
@@ -3034,9 +3168,9 @@ components:
           type: number
         floor:
           type: integer
-        priceAmount:
+        priceFromUs:
           type: number
-        developerPrice:
+        priceFromDeveloper:
           type: number
         roi:
           type: number
@@ -3071,9 +3205,9 @@ components:
           type: number
         floor:
           type: integer
-        priceAmount:
+        priceFromUs:
           type: number
-        developerPrice:
+        priceFromDeveloper:
           type: number
         roi:
           type: number

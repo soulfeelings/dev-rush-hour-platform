@@ -577,18 +577,18 @@ type Lot struct {
 	Data      *LotData              `json:"data,omitempty"`
 
 	// DeletedAt Время мягкого удаления (если null - не удален)
-	DeletedAt      *time.Time          `json:"deletedAt"`
-	Developer      *Developer          `json:"developer,omitempty"`
-	DeveloperPrice *float32            `json:"developerPrice,omitempty"`
-	Floor          *int                `json:"floor,omitempty"`
-	Id             *openapi_types.UUID `json:"id,omitempty"`
-	PriceAmount    *float32            `json:"priceAmount,omitempty"`
-	Project        *Project            `json:"project,omitempty"`
-	ProjectId      *openapi_types.UUID `json:"projectId,omitempty"`
-	Roi            *float32            `json:"roi,omitempty"`
-	Status         *LotStatus          `json:"status,omitempty"`
-	Type           *LotType            `json:"type,omitempty"`
-	UpdatedAt      *time.Time          `json:"updatedAt,omitempty"`
+	DeletedAt          *time.Time          `json:"deletedAt"`
+	Developer          *Developer          `json:"developer,omitempty"`
+	Floor              *int                `json:"floor,omitempty"`
+	Id                 *openapi_types.UUID `json:"id,omitempty"`
+	PriceFromDeveloper *float32            `json:"priceFromDeveloper,omitempty"`
+	PriceFromUs        *float32            `json:"priceFromUs,omitempty"`
+	Project            *Project            `json:"project,omitempty"`
+	ProjectId          *openapi_types.UUID `json:"projectId,omitempty"`
+	Roi                *float32            `json:"roi,omitempty"`
+	Status             *LotStatus          `json:"status,omitempty"`
+	Type               *LotType            `json:"type,omitempty"`
+	UpdatedAt          *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // LotStatus defines model for Lot.Status.
@@ -596,19 +596,19 @@ type LotStatus string
 
 // LotCreateRequest defines model for LotCreateRequest.
 type LotCreateRequest struct {
-	AreaSqm        *float32                `json:"areaSqm,omitempty"`
-	BadgeIds       *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
-	Bathrooms      *int                    `json:"bathrooms,omitempty"`
-	Bedrooms       *int                    `json:"bedrooms,omitempty"`
-	BonusKeys      *[]string               `json:"bonusKeys,omitempty"`
-	Data           *LotData                `json:"data,omitempty"`
-	DeveloperPrice *float32                `json:"developerPrice,omitempty"`
-	Floor          *int                    `json:"floor,omitempty"`
-	PriceAmount    float32                 `json:"priceAmount"`
-	ProjectId      openapi_types.UUID      `json:"projectId"`
-	Roi            *float32                `json:"roi,omitempty"`
-	Status         *LotCreateRequestStatus `json:"status,omitempty"`
-	Type           LotType                 `json:"type"`
+	AreaSqm            *float32                `json:"areaSqm,omitempty"`
+	BadgeIds           *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
+	Bathrooms          *int                    `json:"bathrooms,omitempty"`
+	Bedrooms           *int                    `json:"bedrooms,omitempty"`
+	BonusKeys          *[]string               `json:"bonusKeys,omitempty"`
+	Data               *LotData                `json:"data,omitempty"`
+	Floor              *int                    `json:"floor,omitempty"`
+	PriceFromDeveloper *float32                `json:"priceFromDeveloper,omitempty"`
+	PriceFromUs        float32                 `json:"priceFromUs"`
+	ProjectId          openapi_types.UUID      `json:"projectId"`
+	Roi                *float32                `json:"roi,omitempty"`
+	Status             *LotCreateRequestStatus `json:"status,omitempty"`
+	Type               LotType                 `json:"type"`
 }
 
 // LotCreateRequestStatus defines model for LotCreateRequest.Status.
@@ -639,19 +639,19 @@ type LotListItem struct {
 	Data      *LotData              `json:"data,omitempty"`
 
 	// DeletedAt Время мягкого удаления (если null - не удален)
-	DeletedAt      *time.Time          `json:"deletedAt"`
-	Developer      *Developer          `json:"developer,omitempty"`
-	DeveloperId    *openapi_types.UUID `json:"developerId,omitempty"`
-	DeveloperPrice *float32            `json:"developerPrice,omitempty"`
-	Floor          *int                `json:"floor,omitempty"`
-	Id             *openapi_types.UUID `json:"id,omitempty"`
-	PriceAmount    *float32            `json:"priceAmount,omitempty"`
-	Project        *Project            `json:"project,omitempty"`
-	ProjectId      *openapi_types.UUID `json:"projectId,omitempty"`
-	Roi            *float32            `json:"roi,omitempty"`
-	Status         *LotListItemStatus  `json:"status,omitempty"`
-	Type           *LotType            `json:"type,omitempty"`
-	UpdatedAt      *time.Time          `json:"updatedAt,omitempty"`
+	DeletedAt          *time.Time          `json:"deletedAt"`
+	Developer          *Developer          `json:"developer,omitempty"`
+	DeveloperId        *openapi_types.UUID `json:"developerId,omitempty"`
+	Floor              *int                `json:"floor,omitempty"`
+	Id                 *openapi_types.UUID `json:"id,omitempty"`
+	PriceFromDeveloper *float32            `json:"priceFromDeveloper,omitempty"`
+	PriceFromUs        *float32            `json:"priceFromUs,omitempty"`
+	Project            *Project            `json:"project,omitempty"`
+	ProjectId          *openapi_types.UUID `json:"projectId,omitempty"`
+	Roi                *float32            `json:"roi,omitempty"`
+	Status             *LotListItemStatus  `json:"status,omitempty"`
+	Type               *LotType            `json:"type,omitempty"`
+	UpdatedAt          *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // LotListItemStatus defines model for LotListItem.Status.
@@ -670,19 +670,19 @@ type LotType string
 
 // LotUpdateRequest defines model for LotUpdateRequest.
 type LotUpdateRequest struct {
-	AreaSqm        *float32                `json:"areaSqm,omitempty"`
-	BadgeIds       *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
-	Bathrooms      *int                    `json:"bathrooms,omitempty"`
-	Bedrooms       *int                    `json:"bedrooms,omitempty"`
-	BonusKeys      *[]string               `json:"bonusKeys,omitempty"`
-	Data           *LotData                `json:"data,omitempty"`
-	DeveloperPrice *float32                `json:"developerPrice,omitempty"`
-	Floor          *int                    `json:"floor,omitempty"`
-	PriceAmount    *float32                `json:"priceAmount,omitempty"`
-	ProjectId      *openapi_types.UUID     `json:"projectId,omitempty"`
-	Roi            *float32                `json:"roi,omitempty"`
-	Status         *LotUpdateRequestStatus `json:"status,omitempty"`
-	Type           *LotType                `json:"type,omitempty"`
+	AreaSqm            *float32                `json:"areaSqm,omitempty"`
+	BadgeIds           *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
+	Bathrooms          *int                    `json:"bathrooms,omitempty"`
+	Bedrooms           *int                    `json:"bedrooms,omitempty"`
+	BonusKeys          *[]string               `json:"bonusKeys,omitempty"`
+	Data               *LotData                `json:"data,omitempty"`
+	Floor              *int                    `json:"floor,omitempty"`
+	PriceFromDeveloper *float32                `json:"priceFromDeveloper,omitempty"`
+	PriceFromUs        *float32                `json:"priceFromUs,omitempty"`
+	ProjectId          *openapi_types.UUID     `json:"projectId,omitempty"`
+	Roi                *float32                `json:"roi,omitempty"`
+	Status             *LotUpdateRequestStatus `json:"status,omitempty"`
+	Type               *LotType                `json:"type,omitempty"`
 }
 
 // LotUpdateRequestStatus defines model for LotUpdateRequest.Status.
@@ -734,29 +734,93 @@ type Project struct {
 	Area   *Area               `json:"area,omitempty"`
 	AreaId *openapi_types.UUID `json:"areaId,omitempty"`
 
+	// AreaSize Area size
+	AreaSize *float32 `json:"areaSize,omitempty"`
+
+	// AreaUnit Unit for area measurement (sqm, sqft)
+	AreaUnit *string `json:"areaUnit,omitempty"`
+
 	// Badges Бейджи проекта
-	Badges    *[]Badge     `json:"badges,omitempty"`
-	CreatedAt *time.Time   `json:"createdAt,omitempty"`
-	Data      *ProjectData `json:"data,omitempty"`
+	Badges *[]Badge `json:"badges,omitempty"`
+
+	// Bedrooms Available bedroom configurations
+	Bedrooms *[]string `json:"bedrooms,omitempty"`
+
+	// CompletionDate Expected completion date (e.g., Q4 2025, 2026)
+	CompletionDate *string    `json:"completionDate,omitempty"`
+	CreatedAt      *time.Time `json:"createdAt,omitempty"`
+
+	// Currency Currency code (e.g., AED, USD)
+	Currency *string `json:"currency,omitempty"`
 
 	// DeletedAt Время мягкого удаления (если null - не удален)
-	DeletedAt   *time.Time          `json:"deletedAt"`
-	Developer   *Developer          `json:"developer,omitempty"`
-	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
-	Id          *openapi_types.UUID `json:"id,omitempty"`
+	DeletedAt         *time.Time           `json:"deletedAt"`
+	Description       *Project_Description `json:"description,omitempty"`
+	Developer         *Developer           `json:"developer,omitempty"`
+	DeveloperId       *openapi_types.UUID  `json:"developerId,omitempty"`
+	FeaturesAmenities *[]string            `json:"featuresAmenities,omitempty"`
+	Id                *openapi_types.UUID  `json:"id,omitempty"`
 
 	// Infrastructures Инфраструктура комплекса
 	Infrastructures *[]Infrastructure `json:"infrastructures,omitempty"`
-	Lat             *float32          `json:"lat,omitempty"`
-	Lng             *float32          `json:"lng,omitempty"`
+
+	// IsFeatured Избранный проект
+	IsFeatured *bool    `json:"isFeatured,omitempty"`
+	Lat        *float32 `json:"lat,omitempty"`
+	Lng        *float32 `json:"lng,omitempty"`
 
 	// Lots Первые N лотов проекта (если запрошено через includeLots)
-	Lots      *[]Lot         `json:"lots,omitempty"`
-	Name      *string        `json:"name,omitempty"`
-	Sale      *ProjectSale   `json:"sale,omitempty"`
-	Slug      *string        `json:"slug,omitempty"`
-	Status    *ProjectStatus `json:"status,omitempty"`
-	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
+	Lots  *[]Lot  `json:"lots,omitempty"`
+	Media *Media  `json:"media,omitempty"`
+	Name  *string `json:"name,omitempty"`
+
+	// PaymentPlan Payment plan description
+	PaymentPlan *string `json:"paymentPlan,omitempty"`
+
+	// PriceFrom Starting price (AED)
+	PriceFrom *float32 `json:"priceFrom,omitempty"`
+
+	// PriceFromDeveloper Original developer price (AED)
+	PriceFromDeveloper *float32 `json:"priceFromDeveloper,omitempty"`
+
+	// PriceFromUs Our company price (AED)
+	PriceFromUs *float32 `json:"priceFromUs,omitempty"`
+
+	// PricesByType Prices broken down by property type
+	PricesByType *[]struct {
+		Price *float32 `json:"price,omitempty"`
+		Type  *string  `json:"type,omitempty"`
+	} `json:"pricesByType,omitempty"`
+
+	// PropertyTypes Available property types
+	PropertyTypes *[]string `json:"propertyTypes,omitempty"`
+
+	// Roi Return on Investment percentage
+	Roi    *float32       `json:"roi,omitempty"`
+	Sale   *ProjectSale   `json:"sale,omitempty"`
+	Slug   *string        `json:"slug,omitempty"`
+	Status *ProjectStatus `json:"status,omitempty"`
+
+	// Tags Теги проекта
+	Tags *[]string `json:"tags,omitempty"`
+
+	// Timeline Project timeline with milestone dates
+	Timeline  *ProjectTimeline `json:"timeline,omitempty"`
+	UpdatedAt *time.Time       `json:"updatedAt,omitempty"`
+
+	// YoutubeUrl YouTube video URL for the project
+	YoutubeUrl *string `json:"youtubeUrl,omitempty"`
+}
+
+// ProjectDescription0 defines model for .
+type ProjectDescription0 = string
+
+// ProjectDescription1 defines model for .
+type ProjectDescription1 map[string]string
+
+// Project_Description defines model for Project.Description.
+type Project_Description struct {
+	union json.RawMessage
 }
 
 // ProjectSale defines model for Project.Sale.
@@ -769,34 +833,14 @@ type ProjectStatus string
 type ProjectCreateRequest struct {
 	AreaId *openapi_types.UUID `json:"areaId,omitempty"`
 
-	// BadgeIds IDs of badges for the project
-	BadgeIds    *[]openapi_types.UUID `json:"badgeIds,omitempty"`
-	Data        *ProjectData          `json:"data,omitempty"`
-	DeveloperId *openapi_types.UUID   `json:"developerId,omitempty"`
-
-	// InfrastructureIds IDs of complex infrastructure for the project
-	InfrastructureIds *[]openapi_types.UUID       `json:"infrastructureIds,omitempty"`
-	Lat               *float32                    `json:"lat,omitempty"`
-	Lng               *float32                    `json:"lng,omitempty"`
-	Name              string                      `json:"name"`
-	Sale              *ProjectCreateRequestSale   `json:"sale,omitempty"`
-	Slug              string                      `json:"slug"`
-	Status            *ProjectCreateRequestStatus `json:"status,omitempty"`
-}
-
-// ProjectCreateRequestSale defines model for ProjectCreateRequest.Sale.
-type ProjectCreateRequestSale string
-
-// ProjectCreateRequestStatus defines model for ProjectCreateRequest.Status.
-type ProjectCreateRequestStatus string
-
-// ProjectData defines model for ProjectData.
-type ProjectData struct {
 	// AreaSize Area size
 	AreaSize *float32 `json:"areaSize,omitempty"`
 
 	// AreaUnit Unit for area measurement (sqm, sqft)
 	AreaUnit *string `json:"areaUnit,omitempty"`
+
+	// BadgeIds IDs of badges for the project
+	BadgeIds *[]openapi_types.UUID `json:"badgeIds,omitempty"`
 
 	// Bedrooms Available bedroom configurations
 	Bedrooms *[]string `json:"bedrooms,omitempty"`
@@ -805,25 +849,32 @@ type ProjectData struct {
 	CompletionDate *string `json:"completionDate,omitempty"`
 
 	// Currency Currency code (e.g., AED, USD)
-	Currency    *string                  `json:"currency,omitempty"`
-	Description *ProjectData_Description `json:"description,omitempty"`
+	Currency          *string                           `json:"currency,omitempty"`
+	Description       *ProjectCreateRequest_Description `json:"description,omitempty"`
+	DeveloperId       *openapi_types.UUID               `json:"developerId,omitempty"`
+	FeaturesAmenities *[]string                         `json:"featuresAmenities,omitempty"`
 
-	// DeveloperPrice Original developer price (AED)
-	DeveloperPrice    *float32  `json:"developerPrice,omitempty"`
-	FeaturesAmenities *[]string `json:"featuresAmenities,omitempty"`
+	// InfrastructureIds IDs of complex infrastructure for the project
+	InfrastructureIds *[]openapi_types.UUID `json:"infrastructureIds,omitempty"`
 
 	// IsFeatured Избранный проект
-	IsFeatured *bool  `json:"isFeatured,omitempty"`
-	Media      *Media `json:"media,omitempty"`
-
-	// OurPrice Our company price (AED)
-	OurPrice *float32 `json:"ourPrice,omitempty"`
+	IsFeatured *bool    `json:"isFeatured,omitempty"`
+	Lat        *float32 `json:"lat,omitempty"`
+	Lng        *float32 `json:"lng,omitempty"`
+	Media      *Media   `json:"media,omitempty"`
+	Name       string   `json:"name"`
 
 	// PaymentPlan Payment plan description
 	PaymentPlan *string `json:"paymentPlan,omitempty"`
 
 	// PriceFrom Starting price (AED)
 	PriceFrom *float32 `json:"priceFrom,omitempty"`
+
+	// PriceFromDeveloper Original developer price (AED)
+	PriceFromDeveloper *float32 `json:"priceFromDeveloper,omitempty"`
+
+	// PriceFromUs Our company price (AED)
+	PriceFromUs *float32 `json:"priceFromUs,omitempty"`
 
 	// PricesByType Prices broken down by property type
 	PricesByType *[]struct {
@@ -835,7 +886,10 @@ type ProjectData struct {
 	PropertyTypes *[]string `json:"propertyTypes,omitempty"`
 
 	// Roi Return on Investment percentage
-	Roi *float32 `json:"roi,omitempty"`
+	Roi    *float32                    `json:"roi,omitempty"`
+	Sale   *ProjectCreateRequestSale   `json:"sale,omitempty"`
+	Slug   string                      `json:"slug"`
+	Status *ProjectCreateRequestStatus `json:"status,omitempty"`
 
 	// Tags Теги проекта
 	Tags *[]string `json:"tags,omitempty"`
@@ -847,16 +901,22 @@ type ProjectData struct {
 	YoutubeUrl *string `json:"youtubeUrl,omitempty"`
 }
 
-// ProjectDataDescription0 defines model for .
-type ProjectDataDescription0 = string
+// ProjectCreateRequestDescription0 defines model for .
+type ProjectCreateRequestDescription0 = string
 
-// ProjectDataDescription1 defines model for .
-type ProjectDataDescription1 map[string]string
+// ProjectCreateRequestDescription1 defines model for .
+type ProjectCreateRequestDescription1 map[string]string
 
-// ProjectData_Description defines model for ProjectData.Description.
-type ProjectData_Description struct {
+// ProjectCreateRequest_Description defines model for ProjectCreateRequest.Description.
+type ProjectCreateRequest_Description struct {
 	union json.RawMessage
 }
+
+// ProjectCreateRequestSale defines model for ProjectCreateRequest.Sale.
+type ProjectCreateRequestSale string
+
+// ProjectCreateRequestStatus defines model for ProjectCreateRequest.Status.
+type ProjectCreateRequestStatus string
 
 // ProjectTimeline Project timeline with milestone dates
 type ProjectTimeline struct {
@@ -883,19 +943,83 @@ type ProjectTimeline struct {
 type ProjectUpdateRequest struct {
 	AreaId *openapi_types.UUID `json:"areaId,omitempty"`
 
+	// AreaSize Area size
+	AreaSize *float32 `json:"areaSize,omitempty"`
+
+	// AreaUnit Unit for area measurement (sqm, sqft)
+	AreaUnit *string `json:"areaUnit,omitempty"`
+
 	// BadgeIds IDs of badges for the project
-	BadgeIds    *[]openapi_types.UUID `json:"badgeIds,omitempty"`
-	Data        *ProjectData          `json:"data,omitempty"`
-	DeveloperId *openapi_types.UUID   `json:"developerId,omitempty"`
+	BadgeIds *[]openapi_types.UUID `json:"badgeIds,omitempty"`
+
+	// Bedrooms Available bedroom configurations
+	Bedrooms *[]string `json:"bedrooms,omitempty"`
+
+	// CompletionDate Expected completion date (e.g., Q4 2025, 2026)
+	CompletionDate *string `json:"completionDate,omitempty"`
+
+	// Currency Currency code (e.g., AED, USD)
+	Currency          *string                           `json:"currency,omitempty"`
+	Description       *ProjectUpdateRequest_Description `json:"description,omitempty"`
+	DeveloperId       *openapi_types.UUID               `json:"developerId,omitempty"`
+	FeaturesAmenities *[]string                         `json:"featuresAmenities,omitempty"`
 
 	// InfrastructureIds IDs of complex infrastructure for the project
-	InfrastructureIds *[]openapi_types.UUID       `json:"infrastructureIds,omitempty"`
-	Lat               *float32                    `json:"lat,omitempty"`
-	Lng               *float32                    `json:"lng,omitempty"`
-	Name              *string                     `json:"name,omitempty"`
-	Sale              *ProjectUpdateRequestSale   `json:"sale,omitempty"`
-	Slug              *string                     `json:"slug,omitempty"`
-	Status            *ProjectUpdateRequestStatus `json:"status,omitempty"`
+	InfrastructureIds *[]openapi_types.UUID `json:"infrastructureIds,omitempty"`
+
+	// IsFeatured Избранный проект
+	IsFeatured *bool    `json:"isFeatured,omitempty"`
+	Lat        *float32 `json:"lat,omitempty"`
+	Lng        *float32 `json:"lng,omitempty"`
+	Media      *Media   `json:"media,omitempty"`
+	Name       *string  `json:"name,omitempty"`
+
+	// PaymentPlan Payment plan description
+	PaymentPlan *string `json:"paymentPlan,omitempty"`
+
+	// PriceFrom Starting price (AED)
+	PriceFrom *float32 `json:"priceFrom,omitempty"`
+
+	// PriceFromDeveloper Original developer price (AED)
+	PriceFromDeveloper *float32 `json:"priceFromDeveloper,omitempty"`
+
+	// PriceFromUs Our company price (AED)
+	PriceFromUs *float32 `json:"priceFromUs,omitempty"`
+
+	// PricesByType Prices broken down by property type
+	PricesByType *[]struct {
+		Price *float32 `json:"price,omitempty"`
+		Type  *string  `json:"type,omitempty"`
+	} `json:"pricesByType,omitempty"`
+
+	// PropertyTypes Available property types
+	PropertyTypes *[]string `json:"propertyTypes,omitempty"`
+
+	// Roi Return on Investment percentage
+	Roi    *float32                    `json:"roi,omitempty"`
+	Sale   *ProjectUpdateRequestSale   `json:"sale,omitempty"`
+	Slug   *string                     `json:"slug,omitempty"`
+	Status *ProjectUpdateRequestStatus `json:"status,omitempty"`
+
+	// Tags Теги проекта
+	Tags *[]string `json:"tags,omitempty"`
+
+	// Timeline Project timeline with milestone dates
+	Timeline *ProjectTimeline `json:"timeline,omitempty"`
+
+	// YoutubeUrl YouTube video URL for the project
+	YoutubeUrl *string `json:"youtubeUrl,omitempty"`
+}
+
+// ProjectUpdateRequestDescription0 defines model for .
+type ProjectUpdateRequestDescription0 = string
+
+// ProjectUpdateRequestDescription1 defines model for .
+type ProjectUpdateRequestDescription1 map[string]string
+
+// ProjectUpdateRequest_Description defines model for ProjectUpdateRequest.Description.
+type ProjectUpdateRequest_Description struct {
+	union json.RawMessage
 }
 
 // ProjectUpdateRequestSale defines model for ProjectUpdateRequest.Sale.
@@ -1134,22 +1258,22 @@ func (t *Error_Error_Details) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-// AsProjectDataDescription0 returns the union data inside the ProjectData_Description as a ProjectDataDescription0
-func (t ProjectData_Description) AsProjectDataDescription0() (ProjectDataDescription0, error) {
-	var body ProjectDataDescription0
+// AsProjectDescription0 returns the union data inside the Project_Description as a ProjectDescription0
+func (t Project_Description) AsProjectDescription0() (ProjectDescription0, error) {
+	var body ProjectDescription0
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromProjectDataDescription0 overwrites any union data inside the ProjectData_Description as the provided ProjectDataDescription0
-func (t *ProjectData_Description) FromProjectDataDescription0(v ProjectDataDescription0) error {
+// FromProjectDescription0 overwrites any union data inside the Project_Description as the provided ProjectDescription0
+func (t *Project_Description) FromProjectDescription0(v ProjectDescription0) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeProjectDataDescription0 performs a merge with any union data inside the ProjectData_Description, using the provided ProjectDataDescription0
-func (t *ProjectData_Description) MergeProjectDataDescription0(v ProjectDataDescription0) error {
+// MergeProjectDescription0 performs a merge with any union data inside the Project_Description, using the provided ProjectDescription0
+func (t *Project_Description) MergeProjectDescription0(v ProjectDescription0) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1160,22 +1284,22 @@ func (t *ProjectData_Description) MergeProjectDataDescription0(v ProjectDataDesc
 	return err
 }
 
-// AsProjectDataDescription1 returns the union data inside the ProjectData_Description as a ProjectDataDescription1
-func (t ProjectData_Description) AsProjectDataDescription1() (ProjectDataDescription1, error) {
-	var body ProjectDataDescription1
+// AsProjectDescription1 returns the union data inside the Project_Description as a ProjectDescription1
+func (t Project_Description) AsProjectDescription1() (ProjectDescription1, error) {
+	var body ProjectDescription1
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromProjectDataDescription1 overwrites any union data inside the ProjectData_Description as the provided ProjectDataDescription1
-func (t *ProjectData_Description) FromProjectDataDescription1(v ProjectDataDescription1) error {
+// FromProjectDescription1 overwrites any union data inside the Project_Description as the provided ProjectDescription1
+func (t *Project_Description) FromProjectDescription1(v ProjectDescription1) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeProjectDataDescription1 performs a merge with any union data inside the ProjectData_Description, using the provided ProjectDataDescription1
-func (t *ProjectData_Description) MergeProjectDataDescription1(v ProjectDataDescription1) error {
+// MergeProjectDescription1 performs a merge with any union data inside the Project_Description, using the provided ProjectDescription1
+func (t *Project_Description) MergeProjectDescription1(v ProjectDescription1) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -1186,12 +1310,136 @@ func (t *ProjectData_Description) MergeProjectDataDescription1(v ProjectDataDesc
 	return err
 }
 
-func (t ProjectData_Description) MarshalJSON() ([]byte, error) {
+func (t Project_Description) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *ProjectData_Description) UnmarshalJSON(b []byte) error {
+func (t *Project_Description) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsProjectCreateRequestDescription0 returns the union data inside the ProjectCreateRequest_Description as a ProjectCreateRequestDescription0
+func (t ProjectCreateRequest_Description) AsProjectCreateRequestDescription0() (ProjectCreateRequestDescription0, error) {
+	var body ProjectCreateRequestDescription0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProjectCreateRequestDescription0 overwrites any union data inside the ProjectCreateRequest_Description as the provided ProjectCreateRequestDescription0
+func (t *ProjectCreateRequest_Description) FromProjectCreateRequestDescription0(v ProjectCreateRequestDescription0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProjectCreateRequestDescription0 performs a merge with any union data inside the ProjectCreateRequest_Description, using the provided ProjectCreateRequestDescription0
+func (t *ProjectCreateRequest_Description) MergeProjectCreateRequestDescription0(v ProjectCreateRequestDescription0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProjectCreateRequestDescription1 returns the union data inside the ProjectCreateRequest_Description as a ProjectCreateRequestDescription1
+func (t ProjectCreateRequest_Description) AsProjectCreateRequestDescription1() (ProjectCreateRequestDescription1, error) {
+	var body ProjectCreateRequestDescription1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProjectCreateRequestDescription1 overwrites any union data inside the ProjectCreateRequest_Description as the provided ProjectCreateRequestDescription1
+func (t *ProjectCreateRequest_Description) FromProjectCreateRequestDescription1(v ProjectCreateRequestDescription1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProjectCreateRequestDescription1 performs a merge with any union data inside the ProjectCreateRequest_Description, using the provided ProjectCreateRequestDescription1
+func (t *ProjectCreateRequest_Description) MergeProjectCreateRequestDescription1(v ProjectCreateRequestDescription1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ProjectCreateRequest_Description) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ProjectCreateRequest_Description) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsProjectUpdateRequestDescription0 returns the union data inside the ProjectUpdateRequest_Description as a ProjectUpdateRequestDescription0
+func (t ProjectUpdateRequest_Description) AsProjectUpdateRequestDescription0() (ProjectUpdateRequestDescription0, error) {
+	var body ProjectUpdateRequestDescription0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProjectUpdateRequestDescription0 overwrites any union data inside the ProjectUpdateRequest_Description as the provided ProjectUpdateRequestDescription0
+func (t *ProjectUpdateRequest_Description) FromProjectUpdateRequestDescription0(v ProjectUpdateRequestDescription0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProjectUpdateRequestDescription0 performs a merge with any union data inside the ProjectUpdateRequest_Description, using the provided ProjectUpdateRequestDescription0
+func (t *ProjectUpdateRequest_Description) MergeProjectUpdateRequestDescription0(v ProjectUpdateRequestDescription0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProjectUpdateRequestDescription1 returns the union data inside the ProjectUpdateRequest_Description as a ProjectUpdateRequestDescription1
+func (t ProjectUpdateRequest_Description) AsProjectUpdateRequestDescription1() (ProjectUpdateRequestDescription1, error) {
+	var body ProjectUpdateRequestDescription1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProjectUpdateRequestDescription1 overwrites any union data inside the ProjectUpdateRequest_Description as the provided ProjectUpdateRequestDescription1
+func (t *ProjectUpdateRequest_Description) FromProjectUpdateRequestDescription1(v ProjectUpdateRequestDescription1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProjectUpdateRequestDescription1 performs a merge with any union data inside the ProjectUpdateRequest_Description, using the provided ProjectUpdateRequestDescription1
+func (t *ProjectUpdateRequest_Description) MergeProjectUpdateRequestDescription1(v ProjectUpdateRequestDescription1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ProjectUpdateRequest_Description) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ProjectUpdateRequest_Description) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
