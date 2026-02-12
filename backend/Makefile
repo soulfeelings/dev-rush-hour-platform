@@ -95,7 +95,9 @@ seed:
 
 seed-dev:
 	@echo "\033[1;32mSeeding development database...\033[0m"
-	@cd .. && docker exec -i rushhour-postgres-dev psql -U rushhour -d rushhour_db < backend/internal/seeds/seed.sql
+	@cd .. && docker cp backend/internal/seeds rushhour-postgres-dev:/tmp/seeds
+	@docker exec rushhour-postgres-dev psql -U rushhour -d rushhour_db -f /tmp/seeds/seed.sql
+	@docker exec rushhour-postgres-dev rm -rf /tmp/seeds
 
 .PHONY: generate dev swagger adminer migrate-up migrate-down migrate-create postgres-up seed seed-dev
 
