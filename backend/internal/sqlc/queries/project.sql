@@ -110,5 +110,7 @@ UPDATE projects SET
 		SELECT json_agg(json_build_object('type', sub.type, 'price', sub.min_price) ORDER BY sub.type)
 		FROM (SELECT l.type, MIN(l.price_from_us) as min_price FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL GROUP BY l.type) sub
 	),
+	property_types = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.type), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.type IS NOT NULL),
+	bedrooms = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.bedrooms::text), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.bedrooms IS NOT NULL),
 	updated_at = NOW()
 WHERE id = $1 AND deleted_at IS NULL;

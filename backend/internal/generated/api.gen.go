@@ -123,6 +123,11 @@ const (
 // Defines values for LotType.
 const (
 	Apartment LotType = "apartment"
+	Duplex    LotType = "duplex"
+	Penthouse LotType = "penthouse"
+	Townhouse LotType = "townhouse"
+	Triplex   LotType = "triplex"
+	Villa     LotType = "villa"
 )
 
 // Defines values for LotUpdateRequestStatus.

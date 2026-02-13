@@ -2025,7 +2025,7 @@ components:
 
     LotType:
       type: string
-      enum: [apartment]
+      enum: [apartment, villa, townhouse, penthouse, duplex, triplex]
 
     Project:
       type: object
