@@ -358,8 +358,9 @@
 
 // Project Header
 .projectHeader {
-  margin-bottom: $spacing-6;
+  margin-bottom: $spacing-8;
   margin-top: $spacing-6;
+  padding-left: $spacing-4;
 
   @media (max-width: $breakpoint-md) {
     order: 2;
@@ -540,7 +541,7 @@
 
 .timelineSection {
   @media (max-width: $breakpoint-md) {
-    order: 10;
+    order: 5;
     margin-bottom: $spacing-4;
   }
 }
@@ -986,7 +987,7 @@
 }
 
 .skeletonCard {
-  flex: 0 0 320px;
+  flex: 0 0 450px;
   border-radius: $radius-lg;
   overflow: hidden;
   background: $color-bg-card;
