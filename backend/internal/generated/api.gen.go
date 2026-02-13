@@ -578,17 +578,26 @@ type Lot struct {
 	Data      *LotData              `json:"data,omitempty"`
 
 	// DeletedAt Время мягкого удаления (если null - не удален)
-	DeletedAt   *time.Time          `json:"deletedAt"`
+	DeletedAt *time.Time `json:"deletedAt"`
 	Developer   *Developer          `json:"developer,omitempty"`
 	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
-	Floor       *int                `json:"floor,omitempty"`
-	Id          *openapi_types.UUID `json:"id,omitempty"`
+
+	// DeveloperPrice Цена застройщика (AED)
+	DeveloperPrice *float32            `json:"developerPrice,omitempty"`
+	Floor          *int                `json:"floor,omitempty"`
+	Id             *openapi_types.UUID `json:"id,omitempty"`
+
+	// OurPrice Наша цена (AED)
+	OurPrice    *float32            `json:"ourPrice,omitempty"`
 	PriceAmount *float32            `json:"priceAmount,omitempty"`
 	Project     *Project            `json:"project,omitempty"`
 	ProjectId   *openapi_types.UUID `json:"projectId,omitempty"`
-	Status      *LotStatus          `json:"status,omitempty"`
-	Type        *LotType            `json:"type,omitempty"`
-	UpdatedAt   *time.Time          `json:"updatedAt,omitempty"`
+
+	// Roi ROI в процентах
+	Roi       *float32   `json:"roi,omitempty"`
+	Status    *LotStatus `json:"status,omitempty"`
+	Type      *LotType   `json:"type,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 // LotStatus defines model for Lot.Status.
@@ -596,19 +605,22 @@ type LotStatus string
 
 // LotCreateRequest defines model for LotCreateRequest.
 type LotCreateRequest struct {
-	AreaId      *openapi_types.UUID     `json:"areaId,omitempty"`
-	AreaSqm     *float32                `json:"areaSqm,omitempty"`
-	BadgeIds    *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
-	Bathrooms   *int                    `json:"bathrooms,omitempty"`
-	Bedrooms    *int                    `json:"bedrooms,omitempty"`
-	BonusKeys   *[]string               `json:"bonusKeys,omitempty"`
-	Data        *LotData                `json:"data,omitempty"`
-	DeveloperId *openapi_types.UUID     `json:"developerId,omitempty"`
-	Floor       *int                    `json:"floor,omitempty"`
-	PriceAmount float32                 `json:"priceAmount"`
-	ProjectId   openapi_types.UUID      `json:"projectId"`
-	Status      *LotCreateRequestStatus `json:"status,omitempty"`
-	Type        LotType                 `json:"type"`
+	AreaId         *openapi_types.UUID     `json:"areaId,omitempty"`
+	AreaSqm        *float32                `json:"areaSqm,omitempty"`
+	BadgeIds       *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
+	Bathrooms      *int                    `json:"bathrooms,omitempty"`
+	Bedrooms       *int                    `json:"bedrooms,omitempty"`
+	BonusKeys      *[]string               `json:"bonusKeys,omitempty"`
+	Data           *LotData                `json:"data,omitempty"`
+	DeveloperId    *openapi_types.UUID     `json:"developerId,omitempty"`
+	DeveloperPrice *float32                `json:"developerPrice,omitempty"`
+	Floor          *int                    `json:"floor,omitempty"`
+	OurPrice       *float32                `json:"ourPrice,omitempty"`
+	PriceAmount    float32                 `json:"priceAmount"`
+	ProjectId      openapi_types.UUID      `json:"projectId"`
+	Roi            *float32                `json:"roi,omitempty"`
+	Status         *LotCreateRequestStatus `json:"status,omitempty"`
+	Type           LotType                 `json:"type"`
 }
 
 // LotCreateRequestStatus defines model for LotCreateRequest.Status.
@@ -637,17 +649,26 @@ type LotListItem struct {
 	Data      *LotData              `json:"data,omitempty"`
 
 	// DeletedAt Время мягкого удаления (если null - не удален)
-	DeletedAt   *time.Time          `json:"deletedAt"`
-	Developer   *Developer          `json:"developer,omitempty"`
-	DeveloperId *openapi_types.UUID `json:"developerId,omitempty"`
-	Floor       *int                `json:"floor,omitempty"`
-	Id          *openapi_types.UUID `json:"id,omitempty"`
+	DeletedAt      *time.Time          `json:"deletedAt"`
+	Developer      *Developer          `json:"developer,omitempty"`
+	DeveloperId    *openapi_types.UUID `json:"developerId,omitempty"`
+
+	// DeveloperPrice Цена застройщика (AED)
+	DeveloperPrice *float32            `json:"developerPrice,omitempty"`
+	Floor          *int                `json:"floor,omitempty"`
+	Id             *openapi_types.UUID `json:"id,omitempty"`
+
+	// OurPrice Наша цена (AED)
+	OurPrice    *float32            `json:"ourPrice,omitempty"`
 	PriceAmount *float32            `json:"priceAmount,omitempty"`
 	Project     *Project            `json:"project,omitempty"`
 	ProjectId   *openapi_types.UUID `json:"projectId,omitempty"`
-	Status      *LotListItemStatus  `json:"status,omitempty"`
-	Type        *LotType            `json:"type,omitempty"`
-	UpdatedAt   *time.Time          `json:"updatedAt,omitempty"`
+
+	// Roi ROI в процентах
+	Roi       *float32            `json:"roi,omitempty"`
+	Status    *LotListItemStatus  `json:"status,omitempty"`
+	Type      *LotType            `json:"type,omitempty"`
+	UpdatedAt *time.Time          `json:"updatedAt,omitempty"`
 }
 
 // LotListItemStatus defines model for LotListItem.Status.
@@ -665,19 +686,22 @@ type LotType string
 
 // LotUpdateRequest defines model for LotUpdateRequest.
 type LotUpdateRequest struct {
-	AreaId      *openapi_types.UUID     `json:"areaId,omitempty"`
-	AreaSqm     *float32                `json:"areaSqm,omitempty"`
-	BadgeIds    *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
-	Bathrooms   *int                    `json:"bathrooms,omitempty"`
-	Bedrooms    *int                    `json:"bedrooms,omitempty"`
-	BonusKeys   *[]string               `json:"bonusKeys,omitempty"`
-	Data        *LotData                `json:"data,omitempty"`
-	DeveloperId *openapi_types.UUID     `json:"developerId,omitempty"`
-	Floor       *int                    `json:"floor,omitempty"`
-	PriceAmount *float32                `json:"priceAmount,omitempty"`
-	ProjectId   *openapi_types.UUID     `json:"projectId,omitempty"`
-	Status      *LotUpdateRequestStatus `json:"status,omitempty"`
-	Type        *LotType                `json:"type,omitempty"`
+	AreaId         *openapi_types.UUID     `json:"areaId,omitempty"`
+	AreaSqm        *float32                `json:"areaSqm,omitempty"`
+	BadgeIds       *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
+	Bathrooms      *int                    `json:"bathrooms,omitempty"`
+	Bedrooms       *int                    `json:"bedrooms,omitempty"`
+	BonusKeys      *[]string               `json:"bonusKeys,omitempty"`
+	Data           *LotData                `json:"data,omitempty"`
+	DeveloperId    *openapi_types.UUID     `json:"developerId,omitempty"`
+	DeveloperPrice *float32                `json:"developerPrice,omitempty"`
+	Floor          *int                    `json:"floor,omitempty"`
+	OurPrice       *float32                `json:"ourPrice,omitempty"`
+	PriceAmount    *float32                `json:"priceAmount,omitempty"`
+	ProjectId      *openapi_types.UUID     `json:"projectId,omitempty"`
+	Roi            *float32                `json:"roi,omitempty"`
+	Status         *LotUpdateRequestStatus `json:"status,omitempty"`
+	Type           *LotType                `json:"type,omitempty"`
 }
 
 // LotUpdateRequestStatus defines model for LotUpdateRequest.Status.

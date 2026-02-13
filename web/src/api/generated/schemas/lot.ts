@@ -25,6 +25,12 @@ export interface Lot {
   areaSqm?: number
   floor?: number
   priceAmount?: number
+  /** Наша цена (AED) */
+  ourPrice?: number
+  /** Цена застройщика (AED) */
+  developerPrice?: number
+  /** ROI в процентах */
+  roi?: number
   bonusKeys?: string[]
   badgeIds?: string[]
   badges?: Badge[]

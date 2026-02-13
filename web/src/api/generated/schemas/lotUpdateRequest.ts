@@ -20,6 +20,9 @@ export interface LotUpdateRequest {
   areaSqm?: number
   floor?: number
   priceAmount?: number
+  ourPrice?: number
+  developerPrice?: number
+  roi?: number
   bonusKeys?: string[]
   badgeIds?: string[]
   data?: LotData

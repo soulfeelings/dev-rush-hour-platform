@@ -20,6 +20,9 @@ export interface LotCreateRequest {
   areaSqm?: number
   floor?: number
   priceAmount: number
+  ourPrice?: number
+  developerPrice?: number
+  roi?: number
   bonusKeys?: string[]
   badgeIds?: string[]
   data?: LotData

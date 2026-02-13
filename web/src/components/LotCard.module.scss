@@ -74,6 +74,22 @@
   }
 }
 
+.badgesContainer {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  z-index: 2;
+
+  @include rtl {
+    left: auto;
+    right: 12px;
+  }
+}
+
 .favoriteButton {
   position: absolute;
   top: 12px;

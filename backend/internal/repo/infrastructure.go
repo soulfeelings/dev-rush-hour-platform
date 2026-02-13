@@ -285,3 +285,98 @@ func (r *InfrastructureRepo) HardDelete(id uuid.UUID) error {
 	r.logger.Info("infrastructure_repo_hard_delete_completed", "infrastructure_id", id)
 	return nil
 }
+
+// Project infrastructures methods
+
+func (r *InfrastructureRepo) GetProjectInfrastructures(projectID uuid.UUID) ([]domain.Infrastructure, error) {
+	r.logger.Info("infrastructure_repo_get_project_infrastructures_started",
+		"project_id", projectID,
+	)
+
+	rows, err := r.db.Query(`
+		SELECT i.id, i.slug, i.name, i.background_color, i.text_color, i.icon, i.sort_order, i.created_at, i.updated_at, i.deleted_at
+		FROM infrastructures i
+		INNER JOIN project_infrastructures pi ON i.id = pi.infrastructure_id
+		WHERE pi.project_id = $1 AND i.deleted_at IS NULL
+		ORDER BY pi.sort_order, i.sort_order
+	`, projectID)
+	if err != nil {
+		r.logger.Error("infrastructure_repo_get_project_infrastructures_query_failed",
+			"project_id", projectID,
+			"error", err.Error(),
+		)
+		return nil, err
+	}
+	defer rows.Close()
+
+	infrastructures := []domain.Infrastructure{}
+	for rows.Next() {
+		var infra domain.Infrastructure
+		if err := rows.Scan(
+			&infra.ID, &infra.Slug, &infra.Name, &infra.BackgroundColor, &infra.TextColor,
+			&infra.Icon, &infra.SortOrder, &infra.CreatedAt, &infra.UpdatedAt, &infra.DeletedAt,
+		); err != nil {
+			r.logger.Error("infrastructure_repo_get_project_infrastructures_scan_failed",
+				"error", err.Error(),
+			)
+			return nil, err
+		}
+		infrastructures = append(infrastructures, infra)
+	}
+
+	r.logger.Info("infrastructure_repo_get_project_infrastructures_completed",
+		"project_id", projectID,
+		"count", len(infrastructures),
+	)
+
+	return infrastructures, nil
+}
+
+func (r *InfrastructureRepo) SetProjectInfrastructures(projectID uuid.UUID, infrastructureIDs []uuid.UUID) error {
+	r.logger.Info("infrastructure_repo_set_project_infrastructures_started",
+		"project_id", projectID,
+		"infrastructure_count", len(infrastructureIDs),
+	)
+
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Delete existing infrastructures
+	_, err = tx.Exec(`DELETE FROM project_infrastructures WHERE project_id = $1`, projectID)
+	if err != nil {
+		r.logger.Error("infrastructure_repo_set_project_infrastructures_delete_failed",
+			"project_id", projectID,
+			"error", err.Error(),
+		)
+		return err
+	}
+
+	// Insert new infrastructures
+	for i, infraID := range infrastructureIDs {
+		_, err = tx.Exec(`
+			INSERT INTO project_infrastructures (project_id, infrastructure_id, sort_order)
+			VALUES ($1, $2, $3)
+		`, projectID, infraID, i)
+		if err != nil {
+			r.logger.Error("infrastructure_repo_set_project_infrastructures_insert_failed",
+				"project_id", projectID,
+				"infrastructure_id", infraID,
+				"error", err.Error(),
+			)
+			return err
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	r.logger.Info("infrastructure_repo_set_project_infrastructures_completed",
+		"project_id", projectID,
+	)
+
+	return nil
+}

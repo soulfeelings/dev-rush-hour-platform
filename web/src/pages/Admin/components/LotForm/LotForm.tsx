@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { Button, Input, Select, ImagePreview } from '../../../../ui'
+import { Button, Input, Select, ImagePreview, Checkbox } from '../../../../ui'
+import { Badge as BadgeUI } from '../../../../ui/Badge'
 import { Plus, X } from 'lucide-react'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
+import type { Badge } from '../../../../api/generated/schemas/badge'
 import styles from './LotForm.module.scss'
 
 import { STORAGE_KEYS } from '../../../../constants/storage'
@@ -34,9 +36,13 @@ type LotFormData = {
   areaSqm: string
   floor: string
   priceAmount: string
+  ourPrice: string
+  developerPrice: string
+  roi: string
   coverUrl: string
   photos: string[]
   floorPlanImages: string[]
+  badgeIds: string[]
 }
 
 type ValidationErrors = {
@@ -49,6 +55,7 @@ type LotFormProps = {
   projects: Project[]
   developers: Developer[]
   areas: Area[]
+  badges?: Badge[]
   onSubmit: (data: Record<string, unknown>) => void
   loading: boolean
   initialData?: LotListItem | null
@@ -59,6 +66,7 @@ export function LotForm({
   projects,
   developers,
   areas,
+  badges = [],
   onSubmit,
   loading,
   initialData,
@@ -76,31 +84,44 @@ export function LotForm({
       areaSqm: '',
       floor: '',
       priceAmount: '',
+      ourPrice: '',
+      developerPrice: '',
+      roi: '',
       coverUrl: '',
       photos: [],
       floorPlanImages: [],
+      badgeIds: [],
     }),
     []
   )
 
+  const initialFormData = useMemo<LotFormData | null>(() => {
+    if (!initialData) return null
+    return {
+      projectId: initialData.projectId || '',
+      developerId: initialData.developerId || '',
+      areaId: initialData.areaId || '',
+      type: (initialData.type as string) || '',
+      status: (initialData.status as string) || '',
+      bedrooms: initialData.bedrooms?.toString() || '',
+      bathrooms: initialData.bathrooms?.toString() || '',
+      areaSqm: initialData.areaSqm?.toString() || '',
+      floor: initialData.floor?.toString() || '',
+      priceAmount: initialData.priceAmount?.toString() || '',
+      ourPrice: initialData.ourPrice?.toString() || '',
+      developerPrice: initialData.developerPrice?.toString() || '',
+      roi: initialData.roi?.toString() || '',
+      coverUrl: initialData.data?.media?.cover?.url || '',
+      photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
+      floorPlanImages:
+        initialData.data?.media?.floorPlanImages?.map(p => p.url || '').filter(Boolean) || [],
+      badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
+    }
+  }, [initialData])
+
   const initialForm = useMemo<LotFormData>(() => {
-    if (initialData) {
-      return {
-        projectId: initialData.projectId || '',
-        developerId: initialData.developerId || '',
-        areaId: initialData.areaId || '',
-        type: (initialData.type as string) || '',
-        status: (initialData.status as string) || '',
-        bedrooms: initialData.bedrooms?.toString() || '',
-        bathrooms: initialData.bathrooms?.toString() || '',
-        areaSqm: initialData.areaSqm?.toString() || '',
-        floor: initialData.floor?.toString() || '',
-        priceAmount: initialData.priceAmount?.toString() || '',
-        coverUrl: initialData.data?.media?.cover?.url || '',
-        photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
-        floorPlanImages:
-          initialData.data?.media?.floorPlanImages?.map(p => p.url || '').filter(Boolean) || [],
-      }
+    if (initialFormData) {
+      return initialFormData
     }
     // Load from localStorage for new forms
     if (!isEditMode) {
@@ -114,7 +135,7 @@ export function LotForm({
       }
     }
     return defaultForm
-  }, [initialData, defaultForm, isEditMode])
+  }, [initialFormData, defaultForm, isEditMode])
 
   const [form, setForm] = useState<LotFormData>(initialForm)
 
@@ -133,26 +154,6 @@ export function LotForm({
     localStorage.removeItem(STORAGE_KEY)
   }, [])
 
-  const initialFormData = useMemo(() => {
-    if (!initialData) return null
-    return {
-      projectId: initialData.projectId || '',
-      developerId: initialData.developerId || '',
-      areaId: initialData.areaId || '',
-      type: (initialData.type as string) || '',
-      status: (initialData.status as string) || '',
-      bedrooms: initialData.bedrooms?.toString() || '',
-      bathrooms: initialData.bathrooms?.toString() || '',
-      areaSqm: initialData.areaSqm?.toString() || '',
-      floor: initialData.floor?.toString() || '',
-      priceAmount: initialData.priceAmount?.toString() || '',
-      coverUrl: initialData.data?.media?.cover?.url || '',
-      photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
-      floorPlanImages:
-        initialData.data?.media?.floorPlanImages?.map(p => p.url || '').filter(Boolean) || [],
-    }
-  }, [initialData])
-
   const hasChanges = useMemo(() => {
     if (!isEditMode || !initialFormData) return false
     const photosChanged =
@@ -161,6 +162,9 @@ export function LotForm({
     const floorPlanImagesChanged =
       form.floorPlanImages.length !== initialFormData.floorPlanImages.length ||
       form.floorPlanImages.some((url, idx) => url !== initialFormData.floorPlanImages[idx])
+    const badgeIdsChanged =
+      form.badgeIds.length !== initialFormData.badgeIds.length ||
+      form.badgeIds.some((id, idx) => id !== initialFormData.badgeIds[idx])
     return (
       form.projectId !== initialFormData.projectId ||
       form.developerId !== initialFormData.developerId ||
@@ -172,9 +176,13 @@ export function LotForm({
       form.areaSqm !== initialFormData.areaSqm ||
       form.floor !== initialFormData.floor ||
       form.priceAmount !== initialFormData.priceAmount ||
+      form.ourPrice !== initialFormData.ourPrice ||
+      form.developerPrice !== initialFormData.developerPrice ||
+      form.roi !== initialFormData.roi ||
       form.coverUrl !== initialFormData.coverUrl ||
       photosChanged ||
-      floorPlanImagesChanged
+      floorPlanImagesChanged ||
+      badgeIdsChanged
     )
   }, [form, initialFormData, isEditMode])
 
@@ -234,6 +242,15 @@ export function LotForm({
     if (form.floor) {
       payload.floor = parseInt(form.floor, 10)
     }
+    if (form.ourPrice) {
+      payload.ourPrice = parseFloat(form.ourPrice)
+    }
+    if (form.developerPrice) {
+      payload.developerPrice = parseFloat(form.developerPrice)
+    }
+    if (form.roi) {
+      payload.roi = parseFloat(form.roi)
+    }
 
     const mediaData: Record<string, unknown> = {}
     if (form.coverUrl) {
@@ -250,10 +267,19 @@ export function LotForm({
       payload.data = { media: mediaData }
     }
 
+    payload.badgeIds = form.badgeIds
+
     if (!isEditMode) {
       clearCache()
     }
     onSubmit(payload)
+  }
+
+  const toggleBadge = (badgeId: string) => {
+    const newBadgeIds = form.badgeIds.includes(badgeId)
+      ? form.badgeIds.filter(id => id !== badgeId)
+      : [...form.badgeIds, badgeId]
+    setForm({ ...form, badgeIds: newBadgeIds })
   }
 
   const addPhoto = () => {
@@ -322,13 +348,39 @@ export function LotForm({
         onChange={value => setForm({ ...form, status: value })}
         error={errors.status}
       />
+      {/* Hidden legacy field, kept for compatibility */}
+      <div style={{ display: 'none' }}>
+        <Input
+          label="Legacy Price Amount"
+          type="number"
+          step="any"
+          value={form.priceAmount}
+          onChange={e => setForm({ ...form, priceAmount: e.target.value })}
+        />
+      </div>
       <Input
-        label="Price Amount"
+        label="Our Price (AED)"
         type="number"
         step="any"
-        value={form.priceAmount}
-        onChange={e => setForm({ ...form, priceAmount: e.target.value })}
-        required
+        value={form.ourPrice}
+        onChange={e => setForm({ ...form, ourPrice: e.target.value })}
+        placeholder="e.g. 850000"
+      />
+      <Input
+        label="Developer Price (AED)"
+        type="number"
+        step="any"
+        value={form.developerPrice}
+        onChange={e => setForm({ ...form, developerPrice: e.target.value })}
+        placeholder="e.g. 1000000"
+      />
+      <Input
+        label="ROI (%)"
+        type="number"
+        step="any"
+        value={form.roi}
+        onChange={e => setForm({ ...form, roi: e.target.value })}
+        placeholder="e.g. 7.5"
       />
       <Input
         label="Bedrooms"
@@ -448,6 +500,29 @@ export function LotForm({
           ))}
         </div>
       </div>
+      {badges.length > 0 && (
+        <div className={styles.mediaSection}>
+          <h3 className={styles.sectionTitle}>Badges</h3>
+          <div className={styles.badgesList}>
+            {badges.map(badge => (
+              <label key={badge.id} className={styles.badgeItem}>
+                <Checkbox
+                  checked={badge.id ? form.badgeIds.includes(badge.id) : false}
+                  onChange={() => badge.id && toggleBadge(badge.id)}
+                />
+                <BadgeUI
+                  text={badge.name || ''}
+                  backgroundColor={badge.backgroundColor || '#e0e0e0'}
+                  textColor={badge.textColor || '#000000'}
+                  iconName={badge.icon}
+                  iconColor={badge.iconColor}
+                  size="small"
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
       <Button
         type="submit"
         disabled={loading || (isEditMode && !hasChanges)}

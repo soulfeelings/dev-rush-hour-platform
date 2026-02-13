@@ -15,7 +15,7 @@ export default function HeroFilters() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { currency } = useSettings()
-  const { filters, options, isLoading, updateFilter, getFilteredProjects } = useFilters()
+  const { filters, options, isLoading, updateFilter } = useFilters()
 
   // Prepare options with "all" option
   const cityOptions = options?.cities
@@ -35,7 +35,7 @@ export default function HeroFilters() {
   const projectOptions = options?.projects
     ? [
         { value: 'all', label: t('filters.project.all') },
-        ...getFilteredProjects().map(p => ({ value: p.value || '', label: p.label || '' })),
+        ...options.projects.map(p => ({ value: p.value || '', label: p.label || '' })),
       ]
     : [{ value: 'all', label: t('filters.project.all') }]
 

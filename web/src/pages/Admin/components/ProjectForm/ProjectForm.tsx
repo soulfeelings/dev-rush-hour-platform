@@ -281,8 +281,7 @@ export function ProjectForm({
     if (newDate !== currentDate) {
       setForm(prev => ({ ...prev, completionDate: newDate }))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedMonth, selectedYear])
+  }, [selectedMonth, selectedYear, form.completionDate])
 
   // Обработчики для изменения месяца и года
   const handleMonthChange = (month: string) => {
@@ -355,7 +354,7 @@ export function ProjectForm({
     if (!isEditMode || !initialFormData) return false
     const galleryChanged =
       form.gallery.length !== initialFormData.gallery.length ||
-      form.gallery.some((url, idx) => url !== initialFormData.gallery[idx])
+      form.gallery.some((url: string, idx: number) => url !== initialFormData.gallery[idx])
     const timelineChanged =
       form.timeline.projectAnnouncement !== initialFormData.timeline.projectAnnouncement ||
       form.timeline.bookingStarted !== initialFormData.timeline.bookingStarted ||
@@ -366,10 +365,10 @@ export function ProjectForm({
       form.timeline.expectedCompletion !== initialFormData.timeline.expectedCompletion
     const badgeIdsChanged =
       form.badgeIds.length !== initialFormData.badgeIds.length ||
-      form.badgeIds.some((id, idx) => id !== initialFormData.badgeIds[idx])
+      form.badgeIds.some((id: string, idx: number) => id !== initialFormData.badgeIds[idx])
     const infrastructureIdsChanged =
       form.infrastructureIds.length !== initialFormData.infrastructureIds.length ||
-      form.infrastructureIds.some((id, idx) => id !== initialFormData.infrastructureIds[idx])
+      form.infrastructureIds.some((id: string, idx: number) => id !== initialFormData.infrastructureIds[idx])
     return (
       form.slug !== initialFormData.slug ||
       form.name !== initialFormData.name ||
@@ -441,8 +440,8 @@ export function ProjectForm({
       ...(form.areaId && { areaId: form.areaId }),
       ...(form.lat && { lat: parseFloat(form.lat) }),
       ...(form.lng && { lng: parseFloat(form.lng) }),
-      ...(form.badgeIds.length > 0 && { badgeIds: form.badgeIds }),
-      ...(form.infrastructureIds.length > 0 && { infrastructureIds: form.infrastructureIds }),
+      badgeIds: form.badgeIds,
+      infrastructureIds: form.infrastructureIds,
     }
 
     const dataPayload: Record<string, unknown> = {}
@@ -458,7 +457,7 @@ export function ProjectForm({
       mediaData.logo = { url: form.logoUrl }
     }
     if (form.gallery.length > 0) {
-      mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
+      mediaData.gallery = form.gallery.filter(Boolean).map((url: string) => ({ url }))
     }
     if (Object.keys(mediaData).length > 0) {
       dataPayload.media = mediaData
@@ -522,7 +521,7 @@ export function ProjectForm({
   }
 
   const removeGalleryItem = (index: number) => {
-    setForm({ ...form, gallery: form.gallery.filter((_, i) => i !== index) })
+    setForm({ ...form, gallery: form.gallery.filter((_: string, i: number) => i !== index) })
   }
 
   const updateGalleryItem = (index: number, url: string) => {
@@ -533,14 +532,14 @@ export function ProjectForm({
 
   const toggleBadge = (badgeId: string) => {
     const newBadgeIds = form.badgeIds.includes(badgeId)
-      ? form.badgeIds.filter(id => id !== badgeId)
+      ? form.badgeIds.filter((id: string) => id !== badgeId)
       : [...form.badgeIds, badgeId]
     setForm({ ...form, badgeIds: newBadgeIds })
   }
 
   const toggleInfrastructure = (infraId: string) => {
     const newInfraIds = form.infrastructureIds.includes(infraId)
-      ? form.infrastructureIds.filter(id => id !== infraId)
+      ? form.infrastructureIds.filter((id: string) => id !== infraId)
       : [...form.infrastructureIds, infraId]
     setForm({ ...form, infrastructureIds: newInfraIds })
   }
@@ -550,7 +549,7 @@ export function ProjectForm({
       <Input
         label="Name"
         value={form.name}
-        onChange={e => {
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           const newName = e.target.value
           setForm({ ...form, name: newName, slug: generateSlug(newName) })
         }}
@@ -613,7 +612,7 @@ export function ProjectForm({
             type="number"
             step="any"
             value={form.ourPrice}
-            onChange={e => setForm({ ...form, ourPrice: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, ourPrice: e.target.value })}
             placeholder="Enter our price"
           />
           <Input
@@ -621,7 +620,7 @@ export function ProjectForm({
             type="number"
             step="any"
             value={form.developerPrice}
-            onChange={e => setForm({ ...form, developerPrice: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, developerPrice: e.target.value })}
             placeholder="Enter developer price"
           />
         </div>
@@ -630,13 +629,13 @@ export function ProjectForm({
           type="number"
           step="0.01"
           value={form.roi}
-          onChange={e => setForm({ ...form, roi: e.target.value })}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, roi: e.target.value })}
           placeholder="Return on Investment percentage"
         />
         <Input
           label="Payment Plan"
           value={form.paymentPlan}
-          onChange={e => setForm({ ...form, paymentPlan: e.target.value })}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, paymentPlan: e.target.value })}
           onBlur={() => {
             const error = validatePaymentPlan(form.paymentPlan)
             setErrors(prev => ({ ...prev, paymentPlan: error }))
@@ -673,7 +672,7 @@ export function ProjectForm({
         <Textarea
           label="Project Description"
           value={form.description}
-          onChange={e => setForm({ ...form, description: e.target.value })}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, description: e.target.value })}
           placeholder="Enter project description..."
           rows={4}
         />
@@ -735,14 +734,14 @@ export function ProjectForm({
         type="number"
         step="any"
         value={form.lat}
-        onChange={e => setForm({ ...form, lat: e.target.value })}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, lat: e.target.value })}
       />
       <Input
         label="Longitude"
         type="number"
         step="any"
         value={form.lng}
-        onChange={e => setForm({ ...form, lng: e.target.value })}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, lng: e.target.value })}
       />
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Media</h3>
@@ -751,7 +750,7 @@ export function ProjectForm({
             label="Cover Image URL"
             type="url"
             value={form.coverUrl}
-            onChange={e => setForm({ ...form, coverUrl: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, coverUrl: e.target.value })}
             placeholder="https://example.com/image.jpg"
           />
           {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
@@ -761,7 +760,7 @@ export function ProjectForm({
             label="Hover Image URL"
             type="url"
             value={form.hoverUrl}
-            onChange={e => setForm({ ...form, hoverUrl: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, hoverUrl: e.target.value })}
             placeholder="https://example.com/hover-image.jpg"
             error={errors.hoverUrl}
             required
@@ -773,7 +772,7 @@ export function ProjectForm({
             label="Project Logo URL"
             type="url"
             value={form.logoUrl}
-            onChange={e => setForm({ ...form, logoUrl: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, logoUrl: e.target.value })}
             placeholder="https://example.com/logo.png"
           />
           {form.logoUrl && <ImagePreview src={form.logoUrl} alt="Logo preview" />}
@@ -786,13 +785,13 @@ export function ProjectForm({
               Add Image
             </Button>
           </div>
-          {form.gallery.map((url, index) => (
+          {form.gallery.map((url: string, index: number) => (
             <div key={index} className={styles.mediaItem}>
               <div className={styles.mediaItemContent}>
                 <Input
                   type="url"
                   value={url}
-                  onChange={e => updateGalleryItem(index, e.target.value)}
+                  onChange={(e: { target: { value: string } }) => updateGalleryItem(index, e.target.value)}
                   placeholder="https://example.com/image.jpg"
                 />
                 {url && <ImagePreview src={url} alt={`Gallery ${index + 1} preview`} />}
@@ -815,7 +814,7 @@ export function ProjectForm({
           label="YouTube Video URL"
           type="url"
           value={form.youtubeUrl}
-          onChange={e => setForm({ ...form, youtubeUrl: e.target.value })}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, youtubeUrl: e.target.value })}
           placeholder="https://www.youtube.com/watch?v=..."
         />
         <YouTubePreview url={form.youtubeUrl} size="medium" />
@@ -826,7 +825,7 @@ export function ProjectForm({
           label="Project Announcement"
           type="date"
           value={form.timeline.projectAnnouncement}
-          onChange={e =>
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setForm({
               ...form,
               timeline: { ...form.timeline, projectAnnouncement: e.target.value },
@@ -837,7 +836,7 @@ export function ProjectForm({
           label="Booking Started"
           type="date"
           value={form.timeline.bookingStarted}
-          onChange={e =>
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setForm({
               ...form,
               timeline: { ...form.timeline, bookingStarted: e.target.value },
@@ -848,7 +847,7 @@ export function ProjectForm({
           label="Construction Started"
           type="date"
           value={form.timeline.constructionStarted}
-          onChange={e =>
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setForm({
               ...form,
               timeline: { ...form.timeline, constructionStarted: e.target.value },
@@ -860,7 +859,7 @@ export function ProjectForm({
             label="Construction Progress"
             type="date"
             value={form.timeline.constructionProgress}
-            onChange={e =>
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setForm({
                 ...form,
                 timeline: { ...form.timeline, constructionProgress: e.target.value },
@@ -874,7 +873,7 @@ export function ProjectForm({
             max="100"
             step="1"
             value={form.timeline.constructionProgressPercent}
-            onChange={e => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const val = e.target.value
               if (val === '' || (parseInt(val, 10) >= 0 && parseInt(val, 10) <= 100)) {
                 setForm({
@@ -890,7 +889,7 @@ export function ProjectForm({
           label="Expected Completion"
           type="date"
           value={form.timeline.expectedCompletion}
-          onChange={e =>
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setForm({
               ...form,
               timeline: { ...form.timeline, expectedCompletion: e.target.value },

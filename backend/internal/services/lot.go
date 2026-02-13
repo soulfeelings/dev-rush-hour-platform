@@ -11,14 +11,16 @@ import (
 )
 
 type LotsService struct {
-	lotRepo *repo.LotRepo
-	logger  *slog.Logger
+	lotRepo   *repo.LotRepo
+	badgeRepo *repo.BadgeRepo
+	logger    *slog.Logger
 }
 
-func NewLotsService(lotRepo *repo.LotRepo) *LotsService {
+func NewLotsService(lotRepo *repo.LotRepo, badgeRepo *repo.BadgeRepo) *LotsService {
 	return &LotsService{
-		lotRepo: lotRepo,
-		logger:  slog.Default(),
+		lotRepo:   lotRepo,
+		badgeRepo: badgeRepo,
+		logger:    slog.Default(),
 	}
 }
 
@@ -53,6 +55,18 @@ func (s *LotsService) List(filters repo.LotFilters, sort repo.LotSort, page, lim
 		return nil, 0, err
 	}
 
+	for i := range lots {
+		badges, err := s.badgeRepo.GetLotBadges(lots[i].ID)
+		if err != nil {
+			s.logger.Warn("lot_service_list_get_badges_failed",
+				"lot_id", lots[i].ID,
+				"error", err.Error(),
+			)
+			continue
+		}
+		lots[i].Badges = badges
+	}
+
 	s.logger.Info("lot_service_list_completed",
 		"count", len(lots),
 		"total", total,
@@ -81,6 +95,16 @@ func (s *LotsService) GetByID(id uuid.UUID) (*domain.Lot, error) {
 			"lot_id", id,
 		)
 		return nil, ErrLotNotFound
+	}
+
+	badges, err := s.badgeRepo.GetLotBadges(lot.ID)
+	if err != nil {
+		s.logger.Warn("lot_service_get_by_id_get_badges_failed",
+			"lot_id", id,
+			"error", err.Error(),
+		)
+	} else {
+		lot.Badges = badges
 	}
 
 	s.logger.Info("lot_service_get_by_id_completed",
@@ -163,6 +187,15 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 	}
 	if updates.PriceAmount != 0 {
 		existing.PriceAmount = updates.PriceAmount
+	}
+	if updates.OurPrice != nil {
+		existing.OurPrice = updates.OurPrice
+	}
+	if updates.DeveloperPrice != nil {
+		existing.DeveloperPrice = updates.DeveloperPrice
+	}
+	if updates.ROI != nil {
+		existing.ROI = updates.ROI
 	}
 	if len(updates.BonusKeys) > 0 {
 		existing.BonusKeys = updates.BonusKeys

@@ -228,6 +228,50 @@
   flex-shrink: 0;
 }
 
+// =====================================
+// TAB SWITCHER
+// =====================================
+
+.tabSwitcher {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $spacing-1;
+  margin-bottom: $spacing-3;
+  background: $color-bg-card;
+  border: 1px solid rgba($color-border, 0.6);
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+.tabButton {
+  flex: 1;
+  height: 30px;
+  padding: 0 $spacing-6;
+  border: none;
+  border-radius: $radius-full;
+  background: transparent;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    color: $color-text;
+  }
+}
+
+.tabButtonActive {
+  background: $color-yellow;
+  color: $color-charcoal-black;
+
+  &:hover {
+    color: $color-charcoal-black;
+  }
+}
+
 .headerActions {
   display: flex;
   gap: $spacing-3;
