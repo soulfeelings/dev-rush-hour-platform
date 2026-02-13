@@ -90,9 +90,11 @@ export function ApartmentCard({
     // TODO: open WhatsApp link
   }
 
+  const lotOurPrice = lot.priceFromUs
+  const lotDevPrice = lot.priceFromDeveloper
   const discount =
-    ourPrice && developerPrice && developerPrice > ourPrice
-      ? Math.round((1 - ourPrice / developerPrice) * 100)
+    lotOurPrice && lotDevPrice && lotDevPrice > lotOurPrice
+      ? Math.round((1 - lotOurPrice / lotDevPrice) * 100)
       : null
 
   const title = t('apartmentCard.title', { type: capitalize(lot.type), count: lot.bedrooms ?? 0 })
@@ -196,7 +198,7 @@ export function ApartmentCard({
 
         {/* Price Rows */}
         <div className={styles.pricesSection}>
-          {ourPrice && developerPrice && ourPrice < developerPrice && (
+          {lotOurPrice && (
             <div className={styles.ourPriceRow}>
               <div className={styles.priceLabelContainer}>
                 <Typography size="regular" weight="medium" className={styles.priceLabel}>
@@ -207,24 +209,24 @@ export function ApartmentCard({
               <div className={styles.priceValue}>
                 <Typography className={styles.from}>{t('from')}</Typography>{' '}
                 <Typography size="large" weight="semibold">
-                  {formatPrice(ourPrice, currency)}
+                  {formatPrice(lotOurPrice, currency)}
                 </Typography>
               </div>
             </div>
           )}
-          <div className={styles.developerPriceRow}>
-            <Typography size="regular" weight="medium" className={styles.priceLabel}>
-              {ourPrice && developerPrice
-                ? t('apartmentCard.developerPrice')
-                : t('apartmentCard.price')}
-            </Typography>
-            <div className={styles.priceValue}>
-              <Typography className={styles.from}>{t('from')}</Typography>{' '}
-              <Typography size="large" weight="semibold">
-                {formatPrice(lot.priceFromUs, currency)}
+          {lotDevPrice && (
+            <div className={styles.developerPriceRow}>
+              <Typography size="regular" weight="medium" className={styles.priceLabel}>
+                {t('apartmentCard.developerPrice')}
               </Typography>
+              <div className={styles.priceValue}>
+                <Typography className={styles.from}>{t('from')}</Typography>{' '}
+                <Typography size="large" weight="semibold">
+                  {formatPrice(lotDevPrice, currency)}
+                </Typography>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Specs Row */}

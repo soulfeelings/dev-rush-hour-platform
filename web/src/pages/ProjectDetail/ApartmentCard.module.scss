@@ -2,7 +2,9 @@
 @use '../../styles' as *;
 
 .card {
-  flex: 0 0 320px;
+  flex: 0 0 450px;
+  max-width: 450px;
+  max-height: 706px;
   min-width: 0;
   background: $color-bg-card;
   border-radius: $radius-lg;
@@ -13,18 +15,27 @@
   margin-top: $spacing-1;
   margin-bottom: $spacing-2;
 
+  @media (max-width: $breakpoint-md) {
+    flex: 0 0 100%;
+    max-width: 100%;
+    max-height: none;
+  }
+
   &:hover {
     transform: translateY(-4px);
-    box-shadow: $shadow-lg;
   }
 }
 
 // Gallery
 .gallery {
   position: relative;
-  height: 200px;
+  height: 280px;
   background: $color-bg;
   overflow: hidden;
+
+  @media (max-width: $breakpoint-md) {
+    height: 220px;
+  }
 }
 
 .galleryViewport {
