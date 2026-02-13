@@ -81,6 +81,30 @@ export const CatalogFilters = () => {
         fallback: [{ value: '', label: t('filters.location.all') }],
         emptyValue: '',
       }),
+      area: mapFilterOptions({
+        apiOptions: options?.areas ? [{ value: '', label: '' }, ...options.areas] : undefined,
+        allLabel: t('filters.area.all'),
+        fallback: [{ value: '', label: t('filters.area.all') }],
+        emptyValue: '',
+      }),
+      project: mapFilterOptions({
+        apiOptions: options?.projects ? [{ value: '', label: '' }, ...options.projects] : undefined,
+        allLabel: t('filters.project.all'),
+        fallback: [{ value: '', label: t('filters.project.all') }],
+        emptyValue: '',
+      }),
+      propertyType: mapFilterOptions({
+        apiOptions: options?.propertyTypes,
+        allLabel: t('filters.propertyType.all'),
+        fallback: [
+          { value: 'all', label: t('filters.propertyType.all') },
+          { value: 'apartment', label: t('filters.propertyType.apartment') },
+          { value: 'villa', label: t('filters.propertyType.villa') },
+          { value: 'townhouse', label: t('filters.propertyType.townhouse') },
+          { value: 'penthouse', label: t('filters.propertyType.penthouse') },
+          { value: 'duplex', label: t('filters.propertyType.duplex') },
+        ],
+      }),
     }),
     [options, t]
   )
@@ -92,7 +116,10 @@ export const CatalogFilters = () => {
       filters.bedrooms.length > 0 ||
       filters.bathrooms.length > 0 ||
       filters.status !== 'all' ||
-      filters.search !== ''
+      filters.search !== '' ||
+      filters.area !== null ||
+      filters.project !== null ||
+      filters.propertyType !== 'all'
     )
   }, [filters])
 
@@ -131,6 +158,38 @@ export const CatalogFilters = () => {
           triggerSize="xs"
           triggerIconLeft={<Plane size={16} />}
           hideChevronRight
+        />
+
+        <Select
+          options={filterOptions.project}
+          value={filters.project || ''}
+          onChange={value => updateFilter('project', value || null)}
+          placeholder={t('filters.project.all')}
+          triggerSize="xs"
+          searchable
+          clearable
+          defaultValue=""
+        />
+
+        <Select
+          options={filterOptions.area}
+          value={filters.area || ''}
+          onChange={value => updateFilter('area', value || null)}
+          placeholder={t('filters.area.all')}
+          triggerSize="xs"
+          searchable
+          clearable
+          defaultValue=""
+        />
+
+        <Select
+          options={filterOptions.propertyType}
+          value={filters.propertyType}
+          onChange={value => updateFilter('propertyType', (value || 'all') as FilterValues['propertyType'])}
+          placeholder={t('filters.propertyType.all')}
+          triggerSize="xs"
+          clearable
+          defaultValue="all"
         />
 
         <PriceSelect

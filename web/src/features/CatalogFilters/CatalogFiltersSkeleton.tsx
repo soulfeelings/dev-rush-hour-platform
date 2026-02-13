@@ -12,6 +12,9 @@ export const CatalogFiltersSkeleton = () => {
             <Skeleton variant="circular" width={100} height={26} />
             <Skeleton variant="circular" width={100} height={26} />
             <Skeleton variant="circular" width={100} height={26} />
+            <Skeleton variant="circular" width={100} height={26} />
+            <Skeleton variant="circular" width={100} height={26} />
+            <Skeleton variant="circular" width={100} height={26} />
           </div>
           <Skeleton variant="circular" width={100} height={26} />
         </div>

@@ -202,8 +202,20 @@ export default function Catalog() {
 
   const projects = useMemo(() => {
     if (!projectsData) return []
-    return apiProjectsToProperties(projectsData)
-  }, [projectsData])
+    let result = apiProjectsToProperties(projectsData)
+
+    // Client-side filter by project slug (API doesn't support this param)
+    if (filters.project) {
+      result = result.filter(p => p.id === filters.project)
+    }
+
+    // Client-side filter by property type (API doesn't support this param)
+    if (filters.propertyType !== 'all') {
+      result = result.filter(p => p.types?.some(t => t.toLowerCase() === filters.propertyType))
+    }
+
+    return result
+  }, [projectsData, filters.project, filters.propertyType])
 
   // Desktop layout mode change handler
   const handleLayoutChange = useCallback((mode: DesktopView) => {
