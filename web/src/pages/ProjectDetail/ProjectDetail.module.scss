@@ -330,6 +330,7 @@
 
 .mapLocationLabel {
   position: absolute;
+  z-index: 1000;
   bottom: $spacing-3;
   left: $spacing-3;
   right: $spacing-3;
