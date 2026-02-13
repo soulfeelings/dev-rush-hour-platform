@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"log/slog"
 	"os"
@@ -21,6 +20,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
@@ -43,16 +43,16 @@ type Server struct {
 	adminInfrastructuresHandler  *handlers.AdminInfrastructuresHandler
 }
 
-func NewServer(db *sql.DB, eventBus *events.EventBus) *Server {
+func NewServer(pool *pgxpool.Pool, eventBus *events.EventBus) *Server {
 	// Repositories
-	areaRepo := repo.NewAreaRepo(db)
-	cityRepo := repo.NewCityRepo(db)
-	projectRepo := repo.NewProjectRepo(db)
-	lotRepo := repo.NewLotRepo(db)
-	leadRepo := repo.NewLeadRepo(db)
-	developerRepo := repo.NewDeveloperRepo(db)
-	badgeRepo := repo.NewBadgeRepo(db)
-	infrastructureRepo := repo.NewInfrastructureRepo(db)
+	areaRepo := repo.NewAreaRepo(pool)
+	cityRepo := repo.NewCityRepo(pool)
+	projectRepo := repo.NewProjectRepo(pool)
+	lotRepo := repo.NewLotRepo(pool)
+	leadRepo := repo.NewLeadRepo(pool)
+	developerRepo := repo.NewDeveloperRepo(pool)
+	badgeRepo := repo.NewBadgeRepo(pool)
+	infrastructureRepo := repo.NewInfrastructureRepo(pool)
 
 	// Register event subscriber: recalculate project prices on lot changes
 	eventBus.Subscribe(events.LotChanged, func(e events.Event) {
@@ -392,8 +392,8 @@ func (s *Server) AdminHardDeleteInfrastructure(c *fiber.Ctx, id openapi_types.UU
 }
 
 // initMediaService initializes the media service with appropriate storage and delivery
-func initMediaService(ctx context.Context, cfg *config.Config, db *sql.DB) (*services.MediaService, error) {
-	mediaRepo := repo.NewMediaRepo(db)
+func initMediaService(ctx context.Context, cfg *config.Config, pool *pgxpool.Pool) (*services.MediaService, error) {
+	mediaRepo := repo.NewMediaRepo(pool)
 
 	var mediaStorage storage.MediaStorage
 	var mediaDelivery delivery.MediaDelivery
@@ -455,16 +455,16 @@ func main() {
 	cfg := config.Load()
 
 	// Подключение к БД
-	db, err := repo.NewDB(cfg)
+	pool, err := repo.NewDB(cfg)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer db.Close()
+	defer pool.Close()
 	log.Println("Database connected successfully")
 
 	// Initialize media service
 	ctx := context.Background()
-	mediaService, err := initMediaService(ctx, cfg, db)
+	mediaService, err := initMediaService(ctx, cfg, pool)
 	if err != nil {
 		log.Fatalf("Failed to initialize media service: %v", err)
 	}
@@ -490,7 +490,7 @@ func main() {
 		ExposeHeaders:    "Content-Length",
 	}))
 
-	server := NewServer(db, eventBus)
+	server := NewServer(pool, eventBus)
 
 	// Legacy media handler (for serving local files)
 	legacyMediaHandler := handlers.NewMediaHandler(cfg.Media.UploadDir, cfg.Media.PublicURL)

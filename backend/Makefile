@@ -6,27 +6,29 @@ menu:
 	@echo "\033[1;32m═══════════════════════════════════════\033[0m"
 	@echo ""
 	@echo "  \033[33m1)\033[0m Generate API from OpenAPI"
-	@echo "  \033[33m2)\033[0m Run server (local)"
-	@echo "  \033[33m3)\033[0m Open Swagger UI"
-	@echo "  \033[33m4)\033[0m Open Adminer"
-	@echo "  \033[33m5)\033[0m Migrate up"
-	@echo "  \033[33m6)\033[0m Migrate down"
-	@echo "  \033[33m7)\033[0m Start Postgres only"
-	@echo "  \033[33m8)\033[0m Seed database"
-	@echo "  \033[33m9)\033[0m Docker Dev Seed database"
+	@echo "  \033[33m2)\033[0m Generate DB queries (sqlc)"
+	@echo "  \033[33m3)\033[0m Run server (local)"
+	@echo "  \033[33m4)\033[0m Open Swagger UI"
+	@echo "  \033[33m5)\033[0m Open Adminer"
+	@echo "  \033[33m6)\033[0m Migrate up"
+	@echo "  \033[33m7)\033[0m Migrate down"
+	@echo "  \033[33m8)\033[0m Start Postgres only"
+	@echo "  \033[33m9)\033[0m Seed database"
+	@echo "  \033[33m10)\033[0m Docker Dev Seed database"
 	@echo "  \033[33m0)\033[0m Back"
 	@echo ""
 	@read -p "Select option: " choice; \
 	case $$choice in \
 		1) $(MAKE) generate ;; \
-		2) $(MAKE) dev ;; \
-		3) $(MAKE) swagger ;; \
-		4) $(MAKE) adminer ;; \
-		5) $(MAKE) migrate-up ;; \
-		6) $(MAKE) migrate-down ;; \
-		7) $(MAKE) postgres-up ;; \
-		8) $(MAKE) seed ;; \
-		9) $(MAKE) seed-dev ;; \
+		2) $(MAKE) sqlc ;; \
+		3) $(MAKE) dev ;; \
+		4) $(MAKE) swagger ;; \
+		5) $(MAKE) adminer ;; \
+		6) $(MAKE) migrate-up ;; \
+		7) $(MAKE) migrate-down ;; \
+		8) $(MAKE) postgres-up ;; \
+		9) $(MAKE) seed ;; \
+		10) $(MAKE) seed-dev ;; \
 		0) $(MAKE) -C .. ;; \
 		*) echo "Invalid option" ;; \
 	esac
@@ -37,6 +39,15 @@ generate:
 	else \
 		~/go/bin/oapi-codegen -package generated -generate "types,fiber" -o internal/generated/api.gen.go api/openapi.yaml; \
 	fi
+
+sqlc:
+	@echo "\033[1;32mGenerating sqlc code from queries...\033[0m"
+	@if command -v sqlc >/dev/null 2>&1; then \
+		sqlc generate; \
+	else \
+		~/go/bin/sqlc generate; \
+	fi
+	@echo "\033[1;32mDone! Generated code in internal/sqlc/sqlcgen/\033[0m"
 
 dev:
 	@echo "\033[1;32mStarting server locally (make sure Postgres is running)...\033[0m"
@@ -99,5 +110,5 @@ seed-dev:
 	@docker exec rushhour-postgres-dev psql -U rushhour -d rushhour_db -f /tmp/seeds/seed.sql
 	@docker exec rushhour-postgres-dev rm -rf /tmp/seeds
 
-.PHONY: generate dev swagger adminer migrate-up migrate-down migrate-create postgres-up seed seed-dev
+.PHONY: generate sqlc dev swagger adminer migrate-up migrate-down migrate-create postgres-up seed seed-dev
 
