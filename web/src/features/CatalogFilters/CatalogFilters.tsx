@@ -103,6 +103,7 @@ export const CatalogFilters = () => {
           { value: 'townhouse', label: t('filters.propertyType.townhouse') },
           { value: 'penthouse', label: t('filters.propertyType.penthouse') },
           { value: 'duplex', label: t('filters.propertyType.duplex') },
+          { value: 'triplex', label: t('filters.propertyType.triplex') },
         ],
       }),
     }),

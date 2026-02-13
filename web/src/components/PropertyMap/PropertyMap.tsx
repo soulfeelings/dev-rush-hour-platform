@@ -29,7 +29,8 @@ declare module 'leaflet' {
 }
 import styles from './PropertyMap.module.scss'
 import { createMarkerPopupElement } from './MarkerPopup'
-import type { Property } from '../../types/property'
+import type { Project } from '../../api/generated/schemas/project'
+import { getProjectSlug, getCoordinates } from '../../utils/project'
 import { createPropertyMarkerIcon } from './markerIcon'
 import { createClusterIcon } from './clusterIcon'
 import { useSettings } from '../../features/Settings/Settings'
@@ -44,8 +45,8 @@ L.Icon.Default.mergeOptions({
 })
 
 interface PropertyMapProps {
-  properties: Property[]
-  selectedPropertyId?: string
+  projects: Project[]
+  selectedProjectId?: string
   showDistrictFilter?: boolean
 }
 
@@ -55,7 +56,7 @@ export interface PropertyMapRef {
 }
 
 const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
-  ({ properties, selectedPropertyId }, ref) => {
+  ({ projects, selectedProjectId }, ref) => {
     const navigate = useNavigate()
     const { currency } = useSettings()
     const mapRef = useRef<L.Map | null>(null)
@@ -92,18 +93,24 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         map.addLayer(clusterGroupRef.current)
       }
 
-      // Filter out properties without coordinates
-      const propertiesWithCoords = properties.filter(p => p.coordinates)
+      // Filter out projects without coordinates
+      const projectsWithCoords = projects
+        .map(p => ({ project: p, coordinates: getCoordinates(p) }))
+        .filter(
+          (item): item is { project: Project; coordinates: [number, number] } =>
+            item.coordinates !== undefined
+        )
 
-      propertiesWithCoords.forEach(property => {
-        const marker = L.marker(property.coordinates!, {
+      projectsWithCoords.forEach(({ project, coordinates }) => {
+        const slug = getProjectSlug(project)
+        const marker = L.marker(coordinates, {
           icon: createPropertyMarkerIcon(),
         })
 
-        const popupElement = createMarkerPopupElement(property, currency)
+        const popupElement = createMarkerPopupElement(project, currency)
         popupElement.style.cursor = 'pointer'
         popupElement.addEventListener('click', () => {
-          window.open(getProjectDetailRoute(property.id), '_blank')
+          window.open(getProjectDetailRoute(slug), '_blank')
         })
 
         const popup = L.popup({
@@ -116,11 +123,11 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         }).setContent(popupElement)
 
         // Simple hover tooltip with image, name & price
-        const price = property.priceFromUs
-          ? `${i18n.t('map.from')} ${(property.priceFromUs / 1000000).toFixed(1)}M ${property.currency || ''}`
+        const price = project.priceFromUs
+          ? `${i18n.t('map.from')} ${(project.priceFromUs / 1000000).toFixed(1)}M ${project.currency || ''}`
           : ''
         const tooltipHtml = `<div class="mp-tooltip">
-          <span class="mp-tooltip-name">${property.title}</span>
+          <span class="mp-tooltip-name">${project.name}</span>
           ${price ? `<span class="mp-tooltip-price">${price}</span>` : ''}
         </div>`
 
@@ -141,7 +148,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           if (isSpiderfied) {
             // In spiderfy mode: zoom to this marker, collapse the spider
             clusterGroupRef.current?.unspiderfy()
-            map.flyTo(property.coordinates!, Math.max(map.getZoom() + 2, 16), {
+            map.flyTo(coordinates, Math.max(map.getZoom() + 2, 16), {
               animate: true,
               duration: 0.5,
             })
@@ -149,7 +156,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           }
 
           // Standalone marker: offset center and open popup
-          const targetPoint = map.project(property.coordinates!, map.getZoom())
+          const targetPoint = map.project(coordinates, map.getZoom())
           const pinHeightOffset = 21
           const mapOffset = map.getSize().y * 0.15
           const centerLatLng = map.unproject(
@@ -180,7 +187,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
         clusterGroupRef.current?.addLayer(marker)
       })
-    }, [properties, navigate, currency])
+    }, [projects, navigate, currency])
 
     useImperativeHandle(ref, () => ({
       invalidateSize: () => {
@@ -217,9 +224,11 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
       updateMarkers()
 
-      const propertiesWithCoords = properties.filter(p => p.coordinates)
-      if (propertiesWithCoords.length > 0 && mapRef.current) {
-        const bounds = L.latLngBounds(propertiesWithCoords.map(p => p.coordinates!))
+      const projectsWithCoords = projects
+        .map(p => getCoordinates(p))
+        .filter((c): c is [number, number] => c !== undefined)
+      if (projectsWithCoords.length > 0 && mapRef.current) {
+        const bounds = L.latLngBounds(projectsWithCoords)
         mapRef.current.fitBounds(bounds, { padding: [50, 50] })
       }
 
@@ -228,19 +237,22 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           clusterGroupRef.current.clearLayers()
         }
       }
-    }, [properties, selectedPropertyId, updateMarkers])
+    }, [projects, selectedProjectId, updateMarkers])
 
     useEffect(() => {
-      if (!mapRef.current || !selectedPropertyId) return
+      if (!mapRef.current || !selectedProjectId) return
 
-      const selectedProperty = properties.find(p => p.id === selectedPropertyId)
-      if (selectedProperty?.coordinates) {
-        mapRef.current.setView(selectedProperty.coordinates, 14, {
+      const selectedProject = projects.find(
+        p => getProjectSlug(p) === selectedProjectId
+      )
+      const coords = selectedProject ? getCoordinates(selectedProject) : undefined
+      if (coords) {
+        mapRef.current.setView(coords, 14, {
           animate: true,
           duration: 0.5,
         })
       }
-    }, [selectedPropertyId, properties])
+    }, [selectedProjectId, projects])
 
     return (
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>

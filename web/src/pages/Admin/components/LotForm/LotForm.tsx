@@ -357,6 +357,7 @@ export function LotForm({
         value={form.projectId}
         onChange={value => setForm({ ...form, projectId: value })}
         error={errors.projectId}
+        searchable
       />
       <Select
         label="Type"
@@ -366,6 +367,8 @@ export function LotForm({
           { value: 'villa', label: 'Villa' },
           { value: 'townhouse', label: 'Townhouse' },
           { value: 'penthouse', label: 'Penthouse' },
+          { value: 'duplex', label: 'Duplex' },
+          { value: 'triplex', label: 'Triplex' },
         ]}
         value={form.type}
         onChange={value => setForm({ ...form, type: value })}

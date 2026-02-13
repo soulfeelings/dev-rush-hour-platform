@@ -5,7 +5,7 @@ import { Select } from '../../ui/Select'
 import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
 import PropertyMap from '../../components/PropertyMap'
 import { useListProjects } from '../../api'
-import { apiProjectsToProperties } from '../../utils/apiAdapters'
+import { getProjectSlug } from '../../utils/project'
 import { useFilters } from '../../contexts'
 import styles from './Catalog.module.scss'
 import type { PropertyMapRef } from '../../components/PropertyMap/PropertyMap'
@@ -202,16 +202,18 @@ export default function Catalog() {
 
   const projects = useMemo(() => {
     if (!projectsData) return []
-    let result = apiProjectsToProperties(projectsData)
+    let result = [...projectsData]
 
     // Client-side filter by project slug (API doesn't support this param)
     if (filters.project) {
-      result = result.filter(p => p.id === filters.project)
+      result = result.filter(p => getProjectSlug(p) === filters.project)
     }
 
     // Client-side filter by property type (API doesn't support this param)
     if (filters.propertyType !== 'all') {
-      result = result.filter(p => p.types?.some(t => t.toLowerCase() === filters.propertyType))
+      result = result.filter(p =>
+        p.propertyTypes?.some(t => t.toLowerCase() === filters.propertyType)
+      )
     }
 
     return result
@@ -243,9 +245,9 @@ export default function Catalog() {
     setTimeout(() => mapRef.current?.refreshMap(), 350)
   }, [isDesktop])
 
-  const activeProperties = projects.filter(p => p.status === 'active')
-  const totalResults = activeProperties.length
-  const displayedResults = activeProperties.filter(p => !p.isFeatured).length
+  const activeProjects = projects.filter(p => p.status === 'active')
+  const totalResults = activeProjects.length
+  const displayedResults = activeProjects.filter(p => !p.isFeatured).length
 
   const catalogContent = (
     <div className={styles.catalogContent}>
@@ -267,12 +269,12 @@ export default function Catalog() {
         </div>
       </div>
       <div className={styles.viewContainer}>
-        <ProjectsView properties={projects} isLoading={projectsLoading} error={projectsError} />
+        <ProjectsView projects={projects} isLoading={projectsLoading} error={projectsError} />
       </div>
     </div>
   )
 
-  const mapContent = <PropertyMap ref={mapRef} properties={activeProperties} />
+  const mapContent = <PropertyMap ref={mapRef} projects={activeProjects} />
 
   return (
     <div className={styles.container}>

@@ -12,13 +12,14 @@ import { useGetFilterOptions } from '../api/generated/rushHourRealEstatePlatform
 
 import type { FilterOptions } from '../api/generated/schemas/filterOptions'
 import type { FilterOption } from '../api/generated/schemas/filterOption'
+import { LotType } from '../api/generated/schemas/lotType'
 
 export type FilterValues = {
   city: string | null
   area: string | null
   developer: string | null
   project: string | null
-  propertyType: 'all' | 'apartment' | 'villa' | 'townhouse' | 'penthouse' | 'duplex'
+  propertyType: 'all' | LotType
   bedrooms: string[]
   bathrooms: string[]
   priceRange: 'all' | '0-1m' | '1-2m' | '2-5m' | '5m+'
@@ -69,7 +70,7 @@ const parseFiltersFromURL = (search: string): FilterValues => {
   if (params.get('project')) filters.project = params.get('project')
 
   const type = params.get('type')
-  if (type && ['apartment', 'villa', 'townhouse', 'penthouse', 'duplex'].includes(type)) {
+  if (type && Object.values(LotType).includes(type as LotType)) {
     filters.propertyType = type as FilterValues['propertyType']
   }
 

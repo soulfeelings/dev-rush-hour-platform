@@ -735,16 +735,6 @@
   }
 }
 
-.allUnitsLabel {
-  display: block;
-  color: $color-charcoal-black;
-  margin-bottom: $spacing-4;
-
-  @media (max-width: $breakpoint-md) {
-    order: 8;
-  }
-}
-
 .apartmentsHeader {
   display: flex;
   flex-direction: column;
@@ -756,6 +746,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: $spacing-4;
+
+  @media (max-width: $breakpoint-md) {
+    order: 8;
+  }
+}
+
+.groupTypeLabel {
+  color: $color-charcoal-black;
 }
 
 .apartmentsStats {

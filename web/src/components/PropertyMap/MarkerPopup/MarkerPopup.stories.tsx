@@ -2,9 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import type { ReactNode } from 'react'
 import './MarkerPopup.scss'
 import { MarkerPopup } from './MarkerPopup'
-import type { Property, PropertyBadge } from '../../../types/property'
+import type { Project } from '../../../api/generated/schemas/project'
+import type { Badge } from '../../../api/generated/schemas/badge'
 
-const demoBadges: PropertyBadge[] = [
+const demoBadges: Badge[] = [
   {
     id: '1',
     slug: 'service-charge',
@@ -31,28 +32,34 @@ const demoBadges: PropertyBadge[] = [
   },
 ]
 
-const mockProperty: Property = {
+const mockProject: Project = {
   id: '1',
-  title: 'Vitality Residence',
-  location: 'Jumeirah Village Circle (JVC)',
-  developer: 'Segrex Development',
+  slug: '1',
+  name: 'Vitality Residence',
+  area: { name: 'Jumeirah Village Circle (JVC)' },
+  developer: { name: 'Segrex Development' },
   priceFromUs: 20000000,
+  priceFromDeveloper: 26666667,
   currency: 'AED',
-  types: ['Apartment', 'Penthouse'],
+  propertyTypes: ['Apartment', 'Penthouse'],
   bedrooms: ['studio', '1', '2'],
   completionDate: 'Q1 2026',
-  area: 85,
+  areaSize: 85,
   areaUnit: 'sqm',
-  image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
-  hoverImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
-  gallery: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800'],
-  logoUrl: 'https://placehold.co/70x70/2a5a4a/fff?text=V',
-  coordinates: [25.0657, 55.1713],
+  media: {
+    cover: { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800' },
+    hover: { url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800' },
+    logo: { url: 'https://placehold.co/70x70/2a5a4a/fff?text=V' },
+    gallery: [
+      { url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800' },
+    ],
+  },
+  lat: 25.0657,
+  lng: 55.1713,
   sale: 'sale',
   status: 'active',
   description: 'Premium living in the heart of JVC.',
   roi: 7,
-  discount: 25,
   paymentPlan: '30/10/60',
   pricesByType: [
     { type: 'studio, 1-2 beds', price: 15000000 },
@@ -104,23 +111,23 @@ type Story = StoryObj<typeof MarkerPopup>
 
 export const Default: Story = {
   args: {
-    property: mockProperty,
+    project: mockProject,
   },
 }
 
 export const WithoutDiscount: Story = {
   args: {
-    property: {
-      ...mockProperty,
-      discount: undefined,
+    project: {
+      ...mockProject,
+      priceFromDeveloper: undefined,
     },
   },
 }
 
 export const WithoutROI: Story = {
   args: {
-    property: {
-      ...mockProperty,
+    project: {
+      ...mockProject,
       roi: undefined,
     },
   },
@@ -128,8 +135,8 @@ export const WithoutROI: Story = {
 
 export const WithoutBadges: Story = {
   args: {
-    property: {
-      ...mockProperty,
+    project: {
+      ...mockProject,
       badges: [],
     },
   },
@@ -137,17 +144,20 @@ export const WithoutBadges: Story = {
 
 export const WithoutLogo: Story = {
   args: {
-    property: {
-      ...mockProperty,
-      logoUrl: undefined,
+    project: {
+      ...mockProject,
+      media: {
+        ...mockProject.media,
+        logo: undefined,
+      },
     },
   },
 }
 
 export const WithoutPricesByType: Story = {
   args: {
-    property: {
-      ...mockProperty,
+    project: {
+      ...mockProject,
       pricesByType: [],
     },
   },
@@ -155,8 +165,8 @@ export const WithoutPricesByType: Story = {
 
 export const WithoutPaymentPlan: Story = {
   args: {
-    property: {
-      ...mockProperty,
+    project: {
+      ...mockProject,
       paymentPlan: undefined,
       completionDate: undefined,
     },
@@ -165,12 +175,15 @@ export const WithoutPaymentPlan: Story = {
 
 export const Minimal: Story = {
   args: {
-    property: {
-      ...mockProperty,
+    project: {
+      ...mockProject,
       badges: [],
-      logoUrl: undefined,
+      media: {
+        ...mockProject.media,
+        logo: undefined,
+      },
       roi: undefined,
-      discount: undefined,
+      priceFromDeveloper: undefined,
       paymentPlan: undefined,
       completionDate: undefined,
       pricesByType: [],

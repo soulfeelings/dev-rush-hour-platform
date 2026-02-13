@@ -60,11 +60,20 @@ type ProjectWithRelations = Project & {
 
 interface LotGroup {
   bedrooms: number
+  type: string
   lots: Lot[]
   minPrice: number
   totalUnits: number
   minArea: number
   maxArea: number
+}
+
+const pluralizeType = (type: string) => {
+  const capitalized = type.charAt(0).toUpperCase() + type.slice(1)
+  if (type.endsWith('x') || type.endsWith('s') || type.endsWith('sh') || type.endsWith('ch')) {
+    return capitalized + 'es'
+  }
+  return capitalized + 's'
 }
 
 const getDateLocale = (lang: string) => {
@@ -168,6 +177,7 @@ export default function ProjectDetail() {
       if (!groups[bedrooms]) {
         groups[bedrooms] = {
           bedrooms,
+          type: lot.type || 'apartment',
           lots: [],
           minPrice: Infinity,
           totalUnits: 0,
@@ -422,9 +432,8 @@ export default function ProjectDetail() {
               {allImages.map((url, idx) => (
                 <div
                   key={idx}
-                  className={`${styles.thumbnailWrapper} ${
-                    idx === selectedIndex ? styles.activeThumbnail : ''
-                  }`}
+                  className={`${styles.thumbnailWrapper} ${idx === selectedIndex ? styles.activeThumbnail : ''
+                    }`}
                   onClick={() => scrollTo(idx, true)}
                 >
                   <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
@@ -560,22 +569,22 @@ export default function ProjectDetail() {
 
         {/* Apartments Sections by Bedroom Count */}
         {groupedLots.length > 0 && (
-          <Typography variant="h1" className={styles.allUnitsLabel}>
-            {t('projectDetail.allUnits')}
-          </Typography>
+          <div className={styles.apartmentsHeaderTop}>
+            <Typography variant="h1">{t('projectDetail.allUnits')}</Typography>
+            <button className={styles.viewAllBtn}>
+              <Typography variant="body" size="small" weight="regular">
+                {t('projectDetail.viewTheGrid')}
+              </Typography>
+              <ArrowRight size={16} />
+            </button>
+          </div>
         )}
         {groupedLots.map(group => (
           <section key={group.bedrooms} className={styles.apartmentsSection}>
             <div className={styles.apartmentsHeader}>
-              <div className={styles.apartmentsHeaderTop}>
-                <Typography variant="h1">{t('projectDetail.apartments')}</Typography>
-                <button className={styles.viewAllBtn}>
-                  <Typography variant="body" size="small" weight="regular">
-                    {t('projectDetail.viewTheGrid')}
-                  </Typography>
-                  <ArrowRight size={16} />
-                </button>
-              </div>
+              <Typography variant="h1" className={styles.groupTypeLabel}>
+                {pluralizeType(group.type)}
+              </Typography>
               <div className={styles.apartmentsStats}>
                 <span>{t('projectDetail.beds', { count: group.bedrooms })}</span>
                 <span className={styles.statDivider} />
@@ -602,10 +611,9 @@ export default function ProjectDetail() {
                   key={lot.id || index}
                   lot={lot}
                   projectName={project.name}
+                  projectSlug={slug}
                   areaName={project.area?.name}
                   roi={project.roi}
-                  ourPrice={project.priceFromUs}
-                  developerPrice={project.priceFromDeveloper}
                 />
               ))}
             </ApartmentsCarousel>
