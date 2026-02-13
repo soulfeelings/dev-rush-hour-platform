@@ -147,6 +147,9 @@ backend/coverage.out
 backend/coverage.html
 *.test
 
+# Local Railway DB reset (credentials)
+scripts/railway-db-reset.sh
+
 # Air (Go hot reload)
 backend/tmp/
 backend/build-errors.log
