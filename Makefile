@@ -25,7 +25,7 @@ menu:
 		*) echo "Invalid option" ;; \
 	esac
 
-.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-migrate railway-seed web-deps
+.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-reset railway-migrate railway-seed web-deps
 
 up:
 	@echo "\033[1;32mStarting services with Docker Compose (production)...\033[0m"
@@ -99,17 +99,22 @@ railway-menu:
 	@echo "\033[1;36m              Railway                  \033[0m"
 	@echo "\033[1;36m═══════════════════════════════════════\033[0m"
 	@echo ""
-	@echo "  \033[33m1)\033[0m Migrate database"
-	@echo "  \033[33m2)\033[0m Seed database"
+	@echo "  \033[33m1)\033[0m Reset DB (clean + migrate + seed)"
+	@echo "  \033[33m2)\033[0m Migrate database"
+	@echo "  \033[33m3)\033[0m Seed database"
 	@echo "  \033[33m0)\033[0m Back"
 	@echo ""
 	@read -p "Select option: " choice; \
 	case $$choice in \
-		1) $(MAKE) railway-migrate ;; \
-		2) $(MAKE) railway-seed ;; \
+		1) $(MAKE) railway-reset ;; \
+		2) $(MAKE) railway-migrate ;; \
+		3) $(MAKE) railway-seed ;; \
 		0) $(MAKE) menu ;; \
 		*) echo "Invalid option" ;; \
 	esac
+
+railway-reset:
+	@bash scripts/railway-db-reset.sh
 
 railway-migrate:
 	@echo "\033[1;32mRailway Database Migration\033[0m"
