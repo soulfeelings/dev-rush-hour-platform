@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button, Input, Select, ImagePreview, Checkbox, Badge as BadgeUI } from '../../../../ui'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Image as ImageIcon } from 'lucide-react'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import type { Badge } from '../../../../api/generated/schemas/badge'
 import { DirectionPicker } from '../DirectionPicker'
+import { MediaPicker } from '../MediaPicker'
 import styles from './LotForm.module.scss'
 
 import { STORAGE_KEYS } from '../../../../constants/storage'
@@ -200,6 +201,11 @@ export function LotForm({
 
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState(false)
+
+  // Media picker state
+  const [pickerOpen, setPickerOpen] = useState<
+    'coverUrl' | 'photos' | 'floorPlanImages' | 'viewPhotos' | null
+  >(null)
 
   const validate = (): ValidationErrors => {
     const newErrors: ValidationErrors = {}
@@ -460,22 +466,44 @@ export function LotForm({
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Media</h3>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Cover Image URL"
-            type="url"
-            value={form.coverUrl}
-            onChange={e => setForm({ ...form, coverUrl: e.target.value })}
-            placeholder="https://example.com/image.jpg"
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Cover Image URL"
+              type="url"
+              value={form.coverUrl}
+              onChange={e => setForm({ ...form, coverUrl: e.target.value })}
+              placeholder="https://example.com/image.jpg"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('coverUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
         </div>
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
             <label className={styles.mediaListLabel}>Photos</label>
-            <Button type="button" onClick={addPhoto} variant="secondary" size="sm">
-              <Plus size={16} />
-              Add Photo
-            </Button>
+            <div className={styles.mediaListActions}>
+              <Button
+                type="button"
+                onClick={() => setPickerOpen('photos')}
+                variant="secondary"
+                size="sm"
+                iconLeft={<ImageIcon size={16} />}
+              >
+                Browse
+              </Button>
+              <Button type="button" onClick={addPhoto} variant="secondary" size="sm">
+                <Plus size={16} />
+                Add Photo
+              </Button>
+            </div>
           </div>
           {form.photos.map((url, index) => (
             <div key={index} className={styles.mediaItem}>
@@ -503,10 +531,21 @@ export function LotForm({
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
             <label className={styles.mediaListLabel}>Floor Plan Images</label>
-            <Button type="button" onClick={addFloorPlanImage} variant="secondary" size="sm">
-              <Plus size={16} />
-              Add Floor Plan
-            </Button>
+            <div className={styles.mediaListActions}>
+              <Button
+                type="button"
+                onClick={() => setPickerOpen('floorPlanImages')}
+                variant="secondary"
+                size="sm"
+                iconLeft={<ImageIcon size={16} />}
+              >
+                Browse
+              </Button>
+              <Button type="button" onClick={addFloorPlanImage} variant="secondary" size="sm">
+                <Plus size={16} />
+                Add Floor Plan
+              </Button>
+            </div>
           </div>
           {form.floorPlanImages.map((url, index) => (
             <div key={index} className={styles.mediaItem}>
@@ -543,10 +582,21 @@ export function LotForm({
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
             <label className={styles.mediaListLabel}>View Photos</label>
-            <Button type="button" onClick={addViewPhoto} variant="secondary" size="sm">
-              <Plus size={16} />
-              Add View Photo
-            </Button>
+            <div className={styles.mediaListActions}>
+              <Button
+                type="button"
+                onClick={() => setPickerOpen('viewPhotos')}
+                variant="secondary"
+                size="sm"
+                iconLeft={<ImageIcon size={16} />}
+              >
+                Browse
+              </Button>
+              <Button type="button" onClick={addViewPhoto} variant="secondary" size="sm">
+                <Plus size={16} />
+                Add View Photo
+              </Button>
+            </div>
           </div>
           {form.viewPhotos.map((url, index) => (
             <div key={index} className={styles.mediaItem}>
@@ -580,6 +630,33 @@ export function LotForm({
       >
         {loading ? (isEditMode ? 'Saving...' : 'Creating...') : isEditMode ? 'Save' : 'Create Lot'}
       </Button>
+
+      {/* Media Pickers */}
+      <MediaPicker
+        open={pickerOpen === 'coverUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, coverUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'photos'}
+        onClose={() => setPickerOpen(null)}
+        multiple
+        onSelectMultiple={urls => setForm({ ...form, photos: [...form.photos, ...urls] })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'floorPlanImages'}
+        onClose={() => setPickerOpen(null)}
+        multiple
+        onSelectMultiple={urls =>
+          setForm({ ...form, floorPlanImages: [...form.floorPlanImages, ...urls] })
+        }
+      />
+      <MediaPicker
+        open={pickerOpen === 'viewPhotos'}
+        onClose={() => setPickerOpen(null)}
+        multiple
+        onSelectMultiple={urls => setForm({ ...form, viewPhotos: [...form.viewPhotos, ...urls] })}
+      />
     </form>
   )
 }

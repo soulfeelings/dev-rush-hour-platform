@@ -10,6 +10,20 @@
   font-weight: 600 !important;
 }
 
+.inputWithButton {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+
+  > div:first-child {
+    flex: 1;
+  }
+
+  > button {
+    flex-shrink: 0;
+  }
+}
+
 .logoPreview {
   display: flex;
   flex-direction: column;

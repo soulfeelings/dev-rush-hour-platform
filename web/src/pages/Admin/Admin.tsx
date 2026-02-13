@@ -59,6 +59,7 @@ import { DeletedBadgesTable } from './components/DeletedBadgesTable'
 import { InfrastructuresTable } from './components/InfrastructuresTable'
 import { InfrastructureForm } from './components/InfrastructureForm'
 import { DeletedInfrastructuresTable } from './components/DeletedInfrastructuresTable'
+import { MediaTable } from './components/MediaTable'
 import { ADMIN_ROUTES, ADMIN_ROUTE_SEGMENTS, ADMIN_API_ENDPOINTS } from './constants'
 
 const {
@@ -698,7 +699,8 @@ export default function Admin() {
     | 'cities-list'
     | 'badges-list'
     | 'infrastructures-list'
-    | 'developers-list' => {
+    | 'developers-list'
+    | 'media-list' => {
     const path = params['*'] || ADMIN_ROUTE_SEGMENTS.PROJECTS
     if (path === ADMIN_ROUTE_SEGMENTS.LOTS) return 'lots-list'
     if (path === ADMIN_ROUTE_SEGMENTS.AREAS) return 'areas-list'
@@ -706,6 +708,7 @@ export default function Admin() {
     if (path === ADMIN_ROUTE_SEGMENTS.BADGES) return 'badges-list'
     if (path === ADMIN_ROUTE_SEGMENTS.INFRASTRUCTURES) return 'infrastructures-list'
     if (path === ADMIN_ROUTE_SEGMENTS.DEVELOPERS) return 'developers-list'
+    if (path === ADMIN_ROUTE_SEGMENTS.MEDIA) return 'media-list'
     return 'projects-list'
   }
 
@@ -720,6 +723,7 @@ export default function Admin() {
       | 'badges-list'
       | 'infrastructures-list'
       | 'developers-list'
+      | 'media-list'
   ) => {
     const pathMap: Record<typeof tab, string> = {
       'developers-list': ADMIN_ROUTE_SEGMENTS.DEVELOPERS,
@@ -729,6 +733,7 @@ export default function Admin() {
       'cities-list': ADMIN_ROUTE_SEGMENTS.CITIES,
       'badges-list': ADMIN_ROUTE_SEGMENTS.BADGES,
       'infrastructures-list': ADMIN_ROUTE_SEGMENTS.INFRASTRUCTURES,
+      'media-list': ADMIN_ROUTE_SEGMENTS.MEDIA,
     }
     navigate(`${ADMIN_ROUTES.BASE}/${pathMap[tab]}`)
     setRightSidebarOpen(false)
@@ -1437,6 +1442,16 @@ export default function Admin() {
                   hardDeleteLoading={hardDeleteLoading}
                 />
               </>
+            }
+          />
+
+          <Route
+            path={ADMIN_ROUTE_SEGMENTS.MEDIA}
+            element={
+              <MediaTable
+                onError={(msg: string) => setError(msg)}
+                onSuccess={(msg: string) => setSuccess(msg)}
+              />
             }
           />
 

@@ -12,6 +12,7 @@ type Tab =
   | 'badges-list'
   | 'infrastructures-list'
   | 'developers-list'
+  | 'media-list'
 
 type SidebarProps = {
   activeTab: Tab
@@ -108,6 +109,13 @@ export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: S
               onClick={() => onTabChange('infrastructures-list')}
             >
               <span>Infrastructures</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.navItem} ${activeTab === 'media-list' ? styles.active : ''}`}
+              onClick={() => onTabChange('media-list')}
+            >
+              <span>Media</span>
             </button>
           </div>
         </nav>

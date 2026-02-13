@@ -10,7 +10,7 @@ import {
   Textarea,
   Badge as BadgeUI,
 } from '../../../../ui'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Image as ImageIcon } from 'lucide-react'
 import {
   type ProjectCreateRequest,
   type Project,
@@ -18,6 +18,7 @@ import {
   type Infrastructure,
 } from '../../../../api'
 import { MapPicker } from '../MapPicker'
+import { MediaPicker } from '../MediaPicker'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './ProjectForm.module.scss'
 
@@ -400,6 +401,11 @@ export function ProjectForm({
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState(false)
 
+  // Media picker state
+  const [pickerOpen, setPickerOpen] = useState<
+    'coverUrl' | 'hoverUrl' | 'logoUrl' | 'gallery' | null
+  >(null)
+
   const validate = (): ValidationErrors => {
     const newErrors: ValidationErrors = {}
     if (!form.status) {
@@ -741,44 +747,88 @@ export function ProjectForm({
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Media</h3>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Cover Image URL"
-            type="url"
-            value={form.coverUrl}
-            onChange={e => setForm({ ...form, coverUrl: e.target.value })}
-            placeholder="https://example.com/image.jpg"
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Cover Image URL"
+              type="url"
+              value={form.coverUrl}
+              onChange={e => setForm({ ...form, coverUrl: e.target.value })}
+              placeholder="https://example.com/image.jpg"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('coverUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
         </div>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Hover Image URL"
-            type="url"
-            value={form.hoverUrl}
-            onChange={e => setForm({ ...form, hoverUrl: e.target.value })}
-            placeholder="https://example.com/hover-image.jpg"
-            error={errors.hoverUrl}
-            required
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Hover Image URL"
+              type="url"
+              value={form.hoverUrl}
+              onChange={e => setForm({ ...form, hoverUrl: e.target.value })}
+              placeholder="https://example.com/hover-image.jpg"
+              error={errors.hoverUrl}
+              required
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('hoverUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.hoverUrl && <ImagePreview src={form.hoverUrl} alt="Hover preview" />}
         </div>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Project Logo URL"
-            type="url"
-            value={form.logoUrl}
-            onChange={e => setForm({ ...form, logoUrl: e.target.value })}
-            placeholder="https://example.com/logo.png"
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Project Logo URL"
+              type="url"
+              value={form.logoUrl}
+              onChange={e => setForm({ ...form, logoUrl: e.target.value })}
+              placeholder="https://example.com/logo.png"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('logoUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.logoUrl && <ImagePreview src={form.logoUrl} alt="Logo preview" />}
         </div>
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
             <label className={styles.mediaListLabel}>Gallery</label>
-            <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm">
-              <Plus size={16} />
-              Add Image
-            </Button>
+            <div className={styles.mediaListActions}>
+              <Button
+                type="button"
+                onClick={() => setPickerOpen('gallery')}
+                variant="secondary"
+                size="sm"
+                iconLeft={<ImageIcon size={16} />}
+              >
+                Browse
+              </Button>
+              <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm">
+                <Plus size={16} />
+                Add Image
+              </Button>
+            </div>
           </div>
           {form.gallery.map((url, index) => (
             <div key={index} className={styles.mediaItem}>
@@ -906,6 +956,29 @@ export function ProjectForm({
             ? 'Save'
             : 'Create Project'}
       </Button>
+
+      {/* Media Pickers */}
+      <MediaPicker
+        open={pickerOpen === 'coverUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, coverUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'hoverUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, hoverUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'logoUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, logoUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'gallery'}
+        onClose={() => setPickerOpen(null)}
+        multiple
+        onSelectMultiple={urls => setForm({ ...form, gallery: [...form.gallery, ...urls] })}
+      />
     </form>
   )
 }

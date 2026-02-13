@@ -146,6 +146,7 @@ backend/vendor/
 backend/coverage.out
 backend/coverage.html
 *.test
+backend/uploads/
 
 # Local Railway DB reset (credentials)
 scripts/railway-db-reset.sh
