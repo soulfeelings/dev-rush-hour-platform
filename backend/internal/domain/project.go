@@ -26,11 +26,10 @@ type Project struct {
 	IsFeatured        bool
 	YoutubeURL        string
 	ROI               *float64
-	OurPrice          *float64
-	DeveloperPrice    *float64
+	PriceFromUs        *float64
+	PriceFromDeveloper *float64
 	PaymentPlan       string
 	CompletionDate    string
-	PriceFrom         *float64
 	Currency          string
 	PropertyTypes     []string
 	Bedrooms          []string

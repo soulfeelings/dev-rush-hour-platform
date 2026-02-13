@@ -13,22 +13,12 @@ const STORAGE_KEY = STORAGE_KEYS.LOT_FORM
 type Project = {
   id?: string
   name?: string
-}
-
-type Developer = {
-  id?: string
-  name?: string
-}
-
-type Area = {
-  id?: string
-  name?: string
+  lat?: number
+  lng?: number
 }
 
 type LotFormData = {
   projectId: string
-  developerId: string
-  areaId: string
   type: string
   status: string
   bedrooms: string
@@ -75,8 +65,6 @@ export function LotForm({
   const defaultForm = useMemo<LotFormData>(
     () => ({
       projectId: '',
-      developerId: '',
-      areaId: '',
       type: '',
       status: '',
       bedrooms: '',
@@ -120,8 +108,28 @@ export function LotForm({
   }, [initialData])
 
   const initialForm = useMemo<LotFormData>(() => {
-    if (initialFormData) {
-      return initialFormData
+    if (initialData) {
+      return {
+        projectId: initialData.projectId || '',
+        type: (initialData.type as string) || '',
+        status: (initialData.status as string) || '',
+        bedrooms: initialData.bedrooms?.toString() || '',
+        bathrooms: initialData.bathrooms?.toString() || '',
+        areaSqm: initialData.areaSqm?.toString() || '',
+        floor: initialData.floor?.toString() || '',
+        priceAmount: initialData.priceFromUs?.toString() || '',
+        developerPrice: initialData.priceFromDeveloper?.toString() || '',
+        roi: initialData.roi?.toString() || '',
+        badgeIds: initialData.badgeIds?.filter((id): id is string => !!id) || [],
+        view: (initialData.data as Record<string, unknown>)?.view as string || '',
+        orientation: (initialData.data as Record<string, unknown>)?.orientation as string || '',
+        coverUrl: initialData.data?.media?.cover?.url || '',
+        photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
+        floorPlanImages:
+          initialData.data?.media?.floorPlanImages?.map(p => p.url || '').filter(Boolean) || [],
+        viewPhotos:
+          initialData.data?.media?.viewPhotos?.map(p => p.url || '').filter(Boolean) || [],
+      }
     }
     // Load from localStorage for new forms
     if (!isEditMode) {
@@ -154,6 +162,31 @@ export function LotForm({
     localStorage.removeItem(STORAGE_KEY)
   }, [])
 
+  const initialFormData = useMemo(() => {
+    if (!initialData) return null
+    return {
+      projectId: initialData.projectId || '',
+      type: (initialData.type as string) || '',
+      status: (initialData.status as string) || '',
+      bedrooms: initialData.bedrooms?.toString() || '',
+      bathrooms: initialData.bathrooms?.toString() || '',
+      areaSqm: initialData.areaSqm?.toString() || '',
+      floor: initialData.floor?.toString() || '',
+      priceAmount: initialData.priceFromUs?.toString() || '',
+      developerPrice: initialData.priceFromDeveloper?.toString() || '',
+      roi: initialData.roi?.toString() || '',
+      badgeIds: initialData.badgeIds?.filter((id): id is string => !!id) || [],
+      view: (initialData.data as Record<string, unknown>)?.view as string || '',
+      orientation: (initialData.data as Record<string, unknown>)?.orientation as string || '',
+      coverUrl: initialData.data?.media?.cover?.url || '',
+      photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
+      floorPlanImages:
+        initialData.data?.media?.floorPlanImages?.map(p => p.url || '').filter(Boolean) || [],
+      viewPhotos:
+        initialData.data?.media?.viewPhotos?.map(p => p.url || '').filter(Boolean) || [],
+    }
+  }, [initialData])
+
   const hasChanges = useMemo(() => {
     if (!isEditMode || !initialFormData) return false
     const photosChanged =
@@ -162,13 +195,14 @@ export function LotForm({
     const floorPlanImagesChanged =
       form.floorPlanImages.length !== initialFormData.floorPlanImages.length ||
       form.floorPlanImages.some((url, idx) => url !== initialFormData.floorPlanImages[idx])
+    const viewPhotosChanged =
+      form.viewPhotos.length !== initialFormData.viewPhotos.length ||
+      form.viewPhotos.some((url, idx) => url !== initialFormData.viewPhotos[idx])
     const badgeIdsChanged =
       form.badgeIds.length !== initialFormData.badgeIds.length ||
       form.badgeIds.some((id, idx) => id !== initialFormData.badgeIds[idx])
     return (
       form.projectId !== initialFormData.projectId ||
-      form.developerId !== initialFormData.developerId ||
-      form.areaId !== initialFormData.areaId ||
       form.type !== initialFormData.type ||
       form.status !== initialFormData.status ||
       form.bedrooms !== initialFormData.bedrooms ||
@@ -176,12 +210,14 @@ export function LotForm({
       form.areaSqm !== initialFormData.areaSqm ||
       form.floor !== initialFormData.floor ||
       form.priceAmount !== initialFormData.priceAmount ||
-      form.ourPrice !== initialFormData.ourPrice ||
       form.developerPrice !== initialFormData.developerPrice ||
       form.roi !== initialFormData.roi ||
+      form.view !== initialFormData.view ||
+      form.orientation !== initialFormData.orientation ||
       form.coverUrl !== initialFormData.coverUrl ||
       photosChanged ||
       floorPlanImagesChanged ||
+      viewPhotosChanged ||
       badgeIdsChanged
     )
   }, [form, initialFormData, isEditMode])
@@ -221,15 +257,9 @@ export function LotForm({
       projectId: form.projectId,
       type: form.type,
       status: form.status,
-      priceAmount: parseFloat(form.priceAmount),
+      priceFromUs: parseFloat(form.priceAmount),
     }
 
-    if (form.developerId) {
-      payload.developerId = form.developerId
-    }
-    if (form.areaId) {
-      payload.areaId = form.areaId
-    }
     if (form.bedrooms) {
       payload.bedrooms = parseInt(form.bedrooms, 10)
     }
@@ -262,9 +292,22 @@ export function LotForm({
     if (form.floorPlanImages.length > 0) {
       mediaData.floorPlanImages = form.floorPlanImages.filter(Boolean).map(url => ({ url }))
     }
+    if (form.viewPhotos.length > 0) {
+      mediaData.viewPhotos = form.viewPhotos.filter(Boolean).map(url => ({ url }))
+    }
 
+    const dataPayload: Record<string, unknown> = {}
     if (Object.keys(mediaData).length > 0) {
-      payload.data = { media: mediaData }
+      dataPayload.media = mediaData
+    }
+    if (form.view) {
+      dataPayload.view = form.view
+    }
+    if (form.orientation) {
+      dataPayload.orientation = form.orientation
+    }
+    if (Object.keys(dataPayload).length > 0) {
+      payload.data = dataPayload
     }
 
     payload.badgeIds = form.badgeIds
@@ -310,6 +353,32 @@ export function LotForm({
     setForm({ ...form, floorPlanImages: newFloorPlanImages })
   }
 
+  const addViewPhoto = () => {
+    setForm({ ...form, viewPhotos: [...form.viewPhotos, ''] })
+  }
+
+  const removeViewPhoto = (index: number) => {
+    setForm({ ...form, viewPhotos: form.viewPhotos.filter((_, i) => i !== index) })
+  }
+
+  const updateViewPhoto = (index: number, url: string) => {
+    const newViewPhotos = [...form.viewPhotos]
+    newViewPhotos[index] = url
+    setForm({ ...form, viewPhotos: newViewPhotos })
+  }
+
+  const toggleBadge = (badgeId: string) => {
+    const newBadgeIds = form.badgeIds.includes(badgeId)
+      ? form.badgeIds.filter(id => id !== badgeId)
+      : [...form.badgeIds, badgeId]
+    setForm({ ...form, badgeIds: newBadgeIds })
+  }
+
+  const selectedProject = useMemo(
+    () => projects.find(p => p.id === form.projectId),
+    [projects, form.projectId]
+  )
+
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
       <Select
@@ -321,6 +390,7 @@ export function LotForm({
         value={form.projectId}
         onChange={value => setForm({ ...form, projectId: value })}
         error={errors.projectId}
+        searchable
       />
       <Select
         label="Type"
@@ -330,6 +400,8 @@ export function LotForm({
           { value: 'villa', label: 'Villa' },
           { value: 'townhouse', label: 'Townhouse' },
           { value: 'penthouse', label: 'Penthouse' },
+          { value: 'duplex', label: 'Duplex' },
+          { value: 'triplex', label: 'Triplex' },
         ]}
         value={form.type}
         onChange={value => setForm({ ...form, type: value })}
@@ -383,6 +455,20 @@ export function LotForm({
         placeholder="e.g. 7.5"
       />
       <Input
+        label="Developer Price (AED)"
+        type="number"
+        step="any"
+        value={form.developerPrice}
+        onChange={e => setForm({ ...form, developerPrice: e.target.value })}
+      />
+      <Input
+        label="ROI (%)"
+        type="number"
+        step="0.01"
+        value={form.roi}
+        onChange={e => setForm({ ...form, roi: e.target.value })}
+      />
+      <Input
         label="Bedrooms"
         type="number"
         value={form.bedrooms}
@@ -407,24 +493,29 @@ export function LotForm({
         value={form.floor}
         onChange={e => setForm({ ...form, floor: e.target.value })}
       />
-      <Select
-        label="Developer"
-        options={[
-          { value: '', label: 'None' },
-          ...developers.map(d => ({ value: d.id || '', label: d.name || '' })),
-        ]}
-        value={form.developerId}
-        onChange={value => setForm({ ...form, developerId: value })}
-      />
-      <Select
-        label="Area"
-        options={[
-          { value: '', label: 'None' },
-          ...areas.map(a => ({ value: a.id || '', label: a.name || '' })),
-        ]}
-        value={form.areaId}
-        onChange={value => setForm({ ...form, areaId: value })}
-      />
+      {badges.length > 0 && (
+        <div className={styles.mediaSection}>
+          <h3 className={styles.sectionTitle}>Badges</h3>
+          <div className={styles.badgesList}>
+            {badges.map(badge => (
+              <label key={badge.id} className={styles.badgeItem}>
+                <Checkbox
+                  checked={badge.id ? form.badgeIds.includes(badge.id) : false}
+                  onChange={() => badge.id && toggleBadge(badge.id)}
+                />
+                <BadgeUI
+                  text={badge.name || ''}
+                  backgroundColor={badge.backgroundColor || '#e0e0e0'}
+                  textColor={badge.textColor || '#000000'}
+                  iconName={badge.icon}
+                  iconColor={badge.iconColor}
+                  size="small"
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Media</h3>
         <div className={styles.coverImageWrapper}>

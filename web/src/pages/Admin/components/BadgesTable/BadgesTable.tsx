@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter, Badge } from '../../../../ui'
 import type { Badge as BadgeSchema } from '../../../../api/generated/schemas/badge'
 import { TableSkeleton } from '../TableSkeleton'
+import { TableActionButtons } from '../TableActionButtons'
 import styles from './BadgesTable.module.scss'
 
 const { useAdminListBadges } = AdminApi
@@ -160,27 +161,12 @@ export function BadgesTable({
                   />
                 </td>
                 <td className={styles.actionsCell}>
-                  {hoveredRowId === badge.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.editButton}
-                        onClick={() => onEditClick(badge)}
-                        aria-label="Edit badge"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={() => badge.id && handleDeleteClick([badge.id])}
-                        aria-label="Delete badge"
-                        disabled={deleteLoading}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
+                  <TableActionButtons
+                    show={hoveredRowId === badge.id}
+                    onEdit={() => onEditClick(badge)}
+                    onDelete={() => badge.id && handleDeleteClick([badge.id])}
+                    deleteLoading={deleteLoading}
+                  />
                 </td>
                 <td>
                   <Badge

@@ -119,7 +119,10 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
       filters.bedrooms.length > 0 ||
       filters.bathrooms.length > 0 ||
       filters.status !== 'all' ||
-      filters.search !== ''
+      filters.search !== '' ||
+      filters.area !== null ||
+      filters.project !== null ||
+      filters.propertyType !== 'all'
     )
   }, [
     activeTab,

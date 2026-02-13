@@ -5,6 +5,5 @@
  * MVP платформы недвижимости - публичные эндпоинты
  * OpenAPI spec version: 1.0.0
  */
-import type { ProjectDataDescriptionOneOf } from './projectDataDescriptionOneOf'
 
-export type ProjectDataDescription = string | ProjectDataDescriptionOneOf
+export type ProjectUpdateRequestDescriptionOneOf = { [key: string]: string }

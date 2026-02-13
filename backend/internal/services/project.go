@@ -264,11 +264,11 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 	if updates.ROI != nil {
 		existing.ROI = updates.ROI
 	}
-	if updates.OurPrice != nil {
-		existing.OurPrice = updates.OurPrice
+	if updates.PriceFromUs != nil {
+		existing.PriceFromUs = updates.PriceFromUs
 	}
-	if updates.DeveloperPrice != nil {
-		existing.DeveloperPrice = updates.DeveloperPrice
+	if updates.PriceFromDeveloper != nil {
+		existing.PriceFromDeveloper = updates.PriceFromDeveloper
 	}
 	if updates.PaymentPlan != "" {
 		existing.PaymentPlan = updates.PaymentPlan
@@ -277,9 +277,6 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 		existing.CompletionDate = updates.CompletionDate
 	}
 	// Merge specs fields
-	if updates.PriceFrom != nil {
-		existing.PriceFrom = updates.PriceFrom
-	}
 	if updates.Currency != "" {
 		existing.Currency = updates.Currency
 	}

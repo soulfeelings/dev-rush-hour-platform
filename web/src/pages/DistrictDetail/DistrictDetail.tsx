@@ -4,6 +4,7 @@ import { districts } from '../../data/dubai_districts_data'
 import { mockProperties } from '../../data/mockProperties'
 import PropertyMap from '../../components/PropertyMap/PropertyMap'
 import { ROUTES, getProjectDetailRoute } from '../../constants/routes'
+import { getProjectSlug } from '../../utils/project'
 import { NotFound } from '../../ui/NotFound'
 import styles from './DistrictDetail.module.scss'
 
@@ -11,7 +12,7 @@ export default function DistrictDetail() {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const district = districts.find(d => d.id === id)
-  const districtProperties = mockProperties.filter(
+  const districtProjects = mockProperties.filter(
     p => p.districtId === id && p.status === 'active'
   )
 
@@ -41,7 +42,7 @@ export default function DistrictDetail() {
 
       <div className={styles.content}>
         <div className={styles.mapSection}>
-          <PropertyMap properties={districtProperties} showDistrictFilter={false} />
+          <PropertyMap projects={districtProjects} showDistrictFilter={false} />
         </div>
 
         <div className={styles.infoSection}>
@@ -144,32 +145,34 @@ export default function DistrictDetail() {
             )}
           </div>
 
-          {districtProperties.length > 0 && (
+          {districtProjects.length > 0 && (
             <div className={styles.propertiesCard}>
-              <h2>{t('districtDetail.properties', { count: districtProperties.length })}</h2>
+              <h2>{t('districtDetail.properties', { count: districtProjects.length })}</h2>
               <div className={styles.propertiesList}>
-                {districtProperties.map(property => (
+                {districtProjects.map(project => (
                   <Link
-                    key={property.id}
-                    to={getProjectDetailRoute(property.id)}
+                    key={project.id}
+                    to={getProjectDetailRoute(getProjectSlug(project))}
                     className={styles.propertyCard}
                   >
-                    <img
-                      src={property.image}
-                      alt={property.title}
-                      className={styles.propertyImage}
-                    />
+                    {project.media?.cover?.url && (
+                      <img
+                        src={project.media.cover.url}
+                        alt={project.name}
+                        className={styles.propertyImage}
+                      />
+                    )}
                     <div className={styles.propertyInfo}>
-                      <h3 className={styles.propertyTitle}>{property.title}</h3>
-                      <p className={styles.propertyLocation}>{property.location}</p>
+                      <h3 className={styles.propertyTitle}>{project.name}</h3>
+                      <p className={styles.propertyLocation}>{project.area?.name}</p>
                       <div className={styles.propertyDetails}>
                         <span className={styles.propertyPrice}>
-                          {property.priceFrom
-                            ? `${(property.priceFrom / 1000000).toFixed(1)}M ${property.currency || ''}`
+                          {project.priceFromUs
+                            ? `${(project.priceFromUs / 1000000).toFixed(1)}M ${project.currency || ''}`
                             : '—'}
                         </span>
-                        {property.sale && (
-                          <span className={styles.propertyStatus}>{property.sale}</span>
+                        {project.sale && (
+                          <span className={styles.propertyStatus}>{project.sale}</span>
                         )}
                       </div>
                     </div>
@@ -179,7 +182,7 @@ export default function DistrictDetail() {
             </div>
           )}
 
-          {districtProperties.length === 0 && (
+          {districtProjects.length === 0 && (
             <div className={styles.noProperties}>
               <p>{t('districtDetail.noProperties')}</p>
               <Link to={ROUTES.CATALOG} className={styles.catalogLink}>

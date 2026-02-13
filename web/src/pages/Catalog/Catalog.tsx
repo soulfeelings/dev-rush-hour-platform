@@ -66,8 +66,8 @@ const saveMobileView = (view: MobileView) => {
   }
 }
 
-// Breakpoint for desktop layout (matches $breakpoint-lg)
-const DESKTOP_BREAKPOINT = 1024
+// Breakpoint for split layout (matches $breakpoint-md)
+const DESKTOP_BREAKPOINT = 768
 
 const useIsDesktop = () => {
   const [isDesktop, setIsDesktop] = useState(() =>
@@ -208,8 +208,22 @@ export default function Catalog() {
 
   const projects = useMemo(() => {
     if (!projectsData) return []
-    return apiProjectsToProperties(projectsData)
-  }, [projectsData])
+    let result = [...projectsData]
+
+    // Client-side filter by project slug (API doesn't support this param)
+    if (filters.project) {
+      result = result.filter(p => getProjectSlug(p) === filters.project)
+    }
+
+    // Client-side filter by property type (API doesn't support this param)
+    if (filters.propertyType !== 'all') {
+      result = result.filter(p =>
+        p.propertyTypes?.some(t => t.toLowerCase() === filters.propertyType)
+      )
+    }
+
+    return result
+  }, [projectsData, filters.project, filters.propertyType])
 
   // Load all lots without filters — filtering is done on the frontend via useMemo in LotsView
   const lotsParams = useMemo((): ListLotsParams => ({ limit: 1000 }), [])
@@ -321,7 +335,7 @@ export default function Catalog() {
     </div>
   )
 
-  const mapContent = <PropertyMap ref={mapRef} properties={activeProperties} />
+  const mapContent = <PropertyMap ref={mapRef} projects={activeProjects} />
 
   return (
     <div className={styles.container}>

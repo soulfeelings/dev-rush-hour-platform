@@ -85,9 +85,7 @@ export default function Apartments() {
     if (filters.area) params.area = filters.area
 
     if (filters.propertyType !== 'all') {
-      if (filters.propertyType === 'apartment') {
-        params.type = LotType.apartment
-      }
+      params.type = filters.propertyType as LotType
     }
 
     // Send bedrooms as comma-separated string for multi-select

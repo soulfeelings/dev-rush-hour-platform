@@ -71,7 +71,7 @@ const parseFiltersFromURL = (search: string): FilterValues => {
   if (params.get('project')) filters.project = params.get('project')
 
   const type = params.get('type')
-  if (type && ['apartment', 'villa', 'townhouse', 'penthouse', 'duplex'].includes(type)) {
+  if (type && Object.values(LotType).includes(type as LotType)) {
     filters.propertyType = type as FilterValues['propertyType']
   }
 

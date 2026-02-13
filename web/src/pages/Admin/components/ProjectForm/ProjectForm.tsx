@@ -198,7 +198,7 @@ export function ProjectForm({
 
   const initialForm = useMemo(() => {
     if (initialData) {
-      const descriptionValue = initialData.data?.description
+      const descriptionValue = initialData.description
       const descriptionStr =
         typeof descriptionValue === 'string'
           ? descriptionValue
@@ -214,28 +214,28 @@ export function ProjectForm({
         areaId: initialData.areaId || '',
         lat: initialData.lat?.toString() || '',
         lng: initialData.lng?.toString() || '',
-        coverUrl: initialData.data?.media?.cover?.url || '',
-        hoverUrl: initialData.data?.media?.hover?.url || '',
-        logoUrl: initialData.data?.media?.logo?.url || '',
+        coverUrl: initialData.media?.cover?.url || '',
+        hoverUrl: initialData.media?.hover?.url || '',
+        logoUrl: initialData.media?.logo?.url || '',
         gallery:
-          initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
-        youtubeUrl: initialData.data?.youtubeUrl || '',
+          initialData.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
+        youtubeUrl: initialData.youtubeUrl || '',
         timeline: {
-          projectAnnouncement: initialData.data?.timeline?.projectAnnouncement || '',
-          bookingStarted: initialData.data?.timeline?.bookingStarted || '',
-          constructionStarted: initialData.data?.timeline?.constructionStarted || '',
-          constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+          projectAnnouncement: initialData.timeline?.projectAnnouncement || '',
+          bookingStarted: initialData.timeline?.bookingStarted || '',
+          constructionStarted: initialData.timeline?.constructionStarted || '',
+          constructionProgress: initialData.timeline?.constructionProgress || '',
           constructionProgressPercent:
-            initialData.data?.timeline?.constructionProgressPercent?.toString() || '',
-          expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
+            initialData.timeline?.constructionProgressPercent?.toString() || '',
+          expectedCompletion: initialData.timeline?.expectedCompletion || '',
         },
         description: descriptionStr,
-        roi: initialData.data?.roi?.toString() || '',
-        ourPrice: initialData.data?.ourPrice?.toString() || '',
-        developerPrice: initialData.data?.developerPrice?.toString() || '',
-        paymentPlan: initialData.data?.paymentPlan || '',
-        completionDate: initialData.data?.completionDate || '',
-        isFeatured: initialData.data?.isFeatured ?? false,
+        roi: initialData.roi?.toString() || '',
+        ourPrice: initialData.priceFromUs?.toString() || '',
+        developerPrice: initialData.priceFromDeveloper?.toString() || '',
+        paymentPlan: initialData.paymentPlan || '',
+        completionDate: initialData.completionDate || '',
+        isFeatured: initialData.isFeatured ?? false,
         badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
         infrastructureIds:
           initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -305,7 +305,7 @@ export function ProjectForm({
 
   const initialFormData = useMemo(() => {
     if (!initialData) return null
-    const descriptionValue = initialData.data?.description
+    const descriptionValue = initialData.description
     const descriptionStr =
       typeof descriptionValue === 'string'
         ? descriptionValue
@@ -321,29 +321,29 @@ export function ProjectForm({
       areaId: initialData.areaId || '',
       lat: initialData.lat?.toString() || '',
       lng: initialData.lng?.toString() || '',
-      coverUrl: initialData.data?.media?.cover?.url || '',
-      hoverUrl: initialData.data?.media?.hover?.url || '',
-      logoUrl: initialData.data?.media?.logo?.url || '',
-      gallery: initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
-      youtubeUrl: initialData.data?.youtubeUrl || '',
+      coverUrl: initialData.media?.cover?.url || '',
+      hoverUrl: initialData.media?.hover?.url || '',
+      logoUrl: initialData.media?.logo?.url || '',
+      gallery: initialData.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
+      youtubeUrl: initialData.youtubeUrl || '',
       timeline: {
-        projectAnnouncement: initialData.data?.timeline?.projectAnnouncement || '',
-        bookingStarted: initialData.data?.timeline?.bookingStarted || '',
-        constructionStarted: initialData.data?.timeline?.constructionStarted || '',
-        constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+        projectAnnouncement: initialData.timeline?.projectAnnouncement || '',
+        bookingStarted: initialData.timeline?.bookingStarted || '',
+        constructionStarted: initialData.timeline?.constructionStarted || '',
+        constructionProgress: initialData.timeline?.constructionProgress || '',
         constructionProgressPercent:
           (
-            initialData.data?.timeline as Record<string, unknown> | undefined
+            initialData.timeline as Record<string, unknown> | undefined
           )?.constructionProgressPercent?.toString() || '',
-        expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
+        expectedCompletion: initialData.timeline?.expectedCompletion || '',
       },
       description: descriptionStr,
-      roi: initialData.data?.roi?.toString() || '',
-      ourPrice: initialData.data?.ourPrice?.toString() || '',
-      developerPrice: initialData.data?.developerPrice?.toString() || '',
-      paymentPlan: initialData.data?.paymentPlan || '',
-      completionDate: initialData.data?.completionDate || '',
-      isFeatured: initialData.data?.isFeatured ?? false,
+      roi: initialData.roi?.toString() || '',
+      ourPrice: initialData.priceFromUs?.toString() || '',
+      developerPrice: initialData.priceFromDeveloper?.toString() || '',
+      paymentPlan: initialData.paymentPlan || '',
+      completionDate: initialData.completionDate || '',
+      isFeatured: initialData.isFeatured ?? false,
       badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
       infrastructureIds:
         initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -444,8 +444,6 @@ export function ProjectForm({
       infrastructureIds: form.infrastructureIds,
     }
 
-    const dataPayload: Record<string, unknown> = {}
-
     const mediaData: Record<string, unknown> = {}
     if (form.coverUrl) {
       mediaData.cover = { url: form.coverUrl }
@@ -460,11 +458,11 @@ export function ProjectForm({
       mediaData.gallery = form.gallery.filter(Boolean).map((url: string) => ({ url }))
     }
     if (Object.keys(mediaData).length > 0) {
-      dataPayload.media = mediaData
+      payload.media = mediaData as ProjectCreateRequest['media']
     }
 
     if (form.youtubeUrl) {
-      dataPayload.youtubeUrl = form.youtubeUrl
+      payload.youtubeUrl = form.youtubeUrl
     }
 
     const timelineData: Record<string, string | number> = {}
@@ -483,32 +481,28 @@ export function ProjectForm({
     if (form.timeline.expectedCompletion)
       timelineData.expectedCompletion = form.timeline.expectedCompletion
     if (Object.keys(timelineData).length > 0) {
-      dataPayload.timeline = timelineData
+      payload.timeline = timelineData as ProjectCreateRequest['timeline']
     }
 
     if (form.description) {
-      dataPayload.description = form.description
+      payload.description = form.description as ProjectCreateRequest['description']
     }
     if (form.roi) {
-      dataPayload.roi = parseFloat(form.roi)
+      payload.roi = parseFloat(form.roi)
     }
     if (form.ourPrice) {
-      dataPayload.ourPrice = parseFloat(form.ourPrice)
+      payload.priceFromUs = parseFloat(form.ourPrice)
     }
     if (form.developerPrice) {
-      dataPayload.developerPrice = parseFloat(form.developerPrice)
+      payload.priceFromDeveloper = parseFloat(form.developerPrice)
     }
     if (form.paymentPlan) {
-      dataPayload.paymentPlan = form.paymentPlan
+      payload.paymentPlan = form.paymentPlan
     }
     if (form.completionDate) {
-      dataPayload.completionDate = form.completionDate
+      payload.completionDate = form.completionDate
     }
-    dataPayload.isFeatured = form.isFeatured
-
-    if (Object.keys(dataPayload).length > 0) {
-      payload.data = dataPayload
-    }
+    payload.isFeatured = form.isFeatured
 
     if (!isEditMode) {
       clearCache()

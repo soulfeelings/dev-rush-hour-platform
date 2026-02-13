@@ -148,62 +148,55 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		}
 	}
 
-	// Build data object from flat project fields
-	media := domainMediaToGenerated(project.Media)
-
-	result.Data = &generated.ProjectData{
-		Media:      media,
-		IsFeatured: &project.IsFeatured,
-	}
+	// Flat project fields
+	result.Media = domainMediaToGenerated(project.Media)
+	result.IsFeatured = &project.IsFeatured
 	if len(project.FeaturesAmenities) > 0 {
-		result.Data.FeaturesAmenities = &project.FeaturesAmenities
+		result.FeaturesAmenities = &project.FeaturesAmenities
 	}
 	if len(project.Tags) > 0 {
-		result.Data.Tags = &project.Tags
+		result.Tags = &project.Tags
 	}
 	if project.Description != nil {
 		descBytes, _ := json.Marshal(project.Description)
-		result.Data.Description = &generated.ProjectData_Description{}
-		result.Data.Description.UnmarshalJSON(descBytes)
+		result.Description = &generated.Project_Description{}
+		result.Description.UnmarshalJSON(descBytes)
 	}
 	if project.YoutubeURL != "" {
-		result.Data.YoutubeUrl = &project.YoutubeURL
+		result.YoutubeUrl = &project.YoutubeURL
 	}
 	if project.Timeline != nil {
-		result.Data.Timeline = domainTimelineToGenerated(project.Timeline)
+		result.Timeline = domainTimelineToGenerated(project.Timeline)
 	}
 	if project.ROI != nil {
-		result.Data.Roi = float32Ptr(float32(*project.ROI))
+		result.Roi = float32Ptr(float32(*project.ROI))
 	}
-	if project.OurPrice != nil {
-		result.Data.OurPrice = float32Ptr(float32(*project.OurPrice))
+	if project.PriceFromUs != nil {
+		result.PriceFromUs = float32Ptr(float32(*project.PriceFromUs))
 	}
-	if project.DeveloperPrice != nil {
-		result.Data.DeveloperPrice = float32Ptr(float32(*project.DeveloperPrice))
+	if project.PriceFromDeveloper != nil {
+		result.PriceFromDeveloper = float32Ptr(float32(*project.PriceFromDeveloper))
 	}
 	if project.PaymentPlan != "" {
-		result.Data.PaymentPlan = &project.PaymentPlan
+		result.PaymentPlan = &project.PaymentPlan
 	}
 	if project.CompletionDate != "" {
-		result.Data.CompletionDate = &project.CompletionDate
-	}
-	if project.PriceFrom != nil {
-		result.Data.PriceFrom = float32Ptr(float32(*project.PriceFrom))
+		result.CompletionDate = &project.CompletionDate
 	}
 	if project.Currency != "" {
-		result.Data.Currency = &project.Currency
+		result.Currency = &project.Currency
 	}
 	if len(project.PropertyTypes) > 0 {
-		result.Data.PropertyTypes = &project.PropertyTypes
+		result.PropertyTypes = &project.PropertyTypes
 	}
 	if len(project.Bedrooms) > 0 {
-		result.Data.Bedrooms = &project.Bedrooms
+		result.Bedrooms = &project.Bedrooms
 	}
 	if project.AreaSize != nil {
-		result.Data.AreaSize = float32Ptr(float32(*project.AreaSize))
+		result.AreaSize = float32Ptr(float32(*project.AreaSize))
 	}
 	if project.AreaUnit != "" {
-		result.Data.AreaUnit = &project.AreaUnit
+		result.AreaUnit = &project.AreaUnit
 	}
 	if len(project.PricesByType) > 0 {
 		pbt := make([]struct {
@@ -214,7 +207,7 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 			pbt[i].Price = float32Ptr(float32(p.Price))
 			pbt[i].Type = stringPtr(p.Type)
 		}
-		result.Data.PricesByType = &pbt
+		result.PricesByType = &pbt
 	}
 
 	// Include badges
@@ -265,6 +258,12 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 		result.Roi = float32Ptr(float32(*lot.ROI))
 	}
 
+	if lot.PriceFromDeveloper != nil {
+		result.PriceFromDeveloper = float32Ptr(float32(*lot.PriceFromDeveloper))
+	}
+	if lot.ROI != nil {
+		result.Roi = float32Ptr(float32(*lot.ROI))
+	}
 	if len(lot.BonusKeys) > 0 {
 		result.BonusKeys = &lot.BonusKeys
 	}
@@ -286,14 +285,6 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 		projectID := openapi_types.UUID(*lot.ProjectID)
 		result.ProjectId = &projectID
 	}
-	if lot.DeveloperID != nil {
-		devID := openapi_types.UUID(*lot.DeveloperID)
-		result.DeveloperId = &devID
-	}
-	if lot.AreaID != nil {
-		areaID := openapi_types.UUID(*lot.AreaID)
-		result.AreaId = &areaID
-	}
 	if lot.Bedrooms != nil {
 		result.Bedrooms = lot.Bedrooms
 	}
@@ -307,13 +298,19 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 		result.Floor = lot.Floor
 	}
 
-	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil {
+	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil || lot.Data.View != "" || lot.Data.Orientation != "" {
 		result.Data = &generated.LotData{
 			Media:         domainLotMediaToGenerated(lot.Data.Media),
 			PaymentPlan:   domainPaymentPlanToGenerated(lot.Data.PaymentPlan),
 			Bonuses:       domainBonusesToGenerated(lot.Data.Bonuses),
 			FloorPosition: domainFloorPositionToGenerated(lot.Data.FloorPosition),
 			Tags:          domainTagsToGenerated(lot.Data.Tags),
+		}
+		if lot.Data.View != "" {
+			result.Data.View = &lot.Data.View
+		}
+		if lot.Data.Orientation != "" {
+			result.Data.Orientation = &lot.Data.Orientation
 		}
 	}
 
@@ -345,6 +342,12 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 		result.Roi = float32Ptr(float32(*lot.ROI))
 	}
 
+	if lot.PriceFromDeveloper != nil {
+		result.PriceFromDeveloper = float32Ptr(float32(*lot.PriceFromDeveloper))
+	}
+	if lot.ROI != nil {
+		result.Roi = float32Ptr(float32(*lot.ROI))
+	}
 	if len(lot.BonusKeys) > 0 {
 		result.BonusKeys = &lot.BonusKeys
 	}
@@ -366,14 +369,6 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 		projectID := openapi_types.UUID(*lot.ProjectID)
 		result.ProjectId = &projectID
 	}
-	if lot.DeveloperID != nil {
-		devID := openapi_types.UUID(*lot.DeveloperID)
-		result.DeveloperId = &devID
-	}
-	if lot.AreaID != nil {
-		areaID := openapi_types.UUID(*lot.AreaID)
-		result.AreaId = &areaID
-	}
 	if lot.Bedrooms != nil {
 		result.Bedrooms = lot.Bedrooms
 	}
@@ -387,7 +382,7 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 		result.Floor = lot.Floor
 	}
 
-	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil {
+	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil || lot.Data.View != "" || lot.Data.Orientation != "" {
 		result.Data = &generated.LotData{
 			Media:         domainLotMediaToGenerated(lot.Data.Media),
 			PaymentPlan:   domainPaymentPlanToGenerated(lot.Data.PaymentPlan),
@@ -395,17 +390,17 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 			FloorPosition: domainFloorPositionToGenerated(lot.Data.FloorPosition),
 			Tags:          domainTagsToGenerated(lot.Data.Tags),
 		}
+		if lot.Data.View != "" {
+			result.Data.View = &lot.Data.View
+		}
+		if lot.Data.Orientation != "" {
+			result.Data.Orientation = &lot.Data.Orientation
+		}
 	}
 
 	// Add nested objects
 	if lot.Project != nil {
 		result.Project = DomainProjectToGenerated(lot.Project)
-	}
-	if lot.Developer != nil {
-		result.Developer = DomainDeveloperToGenerated(lot.Developer)
-	}
-	if lot.Area != nil {
-		result.Area = DomainAreaToGenerated(lot.Area)
 	}
 
 	return result
@@ -557,6 +552,13 @@ func domainLotMediaToGenerated(media *domain.LotMedia) *generated.LotMedia {
 			images[i] = *domainMediaItemToGenerated(&media.FloorPlanImages[i])
 		}
 		result.FloorPlanImages = &images
+	}
+	if len(media.ViewPhotos) > 0 {
+		viewPhotos := make([]generated.MediaItem, len(media.ViewPhotos))
+		for i := range media.ViewPhotos {
+			viewPhotos[i] = *domainMediaItemToGenerated(&media.ViewPhotos[i])
+		}
+		result.ViewPhotos = &viewPhotos
 	}
 	if media.Cover != nil {
 		result.Cover = domainMediaItemToGenerated(media.Cover)
@@ -869,8 +871,72 @@ func GeneratedProjectCreateToDomain(req *generated.ProjectCreateRequest) (*domai
 		lng := float64(*req.Lng)
 		project.Lng = &lng
 	}
-	if req.Data != nil {
-		applyProjectDataToProject(req.Data, project)
+	if req.Description != nil {
+		project.Description = req.Description
+	}
+	if req.FeaturesAmenities != nil {
+		project.FeaturesAmenities = *req.FeaturesAmenities
+	}
+	if req.Media != nil {
+		project.Media = generatedMediaToDomain(req.Media)
+	}
+	if req.YoutubeUrl != nil {
+		project.YoutubeURL = *req.YoutubeUrl
+	}
+	if req.Timeline != nil {
+		project.Timeline = generatedTimelineToDomain(req.Timeline)
+	}
+	if req.Roi != nil {
+		roi := float64(*req.Roi)
+		project.ROI = &roi
+	}
+	if req.PriceFromUs != nil {
+		ourPrice := float64(*req.PriceFromUs)
+		project.PriceFromUs = &ourPrice
+	}
+	if req.PriceFromDeveloper != nil {
+		developerPrice := float64(*req.PriceFromDeveloper)
+		project.PriceFromDeveloper = &developerPrice
+	}
+	if req.PaymentPlan != nil {
+		project.PaymentPlan = *req.PaymentPlan
+	}
+	if req.CompletionDate != nil {
+		project.CompletionDate = *req.CompletionDate
+	}
+	if req.IsFeatured != nil {
+		project.IsFeatured = *req.IsFeatured
+	}
+	if req.Tags != nil {
+		project.Tags = *req.Tags
+	}
+	if req.Currency != nil {
+		project.Currency = *req.Currency
+	}
+	if req.PropertyTypes != nil {
+		project.PropertyTypes = *req.PropertyTypes
+	}
+	if req.Bedrooms != nil {
+		project.Bedrooms = *req.Bedrooms
+	}
+	if req.AreaSize != nil {
+		as := float64(*req.AreaSize)
+		project.AreaSize = &as
+	}
+	if req.AreaUnit != nil {
+		project.AreaUnit = *req.AreaUnit
+	}
+	if req.PricesByType != nil {
+		pbt := make([]domain.PriceByType, len(*req.PricesByType))
+		for i, item := range *req.PricesByType {
+			if item.Type != nil {
+				pbt[i].Type = *item.Type
+			}
+			if item.Price != nil {
+				pbt[i].Price = float64(*item.Price)
+			}
+		}
+		project.PricesByType = pbt
 	}
 	if req.BadgeIds != nil {
 		project.BadgeIDs = make([]uuid.UUID, len(*req.BadgeIds))
@@ -942,65 +1008,61 @@ func applyProjectDataToProject(data *generated.ProjectData, project *domain.Proj
 	if data.Description != nil {
 		project.Description = data.Description
 	}
-	if data.FeaturesAmenities != nil {
-		project.FeaturesAmenities = *data.FeaturesAmenities
+	if req.FeaturesAmenities != nil {
+		project.FeaturesAmenities = *req.FeaturesAmenities
 	}
-	if data.Media != nil {
-		project.Media = generatedMediaToDomain(data.Media)
+	if req.Media != nil {
+		project.Media = generatedMediaToDomain(req.Media)
 	}
-	if data.YoutubeUrl != nil {
-		project.YoutubeURL = *data.YoutubeUrl
+	if req.YoutubeUrl != nil {
+		project.YoutubeURL = *req.YoutubeUrl
 	}
-	if data.Timeline != nil {
-		project.Timeline = generatedTimelineToDomain(data.Timeline)
+	if req.Timeline != nil {
+		project.Timeline = generatedTimelineToDomain(req.Timeline)
 	}
-	if data.Roi != nil {
-		roi := float64(*data.Roi)
+	if req.Roi != nil {
+		roi := float64(*req.Roi)
 		project.ROI = &roi
 	}
-	if data.OurPrice != nil {
-		ourPrice := float64(*data.OurPrice)
-		project.OurPrice = &ourPrice
+	if req.PriceFromUs != nil {
+		ourPrice := float64(*req.PriceFromUs)
+		project.PriceFromUs = &ourPrice
 	}
-	if data.DeveloperPrice != nil {
-		developerPrice := float64(*data.DeveloperPrice)
-		project.DeveloperPrice = &developerPrice
+	if req.PriceFromDeveloper != nil {
+		developerPrice := float64(*req.PriceFromDeveloper)
+		project.PriceFromDeveloper = &developerPrice
 	}
-	if data.PaymentPlan != nil {
-		project.PaymentPlan = *data.PaymentPlan
+	if req.PaymentPlan != nil {
+		project.PaymentPlan = *req.PaymentPlan
 	}
-	if data.CompletionDate != nil {
-		project.CompletionDate = *data.CompletionDate
+	if req.CompletionDate != nil {
+		project.CompletionDate = *req.CompletionDate
 	}
-	if data.IsFeatured != nil {
-		project.IsFeatured = *data.IsFeatured
+	if req.IsFeatured != nil {
+		project.IsFeatured = *req.IsFeatured
 	}
-	if data.Tags != nil {
-		project.Tags = *data.Tags
+	if req.Tags != nil {
+		project.Tags = *req.Tags
 	}
-	if data.PriceFrom != nil {
-		pf := float64(*data.PriceFrom)
-		project.PriceFrom = &pf
+	if req.Currency != nil {
+		project.Currency = *req.Currency
 	}
-	if data.Currency != nil {
-		project.Currency = *data.Currency
+	if req.PropertyTypes != nil {
+		project.PropertyTypes = *req.PropertyTypes
 	}
-	if data.PropertyTypes != nil {
-		project.PropertyTypes = *data.PropertyTypes
+	if req.Bedrooms != nil {
+		project.Bedrooms = *req.Bedrooms
 	}
-	if data.Bedrooms != nil {
-		project.Bedrooms = *data.Bedrooms
-	}
-	if data.AreaSize != nil {
-		as := float64(*data.AreaSize)
+	if req.AreaSize != nil {
+		as := float64(*req.AreaSize)
 		project.AreaSize = &as
 	}
-	if data.AreaUnit != nil {
-		project.AreaUnit = *data.AreaUnit
+	if req.AreaUnit != nil {
+		project.AreaUnit = *req.AreaUnit
 	}
-	if data.PricesByType != nil {
-		pbt := make([]domain.PriceByType, len(*data.PricesByType))
-		for i, item := range *data.PricesByType {
+	if req.PricesByType != nil {
+		pbt := make([]domain.PriceByType, len(*req.PricesByType))
+		for i, item := range *req.PricesByType {
 			if item.Type != nil {
 				pbt[i].Type = *item.Type
 			}
@@ -1010,6 +1072,8 @@ func applyProjectDataToProject(data *generated.ProjectData, project *domain.Proj
 		}
 		project.PricesByType = pbt
 	}
+
+	return project, nil
 }
 
 func generatedTimelineToDomain(timeline *generated.ProjectTimeline) *domain.ProjectTimeline {
@@ -1117,21 +1181,21 @@ func GeneratedLotCreateToDomain(req *generated.LotCreateRequest) (*domain.Lot, e
 		ProjectID:     &projectID,
 		Type:          domain.LotType(req.Type),
 		Status:        domain.LotStatusActive,
-		PriceAmount:   float64(req.PriceAmount),
+		PriceFromUs:   float64(req.PriceFromUs),
 		BonusKeys:     []string{},
+	}
+	if req.PriceFromDeveloper != nil {
+		dp := float64(*req.PriceFromDeveloper)
+		lot.PriceFromDeveloper = &dp
+	}
+	if req.Roi != nil {
+		roi := float64(*req.Roi)
+		lot.ROI = &roi
 	}
 	if req.BonusKeys != nil {
 		lot.BonusKeys = *req.BonusKeys
 	}
 
-	if req.DeveloperId != nil {
-		id := uuid.UUID(*req.DeveloperId)
-		lot.DeveloperID = &id
-	}
-	if req.AreaId != nil {
-		id := uuid.UUID(*req.AreaId)
-		lot.AreaID = &id
-	}
 	if req.Status != nil {
 		lot.Status = domain.LotStatus(*req.Status)
 	}
@@ -1186,14 +1250,6 @@ func GeneratedLotUpdateToDomain(req *generated.LotUpdateRequest) (*domain.Lot, e
 		id := uuid.UUID(*req.ProjectId)
 		lot.ProjectID = &id
 	}
-	if req.DeveloperId != nil {
-		id := uuid.UUID(*req.DeveloperId)
-		lot.DeveloperID = &id
-	}
-	if req.AreaId != nil {
-		id := uuid.UUID(*req.AreaId)
-		lot.AreaID = &id
-	}
 	if req.Type != nil {
 		lot.Type = domain.LotType(*req.Type)
 	}
@@ -1216,8 +1272,16 @@ func GeneratedLotUpdateToDomain(req *generated.LotUpdateRequest) (*domain.Lot, e
 		floor := int(*req.Floor)
 		lot.Floor = &floor
 	}
-	if req.PriceAmount != nil {
-		lot.PriceAmount = float64(*req.PriceAmount)
+	if req.PriceFromUs != nil {
+		lot.PriceFromUs = float64(*req.PriceFromUs)
+	}
+	if req.PriceFromDeveloper != nil {
+		dp := float64(*req.PriceFromDeveloper)
+		lot.PriceFromDeveloper = &dp
+	}
+	if req.Roi != nil {
+		roi := float64(*req.Roi)
+		lot.ROI = &roi
 	}
 	if req.OurPrice != nil {
 		v := float64(*req.OurPrice)
@@ -1264,6 +1328,12 @@ func domainLotDataFromGenerated(data *generated.LotData) domain.LotData {
 	if data.Tags != nil {
 		result.Tags = *data.Tags
 	}
+	if data.View != nil {
+		result.View = *data.View
+	}
+	if data.Orientation != nil {
+		result.Orientation = *data.Orientation
+	}
 	return result
 }
 
@@ -1285,6 +1355,14 @@ func generatedLotMediaToDomain(media *generated.LotMedia) *domain.LotMedia {
 		for i, item := range *media.FloorPlanImages {
 			if m := generatedMediaItemToDomain(&item); m != nil {
 				result.FloorPlanImages[i] = *m
+			}
+		}
+	}
+	if media.ViewPhotos != nil {
+		result.ViewPhotos = make([]domain.MediaItem, len(*media.ViewPhotos))
+		for i, item := range *media.ViewPhotos {
+			if m := generatedMediaItemToDomain(&item); m != nil {
+				result.ViewPhotos[i] = *m
 			}
 		}
 	}

@@ -10,8 +10,6 @@ type Lot struct {
 	ID            uuid.UUID
 	Status        LotStatus
 	ProjectID     *uuid.UUID
-	DeveloperID   *uuid.UUID
-	AreaID        *uuid.UUID
 	Type          LotType
 	Bedrooms      *int
 	Bathrooms     *int
@@ -51,6 +49,7 @@ type LotMedia struct {
 	Photos          []MediaItem `json:"photos,omitempty"`
 	Gallery         []MediaItem `json:"gallery,omitempty"`
 	FloorPlanImages []MediaItem `json:"floorPlanImages,omitempty"`
+	ViewPhotos      []MediaItem `json:"viewPhotos,omitempty"`
 	Cover           *MediaItem  `json:"cover,omitempty"`
 }
 

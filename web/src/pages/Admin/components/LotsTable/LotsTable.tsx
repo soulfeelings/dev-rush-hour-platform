@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import { TableSkeleton } from '../TableSkeleton'
+import { TableActionButtons } from '../TableActionButtons'
 import styles from './LotsTable.module.scss'
+import { TrashIcon } from 'lucide-react'
 
-const { useAdminListLots } = AdminApi
+const { useAdminListLots, useAdminListProjects } = AdminApi
 
 type LotsTableProps = {
   onNewClick: () => void
@@ -20,6 +21,9 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [lotsToDelete, setLotsToDelete] = useState<string[]>([])
+  const [filterProjectId, setFilterProjectId] = useState<string>('')
+  const [filterBedrooms, setFilterBedrooms] = useState<string>('')
+
   const {
     data: lotsResponse,
     isLoading,
@@ -28,7 +32,39 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
     query: { enabled: true },
   })
 
-  const lotsList = lotsResponse?.items || []
+  const { data: projectsData } = useAdminListProjects({
+    query: { enabled: true },
+  })
+
+  const allLots = lotsResponse?.items || []
+  const projects = projectsData || []
+
+  // Frontend filtering
+  const lotsList = useMemo(() => {
+    let filtered = allLots
+
+    if (filterProjectId) {
+      filtered = filtered.filter(lot => lot.projectId === filterProjectId)
+    }
+
+    if (filterBedrooms) {
+      const bedroomsNum = parseInt(filterBedrooms, 10)
+      filtered = filtered.filter(lot => lot.bedrooms === bedroomsNum)
+    }
+
+    return filtered
+  }, [allLots, filterProjectId, filterBedrooms])
+
+  // Get unique bedroom options from all lots
+  const bedroomOptions = useMemo(() => {
+    const uniqueBedrooms = new Set<number>()
+    allLots.forEach(lot => {
+      if (lot.bedrooms !== undefined && lot.bedrooms !== null) {
+        uniqueBedrooms.add(lot.bedrooms)
+      }
+    })
+    return Array.from(uniqueBedrooms).sort((a, b) => a - b)
+  }, [allLots])
 
   const handleSelectAll = () => {
     if (selectedIds.size === lotsList.length) {
@@ -106,12 +142,15 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
             '',
             'Image',
             'ID',
+            'Project',
             'Type',
             'Bedrooms',
             'Bathrooms',
             'Area (m²)',
             'Floor',
             'Price',
+            'Dev Price',
+            'ROI',
             'Status',
             'Created At',
           ]}
@@ -128,8 +167,11 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
             {},
             {},
             {},
+            {},
+            {},
+            {},
           ]}
-          minWidth="1050px"
+          minWidth="1200px"
         />
       </div>
     )
@@ -149,7 +191,7 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
               variant="secondary"
               onClick={() => handleDeleteClick(Array.from(selectedIds))}
               disabled={deleteLoading}
-              iconLeft={<Trash2 size={16} />}
+              iconLeft={<TrashIcon size={16} />}
             >
               Delete ({selectedIds.size})
             </Button>
@@ -157,8 +199,45 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
           <Button onClick={onNewClick}>New</Button>
         </div>
       </div>
+
+      <div className={styles.filters}>
+        <Select
+          options={[
+            { value: '', label: 'All Projects' },
+            ...projects.map(p => ({ value: p.id || '', label: p.name || '' })),
+          ]}
+          value={filterProjectId}
+          onChange={setFilterProjectId}
+          clearable
+          defaultValue=""
+        />
+        <Select
+          options={[
+            { value: '', label: 'All Bedrooms' },
+            ...bedroomOptions.map(b => ({ value: String(b), label: `${b} BR` })),
+          ]}
+          value={filterBedrooms}
+          onChange={setFilterBedrooms}
+          clearable
+          defaultValue=""
+        />
+        {(filterProjectId || filterBedrooms) && (
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setFilterProjectId('')
+              setFilterBedrooms('')
+            }}
+          >
+            Clear Filters
+          </Button>
+        )}
+      </div>
+
       {lotsList.length === 0 ? (
-        <div className={styles.empty}>No lots</div>
+        <div className={styles.empty}>
+          {allLots.length === 0 ? 'No lots' : 'No lots match the selected filters'}
+        </div>
       ) : (
         <table className={styles.table}>
           <thead>
@@ -173,12 +252,15 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
               <th></th>
               <th>Image</th>
               <th>ID</th>
+              <th>Project</th>
               <th>Type</th>
               <th>Bedrooms</th>
               <th>Bathrooms</th>
               <th>Area (m²)</th>
               <th>Floor</th>
               <th>Price</th>
+              <th>Dev Price</th>
+              <th>ROI</th>
               <th>Status</th>
               <th>Created At</th>
             </tr>
@@ -199,27 +281,12 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
                   />
                 </td>
                 <td className={styles.actionsCell}>
-                  {hoveredRowId === lot.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.editButton}
-                        onClick={() => onEditClick(lot)}
-                        aria-label="Edit lot"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={() => lot.id && handleDeleteClick([lot.id])}
-                        aria-label="Delete lot"
-                        disabled={deleteLoading}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
+                  <TableActionButtons
+                    show={hoveredRowId === lot.id}
+                    onEdit={() => onEditClick(lot)}
+                    onDelete={() => lot.id && handleDeleteClick([lot.id])}
+                    deleteLoading={deleteLoading}
+                  />
                 </td>
                 <td className={styles.imageCell}>
                   {getLotImageUrl(lot) ? (
@@ -233,12 +300,15 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
                   )}
                 </td>
                 <td>{lot.id}</td>
+                <td>{lot.project?.name || '-'}</td>
                 <td>{lot.type || '-'}</td>
                 <td>{lot.bedrooms ?? '-'}</td>
                 <td>{lot.bathrooms ?? '-'}</td>
                 <td>{lot.areaSqm ?? '-'}</td>
                 <td>{lot.floor ?? '-'}</td>
-                <td>{formatPrice(lot.priceAmount, 'AED')}</td>
+                <td>{formatPrice(lot.priceFromUs, 'AED')}</td>
+                <td>{formatPrice(lot.priceFromDeveloper, 'AED')}</td>
+                <td>{lot.roi != null ? `${lot.roi}%` : '-'}</td>
                 <td>{lot.status || '-'}</td>
                 <td>{lot.createdAt ? new Date(lot.createdAt).toLocaleDateString('en-US') : '-'}</td>
               </tr>
