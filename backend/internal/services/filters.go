@@ -2,6 +2,7 @@ package services
 
 import (
 	"log/slog"
+	"strings"
 
 	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/generated"
@@ -108,10 +109,19 @@ func (s *FiltersService) GetFilterOptions() (*generated.FilterOptions, error) {
 		}
 	}
 
-	// Static options
-	propertyTypeOptions := []generated.FilterOption{
-		{Value: "all", Label: "All"},
-		{Value: "apartment", Label: "Apartment"},
+	// Static options — derived from generated LotType enum
+	allLotTypes := []generated.LotType{
+		generated.Apartment, generated.Villa, generated.Townhouse,
+		generated.Penthouse, generated.Duplex, generated.Triplex,
+	}
+	propertyTypeOptions := make([]generated.FilterOption, 0, len(allLotTypes)+1)
+	propertyTypeOptions = append(propertyTypeOptions, generated.FilterOption{Value: "all", Label: "All"})
+	for _, lt := range allLotTypes {
+		label := string(lt)
+		if len(label) > 0 {
+			label = strings.ToUpper(label[:1]) + label[1:]
+		}
+		propertyTypeOptions = append(propertyTypeOptions, generated.FilterOption{Value: string(lt), Label: label})
 	}
 
 	bedroomOptions := []generated.FilterOption{

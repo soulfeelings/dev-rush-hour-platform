@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { InfrastructureTag } from '../../ui/InfrastructureTag'
+import { Typography } from '../../ui/Typography'
 import styles from './ProjectFeatures.module.scss'
 
 type FeatureItem = {
@@ -32,7 +33,7 @@ export default function ProjectFeatures({ features, maxItems = 6 }: ProjectFeatu
 
   return (
     <div className={styles.infrastructureContainer}>
-      <h3 className={styles.title}>{t('projectFeatures.title')}</h3>
+      <Typography variant="h1" weight="medium" className={styles.title}>{t('projectFeatures.title')}</Typography>
       <div className={styles.infrastructureGrid}>
         {displayedItems.map((item, index) => (
           <InfrastructureTag key={`${item.name}-${index}`} name={item.name} iconName={item.icon} />

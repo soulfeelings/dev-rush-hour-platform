@@ -6,15 +6,15 @@ type LotResponse struct {
 	ID            string              `json:"id"`
 	Status        string              `json:"status"`
 	ProjectID     *string             `json:"projectId,omitempty"`
-	DeveloperID   *string             `json:"developerId,omitempty"`
-	AreaID        *string             `json:"areaId,omitempty"`
 	Type          string              `json:"type"`
 	Bedrooms      *int                `json:"bedrooms,omitempty"`
 	Bathrooms     *int                `json:"bathrooms,omitempty"`
 	AreaSqm       *float64            `json:"areaSqm,omitempty"`
 	Floor         *int                `json:"floor,omitempty"`
-	PriceAmount   float64             `json:"priceAmount"`
-	BonusKeys     []string            `json:"bonusKeys"`
+	PriceFromUs    float64             `json:"priceAmount"`
+	DeveloperPrice *float64           `json:"developerPrice,omitempty"`
+	ROI            *float64           `json:"roi,omitempty"`
+	BonusKeys      []string           `json:"bonusKeys"`
 	Data          LotDataResponse     `json:"data"`
 	CreatedAt     string              `json:"createdAt"`
 	UpdatedAt     string              `json:"updatedAt"`
@@ -44,7 +44,7 @@ func LotToResponse(lot *domain.Lot) *LotResponse {
 		ID:            lot.ID.String(),
 		Status:        string(lot.Status),
 		Type:          string(lot.Type),
-		PriceAmount:   lot.PriceAmount,
+		PriceFromUs:   lot.PriceFromUs,
 		BonusKeys:     lot.BonusKeys,
 		CreatedAt:     lot.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:     lot.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
@@ -61,14 +61,6 @@ func LotToResponse(lot *domain.Lot) *LotResponse {
 		id := lot.ProjectID.String()
 		resp.ProjectID = &id
 	}
-	if lot.DeveloperID != nil {
-		id := lot.DeveloperID.String()
-		resp.DeveloperID = &id
-	}
-	if lot.AreaID != nil {
-		id := lot.AreaID.String()
-		resp.AreaID = &id
-	}
 	if lot.Bedrooms != nil {
 		resp.Bedrooms = lot.Bedrooms
 	}
@@ -80,6 +72,12 @@ func LotToResponse(lot *domain.Lot) *LotResponse {
 	}
 	if lot.Floor != nil {
 		resp.Floor = lot.Floor
+	}
+	if lot.PriceFromDeveloper != nil {
+		resp.DeveloperPrice = lot.PriceFromDeveloper
+	}
+	if lot.ROI != nil {
+		resp.ROI = lot.ROI
 	}
 
 	return resp

@@ -21,6 +21,46 @@ import { translateBonusKeys } from '../../utils/bonusTranslations'
 import { useTranslation } from 'react-i18next'
 
 const MAP_ZOOM_DEFAULT = 13
+const VIEW_MAP_ZOOM = 16
+
+const DIRECTIONS = [
+  { key: 'North', angle: 0 },
+  { key: 'North-East', angle: 45 },
+  { key: 'East', angle: 90 },
+  { key: 'South-East', angle: 135 },
+  { key: 'South', angle: 180 },
+  { key: 'South-West', angle: 225 },
+  { key: 'West', angle: 270 },
+  { key: 'North-West', angle: 315 },
+] as const
+
+// Helper function to create a sector cone shape
+function createSectorCone(
+  center: L.LatLng,
+  angleInDegrees: number,
+  radiusInMeters: number = 300,
+  arcAngle: number = 60
+): L.LatLng[] {
+  const points: L.LatLng[] = [center]
+  const steps = 20
+
+  const startAngle = angleInDegrees - arcAngle / 2
+  const endAngle = angleInDegrees + arcAngle / 2
+
+  for (let i = 0; i <= steps; i++) {
+    const angle = startAngle + (endAngle - startAngle) * (i / steps)
+    const angleRad = (angle * Math.PI) / 180
+
+    const latOffset = (radiusInMeters * Math.cos(angleRad)) / 111320
+    const lngOffset =
+      (radiusInMeters * Math.sin(angleRad)) / (111320 * Math.cos((center.lat * Math.PI) / 180))
+
+    points.push(L.latLng(center.lat + latOffset, center.lng + lngOffset))
+  }
+
+  points.push(center)
+  return points
+}
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -36,10 +76,14 @@ export default function LotDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [currentViewPhotoIndex, setCurrentViewPhotoIndex] = useState(0)
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
+  const viewMapRef = useRef<L.Map | null>(null)
+  const viewSectorRef = useRef<L.Polygon | null>(null)
   const [mapContainerEl, setMapContainerEl] = useState<HTMLDivElement | null>(null)
+  const [viewMapContainerEl, setViewMapContainerEl] = useState<HTMLDivElement | null>(null)
 
   const {
     data: lotData,
@@ -191,11 +235,82 @@ export default function LotDetail() {
     }
   }, [mapContainerEl])
 
+  // Initialize view map (for orientation cone)
+  useEffect(() => {
+    if (!hasCoordinates || !viewMapContainerEl || viewMapRef.current) return
+
+    const coordinates: [number, number] = [finalProject!.lat!, finalProject!.lng!]
+    viewMapRef.current = L.map(viewMapContainerEl, {
+      center: coordinates,
+      zoom: VIEW_MAP_ZOOM,
+      zoomControl: true,
+      attributionControl: false,
+      dragging: true,
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      touchZoom: true,
+    })
+
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 19 }
+    ).addTo(viewMapRef.current)
+
+    // Add center marker
+    L.circleMarker(coordinates, {
+      radius: 5,
+      fillColor: '#fff',
+      color: '#000',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 1,
+    }).addTo(viewMapRef.current)
+
+    setTimeout(() => {
+      viewMapRef.current?.invalidateSize()
+    }, 0)
+  }, [hasCoordinates, viewMapContainerEl, finalProject])
+
+  // Update sector cone when orientation exists
+  useEffect(() => {
+    const orientation = (lot?.data as { orientation?: string })?.orientation
+
+    if (!viewMapRef.current || !hasCoordinates || !orientation || !finalProject) {
+      if (viewSectorRef.current && viewMapRef.current) {
+        viewSectorRef.current.remove()
+        viewSectorRef.current = null
+      }
+      return
+    }
+
+    const selectedDirection = DIRECTIONS.find(d => d.key === orientation)
+    if (!selectedDirection) return
+
+    const center = L.latLng(finalProject.lat!, finalProject.lng!)
+    const sectorPoints = createSectorCone(center, selectedDirection.angle)
+
+    if (viewSectorRef.current) {
+      viewSectorRef.current.remove()
+    }
+
+    // Yellow cone
+    viewSectorRef.current = L.polygon(sectorPoints, {
+      color: '#FFD700',
+      fillColor: '#FFD700',
+      fillOpacity: 0.35,
+      weight: 2,
+      opacity: 0.8,
+    }).addTo(viewMapRef.current)
+  }, [lot?.data, hasCoordinates, finalProject, viewMapContainerEl])
+
   useEffect(() => {
     return () => {
       mapRef.current?.remove()
       mapRef.current = null
       markerRef.current = null
+      viewMapRef.current?.remove()
+      viewMapRef.current = null
+      viewSectorRef.current = null
     }
   }, [])
 
@@ -236,6 +351,7 @@ export default function LotDetail() {
         cover?: { url?: string }
         gallery?: Array<{ url?: string }>
         photos?: Array<{ url?: string }>
+        viewPhotos?: Array<{ url?: string }>
       }
     | undefined
 
@@ -245,6 +361,9 @@ export default function LotDetail() {
     ...(lotMedia?.gallery?.map(img => img.url).filter((url): url is string => Boolean(url)) || []),
     ...(lotMedia?.photos?.map(img => img.url).filter((url): url is string => Boolean(url)) || []),
   ]
+
+  const viewPhotos =
+    lotMedia?.viewPhotos?.map(img => img.url).filter((url): url is string => Boolean(url)) || []
 
   const lotDataFields = lot.data as
     | {
@@ -267,7 +386,15 @@ export default function LotDetail() {
     setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
   }
 
-  const priceText = formatPrice(lot.priceAmount, currency)
+  const handlePrevViewPhoto = () => {
+    setCurrentViewPhotoIndex(prev => (prev === 0 ? viewPhotos.length - 1 : prev - 1))
+  }
+
+  const handleNextViewPhoto = () => {
+    setCurrentViewPhotoIndex(prev => (prev === viewPhotos.length - 1 ? 0 : prev + 1))
+  }
+
+  const priceText = formatPrice(lot.priceFromUs, currency)
 
   return (
     <div className={styles.container}>
@@ -381,6 +508,70 @@ export default function LotDetail() {
               )}
               {lotDataFields?.features && lotDataFields.features.length > 0 && (
                 <ProjectFeatures features={lotDataFields.features} maxItems={10} />
+              )}
+            </div>
+          )}
+
+          {(viewPhotos.length > 0 || lotDataFields?.orientation) && hasCoordinates && (
+            <div className={styles.viewCard}>
+              <h3 className={styles.viewCardTitle}>{t('lotDetail.viewDetails')}</h3>
+
+              {viewPhotos.length > 0 && (
+                <div className={styles.viewPhotosSection}>
+                  <h4 className={styles.viewPhotosTitle}>{t('lotDetail.viewPhotos')}</h4>
+                  <div className={styles.viewGallery}>
+                    <img
+                      src={viewPhotos[currentViewPhotoIndex]}
+                      alt={`View ${currentViewPhotoIndex + 1}`}
+                      className={styles.viewPhoto}
+                    />
+                    {viewPhotos.length > 1 && (
+                      <>
+                        <button
+                          className={`${styles.navButton} ${styles.prevButton}`}
+                          onClick={handlePrevViewPhoto}
+                          aria-label="Previous view photo"
+                        >
+                          ‹
+                        </button>
+                        <button
+                          className={`${styles.navButton} ${styles.nextButton}`}
+                          onClick={handleNextViewPhoto}
+                          aria-label="Next view photo"
+                        >
+                          ›
+                        </button>
+                        <div className={styles.imageCounter}>
+                          {currentViewPhotoIndex + 1} / {viewPhotos.length}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {viewPhotos.length > 1 && (
+                    <div className={styles.viewThumbnails}>
+                      {viewPhotos.map((url, idx) => (
+                        <div
+                          key={idx}
+                          className={`${styles.viewThumbnail} ${
+                            idx === currentViewPhotoIndex ? styles.activeViewThumbnail : ''
+                          }`}
+                          onClick={() => setCurrentViewPhotoIndex(idx)}
+                        >
+                          <img src={url} alt={`View thumbnail ${idx + 1}`} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {lotDataFields?.orientation && (
+                <div className={styles.orientationSection}>
+                  <h4 className={styles.orientationTitle}>
+                    {t('lotDetail.orientation')} - {lotDataFields.orientation}
+                  </h4>
+                  <div ref={setViewMapContainerEl} className={styles.viewMap} />
+                </div>
               )}
             </div>
           )}

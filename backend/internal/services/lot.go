@@ -5,23 +5,56 @@ import (
 	"log/slog"
 
 	"rush-hour-platform/backend/internal/domain"
+	"rush-hour-platform/backend/internal/events"
 	"rush-hour-platform/backend/internal/repo"
 
 	"github.com/google/uuid"
 )
 
-type LotsService struct {
-	lotRepo   *repo.LotRepo
-	badgeRepo *repo.BadgeRepo
-	logger    *slog.Logger
+type LotRepository interface {
+	GetByID(id uuid.UUID) (*domain.Lot, error)
+	GetByIDWithDeleted(id uuid.UUID) (*domain.Lot, error)
+	Create(lot *domain.Lot) error
+	Update(id uuid.UUID, lot *domain.Lot) error
+	Delete(id uuid.UUID) error
+	Restore(id uuid.UUID) error
+	HardDelete(id uuid.UUID) error
+	List(filters repo.LotFilters, sort repo.LotSort, limit, offset int) ([]domain.Lot, int, error)
+	ListAll() ([]domain.Lot, error)
+	ListDeleted() ([]domain.Lot, error)
 }
 
-func NewLotsService(lotRepo *repo.LotRepo, badgeRepo *repo.BadgeRepo) *LotsService {
+type LotsService struct {
+	lotRepo  LotRepository
+	eventBus *events.EventBus
+	logger   *slog.Logger
+}
+
+func NewLotsService(lotRepo LotRepository, eventBus *events.EventBus) *LotsService {
 	return &LotsService{
-		lotRepo:   lotRepo,
-		badgeRepo: badgeRepo,
-		logger:    slog.Default(),
+		lotRepo:  lotRepo,
+		eventBus: eventBus,
+		logger:   slog.Default(),
 	}
+}
+
+func (s *LotsService) publishLotChanged(projectID *uuid.UUID, lotID uuid.UUID, operation string) {
+	if projectID == nil {
+		return
+	}
+	s.eventBus.Publish(events.Event{
+		Type: events.LotChanged,
+		Payload: events.LotChangedPayload{
+			ProjectID: *projectID,
+			LotID:     lotID,
+			Operation: operation,
+		},
+	})
+	s.logger.Info("lot_changed_event_published",
+		"project_id", *projectID,
+		"lot_id", lotID,
+		"operation", operation,
+	)
 }
 
 func (s *LotsService) List(filters repo.LotFilters, sort repo.LotSort, page, limit int) ([]domain.Lot, int, error) {
@@ -55,18 +88,6 @@ func (s *LotsService) List(filters repo.LotFilters, sort repo.LotSort, page, lim
 		return nil, 0, err
 	}
 
-	for i := range lots {
-		badges, err := s.badgeRepo.GetLotBadges(lots[i].ID)
-		if err != nil {
-			s.logger.Warn("lot_service_list_get_badges_failed",
-				"lot_id", lots[i].ID,
-				"error", err.Error(),
-			)
-			continue
-		}
-		lots[i].Badges = badges
-	}
-
 	s.logger.Info("lot_service_list_completed",
 		"count", len(lots),
 		"total", total,
@@ -97,16 +118,6 @@ func (s *LotsService) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		return nil, ErrLotNotFound
 	}
 
-	badges, err := s.badgeRepo.GetLotBadges(lot.ID)
-	if err != nil {
-		s.logger.Warn("lot_service_get_by_id_get_badges_failed",
-			"lot_id", id,
-			"error", err.Error(),
-		)
-	} else {
-		lot.Badges = badges
-	}
-
 	s.logger.Info("lot_service_get_by_id_completed",
 		"lot_id", id,
 	)
@@ -118,7 +129,6 @@ func (s *LotsService) Create(lot *domain.Lot) error {
 	s.logger.Info("lot_service_create_started",
 		"lot_type", lot.Type,
 		"project_id", lot.ProjectID,
-		"developer_id", lot.DeveloperID,
 	)
 
 	err := s.lotRepo.Create(lot)
@@ -133,6 +143,8 @@ func (s *LotsService) Create(lot *domain.Lot) error {
 		"lot_id", lot.ID,
 		"lot_type", lot.Type,
 	)
+
+	s.publishLotChanged(lot.ProjectID, lot.ID, "create")
 
 	return nil
 }
@@ -157,18 +169,14 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 		return ErrLotNotFound
 	}
 
+	oldProjectID := existing.ProjectID
+
 	// Merge updates with existing data (используем подход из вашей версии)
 	if updates.Status != "" {
 		existing.Status = updates.Status
 	}
 	if updates.ProjectID != nil {
 		existing.ProjectID = updates.ProjectID
-	}
-	if updates.DeveloperID != nil {
-		existing.DeveloperID = updates.DeveloperID
-	}
-	if updates.AreaID != nil {
-		existing.AreaID = updates.AreaID
 	}
 	if updates.Type != "" {
 		existing.Type = updates.Type
@@ -185,17 +193,8 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 	if updates.Floor != nil {
 		existing.Floor = updates.Floor
 	}
-	if updates.PriceAmount != 0 {
-		existing.PriceAmount = updates.PriceAmount
-	}
-	if updates.OurPrice != nil {
-		existing.OurPrice = updates.OurPrice
-	}
-	if updates.DeveloperPrice != nil {
-		existing.DeveloperPrice = updates.DeveloperPrice
-	}
-	if updates.ROI != nil {
-		existing.ROI = updates.ROI
+	if updates.PriceFromUs != 0 {
+		existing.PriceFromUs = updates.PriceFromUs
 	}
 	if len(updates.BonusKeys) > 0 {
 		existing.BonusKeys = updates.BonusKeys
@@ -244,6 +243,13 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 		"lot_type", existing.Type,
 	)
 
+	s.publishLotChanged(existing.ProjectID, id, "update")
+
+	// If project changed, recalculate the old project too
+	if updates.ProjectID != nil && oldProjectID != nil && *updates.ProjectID != *oldProjectID {
+		s.publishLotChanged(oldProjectID, id, "update")
+	}
+
 	return nil
 }
 
@@ -280,6 +286,8 @@ func (s *LotsService) Delete(id uuid.UUID) error {
 		"lot_id", id,
 		"lot_type", existing.Type,
 	)
+
+	s.publishLotChanged(existing.ProjectID, id, "delete")
 
 	return nil
 }
@@ -347,6 +355,9 @@ func (s *LotsService) Restore(id uuid.UUID) error {
 	}
 
 	s.logger.Info("lot_service_restore_completed", "lot_id", id)
+
+	s.publishLotChanged(existing.ProjectID, id, "restore")
+
 	return nil
 }
 
@@ -373,5 +384,8 @@ func (s *LotsService) HardDelete(id uuid.UUID) error {
 	}
 
 	s.logger.Info("lot_service_hard_delete_completed", "lot_id", id)
+
+	s.publishLotChanged(existing.ProjectID, id, "hard_delete")
+
 	return nil
 }

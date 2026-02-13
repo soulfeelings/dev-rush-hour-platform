@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { City } from '../../../../api/generated/schemas/city'
 import { TableSkeleton } from '../TableSkeleton'
+import { TableActionButtons } from '../TableActionButtons'
 import styles from './CitiesTable.module.scss'
 
 const { useAdminListCities } = AdminApi
@@ -152,27 +153,12 @@ export function CitiesTable({
                   />
                 </td>
                 <td className={styles.actionsCell}>
-                  {hoveredRowId === city.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.editButton}
-                        onClick={() => onEditClick(city)}
-                        aria-label="Edit city"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={() => city.id && handleDeleteClick([city.id])}
-                        aria-label="Delete city"
-                        disabled={deleteLoading}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
+                  <TableActionButtons
+                    show={hoveredRowId === city.id}
+                    onEdit={() => onEditClick(city)}
+                    onDelete={() => city.id && handleDeleteClick([city.id])}
+                    deleteLoading={deleteLoading}
+                  />
                 </td>
                 <td>{city.id}</td>
                 <td>{city.name || '-'}</td>

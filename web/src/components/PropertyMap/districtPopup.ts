@@ -1,8 +1,11 @@
-import type { Property } from '../../types/property'
+import type { Project } from '../../api/generated/schemas/project'
 import type { District } from '../../data/dubai_districts_data'
 
-export const createDistrictPopupHTML = (district: District, properties: Property[]) => {
-  const propertyCount = properties.filter(p => p.districtId === district.id).length
+export const createDistrictPopupHTML = (
+  district: District,
+  projects: (Project & { districtId?: string })[]
+) => {
+  const propertyCount = projects.filter(p => p.districtId === district.id).length
 
   return `
     <div class="marker-popup-content">

@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { Developer } from '../../../../api/generated/schemas/developer'
 import { TableSkeleton } from '../TableSkeleton'
+import { TableActionButtons } from '../TableActionButtons'
 import styles from './DevelopersTable.module.scss'
 
 const { useAdminListDevelopers } = AdminApi
@@ -164,27 +165,12 @@ export function DevelopersTable({
                   />
                 </td>
                 <td className={styles.actionsCell}>
-                  {hoveredRowId === developer.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.editButton}
-                        onClick={() => onEditClick(developer)}
-                        aria-label="Edit developer"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={() => developer.id && handleDeleteClick([developer.id])}
-                        aria-label="Delete developer"
-                        disabled={deleteLoading}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
+                  <TableActionButtons
+                    show={hoveredRowId === developer.id}
+                    onEdit={() => onEditClick(developer)}
+                    onDelete={() => developer.id && handleDeleteClick([developer.id])}
+                    deleteLoading={deleteLoading}
+                  />
                 </td>
                 <td className={styles.logoCell}>
                   {developer.logoUrl ? (

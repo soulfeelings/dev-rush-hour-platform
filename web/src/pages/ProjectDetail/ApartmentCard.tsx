@@ -10,7 +10,8 @@ import { RoiBadge } from '../../ui/RoiBadge'
 import { IconBed, IconBath, IconArea } from '../../components/icons'
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice, formatArea, capitalize } from '../../utils/format'
-import { getLotDetailRoute } from '../../constants/routes'
+import { getLotDetailRoute, getProjectDetailRoute } from '../../constants/routes'
+import { openWhatsApp } from '../../services/whatsapp'
 import { useIsRTL } from '../../hooks/useDirection'
 import type { Lot } from '../../api'
 import styles from './ApartmentCard.module.scss'
@@ -25,23 +26,21 @@ interface LotData {
 interface ApartmentCardProps {
   lot: Lot
   projectName?: string
+  projectSlug?: string
   areaName?: string
   roi?: number
-  ourPrice?: number
-  developerPrice?: number
 }
 
 export function ApartmentCard({
   lot,
   projectName,
+  projectSlug,
   areaName,
   roi,
-  ourPrice,
-  developerPrice,
 }: ApartmentCardProps) {
   const { currency, unit } = useSettings()
   const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const isRTL = useIsRTL()
 
   const lotData = lot.data as LotData | undefined
@@ -87,12 +86,36 @@ export function ApartmentCard({
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation()
-    // TODO: open WhatsApp link
+    const lang = i18n.language
+    const origin = window.location.origin
+    const lotLink = lot.id ? `${origin}${getLotDetailRoute(lot.id)}` : null
+    const projectLink = projectSlug ? `${origin}${getProjectDetailRoute(projectSlug)}` : null
+
+    const lines = [
+      'Hello! I\'m a user from Rush Hour Platform. I\'m interested in this property:',
+      `- Project: ${projectName || '-'}`,
+      areaName ? `- Area: ${areaName}` : null,
+      lot.type ? `- Type: ${capitalize(lot.type)}` : null,
+      lot.bedrooms != null ? `- Bedrooms: ${lot.bedrooms}` : null,
+      lot.bathrooms != null ? `- Bathrooms: ${lot.bathrooms}` : null,
+      lot.areaSqm != null ? `- Size: ${formatArea(lot.areaSqm, unit)}` : null,
+      lot.floor != null ? `- Floor: ${lot.floor}` : null,
+      lotOurPrice ? `- Price: ${formatPrice(lotOurPrice, currency)}` : null,
+      '',
+      lotLink ? `Lot: ${lotLink}` : null,
+      projectLink ? `Project: ${projectLink}` : null,
+      '',
+      `User language: ${lang}`,
+    ].filter(v => v != null).join('\n')
+
+    openWhatsApp(lines)
   }
 
+  const lotOurPrice = lot.priceFromUs
+  const lotDevPrice = lot.priceFromDeveloper
   const discount =
-    ourPrice && developerPrice && developerPrice > ourPrice
-      ? Math.round((1 - ourPrice / developerPrice) * 100)
+    lotOurPrice && lotDevPrice && lotDevPrice > lotOurPrice
+      ? Math.round((1 - lotOurPrice / lotDevPrice) * 100)
       : null
 
   const title = t('apartmentCard.title', { type: capitalize(lot.type), count: lot.bedrooms ?? 0 })
@@ -196,7 +219,7 @@ export function ApartmentCard({
 
         {/* Price Rows */}
         <div className={styles.pricesSection}>
-          {ourPrice && developerPrice && ourPrice < developerPrice && (
+          {lotOurPrice && (
             <div className={styles.ourPriceRow}>
               <div className={styles.priceLabelContainer}>
                 <Typography size="regular" weight="medium" className={styles.priceLabel}>
@@ -207,24 +230,24 @@ export function ApartmentCard({
               <div className={styles.priceValue}>
                 <Typography className={styles.from}>{t('from')}</Typography>{' '}
                 <Typography size="large" weight="semibold">
-                  {formatPrice(ourPrice, currency)}
+                  {formatPrice(lotOurPrice, currency)}
                 </Typography>
               </div>
             </div>
           )}
-          <div className={styles.developerPriceRow}>
-            <Typography size="regular" weight="medium" className={styles.priceLabel}>
-              {ourPrice && developerPrice
-                ? t('apartmentCard.developerPrice')
-                : t('apartmentCard.price')}
-            </Typography>
-            <div className={styles.priceValue}>
-              <Typography className={styles.from}>{t('from')}</Typography>{' '}
-              <Typography size="large" weight="semibold">
-                {formatPrice(lot.priceAmount, currency)}
+          {lotDevPrice && (
+            <div className={styles.developerPriceRow}>
+              <Typography size="regular" weight="medium" className={styles.priceLabel}>
+                {t('apartmentCard.developerPrice')}
               </Typography>
+              <div className={styles.priceValue}>
+                <Typography className={styles.from}>{t('from')}</Typography>{' '}
+                <Typography size="large" weight="semibold">
+                  {formatPrice(lotDevPrice, currency)}
+                </Typography>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Specs Row */}

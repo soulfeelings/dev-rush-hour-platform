@@ -96,8 +96,8 @@ export default function DeveloperDetail() {
         ) : (
           <div className={styles.projectsGrid}>
             {projects.map(project => {
-              const coverImage = project.data?.media?.cover?.url
-              const priceFrom = project.data?.ourPrice ?? project.data?.priceFrom
+              const coverImage = project.media?.cover?.url
+              const priceFromUs = project.priceFromUs
 
               return (
                 <div
@@ -133,11 +133,11 @@ export default function DeveloperDetail() {
                         {(project as Project & { area?: { name?: string } }).area?.name || 'Dubai'}
                       </span>
                     </div>
-                    {priceFrom && (
+                    {priceFromUs && (
                       <div className={styles.projectPrice}>
                         <span className={styles.priceLabel}>{t('developerDetail.fromPrice')}</span>
                         <span className={styles.priceValue}>
-                          {formatPrice(priceFrom, currency)}
+                          {formatPrice(priceFromUs, currency)}
                         </span>
                       </div>
                     )}
