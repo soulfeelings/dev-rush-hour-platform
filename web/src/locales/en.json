@@ -193,6 +193,7 @@
   "filters.propertyType.townhouse": "Townhouse",
   "filters.propertyType.penthouse": "Penthouse",
   "filters.propertyType.duplex": "Duplex",
+  "filters.propertyType.triplex": "Triplex",
   "filters.propertyType.primary": "Primary",
   "filters.propertyType.secondary": "Secondary",
   "filters.propertyType.placeholder": "Property Type",

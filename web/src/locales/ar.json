@@ -193,6 +193,7 @@
   "filters.propertyType.townhouse": "تاون هاوس",
   "filters.propertyType.penthouse": "بنتهاوس",
   "filters.propertyType.duplex": "دوبلكس",
+  "filters.propertyType.triplex": "تريبلكس",
   "filters.propertyType.primary": "أساسي",
   "filters.propertyType.secondary": "ثانوي",
   "filters.propertyType.placeholder": "نوع العقار",

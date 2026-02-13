@@ -193,6 +193,7 @@
   "filters.propertyType.townhouse": "Таунхаус",
   "filters.propertyType.penthouse": "Пентхаус",
   "filters.propertyType.duplex": "Дуплекс",
+  "filters.propertyType.triplex": "Триплекс",
   "filters.propertyType.primary": "Первичная",
   "filters.propertyType.secondary": "Вторичная",
   "filters.propertyType.placeholder": "Тип недвижимости",
