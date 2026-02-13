@@ -1,19 +1,52 @@
-import React, { useState } from 'react'
 import { Heart, Building2, ChevronLeft, ChevronRight, Bed, ShowerHead, Move } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import { getLotDetailRoute } from '../constants/routes'
 import { useSettings } from '../features/Settings/Settings'
 import { formatPrice, formatArea } from '../utils/format'
-import { Badge } from '../ui/Badge'
-import { splitCompletionDate } from './splitCompletionDate'
 import styles from './LotCard.module.scss'
 import type { Lot } from '../api'
-import type { LotMedia, MediaItem } from '../api/generated/schemas'
+
+interface LotWithProject extends Lot {
+  completionDate?: string
+}
+
+interface MediaItem {
+  url?: string
+}
+
+interface LotMedia {
+  cover?: MediaItem
+  gallery?: MediaItem[]
+  photos?: MediaItem[]
+}
 
 interface LotCardProps {
-  lot: Lot
+  lot: LotWithProject
   onFavoriteClick?: (lotId: string) => void
+}
+
+// Функция для разделения completionDate на первые 2 символа и остальное
+const splitCompletionDate = (dateString: string | undefined) => {
+  if (!dateString) return { firstPart: '', rest: '' }
+
+  if (dateString.length <= 2) {
+    return {
+      firstPart: dateString,
+      rest: '',
+    }
+  }
+
+  // Берем первые 2 символа
+  const firstPart = dateString.substring(0, 2)
+  // Берем остальную часть
+  const rest = dateString.substring(2)
+
+  return {
+    firstPart,
+    rest: rest.trim(), // Убираем лишние пробелы
+  }
 }
 
 export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
@@ -47,6 +80,12 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
     setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
   }
 
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Open WhatsApp for lot:', lot.id)
+  }
+
   const projectName = lot.project?.name || 'Project'
   const developerName = lot.developer?.name || lot.project?.developer?.name || 'Developer'
   const areaName = lot.area?.name || lot.project?.area?.name
@@ -57,59 +96,26 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   const lotMedia = lot.data?.media as LotMedia | undefined
   const allImages = [
     ...(lotMedia?.cover?.url ? [lotMedia.cover.url] : []),
+    ...(lotMedia?.gallery
+      ?.map((img: MediaItem) => img.url)
+      .filter((url): url is string => Boolean(url)) || []),
     ...(lotMedia?.photos
       ?.map((img: MediaItem) => img.url)
       .filter((url): url is string => Boolean(url)) || []),
   ]
 
-  const badges = lot.badges ?? []
   const typeLabel = lot.type ? lot.type.charAt(0).toUpperCase() + lot.type.slice(1) : 'Apartment'
+  const price = lot.priceFromUs || 0
+  const discountedPrice = price * 0.75 // Скидка 25%
 
-  // Цены:
-  // developerPrice — цена застройщика (или priceAmount как fallback)
-  const developerPriceValue = lot.developerPrice ?? lot.priceAmount ?? 0
-  // ourPrice — наша цена (или priceAmount, или developerPrice как fallback)
-  const ourPriceValue = lot.ourPrice ?? lot.priceAmount ?? developerPriceValue
-  const roiValue = lot.roi ?? null
-
-  // Скидка считается если итоговая цена меньше цены застройщика
-  const discountPercent =
-    ourPriceValue > 0 &&
-    developerPriceValue > 0 &&
-    ourPriceValue < developerPriceValue
-      ? Math.round(((developerPriceValue - ourPriceValue) / developerPriceValue) * 100)
-      : null
-
-  const handleWhatsAppClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const phone = '971544313048'
-    const lotUrl = `${window.location.origin}/lot/${lot.id}`
-    const bedroomsText = lot.bedrooms != null ? `${lot.bedrooms} bed` : ''
-    const priceText = ourPriceValue ? `AED ${ourPriceValue.toLocaleString()}` : ''
-    const roiText = roiValue != null ? `ROI ${roiValue}%` : ''
-    const parts = [
-      `Hi! I'm interested in a lot:`,
-      projectName && `Project: ${projectName}`,
-      developerName && `Developer: ${developerName}`,
-      areaName && `Area: ${areaName}`,
-      bedroomsText,
-      priceText,
-      roiText,
-      `Link: ${lotUrl}`,
-    ].filter(Boolean)
-    const message = parts.join('\n')
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
-  }
-
-  const { firstPart, rest } = splitCompletionDate(lot.project?.data?.completionDate || 'Q1 2026')
+  const { firstPart, rest } = splitCompletionDate(lot.project?.completionDate)
 
   if (!lot.id) return null
 
   return (
     <Link to={getLotDetailRoute(lot.id)} className={styles.cardLink}>
       <div className={styles.card}>
-        {/* Left Section - Gallery */}
+        {/* Левая часть - Галерея */}
         <div className={styles.photoSection}>
           {allImages.length > 0 ? (
             <div className={styles.galleryContainer}>
@@ -127,21 +133,6 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                 >
                   <Heart size={20} />
                 </button>
-
-                {badges.length > 0 && (
-                  <div className={styles.badgesContainer}>
-                    {badges.map(badge => (
-                      <Badge
-                        key={badge.id}
-                        text={badge.name || ''}
-                        backgroundColor={badge.backgroundColor || '#e0e0e0'}
-                        textColor={badge.textColor}
-                        iconName={badge.icon}
-                        iconColor={badge.iconColor}
-                      />
-                    ))}
-                  </div>
-                )}
 
                 {allImages.length > 1 && (
                   <>
@@ -163,15 +154,14 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                 )}
               </div>
 
-              {/* Pagination */}
+              {/* Пагинация */}
               {allImages.length > 1 && (
                 <div className={styles.photoPagination}>
                   {allImages.map((_, idx) => (
                     <button
                       key={idx}
-                      className={`${styles.paginationDot} ${
-                        idx === currentImageIndex ? styles.activePagination : ''
-                      }`}
+                      className={`${styles.paginationDot} ${idx === currentImageIndex ? styles.activePagination : ''
+                        }`}
                       onClick={e => handleImageClick(e, idx)}
                       aria-label={`Go to image ${idx + 1}`}
                     />
@@ -187,10 +177,10 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
           )}
         </div>
 
-        {/* Right Section - Info */}
+        {/* Правая часть - Информация */}
         <div className={styles.lotInfoSection}>
           <div className={styles.frame66}>
-            {/* Developer Container */}
+            {/* Developer контейнер */}
             <div className={styles.developerContainer}>
               <div className={styles.developerLogoContainer}>
                 {logoUrl && <img src={logoUrl} alt={developerName} />}
@@ -201,14 +191,12 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                 <span className={styles.regionName}>{location}</span>
               </div>
 
-              {roiValue !== null && (
-                <div className={styles.roiContainer}>
-                  <span className={styles.roiValue}>ROI {roiValue}%</span>
-                </div>
-              )}
+              <div className={styles.roiContainer}>
+                <span className={styles.roiValue}>ROI 7%</span>
+              </div>
             </div>
 
-            {/* Lot Info */}
+            {/* Информация о лоте */}
             <div className={styles.currencyObjectInfo}>
               <span className={styles.apartmentType}>{typeLabel}</span>
 
@@ -256,20 +244,18 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
               )}
             </div>
 
-            {/* Prices */}
+            {/* Цены */}
             <div className={styles.priceSection}>
               <div className={styles.priceItem}>
                 <div className={styles.priceLabel}>
                   <span className={styles.priceLabelText}>{t('lotCard.ourPrice')}</span>
-                  {discountPercent !== null && (
-                    <div className={styles.discountBadge}>
-                      <span className={styles.discountValue}>-{discountPercent}%</span>
-                    </div>
-                  )}
+                  <div className={styles.discountBadge}>
+                    <span className={styles.discountValue}>{t('lotCard.discount')}</span>
+                  </div>
                 </div>
                 <span className={styles.priceValue}>
                   <span className={styles.from}>{t('from')}</span>
-                  {formatPrice(ourPriceValue, currency)}
+                  {formatPrice(discountedPrice, currency)}
                 </span>
               </div>
 
@@ -277,12 +263,12 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                 <span className={styles.priceLabelText}>{t('lotCard.developerPrice')}</span>
                 <span className={styles.priceValue}>
                   <span className={styles.from}>{t('from')}</span>
-                  {formatPrice(developerPriceValue, currency)}
+                  {formatPrice(price, currency)}
                 </span>
               </div>
             </div>
 
-            {/* Date and Payment Plan */}
+            {/* Дата и план платежей */}
             <div className={styles.paymentPlanContainer}>
               <div className={styles.dateContainer}>
                 <span className={styles.dateValue}>
@@ -292,7 +278,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
               </div>
             </div>
 
-            {/* WhatsApp Button */}
+            {/* Кнопка WhatsApp */}
             <div className={styles.buttonSection}>
               <button className={styles.whatsappButton} onClick={handleWhatsAppClick}>
                 <span className={styles.whatsappText}>{t('getDetailsOnWhatsApp')}</span>

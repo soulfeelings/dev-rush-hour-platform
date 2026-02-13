@@ -35,9 +35,8 @@ type LotFormData = {
   bathrooms: string
   areaSqm: string
   floor: string
-  priceAmount: string
-  ourPrice: string
-  developerPrice: string
+  priceFromUs: string
+  priceFromDeveloper: string
   roi: string
   coverUrl: string
   photos: string[]
@@ -83,9 +82,8 @@ export function LotForm({
       bathrooms: '',
       areaSqm: '',
       floor: '',
-      priceAmount: '',
-      ourPrice: '',
-      developerPrice: '',
+      priceFromUs: '',
+      priceFromDeveloper: '',
       roi: '',
       coverUrl: '',
       photos: [],
@@ -107,9 +105,8 @@ export function LotForm({
       bathrooms: initialData.bathrooms?.toString() || '',
       areaSqm: initialData.areaSqm?.toString() || '',
       floor: initialData.floor?.toString() || '',
-      priceAmount: initialData.priceAmount?.toString() || '',
-      ourPrice: initialData.ourPrice?.toString() || '',
-      developerPrice: initialData.developerPrice?.toString() || '',
+      priceFromUs: initialData.priceFromUs?.toString() || '',
+      priceFromDeveloper: initialData.priceFromDeveloper?.toString() || '',
       roi: initialData.roi?.toString() || '',
       coverUrl: initialData.data?.media?.cover?.url || '',
       photos: initialData.data?.media?.photos?.map(p => p.url || '').filter(Boolean) || [],
@@ -175,9 +172,8 @@ export function LotForm({
       form.bathrooms !== initialFormData.bathrooms ||
       form.areaSqm !== initialFormData.areaSqm ||
       form.floor !== initialFormData.floor ||
-      form.priceAmount !== initialFormData.priceAmount ||
-      form.ourPrice !== initialFormData.ourPrice ||
-      form.developerPrice !== initialFormData.developerPrice ||
+      form.priceFromUs !== initialFormData.priceFromUs ||
+      form.priceFromDeveloper !== initialFormData.priceFromDeveloper ||
       form.roi !== initialFormData.roi ||
       form.coverUrl !== initialFormData.coverUrl ||
       photosChanged ||
@@ -221,7 +217,7 @@ export function LotForm({
       projectId: form.projectId,
       type: form.type,
       status: form.status,
-      priceAmount: parseFloat(form.priceAmount),
+      priceFromUs: parseFloat(form.priceFromUs),
     }
 
     if (form.developerId) {
@@ -242,11 +238,8 @@ export function LotForm({
     if (form.floor) {
       payload.floor = parseInt(form.floor, 10)
     }
-    if (form.ourPrice) {
-      payload.ourPrice = parseFloat(form.ourPrice)
-    }
-    if (form.developerPrice) {
-      payload.developerPrice = parseFloat(form.developerPrice)
+    if (form.priceFromDeveloper) {
+      payload.priceFromDeveloper = parseFloat(form.priceFromDeveloper)
     }
     if (form.roi) {
       payload.roi = parseFloat(form.roi)
@@ -348,30 +341,20 @@ export function LotForm({
         onChange={value => setForm({ ...form, status: value })}
         error={errors.status}
       />
-      {/* Hidden legacy field, kept for compatibility */}
-      <div style={{ display: 'none' }}>
-        <Input
-          label="Legacy Price Amount"
-          type="number"
-          step="any"
-          value={form.priceAmount}
-          onChange={e => setForm({ ...form, priceAmount: e.target.value })}
-        />
-      </div>
       <Input
         label="Our Price (AED)"
         type="number"
         step="any"
-        value={form.ourPrice}
-        onChange={e => setForm({ ...form, ourPrice: e.target.value })}
+        value={form.priceFromUs}
+        onChange={e => setForm({ ...form, priceFromUs: e.target.value })}
         placeholder="e.g. 850000"
       />
       <Input
         label="Developer Price (AED)"
         type="number"
         step="any"
-        value={form.developerPrice}
-        onChange={e => setForm({ ...form, developerPrice: e.target.value })}
+        value={form.priceFromDeveloper}
+        onChange={e => setForm({ ...form, priceFromDeveloper: e.target.value })}
         placeholder="e.g. 1000000"
       />
       <Input

@@ -17,19 +17,13 @@ export interface Lot {
   id?: string
   status?: LotStatus
   projectId?: string
-  developerId?: string
-  areaId?: string
   type?: LotType
   bedrooms?: number
   bathrooms?: number
   areaSqm?: number
   floor?: number
-  priceAmount?: number
-  /** Наша цена (AED) */
-  ourPrice?: number
-  /** Цена застройщика (AED) */
-  developerPrice?: number
-  /** ROI в процентах */
+  priceFromUs?: number
+  priceFromDeveloper?: number
   roi?: number
   bonusKeys?: string[]
   badgeIds?: string[]
@@ -37,9 +31,9 @@ export interface Lot {
   data?: LotData
   /** Вложенный объект проекта (если загружен) */
   project?: Project
-  /** Вложенный объект застройщика (если загружен) */
+  /** Вложенный объект застройщика из проекта (если загружен) */
   developer?: Developer
-  /** Вложенный объект района (если загружен) */
+  /** Вложенный объект района из проекта (если загружен) */
   area?: Area
   createdAt?: string
   updatedAt?: string
