@@ -116,8 +116,8 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
         }).setContent(popupElement)
 
         // Simple hover tooltip with image, name & price
-        const price = property.priceFrom
-          ? `${i18n.t('map.from')} ${(property.priceFrom / 1000000).toFixed(1)}M ${property.currency || ''}`
+        const price = property.priceFromUs
+          ? `${i18n.t('map.from')} ${(property.priceFromUs / 1000000).toFixed(1)}M ${property.currency || ''}`
           : ''
         const tooltipHtml = `<div class="mp-tooltip">
           <span class="mp-tooltip-name">${property.title}</span>

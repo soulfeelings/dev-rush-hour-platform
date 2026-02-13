@@ -24,7 +24,7 @@ export const MarkerPopup = ({ property, direction = 'top', currency = 'AED' }: M
 
   // Calculate discounted price if discount exists
   const discountedPrice =
-    discount && property.priceFrom ? property.priceFrom * (1 - discount / 100) : null
+    discount && property.priceFromUs ? property.priceFromUs * (1 - discount / 100) : null
 
   return (
     <div className={clsx('mp-wrapper', `mp-wrapper-${direction}`)}>
@@ -101,7 +101,7 @@ export const MarkerPopup = ({ property, direction = 'top', currency = 'AED' }: M
             <div className="mp-price-value-container">
               <span className="mp-price-value">
                 <span className="mp-from">{t('from')}</span>{' '}
-                {formatPrice(property.priceFrom, currency)}
+                {formatPrice(property.priceFromUs, currency)}
               </span>
             </div>
           </div>

@@ -27,7 +27,8 @@ export interface Property {
   title: string
   location?: string
   developer?: string
-  priceFrom?: number
+  priceFromUs?: number
+  priceFromDeveloper?: number
   currency?: string
   types?: string[]
   bedrooms?: string[]

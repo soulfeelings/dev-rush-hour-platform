@@ -35,7 +35,7 @@ const mockProperty: Property = {
   title: 'Vitality Residence',
   location: 'Jumeirah Village Circle (JVC)',
   developer: 'Segrex Development',
-  priceFrom: 20000000,
+  priceFromUs: 20000000,
   currency: 'AED',
   types: ['Apartment', 'Penthouse'],
   bedrooms: ['studio', '1', '2'],

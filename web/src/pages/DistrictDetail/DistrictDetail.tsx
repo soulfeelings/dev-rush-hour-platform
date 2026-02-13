@@ -164,8 +164,8 @@ export default function DistrictDetail() {
                       <p className={styles.propertyLocation}>{property.location}</p>
                       <div className={styles.propertyDetails}>
                         <span className={styles.propertyPrice}>
-                          {property.priceFrom
-                            ? `${(property.priceFrom / 1000000).toFixed(1)}M ${property.currency || ''}`
+                          {property.priceFromUs
+                            ? `${(property.priceFromUs / 1000000).toFixed(1)}M ${property.currency || ''}`
                             : '—'}
                         </span>
                         {property.sale && (

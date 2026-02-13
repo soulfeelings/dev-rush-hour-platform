@@ -183,9 +183,6 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 	if project.CompletionDate != "" {
 		result.CompletionDate = &project.CompletionDate
 	}
-	if project.PriceFrom != nil {
-		result.PriceFrom = float32Ptr(float32(*project.PriceFrom))
-	}
 	if project.Currency != "" {
 		result.Currency = &project.Currency
 	}
@@ -884,10 +881,6 @@ func GeneratedProjectCreateToDomain(req *generated.ProjectCreateRequest) (*domai
 	if req.Tags != nil {
 		project.Tags = *req.Tags
 	}
-	if req.PriceFrom != nil {
-		pf := float64(*req.PriceFrom)
-		project.PriceFrom = &pf
-	}
 	if req.Currency != nil {
 		project.Currency = *req.Currency
 	}
@@ -989,10 +982,6 @@ func GeneratedProjectUpdateToDomain(req *generated.ProjectUpdateRequest) (*domai
 	}
 	if req.Tags != nil {
 		project.Tags = *req.Tags
-	}
-	if req.PriceFrom != nil {
-		pf := float64(*req.PriceFrom)
-		project.PriceFrom = &pf
 	}
 	if req.Currency != nil {
 		project.Currency = *req.Currency

@@ -41,8 +41,6 @@ export interface ProjectCreateRequest {
   paymentPlan?: string
   /** Expected completion date (e.g., Q4 2025, 2026) */
   completionDate?: string
-  /** Starting price (AED) */
-  priceFrom?: number
   /** Currency code (e.g., AED, USD) */
   currency?: string
   /** Available property types */

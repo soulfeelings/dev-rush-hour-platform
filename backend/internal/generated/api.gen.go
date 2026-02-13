@@ -777,9 +777,6 @@ type Project struct {
 	// PaymentPlan Payment plan description
 	PaymentPlan *string `json:"paymentPlan,omitempty"`
 
-	// PriceFrom Starting price (AED)
-	PriceFrom *float32 `json:"priceFrom,omitempty"`
-
 	// PriceFromDeveloper Original developer price (AED)
 	PriceFromDeveloper *float32 `json:"priceFromDeveloper,omitempty"`
 
@@ -866,9 +863,6 @@ type ProjectCreateRequest struct {
 
 	// PaymentPlan Payment plan description
 	PaymentPlan *string `json:"paymentPlan,omitempty"`
-
-	// PriceFrom Starting price (AED)
-	PriceFrom *float32 `json:"priceFrom,omitempty"`
 
 	// PriceFromDeveloper Original developer price (AED)
 	PriceFromDeveloper *float32 `json:"priceFromDeveloper,omitempty"`
@@ -976,9 +970,6 @@ type ProjectUpdateRequest struct {
 
 	// PaymentPlan Payment plan description
 	PaymentPlan *string `json:"paymentPlan,omitempty"`
-
-	// PriceFrom Starting price (AED)
-	PriceFrom *float32 `json:"priceFrom,omitempty"`
 
 	// PriceFromDeveloper Original developer price (AED)
 	PriceFromDeveloper *float32 `json:"priceFromDeveloper,omitempty"`

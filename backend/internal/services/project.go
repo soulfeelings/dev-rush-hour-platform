@@ -250,9 +250,6 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 		existing.CompletionDate = updates.CompletionDate
 	}
 	// Merge specs fields
-	if updates.PriceFrom != nil {
-		existing.PriceFrom = updates.PriceFrom
-	}
 	if updates.Currency != "" {
 		existing.Currency = updates.Currency
 	}

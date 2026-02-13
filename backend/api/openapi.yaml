@@ -2093,9 +2093,6 @@ components:
         completionDate:
           type: string
           description: Expected completion date (e.g., Q4 2025, 2026)
-        priceFrom:
-          type: number
-          description: Starting price (AED)
         currency:
           type: string
           description: Currency code (e.g., AED, USD)
@@ -2991,9 +2988,6 @@ components:
         completionDate:
           type: string
           description: Expected completion date (e.g., Q4 2025, 2026)
-        priceFrom:
-          type: number
-          description: Starting price (AED)
         currency:
           type: string
           description: Currency code (e.g., AED, USD)
@@ -3099,9 +3093,6 @@ components:
         completionDate:
           type: string
           description: Expected completion date (e.g., Q4 2025, 2026)
-        priceFrom:
-          type: number
-          description: Starting price (AED)
         currency:
           type: string
           description: Currency code (e.g., AED, USD)

@@ -50,7 +50,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		row.IsFeatured, row.YoutubeUrl,
 		row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 		row.PaymentPlan, row.CompletionDate,
-		row.PriceFrom, row.Currency, row.PropertyTypes, row.Bedrooms,
+		row.Currency, row.PropertyTypes, row.Bedrooms,
 		row.AreaSize, row.AreaUnit, row.PricesByType,
 		row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 		row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -85,7 +85,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 const projectListColumns = `p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng,
 	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url,
 	p.roi, p.price_from_us, p.price_from_developer, p.payment_plan, p.completion_date,
-	p.price_from, p.currency, p.property_types, p.bedrooms, p.area_size, p.area_unit, p.prices_by_type,
+	p.currency, p.property_types, p.bedrooms, p.area_size, p.area_unit, p.prices_by_type,
 	p.timeline_announcement, p.timeline_booking_started, p.timeline_construction_started,
 	p.timeline_construction_progress, p.timeline_construction_progress_pct, p.timeline_expected_completion,
 	p.created_at, p.updated_at`
@@ -162,13 +162,13 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 	}
 
 	if filters.PriceMin != nil {
-		whereClauses = append(whereClauses, fmt.Sprintf("p.price_from IS NOT NULL AND p.price_from >= $%d", argPos))
+		whereClauses = append(whereClauses, fmt.Sprintf("p.price_from_us IS NOT NULL AND p.price_from_us >= $%d", argPos))
 		args = append(args, *filters.PriceMin)
 		argPos++
 	}
 
 	if filters.PriceMax != nil {
-		whereClauses = append(whereClauses, fmt.Sprintf("p.price_from IS NOT NULL AND p.price_from <= $%d", argPos))
+		whereClauses = append(whereClauses, fmt.Sprintf("p.price_from_us IS NOT NULL AND p.price_from_us <= $%d", argPos))
 		args = append(args, *filters.PriceMax)
 		argPos++
 	}
@@ -177,9 +177,9 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 
 	switch sort {
 	case domain.ProjectSortPriceAsc:
-		query += ` ORDER BY p.price_from ASC NULLS LAST`
+		query += ` ORDER BY p.price_from_us ASC NULLS LAST`
 	case domain.ProjectSortPriceDesc:
-		query += ` ORDER BY p.price_from DESC NULLS LAST`
+		query += ` ORDER BY p.price_from_us DESC NULLS LAST`
 	case domain.ProjectSortNewest:
 		query += ` ORDER BY p.created_at DESC`
 	default:
@@ -207,7 +207,6 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			youtubeUrl                                       pgtype.Text
 			roi, priceFromUs, priceFromDeveloper             pgtype.Numeric
 			paymentPlan, completionDate                      pgtype.Text
-			priceFrom                                        pgtype.Numeric
 			currency                                         pgtype.Text
 			areaSize                                         pgtype.Numeric
 			areaUnit                                         pgtype.Text
@@ -223,7 +222,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			&developerID, &areaID, &lat, &lng,
 			&descBytes, &mediaBytes, &featuresAmenities, &tags, &isFeatured, &youtubeUrl,
 			&roi, &priceFromUs, &priceFromDeveloper, &paymentPlan, &completionDate,
-			&priceFrom, &currency, &propertyTypes, &bedrooms, &areaSize, &areaUnit, &pricesByTypeBytes,
+			&currency, &propertyTypes, &bedrooms, &areaSize, &areaUnit, &pricesByTypeBytes,
 			&tlAnn, &tlBook, &tlConstStart,
 			&tlConstProg, &tlConstProgPct, &tlExp,
 			&createdAt, &updatedAt,
@@ -239,7 +238,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			isFeatured, youtubeUrl,
 			roi, priceFromUs, priceFromDeveloper,
 			paymentPlan, completionDate,
-			priceFrom, currency, propertyTypes, bedrooms,
+			currency, propertyTypes, bedrooms,
 			areaSize, areaUnit, pricesByTypeBytes,
 			tlAnn, tlBook, tlConstStart,
 			tlConstProg, tlConstProgPct, tlExp,
@@ -323,7 +322,6 @@ func (r *ProjectRepo) Create(project *domain.Project) error {
 		PriceFromDeveloper:              float64PtrToNumeric(project.PriceFromDeveloper),
 		PaymentPlan:                     stringToText(project.PaymentPlan),
 		CompletionDate:                  stringToText(project.CompletionDate),
-		PriceFrom:                       float64PtrToNumeric(project.PriceFrom),
 		Currency:                        stringToText(project.Currency),
 		PropertyTypes:                   project.PropertyTypes,
 		Bedrooms:                        project.Bedrooms,
@@ -381,7 +379,6 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 		PriceFromDeveloper:              float64PtrToNumeric(project.PriceFromDeveloper),
 		PaymentPlan:                     stringToText(project.PaymentPlan),
 		CompletionDate:                  stringToText(project.CompletionDate),
-		PriceFrom:                       float64PtrToNumeric(project.PriceFrom),
 		Currency:                        stringToText(project.Currency),
 		PropertyTypes:                   project.PropertyTypes,
 		Bedrooms:                        project.Bedrooms,
@@ -427,7 +424,7 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		row.IsFeatured, row.YoutubeUrl,
 		row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 		row.PaymentPlan, row.CompletionDate,
-		row.PriceFrom, row.Currency, row.PropertyTypes, row.Bedrooms,
+		row.Currency, row.PropertyTypes, row.Bedrooms,
 		row.AreaSize, row.AreaUnit, row.PricesByType,
 		row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 		row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -460,7 +457,7 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 			row.IsFeatured, row.YoutubeUrl,
 			row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 			row.PaymentPlan, row.CompletionDate,
-			row.PriceFrom, row.Currency, row.PropertyTypes, row.Bedrooms,
+			row.Currency, row.PropertyTypes, row.Bedrooms,
 			row.AreaSize, row.AreaUnit, row.PricesByType,
 			row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 			row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -507,7 +504,7 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 			row.IsFeatured, row.YoutubeUrl,
 			row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 			row.PaymentPlan, row.CompletionDate,
-			row.PriceFrom, row.Currency, row.PropertyTypes, row.Bedrooms,
+			row.Currency, row.PropertyTypes, row.Bedrooms,
 			row.AreaSize, row.AreaUnit, row.PricesByType,
 			row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 			row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -540,7 +537,7 @@ func (r *ProjectRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Project, error) 
 		row.IsFeatured, row.YoutubeUrl,
 		row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 		row.PaymentPlan, row.CompletionDate,
-		row.PriceFrom, row.Currency, row.PropertyTypes, row.Bedrooms,
+		row.Currency, row.PropertyTypes, row.Bedrooms,
 		row.AreaSize, row.AreaUnit, row.PricesByType,
 		row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 		row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -636,7 +633,7 @@ func sqlcProjectRowToDomain(
 	isFeatured pgtype.Bool, youtubeUrl pgtype.Text,
 	roi, priceFromUs, priceFromDeveloper pgtype.Numeric,
 	paymentPlan, completionDate pgtype.Text,
-	priceFrom pgtype.Numeric, currency pgtype.Text,
+	currency pgtype.Text,
 	propertyTypes, bedrooms []string,
 	areaSize pgtype.Numeric, areaUnit pgtype.Text,
 	pricesByType []byte,
@@ -664,7 +661,6 @@ func sqlcProjectRowToDomain(
 		PriceFromDeveloper: numericToFloat64Ptr(priceFromDeveloper),
 		PaymentPlan:        textToString(paymentPlan),
 		CompletionDate:     textToString(completionDate),
-		PriceFrom:          numericToFloat64Ptr(priceFrom),
 		Currency:           textToString(currency),
 		PropertyTypes:      propertyTypes,
 		Bedrooms:           bedrooms,

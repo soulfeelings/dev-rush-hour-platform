@@ -30,7 +30,6 @@ type Project struct {
 	PriceFromDeveloper *float64
 	PaymentPlan       string
 	CompletionDate    string
-	PriceFrom         *float64
 	Currency          string
 	PropertyTypes     []string
 	Bedrooms          []string

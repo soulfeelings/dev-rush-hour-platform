@@ -161,7 +161,7 @@ export const ProjectCard = ({
             {/* Цены */}
             <div className={styles.pricesSection}>
               {/* Our price (со скидкой, только при наведении) */}
-              {property.discount && property.discount > 0 && property.priceFrom && (
+              {property.discount && property.discount > 0 && property.priceFromUs && (
                 <motion.div
                   initial={false}
                   animate={{ height: isHovered || isMobile ? 'auto' : 0 }}
@@ -187,7 +187,7 @@ export const ProjectCard = ({
                           : { variant: 'h1' as const })}
                         className={styles.priceAmount}
                       >
-                        {formatPrice(property.priceFrom * (1 - property.discount / 100), currency)}
+                        {formatPrice(property.priceFromUs * (1 - property.discount / 100), currency)}
                       </Typography>
                     </div>
                   </div>
@@ -210,7 +210,7 @@ export const ProjectCard = ({
                       : { variant: 'h1' as const })}
                     className={styles.priceAmount}
                   >
-                    {formatPrice(property.priceFrom, currency)}
+                    {formatPrice(property.priceFromDeveloper, currency)}
                   </Typography>
                 </div>
               </div>
