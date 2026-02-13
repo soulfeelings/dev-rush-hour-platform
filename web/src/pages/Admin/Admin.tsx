@@ -622,7 +622,7 @@ export default function Admin() {
           queryKey: getAdminListDeletedInfrastructuresQueryKey(),
         })
       },
-      onError: (err: { message: any }) => {
+      onError: (err: { message: unknown }) => {
         setError(err instanceof Error ? err.message : 'Failed to restore infrastructure')
       },
     },
