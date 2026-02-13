@@ -226,6 +226,17 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		result.Badges = &badges
 	}
 
+	// Include infrastructures
+	if len(project.Infrastructures) > 0 {
+		infras := make([]generated.Infrastructure, len(project.Infrastructures))
+		for i := range project.Infrastructures {
+			if mapped := DomainInfrastructureToGenerated(&project.Infrastructures[i]); mapped != nil {
+				infras[i] = *mapped
+			}
+		}
+		result.Infrastructures = &infras
+	}
+
 	return result
 }
 
@@ -237,12 +248,21 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 	status := generated.LotStatus(lot.Status)
 	lotType := generated.LotType(lot.Type)
 	result := &generated.Lot{
-		Id:            &id,
-		Status:        &status,
-		Type:          &lotType,
-		PriceAmount:   float32Ptr(float32(lot.PriceAmount)),
-		CreatedAt:     timePtr(lot.CreatedAt),
-		UpdatedAt:     timePtr(lot.UpdatedAt),
+		Id:          &id,
+		Status:      &status,
+		Type:        &lotType,
+		PriceAmount: float32Ptr(float32(lot.PriceAmount)),
+		CreatedAt:   timePtr(lot.CreatedAt),
+		UpdatedAt:   timePtr(lot.UpdatedAt),
+	}
+	if lot.OurPrice != nil {
+		result.OurPrice = float32Ptr(float32(*lot.OurPrice))
+	}
+	if lot.DeveloperPrice != nil {
+		result.DeveloperPrice = float32Ptr(float32(*lot.DeveloperPrice))
+	}
+	if lot.ROI != nil {
+		result.Roi = float32Ptr(float32(*lot.ROI))
 	}
 
 	if len(lot.BonusKeys) > 0 {
@@ -308,12 +328,21 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 	status := generated.LotListItemStatus(lot.Status)
 	lotType := generated.LotType(lot.Type)
 	result := &generated.LotListItem{
-		Id:            &id,
-		Status:        &status,
-		Type:          &lotType,
-		PriceAmount:   float32Ptr(float32(lot.PriceAmount)),
-		CreatedAt:     timePtr(lot.CreatedAt),
-		UpdatedAt:     timePtr(lot.UpdatedAt),
+		Id:          &id,
+		Status:      &status,
+		Type:        &lotType,
+		PriceAmount: float32Ptr(float32(lot.PriceAmount)),
+		CreatedAt:   timePtr(lot.CreatedAt),
+		UpdatedAt:   timePtr(lot.UpdatedAt),
+	}
+	if lot.OurPrice != nil {
+		result.OurPrice = float32Ptr(float32(*lot.OurPrice))
+	}
+	if lot.DeveloperPrice != nil {
+		result.DeveloperPrice = float32Ptr(float32(*lot.DeveloperPrice))
+	}
+	if lot.ROI != nil {
+		result.Roi = float32Ptr(float32(*lot.ROI))
 	}
 
 	if len(lot.BonusKeys) > 0 {
@@ -843,6 +872,18 @@ func GeneratedProjectCreateToDomain(req *generated.ProjectCreateRequest) (*domai
 	if req.Data != nil {
 		applyProjectDataToProject(req.Data, project)
 	}
+	if req.BadgeIds != nil {
+		project.BadgeIDs = make([]uuid.UUID, len(*req.BadgeIds))
+		for i, id := range *req.BadgeIds {
+			project.BadgeIDs[i] = uuid.UUID(id)
+		}
+	}
+	if req.InfrastructureIds != nil {
+		project.InfrastructureIDs = make([]uuid.UUID, len(*req.InfrastructureIds))
+		for i, id := range *req.InfrastructureIds {
+			project.InfrastructureIDs[i] = uuid.UUID(id)
+		}
+	}
 
 	return project, nil
 }
@@ -880,6 +921,18 @@ func GeneratedProjectUpdateToDomain(req *generated.ProjectUpdateRequest) (*domai
 	}
 	if req.Data != nil {
 		applyProjectDataToProject(req.Data, project)
+	}
+	if req.BadgeIds != nil {
+		project.BadgeIDs = make([]uuid.UUID, len(*req.BadgeIds))
+		for i, id := range *req.BadgeIds {
+			project.BadgeIDs[i] = uuid.UUID(id)
+		}
+	}
+	if req.InfrastructureIds != nil {
+		project.InfrastructureIDs = make([]uuid.UUID, len(*req.InfrastructureIds))
+		for i, id := range *req.InfrastructureIds {
+			project.InfrastructureIDs[i] = uuid.UUID(id)
+		}
 	}
 
 	return project, nil
@@ -1107,6 +1160,18 @@ func GeneratedLotCreateToDomain(req *generated.LotCreateRequest) (*domain.Lot, e
 			lot.BadgeIDs[i] = uuid.UUID(id)
 		}
 	}
+	if req.OurPrice != nil {
+		v := float64(*req.OurPrice)
+		lot.OurPrice = &v
+	}
+	if req.DeveloperPrice != nil {
+		v := float64(*req.DeveloperPrice)
+		lot.DeveloperPrice = &v
+	}
+	if req.Roi != nil {
+		v := float64(*req.Roi)
+		lot.ROI = &v
+	}
 	if req.Data != nil {
 		lot.Data = domainLotDataFromGenerated(req.Data)
 	}
@@ -1153,6 +1218,18 @@ func GeneratedLotUpdateToDomain(req *generated.LotUpdateRequest) (*domain.Lot, e
 	}
 	if req.PriceAmount != nil {
 		lot.PriceAmount = float64(*req.PriceAmount)
+	}
+	if req.OurPrice != nil {
+		v := float64(*req.OurPrice)
+		lot.OurPrice = &v
+	}
+	if req.DeveloperPrice != nil {
+		v := float64(*req.DeveloperPrice)
+		lot.DeveloperPrice = &v
+	}
+	if req.Roi != nil {
+		v := float64(*req.Roi)
+		lot.ROI = &v
 	}
 	if req.BonusKeys != nil {
 		lot.BonusKeys = *req.BonusKeys

@@ -622,7 +622,7 @@ export default function Admin() {
           queryKey: getAdminListDeletedInfrastructuresQueryKey(),
         })
       },
-      onError: err => {
+      onError: (err: { message: any }) => {
         setError(err instanceof Error ? err.message : 'Failed to restore infrastructure')
       },
     },
@@ -1480,6 +1480,7 @@ export default function Admin() {
             projects={projects}
             developers={developers}
             areas={areas}
+            badges={badges}
             onSubmit={handleLotSubmit}
             loading={loading}
             initialData={

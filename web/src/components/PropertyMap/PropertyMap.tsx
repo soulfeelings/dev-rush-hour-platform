@@ -55,50 +55,21 @@ export interface PropertyMapRef {
 const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
   ({ properties, selectedPropertyId }, ref) => {
     const navigate = useNavigate()
+    const mapContainerRef = useRef<HTMLDivElement | null>(null)
     const mapRef = useRef<L.Map | null>(null)
     const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null)
     const spiderfiedMarkersRef = useRef<Set<L.Marker>>(new Set())
+    // Cache markers by property id to avoid recreating them on every render
+    const markerCacheRef = useRef<Map<string, L.Marker>>(new Map())
 
-    const updateMarkers = useCallback(() => {
-      if (!mapRef.current) return
-
-      const map = mapRef.current
-
-      // Clear existing cluster group
-      if (clusterGroupRef.current) {
-        clusterGroupRef.current.clearLayers()
-      } else {
-        // Create cluster group with custom icon
-        clusterGroupRef.current = L.markerClusterGroup({
-          iconCreateFunction: createClusterIcon,
-          maxClusterRadius: 50,
-          spiderfyOnMaxZoom: true,
-          showCoverageOnHover: false,
-          zoomToBoundsOnClick: true,
-          disableClusteringAtZoom: 15,
-        })
-
-        clusterGroupRef.current.on('spiderfied', (e: unknown) => {
-          const evt = e as { cluster: L.MarkerCluster }
-          spiderfiedMarkersRef.current = new Set(evt.cluster.getAllChildMarkers())
-        })
-        clusterGroupRef.current.on('unspiderfied', () => {
-          spiderfiedMarkersRef.current.clear()
-        })
-
-        map.addLayer(clusterGroupRef.current)
-      }
-
-      // Filter out properties without coordinates
-      const propertiesWithCoords = properties.filter(p => p.coordinates)
-
-      propertiesWithCoords.forEach(property => {
+    const createMarker = useCallback(
+      (property: Property): L.Marker => {
+        const map = mapRef.current!
         const marker = L.marker(property.coordinates!, {
           icon: createPropertyMarkerIcon(),
         })
 
         const popupElement = createMarkerPopupElement(property)
-
         const popup = L.popup({
           offset: [0, -42],
           className: 'marker-popup marker-popup--top',
@@ -108,7 +79,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           minWidth: 280,
         }).setContent(popupElement)
 
-        // Simple hover tooltip with image, name & price
         const price = property.priceFrom
           ? `${i18n.t('map.from')} ${(property.priceFrom / 1000000).toFixed(1)}M ${property.currency || ''}`
           : ''
@@ -132,7 +102,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           const isSpiderfied = spiderfiedMarkersRef.current.has(marker)
 
           if (isSpiderfied) {
-            // In spiderfy mode: zoom to this marker, collapse the spider
             clusterGroupRef.current?.unspiderfy()
             map.flyTo(property.coordinates!, Math.max(map.getZoom() + 2, 16), {
               animate: true,
@@ -141,7 +110,6 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
             return
           }
 
-          // Standalone marker: offset center and open popup
           const targetPoint = map.project(property.coordinates!, map.getZoom())
           const pinHeightOffset = 21
           const mapOffset = map.getSize().y * 0.15
@@ -171,9 +139,59 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
           bindTooltipToMarker()
         })
 
-        clusterGroupRef.current?.addLayer(marker)
-      })
-    }, [properties, navigate])
+        return marker
+      },
+      [navigate]
+    )
+
+    const updateMarkers = useCallback(() => {
+      if (!mapRef.current) return
+
+      const map = mapRef.current
+
+      // Ensure cluster group exists
+      if (!clusterGroupRef.current) {
+        clusterGroupRef.current = L.markerClusterGroup({
+          iconCreateFunction: createClusterIcon,
+          maxClusterRadius: 50,
+          spiderfyOnMaxZoom: true,
+          showCoverageOnHover: false,
+          zoomToBoundsOnClick: true,
+          disableClusteringAtZoom: 15,
+        })
+
+        clusterGroupRef.current.on('spiderfied', (e: unknown) => {
+          const evt = e as { cluster: L.MarkerCluster }
+          spiderfiedMarkersRef.current = new Set(evt.cluster.getAllChildMarkers())
+        })
+        clusterGroupRef.current.on('unspiderfied', () => {
+          spiderfiedMarkersRef.current.clear()
+        })
+
+        map.addLayer(clusterGroupRef.current)
+      }
+
+      const propertiesWithCoords = properties.filter(p => p.coordinates)
+      const newIds = new Set(propertiesWithCoords.map(p => p.id))
+      const cache = markerCacheRef.current
+
+      // Remove markers that are no longer in the list
+      for (const [id, marker] of cache) {
+        if (!newIds.has(id)) {
+          clusterGroupRef.current.removeLayer(marker)
+          cache.delete(id)
+        }
+      }
+
+      // Add markers that are new
+      for (const property of propertiesWithCoords) {
+        if (!cache.has(property.id)) {
+          const marker = createMarker(property)
+          cache.set(property.id, marker)
+          clusterGroupRef.current.addLayer(marker)
+        }
+      }
+    }, [properties, createMarker])
 
     useImperativeHandle(ref, () => ({
       invalidateSize: () => {
@@ -189,24 +207,37 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
       },
     }))
 
+    // Initialize map once
     useEffect(() => {
-      if (!mapRef.current) {
-        mapRef.current = L.map('property-map', {
-          center: [25.2048, 55.2708],
-          zoom: 11,
-          zoomControl: true,
-          attributionControl: true,
-        })
+      if (!mapContainerRef.current || mapRef.current) return
 
-        L.tileLayer(
-          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-          {
-            attribution:
-              'Thanks for the amazing satellite imagery provided by Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
-            maxZoom: 19,
-          }
-        ).addTo(mapRef.current)
+      mapRef.current = L.map(mapContainerRef.current, {
+        center: [25.2048, 55.2708],
+        zoom: 11,
+        zoomControl: true,
+        attributionControl: true,
+      })
+
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution:
+            'Thanks for the amazing satellite imagery provided by Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
+          maxZoom: 19,
+        }
+      ).addTo(mapRef.current)
+
+      return () => {
+        mapRef.current?.remove()
+        mapRef.current = null
+        clusterGroupRef.current = null
+        markerCacheRef.current.clear()
       }
+    }, [])
+
+    // Update markers when properties change
+    useEffect(() => {
+      if (!mapRef.current) return
 
       updateMarkers()
 
@@ -237,7 +268,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
     return (
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-        <div id="property-map" className={styles.map} />
+        <div ref={mapContainerRef} className={styles.map} />
       </div>
     )
   }

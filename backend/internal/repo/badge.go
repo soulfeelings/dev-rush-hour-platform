@@ -383,9 +383,10 @@ func (r *BadgeRepo) GetLotBadges(lotID uuid.UUID) ([]domain.Badge, error) {
 	rows, err := r.db.Query(`
 		SELECT b.id, b.slug, b.name, b.background_color, b.text_color, b.icon, b.icon_color, b.sort_order, b.created_at, b.updated_at
 		FROM badges b
-		INNER JOIN lot_badges lb ON b.id = lb.badge_id
-		WHERE lb.lot_id = $1 AND b.deleted_at IS NULL
-		ORDER BY lb.sort_order, b.sort_order
+		WHERE b.id = ANY(
+			SELECT unnest(badge_ids) FROM lots WHERE id = $1
+		) AND b.deleted_at IS NULL
+		ORDER BY b.sort_order
 	`, lotID)
 	if err != nil {
 		r.logger.Error("badge_repo_get_lot_badges_query_failed",
@@ -417,55 +418,6 @@ func (r *BadgeRepo) GetLotBadges(lotID uuid.UUID) ([]domain.Badge, error) {
 	)
 
 	return badges, nil
-}
-
-func (r *BadgeRepo) SetLotBadges(lotID uuid.UUID, badgeIDs []uuid.UUID) error {
-	r.logger.Info("badge_repo_set_lot_badges_started",
-		"lot_id", lotID,
-		"badge_count", len(badgeIDs),
-	)
-
-	tx, err := r.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	// Delete existing badges
-	_, err = tx.Exec(`DELETE FROM lot_badges WHERE lot_id = $1`, lotID)
-	if err != nil {
-		r.logger.Error("badge_repo_set_lot_badges_delete_failed",
-			"lot_id", lotID,
-			"error", err.Error(),
-		)
-		return err
-	}
-
-	// Insert new badges
-	for i, badgeID := range badgeIDs {
-		_, err = tx.Exec(`
-			INSERT INTO lot_badges (lot_id, badge_id, sort_order)
-			VALUES ($1, $2, $3)
-		`, lotID, badgeID, i)
-		if err != nil {
-			r.logger.Error("badge_repo_set_lot_badges_insert_failed",
-				"lot_id", lotID,
-				"badge_id", badgeID,
-				"error", err.Error(),
-			)
-			return err
-		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-
-	r.logger.Info("badge_repo_set_lot_badges_completed",
-		"lot_id", lotID,
-	)
-
-	return nil
 }
 
 func (r *BadgeRepo) ListDeleted() ([]domain.Badge, error) {

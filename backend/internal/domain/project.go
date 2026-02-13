@@ -38,11 +38,16 @@ type Project struct {
 	AreaUnit          string
 	PricesByType      []PriceByType
 	Timeline          *ProjectTimeline
+	// Badge IDs (used for saving to project_badges junction table)
+	BadgeIDs []uuid.UUID
+	// Infrastructure IDs (used for saving to project_infrastructures junction table)
+	InfrastructureIDs []uuid.UUID
 	// Embedded related data (populated by joins)
-	Developer *Developer
-	Area      *Area
-	Badges    []Badge
-	DeletedAt *time.Time
+	Developer       *Developer
+	Area            *Area
+	Badges          []Badge
+	Infrastructures []Infrastructure
+	DeletedAt       *time.Time
 }
 
 type PriceByType struct {
