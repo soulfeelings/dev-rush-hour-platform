@@ -208,6 +208,8 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
           ]}
           value={filterProjectId}
           onChange={setFilterProjectId}
+          clearable
+          defaultValue=""
         />
         <Select
           options={[
@@ -216,6 +218,8 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
           ]}
           value={filterBedrooms}
           onChange={setFilterBedrooms}
+          clearable
+          defaultValue=""
         />
         {(filterProjectId || filterBedrooms) && (
           <Button
