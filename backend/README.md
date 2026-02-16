@@ -8,13 +8,15 @@ Go + Fiber + Postgres JSONB сервер для MVP портала недвиж�
 - `/cmd/migrate` - утилита для миграций
 - `/internal/config` - конфигурация
 - `/internal/domain` - доменные модели и enums
-- `/internal/repo` - репозитории для работы с БД
+- `/internal/repo` - репозитории для работы с БД (используют sqlc + pgx)
+- `/internal/sqlc/queries/` - SQL-запросы с sqlc-аннотациями (источник истины для статических запросов)
+- `/internal/sqlc/sqlcgen/` - автогенерируемый Go-код из sqlc (не редактировать вручную)
 - `/internal/services` - бизнес-логика
 - `/internal/handlers` - HTTP handlers
 - `/internal/dto` - DTO для запросов/ответов (legacy, не используется)
 - `/internal/mappers` - мапперы между domain и generated типами
 - `/internal/generated` - автогенерируемый код из OpenAPI
-- `/internal/migrations` - SQL миграции
+- `/internal/migrations` - SQL миграции (также используются sqlc как источник схемы)
 - `/api/openapi.yaml` - OpenAPI спецификация (источник истины)
 
 ## Запуск
@@ -99,6 +101,82 @@ postgres://rushhour:rushhour_dev@localhost:5432/rushhour_db?sslmode=disable
 ```
 
 Для продакшн укажите соответствующий URL при запросе
+
+## Работа с БД (sqlc + pgx)
+
+Проект использует **sqlc** для генерации type-safe Go-кода из SQL-запросов и **pgx/v5** как PostgreSQL драйвер.
+
+### Как это работает
+
+1. Миграции (`internal/migrations/`) определяют схему БД
+2. SQL-запросы с аннотациями хранятся в `internal/sqlc/queries/*.sql`
+3. `sqlc generate` читает схему + запросы и генерирует Go-код в `internal/sqlc/sqlcgen/`
+4. Репозитории (`internal/repo/`) вызывают сгенерированные методы
+
+### Добавление нового запроса
+
+1. **Написать SQL** в `internal/sqlc/queries/<entity>.sql`:
+   ```sql
+   -- name: GetCityBySlug :one
+   SELECT id, name, slug, created_at, updated_at
+   FROM cities WHERE slug = $1 AND deleted_at IS NULL;
+   ```
+   Аннотации sqlc:
+   - `-- name: MethodName` — имя Go-метода
+   - `:one` — возвращает одну строку
+   - `:many` — возвращает слайс
+   - `:exec` — ничего не возвращает (DELETE, UPDATE без RETURNING)
+
+2. **Сгенерировать код**:
+   ```bash
+   make sqlc
+   # или
+   cd backend && sqlc generate
+   ```
+
+3. **Использовать в репозитории**:
+   ```go
+   row, err := r.queries.GetCityBySlug(ctx, slug)
+   ```
+
+### Что генерирует sqlc
+
+- `sqlcgen/models.go` — Go-структуры для таблиц БД
+- `sqlcgen/<entity>.sql.go` — type-safe методы с Params/Row структурами
+- `sqlcgen/db.go` — структура `Queries` с подключением к pgxpool
+
+### Динамические запросы
+
+Запросы с условной фильтрацией (например, `Project.List`, `Lot.List`) остаются написанными вручную в repo-файлах с использованием `pool.Query()`. sqlc не поддерживает динамическое построение WHERE-условий.
+
+### Типичные сценарии
+
+| Задача | Действие |
+|--------|----------|
+| Добавить запрос | Написать SQL в `queries/*.sql` → `make sqlc` → вызвать из repo |
+| Переименовать колонку | Миграция → `make sqlc` → компилятор покажет все сломанные места |
+| Новая таблица | Миграция → создать `queries/<entity>.sql` → `make sqlc` → написать repo |
+| Изменить динамический фильтр | Редактировать Go-код в repo напрямую |
+
+### Архитектура репозиториев
+
+```go
+type CityRepo struct {
+    queries *sqlcgen.Queries  // для статических запросов (sqlc)
+    pool    *pgxpool.Pool     // для динамических запросов (только если нужен)
+    logger  *slog.Logger
+}
+
+func NewCityRepo(pool *pgxpool.Pool) *CityRepo {
+    return &CityRepo{
+        queries: sqlcgen.New(pool),
+        logger:  slog.Default(),
+    }
+}
+```
+
+- Конвертеры `pgtype ↔ Go` находятся в `internal/repo/convert.go`
+- Каждый repo имеет функцию `sqlcXxxToDomain()` для маппинга sqlc-строк в domain-модели
 
 ## Работа с API (OpenAPI-first)
 

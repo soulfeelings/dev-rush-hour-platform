@@ -33,6 +33,20 @@
   gap: 0.75rem;
 }
 
+.inputWithButton {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+
+  > div:first-child {
+    flex: 1;
+  }
+
+  > button {
+    flex-shrink: 0;
+  }
+}
+
 .mediaList {
   display: flex;
   flex-direction: column;
@@ -50,6 +64,11 @@
   font-weight: 500;
   color: #555;
   font-size: 0.9rem;
+}
+
+.mediaListActions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .mediaItem {

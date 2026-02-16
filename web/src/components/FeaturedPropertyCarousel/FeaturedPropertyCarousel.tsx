@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useIsRTL } from '../../hooks/useDirection'
+import { getDescriptionText } from '../../utils/project'
 import styles from './FeaturedPropertyCarousel.module.scss'
-import type { Property } from '../../types/property'
+import type { Project } from '../../api/generated/schemas/project'
 
 const IconExcavator = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -14,12 +15,12 @@ const IconExcavator = () => (
 )
 
 interface FeaturedPropertyCarouselProps {
-  properties: Property[]
+  projects: Project[]
   autoPlayInterval?: number
 }
 
 export default function FeaturedPropertyCarousel({
-  properties,
+  projects,
   autoPlayInterval = 5000,
 }: FeaturedPropertyCarouselProps) {
   const { t } = useTranslation()
@@ -27,35 +28,37 @@ export default function FeaturedPropertyCarousel({
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
-    if (properties.length <= 1) return
+    if (projects.length <= 1) return
 
     const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % properties.length)
+      setCurrentIndex(prev => (prev + 1) % projects.length)
     }, autoPlayInterval)
 
     return () => clearInterval(interval)
-  }, [properties.length, autoPlayInterval])
+  }, [projects.length, autoPlayInterval])
 
   const goToPrevious = () => {
-    setCurrentIndex(prev => (prev - 1 + properties.length) % properties.length)
+    setCurrentIndex(prev => (prev - 1 + projects.length) % projects.length)
   }
 
   const goToNext = () => {
-    setCurrentIndex(prev => (prev + 1) % properties.length)
+    setCurrentIndex(prev => (prev + 1) % projects.length)
   }
 
-  if (properties.length === 0) return null
+  if (projects.length === 0) return null
 
-  const currentProperty = properties[currentIndex]
+  const current = projects[currentIndex]
+  const coverImage = current.media?.cover?.url
+  const description = getDescriptionText(current)
 
   return (
     <div className={styles.carousel}>
       <div className={styles.card}>
         <div className={styles.imageContainer}>
-          <img src={currentProperty.image} alt={currentProperty.title} />
-          {currentProperty.tags && currentProperty.tags.length > 0 && (
+          {coverImage && <img src={coverImage} alt={current.name} />}
+          {current.tags && current.tags.length > 0 && (
             <div className={styles.tags}>
-              {currentProperty.tags.map((tag, idx) => (
+              {current.tags.map((tag, idx) => (
                 <span key={idx} className={styles.tag}>
                   {tag}
                 </span>
@@ -64,23 +67,21 @@ export default function FeaturedPropertyCarousel({
           )}
         </div>
         <div className={styles.content}>
-          <h2 className={styles.title}>{currentProperty.title}</h2>
-          {currentProperty.description && (
-            <p className={styles.description}>{currentProperty.description}</p>
-          )}
+          <h2 className={styles.title}>{current.name}</h2>
+          {description && <p className={styles.description}>{description}</p>}
           <div className={styles.developer}>
             <IconExcavator />
             <div>
-              <div className={styles.developerName}>{currentProperty.developer}</div>
+              <div className={styles.developerName}>{current.developer?.name}</div>
               <div className={styles.developerLabel}>{t('featuredCarousel.agency')}</div>
             </div>
           </div>
         </div>
       </div>
-      {properties.length > 1 && (
+      {projects.length > 1 && (
         <div className={styles.controls}>
           <div className={styles.dots}>
-            {properties.map((_, idx) => (
+            {projects.map((_, idx) => (
               <button
                 key={idx}
                 className={`${styles.dot} ${idx === currentIndex ? styles.dotActive : ''}`}

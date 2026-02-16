@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"rush-hour-platform/backend/internal/config"
 	"rush-hour-platform/backend/internal/delivery"
+	"rush-hour-platform/backend/internal/events"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/handlers"
 	"rush-hour-platform/backend/internal/middleware"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
@@ -41,22 +43,41 @@ type Server struct {
 	adminInfrastructuresHandler  *handlers.AdminInfrastructuresHandler
 }
 
-func NewServer(db *sql.DB) *Server {
+func NewServer(pool *pgxpool.Pool, eventBus *events.EventBus) *Server {
 	// Repositories
-	areaRepo := repo.NewAreaRepo(db)
-	cityRepo := repo.NewCityRepo(db)
-	projectRepo := repo.NewProjectRepo(db)
-	lotRepo := repo.NewLotRepo(db)
-	leadRepo := repo.NewLeadRepo(db)
-	developerRepo := repo.NewDeveloperRepo(db)
-	badgeRepo := repo.NewBadgeRepo(db)
-	infrastructureRepo := repo.NewInfrastructureRepo(db)
+	areaRepo := repo.NewAreaRepo(pool)
+	cityRepo := repo.NewCityRepo(pool)
+	projectRepo := repo.NewProjectRepo(pool)
+	lotRepo := repo.NewLotRepo(pool)
+	leadRepo := repo.NewLeadRepo(pool)
+	developerRepo := repo.NewDeveloperRepo(pool)
+	badgeRepo := repo.NewBadgeRepo(pool)
+	infrastructureRepo := repo.NewInfrastructureRepo(pool)
+
+	// Register event subscriber: recalculate project prices on lot changes
+	eventBus.Subscribe(events.LotChanged, func(e events.Event) {
+		payload := e.Payload.(events.LotChangedPayload)
+		if err := projectRepo.RecalculatePricesFromLots(payload.ProjectID); err != nil {
+			slog.Error("event_handler_recalculate_failed",
+				"project_id", payload.ProjectID,
+				"lot_id", payload.LotID,
+				"operation", payload.Operation,
+				"error", err.Error(),
+			)
+		} else {
+			slog.Info("event_handler_recalculate_completed",
+				"project_id", payload.ProjectID,
+				"lot_id", payload.LotID,
+				"operation", payload.Operation,
+			)
+		}
+	})
 
 	// Services
 	areasService := services.NewAreasService(areaRepo)
 	citiesService := services.NewCitiesService(cityRepo)
 	projectsService := services.NewProjectsService(projectRepo, lotRepo, badgeRepo, infrastructureRepo)
-	lotsService := services.NewLotsService(lotRepo, badgeRepo)
+	lotsService := services.NewLotsService(lotRepo, eventBus)
 	leadsService := services.NewLeadsService(leadRepo)
 	developersService := services.NewDevelopersService(developerRepo)
 	badgesService := services.NewBadgesService(badgeRepo)
@@ -371,8 +392,8 @@ func (s *Server) AdminHardDeleteInfrastructure(c *fiber.Ctx, id openapi_types.UU
 }
 
 // initMediaService initializes the media service with appropriate storage and delivery
-func initMediaService(ctx context.Context, cfg *config.Config, db *sql.DB) (*services.MediaService, error) {
-	mediaRepo := repo.NewMediaRepo(db)
+func initMediaService(ctx context.Context, cfg *config.Config, pool *pgxpool.Pool) (*services.MediaService, error) {
+	mediaRepo := repo.NewMediaRepo(pool)
 
 	var mediaStorage storage.MediaStorage
 	var mediaDelivery delivery.MediaDelivery
@@ -434,20 +455,26 @@ func main() {
 	cfg := config.Load()
 
 	// Подключение к БД
-	db, err := repo.NewDB(cfg)
+	pool, err := repo.NewDB(cfg)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer db.Close()
+	defer pool.Close()
 	log.Println("Database connected successfully")
 
 	// Initialize media service
 	ctx := context.Background()
-	mediaService, err := initMediaService(ctx, cfg, db)
+	mediaService, err := initMediaService(ctx, cfg, pool)
 	if err != nil {
 		log.Fatalf("Failed to initialize media service: %v", err)
 	}
 	log.Printf("Media service initialized (driver: %s)", cfg.Media.Driver)
+
+	// Event bus for cross-service communication
+	eventBus := events.NewEventBus(100)
+	eventBus.Start()
+	defer eventBus.Stop()
+	log.Println("Event bus started")
 
 	app := fiber.New()
 
@@ -463,7 +490,7 @@ func main() {
 		ExposeHeaders:    "Content-Length",
 	}))
 
-	server := NewServer(db)
+	server := NewServer(pool, eventBus)
 
 	// Legacy media handler (for serving local files)
 	legacyMediaHandler := handlers.NewMediaHandler(cfg.Media.UploadDir, cfg.Media.PublicURL)

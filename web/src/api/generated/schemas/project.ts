@@ -7,7 +7,10 @@
  */
 import type { ProjectStatus } from './projectStatus'
 import type { ProjectSale } from './projectSale'
-import type { ProjectData } from './projectData'
+import type { ProjectDescription } from './projectDescription'
+import type { Media } from './media'
+import type { ProjectTimeline } from './projectTimeline'
+import type { ProjectPricesByTypeItem } from './projectPricesByTypeItem'
 import type { Developer } from './developer'
 import type { Area } from './area'
 import type { Lot } from './lot'
@@ -24,7 +27,38 @@ export interface Project {
   areaId?: string
   lat?: number
   lng?: number
-  data?: ProjectData
+  description?: ProjectDescription
+  featuresAmenities?: string[]
+  media?: Media
+  /** Избранный проект */
+  isFeatured?: boolean
+  /** Теги проекта */
+  tags?: string[]
+  /** YouTube video URL for the project */
+  youtubeUrl?: string
+  timeline?: ProjectTimeline
+  /** Return on Investment percentage */
+  roi?: number
+  /** Our company price (AED) */
+  priceFromUs?: number
+  /** Original developer price (AED) */
+  priceFromDeveloper?: number
+  /** Payment plan description */
+  paymentPlan?: string
+  /** Expected completion date (e.g., Q4 2025, 2026) */
+  completionDate?: string
+  /** Currency code (e.g., AED, USD) */
+  currency?: string
+  /** Available property types */
+  propertyTypes?: string[]
+  /** Available bedroom configurations */
+  bedrooms?: string[]
+  /** Area size */
+  areaSize?: number
+  /** Unit for area measurement (sqm, sqft) */
+  areaUnit?: string
+  /** Prices broken down by property type */
+  pricesByType?: ProjectPricesByTypeItem[]
   /** Вложенный объект застройщика */
   developer?: Developer
   /** Вложенный объект района */

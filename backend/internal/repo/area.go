@@ -1,549 +1,309 @@
 package repo
 
 import (
-	"database/sql"
+	"context"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"rush-hour-platform/backend/internal/domain"
+	"rush-hour-platform/backend/internal/sqlc/sqlcgen"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type AreaRepo struct {
-	db     *sql.DB
-	logger *slog.Logger
+	queries *sqlcgen.Queries
+	logger  *slog.Logger
 }
 
-func NewAreaRepo(db *sql.DB) *AreaRepo {
+func NewAreaRepo(pool *pgxpool.Pool) *AreaRepo {
 	return &AreaRepo{
-		db:     db,
-		logger: slog.Default(),
+		queries: sqlcgen.New(pool),
+		logger:  slog.Default(),
 	}
 }
 
 func (r *AreaRepo) GetBySlug(slug string) (*domain.Area, error) {
-	r.logger.Info("area_repo_get_by_slug_started",
-		"slug", slug,
-	)
+	r.logger.Info("area_repo_get_by_slug_started", "slug", slug)
 
-	var area domain.Area
-	var dataJSON []byte
-	var cityID sql.NullString
-
-	err := r.db.QueryRow(`
-		SELECT a.id, a.slug, a.name, a.city, a.city_id, a.lat, a.lng, a.status, a.data, a.created_at, a.updated_at
-		FROM areas a
-		WHERE a.slug = $1 AND a.deleted_at IS NULL
-	`, slug).Scan(
-		&area.ID, &area.Slug, &area.Name, &area.City, &cityID,
-		&area.Lat, &area.Lng, &area.Status, &dataJSON,
-		&area.CreatedAt, &area.UpdatedAt,
-	)
-
+	row, err := r.queries.GetAreaBySlug(context.Background(), slug)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			r.logger.Info("area_repo_get_by_slug_not_found",
-				"slug", slug,
-			)
+		if errors.Is(err, pgx.ErrNoRows) {
+			r.logger.Info("area_repo_get_by_slug_not_found", "slug", slug)
 			return nil, nil
 		}
-		r.logger.Error("area_repo_get_by_slug_failed",
-			"slug", slug,
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_get_by_slug_failed", "slug", slug, "error", err.Error())
 		return nil, err
 	}
 
-	if cityID.Valid {
-		id := uuid.MustParse(cityID.String)
-		area.CityID = &id
+	area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, pgtype.Timestamptz{})
+	if err != nil {
+		r.logger.Error("area_repo_get_by_slug_unmarshal_failed", "slug", slug, "error", err.Error())
+		return nil, err
 	}
+	area.CityID = nullUUIDToPtr(row.CityID)
 
-	if len(dataJSON) > 0 {
-		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
-			r.logger.Error("area_repo_get_by_slug_unmarshal_failed",
-				"slug", slug,
-				"error", err.Error(),
-			)
-			return nil, err
-		}
-	} else {
-		area.Data = domain.AreaData{}
-	}
-
-	r.logger.Info("area_repo_get_by_slug_completed",
-		"slug", slug,
-		"area_id", area.ID,
-	)
-
-	return &area, nil
+	r.logger.Info("area_repo_get_by_slug_completed", "slug", slug, "area_id", area.ID)
+	return area, nil
 }
 
 func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
-	r.logger.Info("area_repo_list_started",
-		"include_boundary", includeBoundary,
-	)
+	r.logger.Info("area_repo_list_started", "include_boundary", includeBoundary)
 
-	query := `
-		SELECT id, slug, name, city, city_id, lat, lng, status, data, created_at, updated_at
-		FROM areas
-		WHERE status = 'active' AND deleted_at IS NULL
-		ORDER BY name
-	`
-
-	rows, err := r.db.Query(query)
+	rows, err := r.queries.ListAreas(context.Background())
 	if err != nil {
-		r.logger.Error("area_repo_list_query_failed",
-			"include_boundary", includeBoundary,
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_list_query_failed", "include_boundary", includeBoundary, "error", err.Error())
 		return nil, err
 	}
-	defer rows.Close()
 
-	areas := []domain.Area{}
-	for rows.Next() {
-		var area domain.Area
-		var dataJSON []byte
-		var cityID sql.NullString
-
-		if err := rows.Scan(
-			&area.ID, &area.Slug, &area.Name, &area.City, &cityID,
-			&area.Lat, &area.Lng, &area.Status, &dataJSON,
-			&area.CreatedAt, &area.UpdatedAt,
-		); err != nil {
+	areas := make([]domain.Area, 0, len(rows))
+	for _, row := range rows {
+		area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, pgtype.Timestamptz{})
+		if err != nil {
 			return nil, err
 		}
-
-		if cityID.Valid {
-			id := uuid.MustParse(cityID.String)
-			area.CityID = &id
-		}
-
-		if len(dataJSON) > 0 {
-			if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
-				return nil, err
-			}
-		} else {
-			area.Data = domain.AreaData{}
-		}
+		area.CityID = nullUUIDToPtr(row.CityID)
 
 		if !includeBoundary && area.Data.Boundary != nil {
 			area.Data.Boundary = nil
 		}
 
-		areas = append(areas, area)
+		areas = append(areas, *area)
 	}
 
-	err = rows.Err()
-	if err != nil {
-		r.logger.Error("area_repo_list_rows_error",
-			"include_boundary", includeBoundary,
-			"error", err.Error(),
-		)
-		return nil, err
-	}
-
-	r.logger.Info("area_repo_list_completed",
-		"count", len(areas),
-		"include_boundary", includeBoundary,
-	)
-
+	r.logger.Info("area_repo_list_completed", "count", len(areas), "include_boundary", includeBoundary)
 	return areas, nil
 }
 
 func (r *AreaRepo) GetIDBySlug(slug string) (*uuid.UUID, error) {
-	r.logger.Info("area_repo_get_id_by_slug_started",
-		"slug", slug,
-	)
+	r.logger.Info("area_repo_get_id_by_slug_started", "slug", slug)
 
-	var id uuid.UUID
-	err := r.db.QueryRow(`SELECT id FROM areas WHERE slug = $1 AND deleted_at IS NULL`, slug).Scan(&id)
+	id, err := r.queries.GetAreaIDBySlug(context.Background(), slug)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			r.logger.Info("area_repo_get_id_by_slug_not_found",
-				"slug", slug,
-			)
+		if errors.Is(err, pgx.ErrNoRows) {
+			r.logger.Info("area_repo_get_id_by_slug_not_found", "slug", slug)
 			return nil, nil
 		}
-		r.logger.Error("area_repo_get_id_by_slug_failed",
-			"slug", slug,
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_get_id_by_slug_failed", "slug", slug, "error", err.Error())
 		return nil, err
 	}
 
-	r.logger.Info("area_repo_get_id_by_slug_completed",
-		"slug", slug,
-		"area_id", id,
-	)
-
+	r.logger.Info("area_repo_get_id_by_slug_completed", "slug", slug, "area_id", id)
 	return &id, nil
 }
 
 func (r *AreaRepo) Create(area *domain.Area) error {
-	r.logger.Info("area_repo_create_started",
-		"area_slug", area.Slug,
-		"area_name", area.Name,
-	)
+	r.logger.Info("area_repo_create_started", "area_slug", area.Slug, "area_name", area.Name)
 
 	dataJSON, err := json.Marshal(area.Data)
 	if err != nil {
-		r.logger.Error("area_repo_create_marshal_failed",
-			"area_slug", area.Slug,
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_create_marshal_failed", "area_slug", area.Slug, "error", err.Error())
 		return err
 	}
 
-	var cityID *string
-	if area.CityID != nil {
-		cityIDStr := area.CityID.String()
-		cityID = &cityIDStr
-	}
-
-	err = r.db.QueryRow(`
-		INSERT INTO areas (slug, name, city, city_id, lat, lng, status, data)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING id, created_at, updated_at
-	`, area.Slug, area.Name, area.City, cityID, area.Lat, area.Lng, area.Status, dataJSON).Scan(
-		&area.ID, &area.CreatedAt, &area.UpdatedAt,
-	)
-
+	row, err := r.queries.CreateArea(context.Background(), sqlcgen.CreateAreaParams{
+		Slug:   area.Slug,
+		Name:   area.Name,
+		City:   area.City,
+		CityID: uuidPtrToNullUUID(area.CityID),
+		Lat:    float64ToNumeric(area.Lat),
+		Lng:    float64ToNumeric(area.Lng),
+		Status: string(area.Status),
+		Data:   dataJSON,
+	})
 	if err != nil {
-		r.logger.Error("area_repo_create_failed",
-			"area_slug", area.Slug,
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_create_failed", "area_slug", area.Slug, "error", err.Error())
 		return err
 	}
 
-	r.logger.Info("area_repo_create_completed",
-		"area_id", area.ID,
-		"area_slug", area.Slug,
-	)
+	area.ID = row.ID
+	area.CreatedAt = tstzToTime(row.CreatedAt)
+	area.UpdatedAt = tstzToTime(row.UpdatedAt)
 
+	r.logger.Info("area_repo_create_completed", "area_id", area.ID, "area_slug", area.Slug)
 	return nil
 }
 
 func (r *AreaRepo) Update(id uuid.UUID, area *domain.Area) error {
-	r.logger.Info("area_repo_update_started",
-		"area_id", id,
-	)
+	r.logger.Info("area_repo_update_started", "area_id", id)
 
 	dataJSON, err := json.Marshal(area.Data)
 	if err != nil {
-		r.logger.Error("area_repo_update_marshal_failed",
-			"area_id", id,
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_update_marshal_failed", "area_id", id, "error", err.Error())
 		return err
 	}
 
-	err = r.db.QueryRow(`
-		UPDATE areas
-		SET slug = $1, name = $2, city = $3, lat = $4, lng = $5, status = $6, data = $7, updated_at = NOW()
-		WHERE id = $8 AND deleted_at IS NULL
-		RETURNING updated_at
-	`, area.Slug, area.Name, area.City, area.Lat, area.Lng, area.Status, dataJSON, id).Scan(&area.UpdatedAt)
-
+	updatedAt, err := r.queries.UpdateArea(context.Background(), sqlcgen.UpdateAreaParams{
+		Slug:   area.Slug,
+		Name:   area.Name,
+		City:   area.City,
+		Lat:    float64ToNumeric(area.Lat),
+		Lng:    float64ToNumeric(area.Lng),
+		Status: string(area.Status),
+		Data:   dataJSON,
+		ID:     id,
+	})
 	if err != nil {
-		r.logger.Error("area_repo_update_failed",
-			"area_id", id,
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_update_failed", "area_id", id, "error", err.Error())
 		return err
 	}
 
-	r.logger.Info("area_repo_update_completed",
-		"area_id", id,
-		"area_slug", area.Slug,
-	)
+	area.UpdatedAt = tstzToTime(updatedAt)
 
+	r.logger.Info("area_repo_update_completed", "area_id", id, "area_slug", area.Slug)
 	return nil
 }
 
 func (r *AreaRepo) GetByID(id uuid.UUID) (*domain.Area, error) {
-	r.logger.Info("area_repo_get_by_id_started",
-		"area_id", id,
-	)
+	r.logger.Info("area_repo_get_by_id_started", "area_id", id)
 
-	var area domain.Area
-	var dataJSON []byte
-
-	err := r.db.QueryRow(`
-		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
-		FROM areas
-		WHERE id = $1 AND deleted_at IS NULL
-	`, id).Scan(
-		&area.ID, &area.Slug, &area.Name, &area.City,
-		&area.Lat, &area.Lng, &area.Status, &dataJSON,
-		&area.CreatedAt, &area.UpdatedAt, &area.DeletedAt,
-	)
-
+	row, err := r.queries.GetAreaByID(context.Background(), id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			r.logger.Info("area_repo_get_by_id_not_found",
-				"area_id", id,
-			)
+		if errors.Is(err, pgx.ErrNoRows) {
+			r.logger.Info("area_repo_get_by_id_not_found", "area_id", id)
 			return nil, nil
 		}
-		r.logger.Error("area_repo_get_by_id_failed",
-			"area_id", id,
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_get_by_id_failed", "area_id", id, "error", err.Error())
 		return nil, err
 	}
 
-	if len(dataJSON) > 0 {
-		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
-			r.logger.Error("area_repo_get_by_id_unmarshal_failed",
-				"area_id", id,
-				"error", err.Error(),
-			)
-			return nil, err
-		}
-	} else {
-		area.Data = domain.AreaData{}
+	area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
+	if err != nil {
+		r.logger.Error("area_repo_get_by_id_unmarshal_failed", "area_id", id, "error", err.Error())
+		return nil, err
 	}
 
-	r.logger.Info("area_repo_get_by_id_completed",
-		"area_id", id,
-		"area_slug", area.Slug,
-	)
-
-	return &area, nil
+	r.logger.Info("area_repo_get_by_id_completed", "area_id", id, "area_slug", area.Slug)
+	return area, nil
 }
 
 func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 	r.logger.Info("area_repo_list_all_started")
 
-	rows, err := r.db.Query(`
-		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
-		FROM areas
-		WHERE deleted_at IS NULL
-		ORDER BY name
-	`)
+	rows, err := r.queries.ListAllAreas(context.Background())
 	if err != nil {
-		r.logger.Error("area_repo_list_all_query_failed",
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_list_all_query_failed", "error", err.Error())
 		return nil, err
 	}
-	defer rows.Close()
 
-	areas := []domain.Area{}
-	for rows.Next() {
-		var area domain.Area
-		var dataJSON []byte
-
-		if err := rows.Scan(
-			&area.ID, &area.Slug, &area.Name, &area.City,
-			&area.Lat, &area.Lng, &area.Status, &dataJSON,
-			&area.CreatedAt, &area.UpdatedAt, &area.DeletedAt,
-		); err != nil {
-			r.logger.Error("area_repo_list_all_scan_failed",
-				"error", err.Error(),
-			)
+	areas := make([]domain.Area, 0, len(rows))
+	for _, row := range rows {
+		area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
+		if err != nil {
+			r.logger.Error("area_repo_list_all_unmarshal_failed", "area_id", row.ID, "error", err.Error())
 			return nil, err
 		}
-
-		if len(dataJSON) > 0 {
-			if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
-				r.logger.Error("area_repo_list_all_unmarshal_failed",
-					"area_id", area.ID,
-					"error", err.Error(),
-				)
-				return nil, err
-			}
-		} else {
-			area.Data = domain.AreaData{}
-		}
-
-		areas = append(areas, area)
+		areas = append(areas, *area)
 	}
 
-	err = rows.Err()
-	if err != nil {
-		r.logger.Error("area_repo_list_all_rows_error",
-			"error", err.Error(),
-		)
-		return nil, err
-	}
-
-	r.logger.Info("area_repo_list_all_completed",
-		"count", len(areas),
-	)
-
+	r.logger.Info("area_repo_list_all_completed", "count", len(areas))
 	return areas, nil
 }
 
 func (r *AreaRepo) Delete(id uuid.UUID) error {
-	r.logger.Info("area_repo_delete_started",
-		"area_id", id,
-	)
+	r.logger.Info("area_repo_delete_started", "area_id", id)
 
-	_, err := r.db.Exec(`
-		UPDATE areas
-		SET deleted_at = NOW()
-		WHERE id = $1 AND deleted_at IS NULL
-	`, id)
-
-	if err != nil {
-		r.logger.Error("area_repo_delete_failed",
-			"area_id", id,
-			"error", err.Error(),
-		)
+	if err := r.queries.DeleteArea(context.Background(), id); err != nil {
+		r.logger.Error("area_repo_delete_failed", "area_id", id, "error", err.Error())
 		return err
 	}
 
-	r.logger.Info("area_repo_delete_completed",
-		"area_id", id,
-	)
-
+	r.logger.Info("area_repo_delete_completed", "area_id", id)
 	return nil
 }
 
 func (r *AreaRepo) ListDeleted() ([]domain.Area, error) {
 	r.logger.Info("area_repo_list_deleted_started")
 
-	rows, err := r.db.Query(`
-		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
-		FROM areas
-		WHERE deleted_at IS NOT NULL
-		ORDER BY deleted_at DESC
-	`)
+	rows, err := r.queries.ListDeletedAreas(context.Background())
 	if err != nil {
-		r.logger.Error("area_repo_list_deleted_query_failed",
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_list_deleted_query_failed", "error", err.Error())
 		return nil, err
 	}
-	defer rows.Close()
 
-	areas := []domain.Area{}
-	for rows.Next() {
-		var area domain.Area
-		var dataJSON []byte
-
-		if err := rows.Scan(
-			&area.ID, &area.Slug, &area.Name, &area.City,
-			&area.Lat, &area.Lng, &area.Status, &dataJSON,
-			&area.CreatedAt, &area.UpdatedAt, &area.DeletedAt,
-		); err != nil {
-			r.logger.Error("area_repo_list_deleted_scan_failed",
-				"error", err.Error(),
-			)
+	areas := make([]domain.Area, 0, len(rows))
+	for _, row := range rows {
+		area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
+		if err != nil {
+			r.logger.Error("area_repo_list_deleted_unmarshal_failed", "area_id", row.ID, "error", err.Error())
 			return nil, err
 		}
-
-		if len(dataJSON) > 0 {
-			if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
-				r.logger.Error("area_repo_list_deleted_unmarshal_failed",
-					"area_id", area.ID,
-					"error", err.Error(),
-				)
-				return nil, err
-			}
-		} else {
-			area.Data = domain.AreaData{}
-		}
-
-		areas = append(areas, area)
+		areas = append(areas, *area)
 	}
 
-	r.logger.Info("area_repo_list_deleted_completed",
-		"count", len(areas),
-	)
-
+	r.logger.Info("area_repo_list_deleted_completed", "count", len(areas))
 	return areas, nil
 }
 
 func (r *AreaRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Area, error) {
-	r.logger.Info("area_repo_get_by_id_with_deleted_started",
-		"area_id", id,
-	)
+	r.logger.Info("area_repo_get_by_id_with_deleted_started", "area_id", id)
 
-	var area domain.Area
-	var dataJSON []byte
-
-	err := r.db.QueryRow(`
-		SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
-		FROM areas
-		WHERE id = $1
-	`, id).Scan(
-		&area.ID, &area.Slug, &area.Name, &area.City,
-		&area.Lat, &area.Lng, &area.Status, &dataJSON,
-		&area.CreatedAt, &area.UpdatedAt, &area.DeletedAt,
-	)
-
+	row, err := r.queries.GetAreaByIDWithDeleted(context.Background(), id)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
-		r.logger.Error("area_repo_get_by_id_with_deleted_failed",
-			"area_id", id,
-			"error", err.Error(),
-		)
+		r.logger.Error("area_repo_get_by_id_with_deleted_failed", "area_id", id, "error", err.Error())
 		return nil, err
 	}
 
-	if len(dataJSON) > 0 {
-		if err := json.Unmarshal(dataJSON, &area.Data); err != nil {
+	area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return area, nil
+}
+
+func (r *AreaRepo) Restore(id uuid.UUID) error {
+	r.logger.Info("area_repo_restore_started", "area_id", id)
+
+	if err := r.queries.RestoreArea(context.Background(), id); err != nil {
+		r.logger.Error("area_repo_restore_failed", "area_id", id, "error", err.Error())
+		return err
+	}
+
+	r.logger.Info("area_repo_restore_completed", "area_id", id)
+	return nil
+}
+
+func (r *AreaRepo) HardDelete(id uuid.UUID) error {
+	r.logger.Info("area_repo_hard_delete_started", "area_id", id)
+
+	if err := r.queries.HardDeleteArea(context.Background(), id); err != nil {
+		r.logger.Error("area_repo_hard_delete_failed", "area_id", id, "error", err.Error())
+		return err
+	}
+
+	r.logger.Info("area_repo_hard_delete_completed", "area_id", id)
+	return nil
+}
+
+// sqlcAreaRowToDomain converts sqlc area row fields to domain.Area
+func sqlcAreaRowToDomain(id uuid.UUID, slug, name, city string, lat, lng pgtype.Numeric, status string, data []byte, createdAt, updatedAt, deletedAt pgtype.Timestamptz) (*domain.Area, error) {
+	area := &domain.Area{
+		ID:        id,
+		Slug:      slug,
+		Name:      name,
+		City:      city,
+		Lat:       numericToFloat64(lat),
+		Lng:       numericToFloat64(lng),
+		Status:    domain.AreaStatus(status),
+		CreatedAt: tstzToTime(createdAt),
+		UpdatedAt: tstzToTime(updatedAt),
+		DeletedAt: tstzToTimePtr(deletedAt),
+	}
+
+	if len(data) > 0 {
+		if err := json.Unmarshal(data, &area.Data); err != nil {
 			return nil, err
 		}
 	} else {
 		area.Data = domain.AreaData{}
 	}
 
-	return &area, nil
+	return area, nil
 }
-
-func (r *AreaRepo) Restore(id uuid.UUID) error {
-	r.logger.Info("area_repo_restore_started",
-		"area_id", id,
-	)
-
-	_, err := r.db.Exec(`
-		UPDATE areas
-		SET deleted_at = NULL
-		WHERE id = $1 AND deleted_at IS NOT NULL
-	`, id)
-
-	if err != nil {
-		r.logger.Error("area_repo_restore_failed",
-			"area_id", id,
-			"error", err.Error(),
-		)
-		return err
-	}
-
-	r.logger.Info("area_repo_restore_completed",
-		"area_id", id,
-	)
-
-	return nil
-}
-
-func (r *AreaRepo) HardDelete(id uuid.UUID) error {
-	r.logger.Info("area_repo_hard_delete_started",
-		"area_id", id,
-	)
-
-	_, err := r.db.Exec(`DELETE FROM areas WHERE id = $1`, id)
-
-	if err != nil {
-		r.logger.Error("area_repo_hard_delete_failed",
-			"area_id", id,
-			"error", err.Error(),
-		)
-		return err
-	}
-
-	r.logger.Info("area_repo_hard_delete_completed",
-		"area_id", id,
-	)
-
-	return nil
-}
-

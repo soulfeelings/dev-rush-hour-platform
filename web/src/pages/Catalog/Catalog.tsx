@@ -5,7 +5,7 @@ import { Select } from '../../ui/Select'
 import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
 import PropertyMap from '../../components/PropertyMap'
 import { useListProjects, useListLots } from '../../api'
-import { apiProjectsToProperties } from '../../utils/apiAdapters'
+import { getProjectSlug } from '../../utils/project'
 import type { Lot } from '../../api'
 import type { ListLotsParams } from '../../api/generated/schemas/listLotsParams'
 import { useFilters } from '../../contexts'
@@ -208,8 +208,20 @@ export default function Catalog() {
 
   const projects = useMemo(() => {
     if (!projectsData) return []
-    return apiProjectsToProperties(projectsData)
-  }, [projectsData])
+    let result = [...projectsData]
+
+    if (filters.project) {
+      result = result.filter(p => getProjectSlug(p) === filters.project)
+    }
+
+    if (filters.propertyType !== 'all') {
+      result = result.filter(p =>
+        p.propertyTypes?.some(t => t.toLowerCase() === filters.propertyType)
+      )
+    }
+
+    return result
+  }, [projectsData, filters.project, filters.propertyType])
 
   // Load all lots without filters — filtering is done on the frontend via useMemo in LotsView
   const lotsParams = useMemo((): ListLotsParams => ({ limit: 1000 }), [])
@@ -255,14 +267,14 @@ export default function Catalog() {
     return lotsData.items as Lot[]
   }, [lotsData])
 
-  const activeProperties = useMemo(
+  const activeProjects = useMemo(
     () => projects.filter(p => p.status === 'active'),
     [projects]
   )
-  const totalResults = activeTab === 'projects' ? activeProperties.length : lots.length
+  const totalResults = activeTab === 'projects' ? activeProjects.length : lots.length
   const displayedResults =
     activeTab === 'projects'
-      ? activeProperties.filter(p => !p.isFeatured).length
+      ? activeProjects.filter(p => !p.isFeatured).length
       : displayedLotsCount
 
   const catalogContent = (
@@ -306,7 +318,7 @@ export default function Catalog() {
       </div>
       <div className={styles.viewContainer}>
         {activeTab === 'projects' ? (
-          <ProjectsView properties={projects} isLoading={projectsLoading} error={projectsError} />
+          <ProjectsView projects={projects} isLoading={projectsLoading} error={projectsError} />
         ) : (
           <LotsView
             lots={lots}
@@ -321,7 +333,7 @@ export default function Catalog() {
     </div>
   )
 
-  const mapContent = <PropertyMap ref={mapRef} properties={activeProperties} />
+  const mapContent = <PropertyMap ref={mapRef} projects={activeProjects} />
 
   return (
     <div className={styles.container}>

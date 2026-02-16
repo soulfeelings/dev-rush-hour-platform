@@ -615,3 +615,120 @@
     border-bottom: none;
   }
 }
+
+// View Card with Photos and Orientation Map
+.viewCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+  margin-top: $spacing-6;
+}
+
+.viewCardTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0 0 $spacing-6 0;
+}
+
+.viewPhotosSection {
+  margin-bottom: $spacing-6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.viewPhotosTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  margin: 0 0 $spacing-4 0;
+}
+
+.viewGallery {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  margin-bottom: $spacing-3;
+
+  &:hover {
+    .navButton {
+      opacity: 1;
+    }
+  }
+}
+
+.viewPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.viewThumbnails {
+  display: flex;
+  gap: $spacing-2;
+  overflow-x: auto;
+  padding: $spacing-2 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: $radius-full;
+  }
+}
+
+.viewThumbnail {
+  flex: 0 0 80px;
+  height: 60px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all $transition-fast;
+  box-shadow: $shadow-sm;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &.activeViewThumbnail {
+    border-color: $color-yellow;
+    transform: scale(1.05);
+  }
+
+  &:hover {
+    border-color: rgba($color-yellow, 0.5);
+  }
+}
+
+.orientationSection {
+  margin-top: $spacing-6;
+}
+
+.orientationTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  margin: 0 0 $spacing-4 0;
+}
+
+.viewMap {
+  width: 100%;
+  height: 350px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+}

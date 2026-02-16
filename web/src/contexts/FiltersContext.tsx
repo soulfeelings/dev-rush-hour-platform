@@ -11,15 +11,16 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useGetFilterOptions } from '../api/generated/rushHourRealEstatePlatformAPI'
 
 import type { FilterOptions } from '../api/generated/schemas/filterOptions'
+import type { FilterOption } from '../api/generated/schemas/filterOption'
+import { LotType } from '../api/generated/schemas/lotType'
 
 export type FilterValues = {
   city: string | null
   area: string | null
   developer: string | null
   project: string | null
-  propertyType: 'all' | 'apartment' | 'villa' | 'townhouse' | 'penthouse' | 'duplex'
-  // Lot-specific filters
-  lotType: 'all' | 'apartment' | 'penthouse'
+  propertyType: 'all' | LotType
+  lotType: 'all' | LotType
   roiMin: string
   bedrooms: string[]
   bathrooms: string[]
@@ -38,6 +39,8 @@ type FiltersContextType = {
   error: Error | null
   updateFilter: <K extends keyof FilterValues>(key: K, value: FilterValues[K]) => void
   resetFilters: () => void
+  getFilteredAreas: () => FilterOption[]
+  getFilteredProjects: () => FilterOption[]
 }
 
 const FiltersContext = createContext<FiltersContextType | undefined>(undefined)
@@ -71,15 +74,13 @@ const parseFiltersFromURL = (search: string): FilterValues => {
   if (params.get('project')) filters.project = params.get('project')
 
   const type = params.get('type')
-  if (type && ['apartment', 'villa', 'townhouse', 'penthouse', 'duplex'].includes(type)) {
+  if (type && Object.values(LotType).includes(type as LotType)) {
     filters.propertyType = type as FilterValues['propertyType']
   }
-
   const lotType = params.get('lotType')
-  if (lotType && ['apartment', 'penthouse'].includes(lotType)) {
+  if (lotType && (lotType === 'all' || Object.values(LotType).includes(lotType as LotType))) {
     filters.lotType = lotType as FilterValues['lotType']
   }
-
   if (params.get('roiMin')) filters.roiMin = params.get('roiMin') || ''
 
   const beds = params.get('bedrooms')
@@ -152,21 +153,15 @@ export function FiltersProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const [filters, setFilters] = useState<FilterValues>(() => parseFiltersFromURL(location.search))
 
-  // Refs to avoid stale closures without triggering re-renders
-  const navigateRef = useRef(navigate)
-  const pathnameRef = useRef(location.pathname)
+  // Track the source of changes to prevent sync loops
   const isSyncingFromURL = useRef(false)
   const lastSyncedSearch = useRef(location.search)
-
-  useEffect(() => {
-    navigateRef.current = navigate
-    pathnameRef.current = location.pathname
-  }, [navigate, location.pathname])
 
   const { data: options, isLoading, error } = useGetFilterOptions()
 
   // Sync filters FROM URL when URL changes (e.g., browser back/forward)
   useEffect(() => {
+    // Skip if URL hasn't actually changed (prevents unnecessary re-parses)
     if (location.search === lastSyncedSearch.current) {
       return
     }
@@ -179,6 +174,7 @@ export function FiltersProvider({ children }: { children: ReactNode }) {
 
   // Sync filters TO URL when filters change
   useEffect(() => {
+    // Skip if this update came from URL sync
     if (isSyncingFromURL.current) {
       isSyncingFromURL.current = false
       return
@@ -186,17 +182,17 @@ export function FiltersProvider({ children }: { children: ReactNode }) {
 
     const params = buildURLParams(filters)
     const newSearch = params.toString()
-    const currentSearch = lastSyncedSearch.current.replace(/^\?/, '')
+    const currentSearch = location.search.replace(/^\?/, '')
 
+    // Only navigate if the search params actually changed
     if (newSearch !== currentSearch) {
-      const nextSearch = newSearch ? `?${newSearch}` : ''
-      lastSyncedSearch.current = nextSearch
-      navigateRef.current(
-        { pathname: pathnameRef.current, search: nextSearch },
+      lastSyncedSearch.current = newSearch ? `?${newSearch}` : ''
+      navigate(
+        { pathname: location.pathname, search: newSearch ? `?${newSearch}` : '' },
         { replace: true }
       )
     }
-  }, [filters])
+  }, [filters, navigate, location.pathname, location.search])
 
   const updateFilter = useCallback(
     <K extends keyof FilterValues>(key: K, value: FilterValues[K]) => {
@@ -225,6 +221,23 @@ export function FiltersProvider({ children }: { children: ReactNode }) {
     setFilters(defaultFilters)
   }, [])
 
+  const getFilteredAreas = useCallback((): FilterOption[] => {
+    if (!options?.areas) return []
+    if (!filters.city) return options.areas
+
+    // Filter areas by city - for now return all, will be filtered by citySlug after migration
+    return options.areas
+  }, [options, filters.city])
+
+  const getFilteredProjects = useCallback((): FilterOption[] => {
+    if (!options?.projects) return []
+
+    return options.projects.filter(() => {
+      // Filter by city, area, developer when those filters are implemented
+      return true
+    })
+  }, [options])
+
   return (
     <FiltersContext.Provider
       value={{
@@ -234,6 +247,8 @@ export function FiltersProvider({ children }: { children: ReactNode }) {
         error: error as Error | null,
         updateFilter,
         resetFilters,
+        getFilteredAreas,
+        getFilteredProjects,
       }}
     >
       {children}

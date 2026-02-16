@@ -7,7 +7,10 @@
  */
 import type { ProjectCreateRequestStatus } from './projectCreateRequestStatus'
 import type { ProjectCreateRequestSale } from './projectCreateRequestSale'
-import type { ProjectData } from './projectData'
+import type { ProjectCreateRequestDescription } from './projectCreateRequestDescription'
+import type { Media } from './media'
+import type { ProjectTimeline } from './projectTimeline'
+import type { ProjectCreateRequestPricesByTypeItem } from './projectCreateRequestPricesByTypeItem'
 
 export interface ProjectCreateRequest {
   slug: string
@@ -18,7 +21,38 @@ export interface ProjectCreateRequest {
   areaId?: string
   lat?: number
   lng?: number
-  data?: ProjectData
+  description?: ProjectCreateRequestDescription
+  featuresAmenities?: string[]
+  media?: Media
+  /** Избранный проект */
+  isFeatured?: boolean
+  /** Теги проекта */
+  tags?: string[]
+  /** YouTube video URL for the project */
+  youtubeUrl?: string
+  timeline?: ProjectTimeline
+  /** Return on Investment percentage */
+  roi?: number
+  /** Our company price (AED) */
+  priceFromUs?: number
+  /** Original developer price (AED) */
+  priceFromDeveloper?: number
+  /** Payment plan description */
+  paymentPlan?: string
+  /** Expected completion date (e.g., Q4 2025, 2026) */
+  completionDate?: string
+  /** Currency code (e.g., AED, USD) */
+  currency?: string
+  /** Available property types */
+  propertyTypes?: string[]
+  /** Available bedroom configurations */
+  bedrooms?: string[]
+  /** Area size */
+  areaSize?: number
+  /** Unit for area measurement (sqm, sqft) */
+  areaUnit?: string
+  /** Prices broken down by property type */
+  pricesByType?: ProjectCreateRequestPricesByTypeItem[]
   /** IDs of badges for the project */
   badgeIds?: string[]
   /** IDs of complex infrastructure for the project */

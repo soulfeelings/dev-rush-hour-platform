@@ -10,7 +10,7 @@ import {
   Textarea,
   Badge as BadgeUI,
 } from '../../../../ui'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Image as ImageIcon } from 'lucide-react'
 import {
   type ProjectCreateRequest,
   type Project,
@@ -18,6 +18,7 @@ import {
   type Infrastructure,
 } from '../../../../api'
 import { MapPicker } from '../MapPicker'
+import { MediaPicker } from '../MediaPicker'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './ProjectForm.module.scss'
 
@@ -198,7 +199,7 @@ export function ProjectForm({
 
   const initialForm = useMemo(() => {
     if (initialData) {
-      const descriptionValue = initialData.data?.description
+      const descriptionValue = initialData.description
       const descriptionStr =
         typeof descriptionValue === 'string'
           ? descriptionValue
@@ -214,28 +215,28 @@ export function ProjectForm({
         areaId: initialData.areaId || '',
         lat: initialData.lat?.toString() || '',
         lng: initialData.lng?.toString() || '',
-        coverUrl: initialData.data?.media?.cover?.url || '',
-        hoverUrl: initialData.data?.media?.hover?.url || '',
-        logoUrl: initialData.data?.media?.logo?.url || '',
+        coverUrl: initialData.media?.cover?.url || '',
+        hoverUrl: initialData.media?.hover?.url || '',
+        logoUrl: initialData.media?.logo?.url || '',
         gallery:
-          initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
-        youtubeUrl: initialData.data?.youtubeUrl || '',
+          initialData.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
+        youtubeUrl: initialData.youtubeUrl || '',
         timeline: {
-          projectAnnouncement: initialData.data?.timeline?.projectAnnouncement || '',
-          bookingStarted: initialData.data?.timeline?.bookingStarted || '',
-          constructionStarted: initialData.data?.timeline?.constructionStarted || '',
-          constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+          projectAnnouncement: initialData.timeline?.projectAnnouncement || '',
+          bookingStarted: initialData.timeline?.bookingStarted || '',
+          constructionStarted: initialData.timeline?.constructionStarted || '',
+          constructionProgress: initialData.timeline?.constructionProgress || '',
           constructionProgressPercent:
-            initialData.data?.timeline?.constructionProgressPercent?.toString() || '',
-          expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
+            initialData.timeline?.constructionProgressPercent?.toString() || '',
+          expectedCompletion: initialData.timeline?.expectedCompletion || '',
         },
         description: descriptionStr,
-        roi: initialData.data?.roi?.toString() || '',
-        ourPrice: initialData.data?.ourPrice?.toString() || '',
-        developerPrice: initialData.data?.developerPrice?.toString() || '',
-        paymentPlan: initialData.data?.paymentPlan || '',
-        completionDate: initialData.data?.completionDate || '',
-        isFeatured: initialData.data?.isFeatured ?? false,
+        roi: initialData.roi?.toString() || '',
+        ourPrice: initialData.priceFromUs?.toString() || '',
+        developerPrice: initialData.priceFromDeveloper?.toString() || '',
+        paymentPlan: initialData.paymentPlan || '',
+        completionDate: initialData.completionDate || '',
+        isFeatured: initialData.isFeatured ?? false,
         badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
         infrastructureIds:
           initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -281,7 +282,8 @@ export function ProjectForm({
     if (newDate !== currentDate) {
       setForm(prev => ({ ...prev, completionDate: newDate }))
     }
-  }, [selectedMonth, selectedYear, form.completionDate])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMonth, selectedYear])
 
   // Обработчики для изменения месяца и года
   const handleMonthChange = (month: string) => {
@@ -305,7 +307,7 @@ export function ProjectForm({
 
   const initialFormData = useMemo(() => {
     if (!initialData) return null
-    const descriptionValue = initialData.data?.description
+    const descriptionValue = initialData.description
     const descriptionStr =
       typeof descriptionValue === 'string'
         ? descriptionValue
@@ -321,29 +323,29 @@ export function ProjectForm({
       areaId: initialData.areaId || '',
       lat: initialData.lat?.toString() || '',
       lng: initialData.lng?.toString() || '',
-      coverUrl: initialData.data?.media?.cover?.url || '',
-      hoverUrl: initialData.data?.media?.hover?.url || '',
-      logoUrl: initialData.data?.media?.logo?.url || '',
-      gallery: initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
-      youtubeUrl: initialData.data?.youtubeUrl || '',
+      coverUrl: initialData.media?.cover?.url || '',
+      hoverUrl: initialData.media?.hover?.url || '',
+      logoUrl: initialData.media?.logo?.url || '',
+      gallery: initialData.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
+      youtubeUrl: initialData.youtubeUrl || '',
       timeline: {
-        projectAnnouncement: initialData.data?.timeline?.projectAnnouncement || '',
-        bookingStarted: initialData.data?.timeline?.bookingStarted || '',
-        constructionStarted: initialData.data?.timeline?.constructionStarted || '',
-        constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+        projectAnnouncement: initialData.timeline?.projectAnnouncement || '',
+        bookingStarted: initialData.timeline?.bookingStarted || '',
+        constructionStarted: initialData.timeline?.constructionStarted || '',
+        constructionProgress: initialData.timeline?.constructionProgress || '',
         constructionProgressPercent:
           (
-            initialData.data?.timeline as Record<string, unknown> | undefined
+            initialData.timeline as Record<string, unknown> | undefined
           )?.constructionProgressPercent?.toString() || '',
-        expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
+        expectedCompletion: initialData.timeline?.expectedCompletion || '',
       },
       description: descriptionStr,
-      roi: initialData.data?.roi?.toString() || '',
-      ourPrice: initialData.data?.ourPrice?.toString() || '',
-      developerPrice: initialData.data?.developerPrice?.toString() || '',
-      paymentPlan: initialData.data?.paymentPlan || '',
-      completionDate: initialData.data?.completionDate || '',
-      isFeatured: initialData.data?.isFeatured ?? false,
+      roi: initialData.roi?.toString() || '',
+      ourPrice: initialData.priceFromUs?.toString() || '',
+      developerPrice: initialData.priceFromDeveloper?.toString() || '',
+      paymentPlan: initialData.paymentPlan || '',
+      completionDate: initialData.completionDate || '',
+      isFeatured: initialData.isFeatured ?? false,
       badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
       infrastructureIds:
         initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -354,7 +356,7 @@ export function ProjectForm({
     if (!isEditMode || !initialFormData) return false
     const galleryChanged =
       form.gallery.length !== initialFormData.gallery.length ||
-      form.gallery.some((url: string, idx: number) => url !== initialFormData.gallery[idx])
+      form.gallery.some((url, idx) => url !== initialFormData.gallery[idx])
     const timelineChanged =
       form.timeline.projectAnnouncement !== initialFormData.timeline.projectAnnouncement ||
       form.timeline.bookingStarted !== initialFormData.timeline.bookingStarted ||
@@ -365,10 +367,10 @@ export function ProjectForm({
       form.timeline.expectedCompletion !== initialFormData.timeline.expectedCompletion
     const badgeIdsChanged =
       form.badgeIds.length !== initialFormData.badgeIds.length ||
-      form.badgeIds.some((id: string, idx: number) => id !== initialFormData.badgeIds[idx])
+      form.badgeIds.some((id, idx) => id !== initialFormData.badgeIds[idx])
     const infrastructureIdsChanged =
       form.infrastructureIds.length !== initialFormData.infrastructureIds.length ||
-      form.infrastructureIds.some((id: string, idx: number) => id !== initialFormData.infrastructureIds[idx])
+      form.infrastructureIds.some((id, idx) => id !== initialFormData.infrastructureIds[idx])
     return (
       form.slug !== initialFormData.slug ||
       form.name !== initialFormData.name ||
@@ -398,6 +400,11 @@ export function ProjectForm({
 
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState(false)
+
+  // Media picker state
+  const [pickerOpen, setPickerOpen] = useState<
+    'coverUrl' | 'hoverUrl' | 'logoUrl' | 'gallery' | null
+  >(null)
 
   const validate = (): ValidationErrors => {
     const newErrors: ValidationErrors = {}
@@ -440,11 +447,9 @@ export function ProjectForm({
       ...(form.areaId && { areaId: form.areaId }),
       ...(form.lat && { lat: parseFloat(form.lat) }),
       ...(form.lng && { lng: parseFloat(form.lng) }),
-      badgeIds: form.badgeIds,
-      infrastructureIds: form.infrastructureIds,
+      ...(form.badgeIds.length > 0 && { badgeIds: form.badgeIds }),
+      ...(form.infrastructureIds.length > 0 && { infrastructureIds: form.infrastructureIds }),
     }
-
-    const dataPayload: Record<string, unknown> = {}
 
     const mediaData: Record<string, unknown> = {}
     if (form.coverUrl) {
@@ -457,14 +462,14 @@ export function ProjectForm({
       mediaData.logo = { url: form.logoUrl }
     }
     if (form.gallery.length > 0) {
-      mediaData.gallery = form.gallery.filter(Boolean).map((url: string) => ({ url }))
+      mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
     }
     if (Object.keys(mediaData).length > 0) {
-      dataPayload.media = mediaData
+      payload.media = mediaData as ProjectCreateRequest['media']
     }
 
     if (form.youtubeUrl) {
-      dataPayload.youtubeUrl = form.youtubeUrl
+      payload.youtubeUrl = form.youtubeUrl
     }
 
     const timelineData: Record<string, string | number> = {}
@@ -483,32 +488,28 @@ export function ProjectForm({
     if (form.timeline.expectedCompletion)
       timelineData.expectedCompletion = form.timeline.expectedCompletion
     if (Object.keys(timelineData).length > 0) {
-      dataPayload.timeline = timelineData
+      payload.timeline = timelineData as ProjectCreateRequest['timeline']
     }
 
     if (form.description) {
-      dataPayload.description = form.description
+      payload.description = form.description as ProjectCreateRequest['description']
     }
     if (form.roi) {
-      dataPayload.roi = parseFloat(form.roi)
+      payload.roi = parseFloat(form.roi)
     }
     if (form.ourPrice) {
-      dataPayload.ourPrice = parseFloat(form.ourPrice)
+      payload.priceFromUs = parseFloat(form.ourPrice)
     }
     if (form.developerPrice) {
-      dataPayload.developerPrice = parseFloat(form.developerPrice)
+      payload.priceFromDeveloper = parseFloat(form.developerPrice)
     }
     if (form.paymentPlan) {
-      dataPayload.paymentPlan = form.paymentPlan
+      payload.paymentPlan = form.paymentPlan
     }
     if (form.completionDate) {
-      dataPayload.completionDate = form.completionDate
+      payload.completionDate = form.completionDate
     }
-    dataPayload.isFeatured = form.isFeatured
-
-    if (Object.keys(dataPayload).length > 0) {
-      payload.data = dataPayload
-    }
+    payload.isFeatured = form.isFeatured
 
     if (!isEditMode) {
       clearCache()
@@ -521,7 +522,7 @@ export function ProjectForm({
   }
 
   const removeGalleryItem = (index: number) => {
-    setForm({ ...form, gallery: form.gallery.filter((_: string, i: number) => i !== index) })
+    setForm({ ...form, gallery: form.gallery.filter((_, i) => i !== index) })
   }
 
   const updateGalleryItem = (index: number, url: string) => {
@@ -532,14 +533,14 @@ export function ProjectForm({
 
   const toggleBadge = (badgeId: string) => {
     const newBadgeIds = form.badgeIds.includes(badgeId)
-      ? form.badgeIds.filter((id: string) => id !== badgeId)
+      ? form.badgeIds.filter(id => id !== badgeId)
       : [...form.badgeIds, badgeId]
     setForm({ ...form, badgeIds: newBadgeIds })
   }
 
   const toggleInfrastructure = (infraId: string) => {
     const newInfraIds = form.infrastructureIds.includes(infraId)
-      ? form.infrastructureIds.filter((id: string) => id !== infraId)
+      ? form.infrastructureIds.filter(id => id !== infraId)
       : [...form.infrastructureIds, infraId]
     setForm({ ...form, infrastructureIds: newInfraIds })
   }
@@ -549,7 +550,7 @@ export function ProjectForm({
       <Input
         label="Name"
         value={form.name}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange={e => {
           const newName = e.target.value
           setForm({ ...form, name: newName, slug: generateSlug(newName) })
         }}
@@ -612,7 +613,7 @@ export function ProjectForm({
             type="number"
             step="any"
             value={form.ourPrice}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, ourPrice: e.target.value })}
+            onChange={e => setForm({ ...form, ourPrice: e.target.value })}
             placeholder="Enter our price"
           />
           <Input
@@ -620,7 +621,7 @@ export function ProjectForm({
             type="number"
             step="any"
             value={form.developerPrice}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, developerPrice: e.target.value })}
+            onChange={e => setForm({ ...form, developerPrice: e.target.value })}
             placeholder="Enter developer price"
           />
         </div>
@@ -629,13 +630,13 @@ export function ProjectForm({
           type="number"
           step="0.01"
           value={form.roi}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, roi: e.target.value })}
+          onChange={e => setForm({ ...form, roi: e.target.value })}
           placeholder="Return on Investment percentage"
         />
         <Input
           label="Payment Plan"
           value={form.paymentPlan}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, paymentPlan: e.target.value })}
+          onChange={e => setForm({ ...form, paymentPlan: e.target.value })}
           onBlur={() => {
             const error = validatePaymentPlan(form.paymentPlan)
             setErrors(prev => ({ ...prev, paymentPlan: error }))
@@ -672,7 +673,7 @@ export function ProjectForm({
         <Textarea
           label="Project Description"
           value={form.description}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, description: e.target.value })}
+          onChange={e => setForm({ ...form, description: e.target.value })}
           placeholder="Enter project description..."
           rows={4}
         />
@@ -734,64 +735,108 @@ export function ProjectForm({
         type="number"
         step="any"
         value={form.lat}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, lat: e.target.value })}
+        onChange={e => setForm({ ...form, lat: e.target.value })}
       />
       <Input
         label="Longitude"
         type="number"
         step="any"
         value={form.lng}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, lng: e.target.value })}
+        onChange={e => setForm({ ...form, lng: e.target.value })}
       />
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Media</h3>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Cover Image URL"
-            type="url"
-            value={form.coverUrl}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, coverUrl: e.target.value })}
-            placeholder="https://example.com/image.jpg"
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Cover Image URL"
+              type="url"
+              value={form.coverUrl}
+              onChange={e => setForm({ ...form, coverUrl: e.target.value })}
+              placeholder="https://example.com/image.jpg"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('coverUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
         </div>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Hover Image URL"
-            type="url"
-            value={form.hoverUrl}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, hoverUrl: e.target.value })}
-            placeholder="https://example.com/hover-image.jpg"
-            error={errors.hoverUrl}
-            required
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Hover Image URL"
+              type="url"
+              value={form.hoverUrl}
+              onChange={e => setForm({ ...form, hoverUrl: e.target.value })}
+              placeholder="https://example.com/hover-image.jpg"
+              error={errors.hoverUrl}
+              required
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('hoverUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.hoverUrl && <ImagePreview src={form.hoverUrl} alt="Hover preview" />}
         </div>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Project Logo URL"
-            type="url"
-            value={form.logoUrl}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, logoUrl: e.target.value })}
-            placeholder="https://example.com/logo.png"
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Project Logo URL"
+              type="url"
+              value={form.logoUrl}
+              onChange={e => setForm({ ...form, logoUrl: e.target.value })}
+              placeholder="https://example.com/logo.png"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('logoUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.logoUrl && <ImagePreview src={form.logoUrl} alt="Logo preview" />}
         </div>
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
             <label className={styles.mediaListLabel}>Gallery</label>
-            <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm">
-              <Plus size={16} />
-              Add Image
-            </Button>
+            <div className={styles.mediaListActions}>
+              <Button
+                type="button"
+                onClick={() => setPickerOpen('gallery')}
+                variant="secondary"
+                size="sm"
+                iconLeft={<ImageIcon size={16} />}
+              >
+                Browse
+              </Button>
+              <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm">
+                <Plus size={16} />
+                Add Image
+              </Button>
+            </div>
           </div>
-          {form.gallery.map((url: string, index: number) => (
+          {form.gallery.map((url, index) => (
             <div key={index} className={styles.mediaItem}>
               <div className={styles.mediaItemContent}>
                 <Input
                   type="url"
                   value={url}
-                  onChange={(e: { target: { value: string } }) => updateGalleryItem(index, e.target.value)}
+                  onChange={e => updateGalleryItem(index, e.target.value)}
                   placeholder="https://example.com/image.jpg"
                 />
                 {url && <ImagePreview src={url} alt={`Gallery ${index + 1} preview`} />}
@@ -814,7 +859,7 @@ export function ProjectForm({
           label="YouTube Video URL"
           type="url"
           value={form.youtubeUrl}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, youtubeUrl: e.target.value })}
+          onChange={e => setForm({ ...form, youtubeUrl: e.target.value })}
           placeholder="https://www.youtube.com/watch?v=..."
         />
         <YouTubePreview url={form.youtubeUrl} size="medium" />
@@ -825,7 +870,7 @@ export function ProjectForm({
           label="Project Announcement"
           type="date"
           value={form.timeline.projectAnnouncement}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange={e =>
             setForm({
               ...form,
               timeline: { ...form.timeline, projectAnnouncement: e.target.value },
@@ -836,7 +881,7 @@ export function ProjectForm({
           label="Booking Started"
           type="date"
           value={form.timeline.bookingStarted}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange={e =>
             setForm({
               ...form,
               timeline: { ...form.timeline, bookingStarted: e.target.value },
@@ -847,7 +892,7 @@ export function ProjectForm({
           label="Construction Started"
           type="date"
           value={form.timeline.constructionStarted}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange={e =>
             setForm({
               ...form,
               timeline: { ...form.timeline, constructionStarted: e.target.value },
@@ -859,7 +904,7 @@ export function ProjectForm({
             label="Construction Progress"
             type="date"
             value={form.timeline.constructionProgress}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onChange={e =>
               setForm({
                 ...form,
                 timeline: { ...form.timeline, constructionProgress: e.target.value },
@@ -873,7 +918,7 @@ export function ProjectForm({
             max="100"
             step="1"
             value={form.timeline.constructionProgressPercent}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            onChange={e => {
               const val = e.target.value
               if (val === '' || (parseInt(val, 10) >= 0 && parseInt(val, 10) <= 100)) {
                 setForm({
@@ -889,7 +934,7 @@ export function ProjectForm({
           label="Expected Completion"
           type="date"
           value={form.timeline.expectedCompletion}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange={e =>
             setForm({
               ...form,
               timeline: { ...form.timeline, expectedCompletion: e.target.value },
@@ -911,6 +956,29 @@ export function ProjectForm({
             ? 'Save'
             : 'Create Project'}
       </Button>
+
+      {/* Media Pickers */}
+      <MediaPicker
+        open={pickerOpen === 'coverUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, coverUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'hoverUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, hoverUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'logoUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, logoUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'gallery'}
+        onClose={() => setPickerOpen(null)}
+        multiple
+        onSelectMultiple={urls => setForm({ ...form, gallery: [...form.gallery, ...urls] })}
+      />
     </form>
   )
 }

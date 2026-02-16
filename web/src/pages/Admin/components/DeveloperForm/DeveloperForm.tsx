@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button, Input } from '../../../../ui'
+import { Image as ImageIcon } from 'lucide-react'
 import { type DeveloperCreateRequest, type Developer } from '../../../../api'
+import { MediaPicker } from '../MediaPicker'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './DeveloperForm.module.scss'
 
@@ -59,6 +61,7 @@ export function DeveloperForm({
   }, [initialData, defaultForm, isEditMode])
 
   const [form, setForm] = useState(initialForm)
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   useEffect(() => {
     setForm(initialForm)
@@ -119,12 +122,23 @@ export function DeveloperForm({
         required
       />
       <Input label="Slug" value={form.slug} disabled />
-      <Input
-        label="Logo URL"
-        value={form.logoUrl}
-        onChange={e => setForm({ ...form, logoUrl: e.target.value })}
-        placeholder="https://example.com/logo.png"
-      />
+      <div className={styles.inputWithButton}>
+        <Input
+          label="Logo URL"
+          value={form.logoUrl}
+          onChange={e => setForm({ ...form, logoUrl: e.target.value })}
+          placeholder="https://example.com/logo.png"
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={() => setPickerOpen(true)}
+          iconLeft={<ImageIcon size={16} />}
+        >
+          Browse
+        </Button>
+      </div>
       {form.logoUrl && (
         <div className={styles.logoPreview}>
           <span className={styles.logoPreviewLabel}>Logo Preview:</span>
@@ -152,6 +166,13 @@ export function DeveloperForm({
             ? 'Save'
             : 'Create Developer'}
       </Button>
+
+      {/* Media Picker */}
+      <MediaPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={url => setForm({ ...form, logoUrl: url })}
+      />
     </form>
   )
 }

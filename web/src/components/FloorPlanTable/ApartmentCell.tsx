@@ -39,9 +39,9 @@ export const ApartmentCell = ({
             <span className={styles.areaValue}>{formatArea(lot.areaSqm, unit)}</span>
           </div>
         )}
-        {lot.priceAmount !== undefined && (
+        {lot.priceFromUs !== undefined && (
           <div className={styles.apartmentPrice}>
-            <span className={styles.priceValue}>{formatPrice(lot.priceAmount, currency)}</span>
+            <span className={styles.priceValue}>{formatPrice(lot.priceFromUs, currency)}</span>
           </div>
         )}
       </div>

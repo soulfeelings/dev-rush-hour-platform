@@ -85,6 +85,31 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
         fallback: [{ value: '', label: t('filters.location.all') }],
         emptyValue: '',
       }),
+      area: mapFilterOptions({
+        apiOptions: options?.areas ? [{ value: '', label: '' }, ...options.areas] : undefined,
+        allLabel: t('filters.area.all'),
+        fallback: [{ value: '', label: t('filters.area.all') }],
+        emptyValue: '',
+      }),
+      project: mapFilterOptions({
+        apiOptions: options?.projects ? [{ value: '', label: '' }, ...options.projects] : undefined,
+        allLabel: t('filters.project.all'),
+        fallback: [{ value: '', label: t('filters.project.all') }],
+        emptyValue: '',
+      }),
+      propertyType: mapFilterOptions({
+        apiOptions: options?.propertyTypes,
+        allLabel: t('filters.propertyType.all'),
+        fallback: [
+          { value: 'all', label: t('filters.propertyType.all') },
+          { value: 'apartment', label: t('filters.propertyType.apartment') },
+          { value: 'villa', label: t('filters.propertyType.villa') },
+          { value: 'townhouse', label: t('filters.propertyType.townhouse') },
+          { value: 'penthouse', label: t('filters.propertyType.penthouse') },
+          { value: 'duplex', label: t('filters.propertyType.duplex') },
+          { value: 'triplex', label: t('filters.propertyType.triplex') },
+        ],
+      }),
       lotType: [
         { value: 'all', label: t('filters.lotType.all') },
         { value: 'apartment', label: t('filters.lotType.apartment') },
@@ -118,6 +143,9 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
       filters.maxPrice !== '' ||
       filters.bedrooms.length > 0 ||
       filters.bathrooms.length > 0 ||
+      filters.area !== null ||
+      filters.project !== null ||
+      filters.propertyType !== 'all' ||
       filters.status !== 'all' ||
       filters.search !== ''
     )
@@ -129,6 +157,9 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
     filters.maxPrice,
     filters.bedrooms,
     filters.bathrooms,
+    filters.area,
+    filters.project,
+    filters.propertyType,
     filters.status,
     filters.search,
   ])
@@ -174,6 +205,40 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
 
         {activeTab === 'projects' ? (
           <>
+            <Select
+              options={filterOptions.project}
+              value={filters.project || ''}
+              onChange={value => updateFilter('project', value || null)}
+              placeholder={t('filters.project.all')}
+              triggerSize="xs"
+              searchable
+              clearable
+              defaultValue=""
+            />
+
+            <Select
+              options={filterOptions.area}
+              value={filters.area || ''}
+              onChange={value => updateFilter('area', value || null)}
+              placeholder={t('filters.area.all')}
+              triggerSize="xs"
+              searchable
+              clearable
+              defaultValue=""
+            />
+
+            <Select
+              options={filterOptions.propertyType}
+              value={filters.propertyType}
+              onChange={value =>
+                updateFilter('propertyType', (value || 'all') as FilterValues['propertyType'])
+              }
+              placeholder={t('filters.propertyType.all')}
+              triggerSize="xs"
+              clearable
+              defaultValue="all"
+            />
+
             <PriceSelect
               minPrice={filters.minPrice}
               maxPrice={filters.maxPrice}

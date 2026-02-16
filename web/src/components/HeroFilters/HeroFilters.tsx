@@ -8,6 +8,7 @@ import { Select } from '../../ui/Select'
 import { BedsBathsSelect } from './BedsBathsSelect'
 import { PriceSelect } from './PriceSelect'
 import { useSettings } from '../../features/Settings/Settings'
+import { openWhatsApp } from '../../services/whatsapp'
 import styles from './HeroFilters.module.scss'
 import { HeroFiltersSkeleton } from './HeroFiltersSkeleton'
 
@@ -53,7 +54,6 @@ export default function HeroFilters() {
   }
 
   const handleContactAgent = () => {
-    const phone = '971544313048'
     const cityLabel =
       cityOptions.find(opt => opt.value === (filters.city || 'all'))?.label ||
       t('filters.location.placeholder')
@@ -79,17 +79,17 @@ export default function HeroFilters() {
         : t('filters.price.all')
 
     const message = [
-      t('heroFilters.whatsappMessage.greeting'),
-      t('heroFilters.whatsappMessage.filters'),
-      t('heroFilters.whatsappMessage.city', { value: cityLabel }),
-      t('heroFilters.whatsappMessage.developer', { value: developerLabel }),
-      t('heroFilters.whatsappMessage.project', { value: projectLabel }),
-      t('heroFilters.whatsappMessage.bedrooms', { value: bedsLabel }),
-      t('heroFilters.whatsappMessage.bathrooms', { value: bathsLabel }),
-      t('heroFilters.whatsappMessage.price', { value: priceLabel }),
+      "Hello! I'm interested in properties in Dubai.",
+      'Filters:',
+      `- City: ${cityLabel}`,
+      `- Developer: ${developerLabel}`,
+      `- Project: ${projectLabel}`,
+      `- Bedrooms: ${bedsLabel}`,
+      `- Bathrooms: ${bathsLabel}`,
+      `- Price: ${priceLabel}`,
     ].join('\n')
 
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank')
+    openWhatsApp(message)
   }
 
   if (isLoading) {

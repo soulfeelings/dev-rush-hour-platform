@@ -2,17 +2,17 @@ import { useTranslation } from 'react-i18next'
 import { ProjectCard } from '../../../components/ProjectCard'
 import { ProjectsViewSkeleton } from './ProjectsViewSkeleton'
 import styles from '../Catalog.module.scss'
-import type { Property } from '../../../types/property'
+import type { Project } from '../../../api/generated/schemas/project'
 
 interface ProjectsViewProps {
-  properties: Property[]
+  projects: Project[]
   isLoading: boolean
   error: unknown
 }
 
-export default function ProjectsView({ properties, isLoading, error }: ProjectsViewProps) {
+export default function ProjectsView({ projects, isLoading, error }: ProjectsViewProps) {
   const { t } = useTranslation()
-  const activeProperties = properties.filter(p => p.status === 'active')
+  const activeProjects = projects.filter(p => p.status === 'active')
 
   if (isLoading) {
     return <ProjectsViewSkeleton />
@@ -33,8 +33,8 @@ export default function ProjectsView({ properties, isLoading, error }: ProjectsV
 
   return (
     <div className={styles.grid}>
-      {activeProperties.map(property => (
-        <ProjectCard key={property.id} property={property} />
+      {activeProjects.map(project => (
+        <ProjectCard key={project.id} project={project} />
       ))}
     </div>
   )

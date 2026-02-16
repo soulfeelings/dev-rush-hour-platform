@@ -10,5 +10,6 @@ import type { MediaItem } from './mediaItem'
 export interface LotMedia {
   photos?: MediaItem[]
   floorPlanImages?: MediaItem[]
+  viewPhotos?: MediaItem[]
   cover?: MediaItem
 }

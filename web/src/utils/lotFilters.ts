@@ -13,12 +13,12 @@ export const filterAndSortLots = (lots: Lot[], filters: FilterValues): Lot[] => 
 
     // Developer filter
     if (filters.developer) {
-      const devId = lot.developerId || lot.developer?.id || lot.project?.developer?.id
+      const devId = lot.developer?.id || lot.project?.developer?.id
       if (devId !== filters.developer) return false
     }
 
-    // Price filter (against ourPrice if set, otherwise priceAmount)
-    const effectivePrice = lot.ourPrice ?? lot.priceAmount ?? 0
+    // Price filter
+    const effectivePrice = lot.priceFromUs ?? 0
     if (filters.minPrice) {
       const min = parseFloat(filters.minPrice)
       if (!isNaN(min) && effectivePrice < min) return false
@@ -76,7 +76,7 @@ export const filterAndSortLots = (lots: Lot[], filters: FilterValues): Lot[] => 
   if (filters.sort && filters.sort !== 'default') {
     return filtered.sort((a, b) => {
       // Helper: get effective price
-      const getPrice = (lot: Lot) => lot.ourPrice ?? lot.priceAmount ?? 0
+      const getPrice = (lot: Lot) => lot.priceFromUs ?? 0
 
       switch (filters.sort) {
         case 'price_asc':

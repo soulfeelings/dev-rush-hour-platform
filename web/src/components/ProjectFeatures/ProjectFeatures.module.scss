@@ -5,10 +5,15 @@
 }
 
 .title {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
+  display: block;
   margin: 0 0 $spacing-4 0;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 14px;
+    font-weight: $font-weight-medium;
+    line-height: 18px;
+    margin-bottom: $spacing-2;
+  }
 }
 
 .infrastructureGrid {
