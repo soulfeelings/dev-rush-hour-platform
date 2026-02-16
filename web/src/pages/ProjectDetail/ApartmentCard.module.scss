@@ -26,6 +26,16 @@
   }
 }
 
+.fullWidth {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+}
+
+.noHoverLift:hover {
+  transform: none;
+}
+
 // Gallery
 .gallery {
   position: relative;

@@ -32,6 +32,7 @@ import { formatPrice, formatArea } from '../../utils/format'
 import { useIsRTL } from '../../hooks/useDirection'
 import { ApartmentsCarousel } from './ApartmentsCarousel'
 import { ApartmentCard } from './ApartmentCard'
+import { LotQuickViewModal } from './LotQuickViewModal'
 import { ProjectDetailSkeleton } from './ProjectDetailSkeleton'
 import styles from './ProjectDetail.module.scss'
 
@@ -99,6 +100,7 @@ export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>()
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const [isFloorPlanModalOpen, setIsFloorPlanModalOpen] = useState(false)
+  const [selectedLot, setSelectedLot] = useState<Lot | null>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
@@ -621,6 +623,7 @@ export default function ProjectDetail() {
                   projectSlug={slug}
                   areaName={project.area?.name}
                   roi={lot.roi ?? project.roi}
+                  onClick={openedLot => setSelectedLot(openedLot)}
                 />
               ))}
             </ApartmentsCarousel>
@@ -698,6 +701,20 @@ export default function ProjectDetail() {
           </div>
         )}
       </Modal>
+
+      <LotQuickViewModal
+        open={!!selectedLot}
+        onClose={() => setSelectedLot(null)}
+        lot={selectedLot}
+        projectName={project.name}
+        projectSlug={project.slug}
+        areaName={project.area?.name}
+        projectCompletionDate={project.completionDate}
+        projectPaymentPlan={project.paymentPlan}
+        fallbackRoi={project.roi}
+        lat={project.lat}
+        lng={project.lng}
+      />
     </div>
   )
 }

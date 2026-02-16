@@ -15,6 +15,7 @@ import { openWhatsApp } from '../../services/whatsapp'
 import { useIsRTL } from '../../hooks/useDirection'
 import type { Lot } from '../../api'
 import styles from './ApartmentCard.module.scss'
+import clsx from 'clsx'
 
 interface LotData {
   media?: {
@@ -29,6 +30,10 @@ interface ApartmentCardProps {
   projectSlug?: string
   areaName?: string
   roi?: number
+  onClick?: (lot: Lot) => void
+  fullWidth?: boolean
+  coverFirst?: boolean
+  disableHoverLift?: boolean
 }
 
 export function ApartmentCard({
@@ -37,6 +42,10 @@ export function ApartmentCard({
   projectSlug,
   areaName,
   roi,
+  onClick,
+  fullWidth = false,
+  coverFirst = false,
+  disableHoverLift = false,
 }: ApartmentCardProps) {
   const { currency, unit } = useSettings()
   const navigate = useNavigate()
@@ -51,7 +60,9 @@ export function ApartmentCard({
   const badges = lot.badges || []
 
   // Combine floor plan images + cover into gallery
-  const galleryImages = [...floorPlanImages, ...(coverImage ? [coverImage] : [])]
+  const galleryImages = coverFirst
+    ? [...(coverImage ? [coverImage] : []), ...floorPlanImages]
+    : [...floorPlanImages, ...(coverImage ? [coverImage] : [])]
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: isRTL ? 'rtl' : 'ltr' })
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -120,8 +131,21 @@ export function ApartmentCard({
 
   const title = t('apartmentCard.title', { type: capitalize(lot.type), count: lot.bedrooms ?? 0 })
 
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick(lot)
+      return
+    }
+    if (lot.id) {
+      navigate(getLotDetailRoute(lot.id))
+    }
+  }
+
   return (
-    <div className={styles.card} onClick={() => lot.id && navigate(getLotDetailRoute(lot.id))}>
+    <div
+      className={clsx(styles.card, fullWidth && styles.fullWidth, disableHoverLift && styles.noHoverLift)}
+      onClick={handleCardClick}
+    >
       {/* Gallery */}
       <div className={styles.gallery}>
         {galleryImages.length > 0 ? (

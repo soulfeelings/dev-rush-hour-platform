@@ -1,0 +1,321 @@
+@use '../../styles' as *;
+
+.quickViewModal {
+  max-width: min(1180px, 96vw) !important;
+  width: min(1180px, 96vw) !important;
+  height: min(92vh, 920px) !important;
+  max-height: min(92vh, 920px) !important;
+  padding: $spacing-3 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: auto minmax(380px, 1fr);
+  gap: $spacing-4;
+  height: auto;
+  min-height: 0;
+  align-items: start;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+}
+
+.leftPane {
+  align-self: start;
+  display: flex;
+  justify-content: center;
+}
+
+.leftColumn {
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  align-self: start;
+}
+
+.rightPane {
+  min-height: 0;
+  max-height: calc(min(92vh, 920px) - #{$spacing-6});
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-2;
+}
+
+.floorPlanFrame {
+  position: relative;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  width: fit-content;
+  max-width: min(520px, 44vw);
+  height: auto;
+  max-height: calc(92vh - 80px);
+}
+
+.floorPlanImage {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: calc(92vh - 80px);
+  object-fit: contain;
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  overflow: visible;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+}
+
+.lotCardWrap {
+  display: flex;
+  justify-content: center;
+}
+
+.sectionCard {
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  padding: $spacing-3;
+
+  h4 {
+    margin: 0 0 $spacing-2;
+    font-size: $font-size-lg;
+  }
+}
+
+.viewMap {
+  width: 100%;
+  height: 350px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: $color-bg;
+  margin-bottom: $spacing-2;
+}
+
+.orientationGallery {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-1;
+
+  padding: 2px;
+}
+
+.orientationGalleryItem {
+  border-radius: $radius-sm;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.imageArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(253, 253, 253, 0.8);
+  color: $color-charcoal-black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.leftArrow {
+  left: $spacing-2;
+}
+
+.rightArrow {
+  right: $spacing-2;
+}
+
+.paymentRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.paymentStages {
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
+}
+
+.paymentRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $spacing-2;
+  padding: 10px 0 8px;
+  position: relative;
+
+  &:not(:last-child) .paymentLeft::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 14px;
+    bottom: -12px;
+    width: 1px;
+    background: $color-charcoal-grey-50;
+    opacity: 0.55;
+  }
+}
+
+.paymentLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-2;
+  position: relative;
+  min-width: 0;
+}
+
+.paymentBullet {
+  width: 12px;
+  height: 12px;
+  border: 1px solid $color-charcoal-grey-50;
+  border-radius: 50%;
+  margin-top: 3px;
+  background: white;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.paymentText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.paymentStage {
+  color: $color-charcoal-black;
+  font-size: $font-size-lg;
+  line-height: 1.2;
+}
+
+.paymentMeta {
+  color: $color-charcoal-grey-50;
+  font-size: $font-size-sm;
+  line-height: 1.2;
+}
+
+.paymentRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.paymentAmount {
+  color: $color-charcoal-black;
+  font-size: $font-size-xl;
+  white-space: nowrap;
+}
+
+.paymentSubmeta {
+  color: $color-charcoal-grey-50;
+  font-size: $font-size-xs;
+  white-space: nowrap;
+}
+
+.paymentSummary {
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $spacing-2;
+  padding: 6px 0;
+}
+
+.summaryLeft,
+.summaryRight {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summaryLeft span,
+.summaryRight span {
+  font-size: $font-size-lg;
+  color: $color-charcoal-black;
+  line-height: 1.2;
+}
+
+.summaryLeft small,
+.summaryRight small {
+  font-size: $font-size-sm;
+  color: $color-charcoal-grey-50;
+  line-height: 1.2;
+}
+
+.summaryRight {
+  text-align: end;
+}
+
+.emptyState,
+.emptySecondary {
+  height: 100%;
+  min-height: 120px;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-secondary;
+  background: $color-bg;
+  text-align: center;
+  padding: $spacing-4;
+}
+
+@media (max-width: $breakpoint-lg) {
+  .floorPlanFrame {
+    max-width: 100%;
+    width: 100%;
+    max-height: none;
+  }
+
+  .floorPlanImage {
+    width: 100%;
+    max-height: 50vh;
+  }
+
+  .rightColumn {
+    overflow: visible;
+    max-height: none;
+  }
+
+  .rightPane {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+}

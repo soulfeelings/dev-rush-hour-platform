@@ -732,3 +732,135 @@
   overflow: hidden;
   box-shadow: $shadow-md;
 }
+
+.paymentPlanCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+}
+
+.paymentPlanTitle {
+  margin: 0 0 $spacing-4;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+}
+
+.paymentPlanRows {
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
+}
+
+.paymentPlanRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $spacing-2;
+  padding: 10px 0 8px;
+  position: relative;
+
+  &:not(:last-child) .paymentPlanLeft::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 14px;
+    bottom: -12px;
+    width: 1px;
+    background: $color-charcoal-grey-50;
+    opacity: 0.55;
+  }
+}
+
+.paymentPlanLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-2;
+  position: relative;
+  min-width: 0;
+}
+
+.paymentPlanBullet {
+  width: 12px;
+  height: 12px;
+  border: 1px solid $color-charcoal-grey-50;
+  border-radius: 50%;
+  margin-top: 3px;
+  background: white;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.paymentPlanText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.paymentPlanStage {
+  color: $color-charcoal-black;
+  font-size: $font-size-lg;
+  line-height: 1.2;
+}
+
+.paymentPlanMeta {
+  color: $color-charcoal-grey-50;
+  font-size: $font-size-sm;
+  line-height: 1.2;
+}
+
+.paymentPlanRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.paymentPlanAmount {
+  color: $color-charcoal-black;
+  font-size: $font-size-xl;
+  white-space: nowrap;
+}
+
+.paymentPlanSubmeta {
+  color: $color-charcoal-grey-50;
+  font-size: $font-size-xs;
+  white-space: nowrap;
+}
+
+.paymentPlanSummary {
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.paymentPlanSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $spacing-2;
+  padding: 6px 0;
+}
+
+.paymentPlanSummaryLeft,
+.paymentPlanSummaryRight {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.paymentPlanSummaryLeft span,
+.paymentPlanSummaryRight span {
+  font-size: $font-size-lg;
+  color: $color-charcoal-black;
+  line-height: 1.2;
+}
+
+.paymentPlanSummaryLeft small,
+.paymentPlanSummaryRight small {
+  font-size: $font-size-sm;
+  color: $color-charcoal-grey-50;
+  line-height: 1.2;
+}
+
+.paymentPlanSummaryRight {
+  text-align: end;
+}

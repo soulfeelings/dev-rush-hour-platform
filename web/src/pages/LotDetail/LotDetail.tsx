@@ -159,11 +159,7 @@ export default function LotDetail() {
 
     L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      {
-        attribution:
-          'Thanks for the amazing satellite imagery provided by Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
-        maxZoom: 19,
-      }
+
     ).addTo(mapRef.current)
 
     setTimeout(() => {
@@ -395,6 +391,9 @@ export default function LotDetail() {
   }
 
   const priceText = formatPrice(lot.priceFromUs, currency)
+  const paymentUnitPrice = 10_000_000
+  const paymentFees = 100_000
+  const paymentTotal = paymentUnitPrice + paymentFees
 
   return (
     <div className={styles.container}>
@@ -678,6 +677,69 @@ export default function LotDetail() {
                 <span className={styles.value}>{translateBonusKeys(lot.bonusKeys).join(', ')}</span>
               </div>
             )}
+          </div>
+
+          <div className={styles.paymentPlanCard}>
+            <h3 className={styles.paymentPlanTitle}>Payment plan</h3>
+            <div className={styles.paymentPlanRows}>
+              <div className={styles.paymentPlanRow}>
+                <div className={styles.paymentPlanLeft}>
+                  <span className={styles.paymentPlanBullet} />
+                  <div className={styles.paymentPlanText}>
+                    <span className={styles.paymentPlanStage}>Down Payment</span>
+                    <span className={styles.paymentPlanMeta}>30%</span>
+                  </div>
+                </div>
+                <div className={styles.paymentPlanRight}>
+                  <span className={styles.paymentPlanAmount}>{formatPrice(3_000_000, currency)}</span>
+                  <span className={styles.paymentPlanSubmeta}>Fees included 20%</span>
+                </div>
+              </div>
+              <div className={styles.paymentPlanRow}>
+                <div className={styles.paymentPlanLeft}>
+                  <span className={styles.paymentPlanBullet} />
+                  <div className={styles.paymentPlanText}>
+                    <span className={styles.paymentPlanStage}>Pre-Handover Payments</span>
+                    <span className={styles.paymentPlanMeta}>10%</span>
+                  </div>
+                </div>
+                <div className={styles.paymentPlanRight}>
+                  <span className={styles.paymentPlanAmount}>{formatPrice(1_000_000, currency)}</span>
+                </div>
+              </div>
+              <div className={styles.paymentPlanRow}>
+                <div className={styles.paymentPlanLeft}>
+                  <span className={styles.paymentPlanBullet} />
+                  <div className={styles.paymentPlanText}>
+                    <span className={styles.paymentPlanStage}>On Handover</span>
+                    <span className={styles.paymentPlanMeta}>60%</span>
+                  </div>
+                </div>
+                <div className={styles.paymentPlanRight}>
+                  <span className={styles.paymentPlanAmount}>{formatPrice(6_000_000, currency)}</span>
+                </div>
+              </div>
+            </div>
+            <div className={styles.paymentPlanSummary}>
+              <div className={styles.paymentPlanSummaryRow}>
+                <div className={styles.paymentPlanSummaryLeft}>
+                  <span>Unit Price</span>
+                  <small>Fees</small>
+                </div>
+                <div className={styles.paymentPlanSummaryRight}>
+                  <span>{formatPrice(paymentUnitPrice, currency)}</span>
+                  <small>{formatPrice(paymentFees, currency)}</small>
+                </div>
+              </div>
+              <div className={styles.paymentPlanSummaryRow}>
+                <div className={styles.paymentPlanSummaryLeft}>
+                  <span>Total Price</span>
+                </div>
+                <div className={styles.paymentPlanSummaryRight}>
+                  <span>{formatPrice(paymentTotal, currency)}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
