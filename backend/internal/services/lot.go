@@ -196,6 +196,12 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 	if updates.PriceFromUs != 0 {
 		existing.PriceFromUs = updates.PriceFromUs
 	}
+	if updates.PriceFromDeveloper != nil {
+		existing.PriceFromDeveloper = updates.PriceFromDeveloper
+	}
+	if updates.ROI != nil {
+		existing.ROI = updates.ROI
+	}
 	if len(updates.BonusKeys) > 0 {
 		existing.BonusKeys = updates.BonusKeys
 	}

@@ -36,6 +36,11 @@ import { ProjectDetailSkeleton } from './ProjectDetailSkeleton'
 import styles from './ProjectDetail.module.scss'
 
 const MAP_ZOOM_DEFAULT = 13
+const ALWAYS_FRESH_QUERY_OPTIONS = {
+  staleTime: 0,
+  refetchOnMount: 'always' as const,
+  refetchOnWindowFocus: true,
+}
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -154,6 +159,7 @@ export default function ProjectDetail() {
   } = useGetProject(slug || '', undefined, {
     query: {
       enabled: !!slug,
+      ...ALWAYS_FRESH_QUERY_OPTIONS,
     },
   })
 
@@ -162,6 +168,7 @@ export default function ProjectDetail() {
     {
       query: {
         enabled: !!slug,
+        ...ALWAYS_FRESH_QUERY_OPTIONS,
       },
     }
   )
@@ -613,7 +620,7 @@ export default function ProjectDetail() {
                   projectName={project.name}
                   projectSlug={slug}
                   areaName={project.area?.name}
-                  roi={project.roi}
+                  roi={lot.roi ?? project.roi}
                 />
               ))}
             </ApartmentsCarousel>

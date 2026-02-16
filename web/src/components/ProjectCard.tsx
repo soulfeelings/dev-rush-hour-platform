@@ -168,8 +168,8 @@ export const ProjectCard = ({
 
             {/* Цены */}
             <div className={styles.pricesSection}>
-              {/* Our price (со скидкой, только при наведении) */}
-              {discount && discount > 0 && project.priceFromUs && (
+              {/* Our price */}
+              {project.priceFromUs && (
                 <motion.div
                   initial={false}
                   animate={{ height: isHovered || isMobile ? 'auto' : 0 }}
@@ -185,7 +185,9 @@ export const ProjectCard = ({
                       >
                         {t('ourPrice')}:
                       </Typography>
-                      <span className={styles.discountBadge}>-{discount}%</span>
+                      {discount && discount > 0 && (
+                        <span className={styles.discountBadge}>-{discount}%</span>
+                      )}
                     </div>
                     <div className={styles.priceValue}>
                       <Typography className={styles.from}>{t('from')}</Typography>{' '}
@@ -195,33 +197,35 @@ export const ProjectCard = ({
                           : { variant: 'h1' as const })}
                         className={styles.priceAmount}
                       >
-                        {formatPrice(project.priceFromUs * (1 - discount / 100), currency)}
+                        {formatPrice(project.priceFromUs, currency)}
                       </Typography>
                     </div>
                   </div>
                 </motion.div>
               )}
               {/* Developer price */}
-              <div className={styles.priceRow}>
-                <Typography
-                  size={isCompact ? 'regular' : 'large'}
-                  weight="medium"
-                  className={styles.priceLabel}
-                >
-                  {t('developerPrice')}:
-                </Typography>
-                <div className={styles.priceValue}>
-                  <Typography className={styles.from}>{t('from')}</Typography>{' '}
+              {project.priceFromDeveloper && (
+                <div className={styles.priceRow}>
                   <Typography
-                    {...(isCompact
-                      ? { size: 'large', weight: 'semibold' }
-                      : { variant: 'h1' as const })}
-                    className={styles.priceAmount}
+                    size={isCompact ? 'regular' : 'large'}
+                    weight="medium"
+                    className={styles.priceLabel}
                   >
-                    {formatPrice(project.priceFromDeveloper, currency)}
+                    {t('developerPrice')}:
                   </Typography>
+                  <div className={styles.priceValue}>
+                    <Typography className={styles.from}>{t('from')}</Typography>{' '}
+                    <Typography
+                      {...(isCompact
+                        ? { size: 'large', weight: 'semibold' }
+                        : { variant: 'h1' as const })}
+                      className={styles.priceAmount}
+                    >
+                      {formatPrice(project.priceFromDeveloper, currency)}
+                    </Typography>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Дата и payment plan */}

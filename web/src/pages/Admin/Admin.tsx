@@ -28,6 +28,7 @@ import {
   getAdminListDeletedCitiesQueryKey,
   getAdminListDeletedBadgesQueryKey,
   getAdminListDeletedInfrastructuresQueryKey,
+  getListLotsQueryKey,
 } from '../../api'
 import type { Badge } from '../../api/generated/schemas/badge'
 import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreateRequest'
@@ -109,6 +110,11 @@ import styles from './Admin.module.scss'
 
 cleanupOldDrafts()
 
+const isProjectsQueryKey = (queryKey: readonly unknown[]) => {
+  const key = queryKey[0]
+  return typeof key === 'string' && key.startsWith('/projects')
+}
+
 export default function Admin() {
   const queryClient = useQueryClient()
   const params = useParams<'*'>()
@@ -152,6 +158,13 @@ export default function Admin() {
   const infrastructures = infrastructuresData || []
   const cities = citiesData || []
 
+  const invalidatePublicLotCardsCache = () => {
+    queryClient.invalidateQueries({ queryKey: getListLotsQueryKey() })
+    queryClient.invalidateQueries({
+      predicate: query => isProjectsQueryKey(query.queryKey),
+    })
+  }
+
   const createDeveloperMutation = useAdminCreateDeveloper({
     mutation: {
       onSuccess: () => {
@@ -188,6 +201,7 @@ export default function Admin() {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.LOTS] })
+        invalidatePublicLotCardsCache()
         setSuccess('Lot created successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
@@ -236,6 +250,7 @@ export default function Admin() {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.LOTS] })
+        invalidatePublicLotCardsCache()
         setSuccess('Lot updated successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
@@ -397,6 +412,7 @@ export default function Admin() {
           oldData ? oldData.filter(item => item.id !== variables.id) : []
         )
         queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
+        invalidatePublicLotCardsCache()
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to delete lot')
@@ -528,6 +544,7 @@ export default function Admin() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.LOTS] })
         queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
+        invalidatePublicLotCardsCache()
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to restore lot')
@@ -539,6 +556,7 @@ export default function Admin() {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
+        invalidatePublicLotCardsCache()
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to permanently delete lot')

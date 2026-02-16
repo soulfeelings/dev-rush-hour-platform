@@ -92,6 +92,12 @@ const useIsDesktop = () => {
 
 type SortValue = 'default' | ListProjectsSort
 
+const ALWAYS_FRESH_QUERY_OPTIONS = {
+  staleTime: 0,
+  refetchOnMount: 'always' as const,
+  refetchOnWindowFocus: true,
+}
+
 // Moved outside component — pure function, no deps on props/state
 const getPriceRange = (priceRange: string): { min?: number; max?: number } => {
   switch (priceRange) {
@@ -204,7 +210,9 @@ export default function Catalog() {
     data: projectsData,
     isLoading: projectsLoading,
     error: projectsError,
-  } = useListProjects(projectsParams)
+  } = useListProjects(projectsParams, {
+    query: ALWAYS_FRESH_QUERY_OPTIONS,
+  })
 
   const projects = useMemo(() => {
     if (!projectsData) return []
@@ -231,7 +239,12 @@ export default function Catalog() {
     data: lotsData,
     isLoading: lotsLoading,
     error: lotsError,
-  } = useListLots(lotsParams, { query: { enabled: activeTab === 'lots' } })
+  } = useListLots(lotsParams, {
+    query: {
+      enabled: activeTab === 'lots',
+      ...ALWAYS_FRESH_QUERY_OPTIONS,
+    },
+  })
 
   // State to track displayed lots count
   const [displayedLotsCount, setDisplayedLotsCount] = useState<number>(0)

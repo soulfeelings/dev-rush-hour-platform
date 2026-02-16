@@ -1,3 +1,0 @@
-ALTER TABLE lots ADD COLUMN our_price DECIMAL(15, 2);
-ALTER TABLE lots ADD COLUMN developer_price DECIMAL(15, 2);
-ALTER TABLE lots ADD COLUMN roi DECIMAL(5, 2);
