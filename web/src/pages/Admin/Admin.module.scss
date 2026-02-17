@@ -17,7 +17,7 @@
 .sidebarOverlay {
   display: none;
 
-  @media (max-width: 767px) {
+  @include max-md {
     display: block;
     position: fixed;
     top: 0;
@@ -32,7 +32,7 @@
 .mobileMenuButton {
   display: none;
 
-  @media (max-width: 767px) {
+  @include max-md {
     display: flex;
     align-items: center;
     justify-content: center;
