@@ -11,19 +11,12 @@
   padding: 27px 63px 35px 67px;
   margin-bottom: $spacing-12;
 
-  @media (max-width: $breakpoint-sm) {
-    width: 100%;
-  }
-
-  @media (max-width: $breakpoint-xl) {
-    padding: 16px 10px;
-  }
-
   @media (max-width: $breakpoint-xl) {
     padding: 24px $spacing-6 28px;
   }
 
   @media (max-width: $breakpoint-sm) {
+    width: 100%;
     padding: 20px $spacing-4;
   }
 }

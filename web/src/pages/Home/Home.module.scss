@@ -6,6 +6,31 @@
 // HOME PAGE - Landing Page Styles
 // ============================================
 
+// Landing-specific sizing tokens (not in global variables)
+$section-padding-top: 100px;
+$section-padding-bottom: 65px;
+$section-padding-mobile: 32px 16px;
+$cta-btn-height: 56px;
+$cta-btn-height-mobile: 36px;
+$cta-btn-padding-h: 84px;
+$cta-btn-font-size: 24px;
+
+// Shared CTA button override mixin (landing sections only)
+@mixin landing-cta-btn {
+  border-radius: $radius-full !important;
+  height: $cta-btn-height;
+  padding: 0 $cta-btn-padding-h !important;
+  font-size: $cta-btn-font-size !important;
+  font-weight: $font-weight-regular !important;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: $font-size-md !important;
+    height: $cta-btn-height-mobile;
+    width: 100%;
+    padding: 0 !important;
+  }
+}
+
 .home {
   font-family: $font-family-primary;
   background: $color-bg;
@@ -13,10 +38,10 @@
   min-height: 100vh;
   line-height: $line-height-normal;
 
-  --folow-us-padding-top: 44px;
+  --follow-us-padding-top: 44px;
 
   @media (max-width: $breakpoint-sm) {
-    --folow-us-padding-top: 0px;
+    --follow-us-padding-top: 0px;
   }
 }
 
@@ -24,7 +49,7 @@
 // HERO SECTION
 // ----------------
 .hero {
-  padding: 65px 0;
+  padding: $section-padding-bottom 0;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -79,14 +104,11 @@
   line-height: 1.1;
 }
 
+// Base = mobile value; scale up via min-width breakpoints
 .heroTaglineScript {
   font-family: 'Corinthia', cursive;
   font-weight: $font-weight-regular;
-  font-size: 21px;
-
-  @media (max-width: $breakpoint-sm) {
-    font-size: 40px;
-  }
+  font-size: 40px;
 
   @media (min-width: $breakpoint-sm) {
     font-size: 60px;
@@ -101,14 +123,11 @@
   }
 }
 
+// Base = mobile value; scale up via min-width breakpoints
 .heroTaglineSans {
   font-family: $font-family-primary;
   font-weight: $font-weight-regular;
-  font-size: 40px;
-
-  @media (max-width: $breakpoint-sm) {
-    font-size: 21px;
-  }
+  font-size: 21px;
 
   @media (min-width: $breakpoint-sm) {
     font-size: 34px;
@@ -131,6 +150,7 @@
   border: 1px solid $color-yellow;
   border-radius: $radius-full;
   padding: $spacing-2;
+
   @media (max-width: $breakpoint-sm) {
     padding: 2px;
   }
@@ -183,7 +203,7 @@
 // FILTERS & DEMO SECTION
 // ----------------
 .filtersDemo {
-  padding: 65px $spacing-4;
+  padding: $section-padding-bottom $spacing-4;
   background: linear-gradient(to bottom, $color-charcoal-grey-5 66%, $color-bg-card 66%);
   display: flex;
   flex-direction: column;
@@ -197,13 +217,12 @@
 
 .filtersDemoTitle {
   font-family: $font-family-primary;
-  font-size: 14px;
   font-weight: $font-weight-regular;
   color: $color-text;
   margin: 0 0 49px;
+  font-size: 14px;
 
   @media (max-width: $breakpoint-sm) {
-    font-size: 14px;
     margin: 0 0 10px;
     font-weight: 500;
   }
@@ -242,92 +261,10 @@
 }
 
 .filtersDemoGoBtn {
-  border-radius: $radius-full !important;
-  height: 56px;
-  padding: 0 84px !important;
-  font-size: 24px !important;
-  font-weight: $font-weight-regular !important;
+  @include landing-cta-btn;
 
   @media (max-width: $breakpoint-sm) {
-    font-size: $font-size-md !important;
-    height: 36px;
-    width: 100%;
-    padding: 0 !important;
     margin-top: 10px;
-  }
-}
-
-// ----------------
-// BENEFITS SECTION
-// ----------------
-.benefits {
-  padding: 0;
-  background: $color-bg;
-}
-
-.benefitsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-}
-
-.benefitCard {
-  min-height: 100vh;
-  height: 100vh;
-  background: $color-bg-card;
-  padding: $spacing-8;
-  border-radius: 0;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: all $transition-normal;
-  box-shadow: none;
-
-  &:hover {
-    transform: none;
-    box-shadow: none;
-  }
-}
-
-.benefitIcon {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto $spacing-6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: $color-yellow-light;
-  border-radius: $radius-xl;
-
-  svg {
-    width: 60px;
-    height: 60px;
-    color: $color-yellow;
-  }
-}
-
-.benefitTitle {
-  font-size: $font-size-3xl;
-  font-weight: $font-weight-bold;
-  margin: 0 0 $spacing-4;
-  color: $color-text;
-
-  @media (min-width: $breakpoint-xl) {
-    font-size: $font-size-4xl;
-  }
-}
-
-.benefitDesc {
-  font-size: $font-size-lg;
-  color: $color-text-secondary;
-  margin: 0;
-  line-height: $line-height-relaxed;
-  max-width: 600px;
-
-  @media (min-width: $breakpoint-xl) {
-    font-size: $font-size-xl;
   }
 }
 
@@ -335,11 +272,11 @@
 // FEATURED PROPERTIES
 // ----------------
 .properties {
-  padding: 100px 0;
+  padding: $section-padding-top 0;
   background: $color-charcoal-grey-5;
 
   @media (max-width: $breakpoint-sm) {
-    padding: 32px 16px;
+    padding: $section-padding-mobile;
   }
 }
 
@@ -374,7 +311,7 @@
   @media (max-width: $breakpoint-sm) {
     font-size: 14px;
     font-weight: $font-weight-regular;
-    margin-top: 8px;
+    margin-top: $spacing-2;
     white-space: normal;
   }
 }
@@ -382,11 +319,6 @@
 // Carousel
 .carouselWrapper {
   position: relative;
-  // padding: 0 $spacing-4;
-
-  @media (min-width: $breakpoint-xl) {
-    // padding: 0 $spacing-10;
-  }
 }
 
 .carouselTrack {
@@ -489,18 +421,7 @@
 }
 
 .seeMoreBtn {
-  border-radius: $radius-full !important;
-  height: 56px;
-  padding: 0 84px !important;
-  font-size: 24px !important;
-  font-weight: $font-weight-regular !important;
-
-  @media (max-width: $breakpoint-sm) {
-    font-size: $font-size-md !important;
-    height: 36px;
-    width: 100%;
-    padding: 0 !important;
-  }
+  @include landing-cta-btn;
 }
 
 // Skeleton (loading state)
@@ -543,39 +464,10 @@
 }
 
 // ----------------
-// SHARED SECTION STYLES
-// ----------------
-.sectionHeader {
-  max-width: 1200px;
-  margin: 0 auto $spacing-8;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: $spacing-4;
-}
-
-.sectionTitle {
-  font-size: $font-size-2xl;
-  font-weight: $font-weight-bold;
-  margin: 0;
-
-  @media (min-width: $breakpoint-md) {
-    font-size: $font-size-3xl;
-  }
-}
-
-.sectionSubtitle {
-  font-size: $font-size-md;
-  color: $color-text-secondary;
-  margin: $spacing-1 0 0;
-}
-
-// ----------------
 // FEATURES SECTION
 // ----------------
 .features {
-  padding: 100px $spacing-4 65px;
+  padding: $section-padding-top $spacing-4 $section-padding-bottom;
   background: $color-bg-card;
   display: flex;
   flex-direction: column;
@@ -583,7 +475,7 @@
   text-align: center;
 
   @media (max-width: $breakpoint-sm) {
-    padding: 32px 16px;
+    padding: $section-padding-mobile;
   }
 }
 
@@ -605,7 +497,7 @@
   margin: $spacing-3 0 0;
 
   @media (max-width: $breakpoint-sm) {
-    margin-top: 8px;
+    margin-top: $spacing-2;
     font-size: 14px;
   }
 }
@@ -627,6 +519,14 @@
   background: $color-charcoal-black;
   border-radius: $radius-xl;
   overflow: hidden;
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
 }
 
 .videoPlayBtn {
@@ -673,17 +573,9 @@
 }
 
 .featuresBtn {
-  border-radius: $radius-full !important;
-  height: 56px;
-  padding: 0 84px !important;
-  font-size: 24px !important;
-  font-weight: $font-weight-regular !important;
+  @include landing-cta-btn;
 
   @media (max-width: $breakpoint-sm) {
-    font-size: $font-size-md !important;
-    height: 36px;
-    width: 100%;
-    padding: 0 !important;
     margin-top: 10px;
   }
 }
@@ -692,7 +584,7 @@
 // ADVANTAGES SECTION
 // ----------------
 .advantages {
-  padding: 100px $spacing-4 65px;
+  padding: $section-padding-top $spacing-4 $section-padding-bottom;
   background: $color-charcoal-grey-5;
   display: flex;
   flex-direction: column;
@@ -700,7 +592,7 @@
   text-align: center;
 
   @media (max-width: $breakpoint-sm) {
-    padding: 32px 16px;
+    padding: $section-padding-mobile;
   }
 }
 
@@ -805,17 +697,9 @@
 }
 
 .advantagesBtn {
-  border-radius: $radius-full !important;
-  height: 56px;
-  padding: 0 84px !important;
-  font-size: 24px !important;
-  font-weight: $font-weight-regular !important;
+  @include landing-cta-btn;
 
   @media (max-width: $breakpoint-sm) {
-    font-size: $font-size-md !important;
-    height: 36px;
-    width: 100%;
-    padding: 0 !important;
     margin-top: 10px;
   }
 }
@@ -845,15 +729,15 @@
 
 .founderText {
   flex: 1;
-  padding: 100px $spacing-4 65px;
+  padding: $section-padding-top $spacing-4 $section-padding-bottom;
 
   @media (max-width: $breakpoint-sm) {
-    padding: 32px 16px;
+    padding: $section-padding-mobile;
     text-align: center;
   }
 
   @media (min-width: $breakpoint-xl) {
-    padding: 100px $spacing-8 65px 0;
+    padding: $section-padding-top $spacing-8 $section-padding-bottom 0;
   }
 }
 
@@ -878,7 +762,7 @@
   @media (max-width: $breakpoint-sm) {
     font-size: 14px;
     margin-bottom: 12px;
-    margin-top: 8px;
+    margin-top: $spacing-2;
   }
 }
 
@@ -891,7 +775,6 @@
 
   p {
     font-size: 24px;
-
     font-weight: $font-weight-regular;
     color: $color-text;
     margin: 0 0 $spacing-4;
@@ -911,13 +794,15 @@
 
 .founderPhoto {
   flex-shrink: 0;
-  margin-bottom: calc(var(--folow-us-padding-top) * -1);
+  width: 50%;
+  margin-bottom: calc(var(--follow-us-padding-top) * -1);
 
-  @media (min-width: $breakpoint-md) {
-    width: 50%;
+  // In column layout (< xl), the photo spans 80% width centered
+  @media (max-width: $breakpoint-sm) {
+    width: 100%;
   }
 
-  @media (max-width: $breakpoint-xl) {
+  @media (min-width: $breakpoint-sm) and (max-width: $breakpoint-xl) {
     width: 80%;
   }
 
@@ -933,12 +818,12 @@
 // FOLLOW US SECTION
 // ----------------
 .followUs {
-  padding: var(--folow-us-padding-top) 65px;
+  padding: var(--follow-us-padding-top) 65px;
   background: $color-charcoal-grey-5;
 
   @media (max-width: $breakpoint-sm) {
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
   }
 }
 
@@ -952,7 +837,7 @@
 
   @media (max-width: $breakpoint-sm) {
     padding: 44px $spacing-4;
-    border-radius: 0px;
+    border-radius: 0;
   }
 }
 
@@ -976,7 +861,7 @@
 
   @media (max-width: $breakpoint-sm) {
     font-size: 14px;
-    margin-top: 8px;
+    margin-top: $spacing-2;
   }
 }
 
@@ -989,12 +874,6 @@
   a {
     width: 56px;
     height: 56px;
-
-    @media (max-width: $breakpoint-sm) {
-      width: 50px;
-      height: 50px;
-    }
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1014,10 +893,15 @@
         height: 37px;
       }
     }
+
+    @media (max-width: $breakpoint-sm) {
+      width: 50px;
+      height: 50px;
+    }
   }
 
   @media (max-width: $breakpoint-sm) {
-    gap: 8px;
+    gap: $spacing-2;
   }
 }
 
@@ -1072,7 +956,7 @@
   color: $color-text-inverse;
 
   @media (max-width: $breakpoint-sm) {
-    padding: 32px 16px;
+    padding: $section-padding-mobile;
   }
 }
 

@@ -174,7 +174,12 @@ export default function Home() {
 
         <div className={styles.videoBlock}>
           <div className={styles.videoContainer}>
-            <button className={styles.videoPlayBtn} aria-label="Play video" />
+            <iframe
+              src="https://www.youtube.com/embed/HmOWyJlbFyE"
+              title="Rush Hour"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </div>
         </div>
 
@@ -278,13 +283,13 @@ export default function Home() {
           <h2 className={styles.followUsTitle}>{t('home.followUs.title')}</h2>
           <p className={styles.followUsSubtitle}>{t('home.followUs.subtitle')}</p>
           <div className={styles.followUsSocials}>
-            <a href="#" aria-label="LinkedIn">
+            <a href="https://www.linkedin.com/company/rush-hour-real-estate-broker/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
               <img src={iconLinkedin} alt="LinkedIn" />
             </a>
-            <a href="#" aria-label="Instagram">
+            <a href="https://www.instagram.com/rushhour.properties/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <img src={iconInstagram} alt="Instagram" />
             </a>
-            <a href="#" aria-label="YouTube">
+            <a href="https://www.youtube.com/channel/UCIKwE6B6VkI8nWWpkbXvRJg" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
               <img src={iconYoutube} alt="YouTube" />
             </a>
           </div>
