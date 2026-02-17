@@ -399,17 +399,6 @@ export default function Home() {
           </div>
           <div className={styles.footerBottom}>
             <p className={styles.footerCopyright}>{t('home.footer.copyright')}</p>
-            <div className={styles.footerSocials}>
-              <a href="#">
-                <IconX />
-              </a>
-              <a href="#">
-                <IconHome />
-              </a>
-              <a href="#">
-                <IconUsers />
-              </a>
-            </div>
           </div>
         </div>
       </footer>

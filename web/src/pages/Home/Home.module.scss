@@ -14,6 +14,10 @@
   line-height: $line-height-normal;
 
   --folow-us-padding-top: 44px;
+
+  @media (max-width: $breakpoint-sm) {
+    --folow-us-padding-top: 0px;
+  }
 }
 
 // ----------------
@@ -127,6 +131,9 @@
   border: 1px solid $color-yellow;
   border-radius: $radius-full;
   padding: $spacing-2;
+  @media (max-width: $breakpoint-sm) {
+    padding: 2px;
+  }
 }
 
 .heroBtn {
@@ -146,7 +153,6 @@
   gap: $spacing-1;
   background: none;
   border: none;
-  padding: $spacing-2 $spacing-5;
   font-family: $font-family-primary;
   font-size: $font-size-lg;
   font-weight: $font-weight-medium;
@@ -157,6 +163,10 @@
 
   &:hover {
     opacity: 0.7;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 10px;
   }
 }
 
@@ -179,6 +189,10 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 32px 10px;
+  }
 }
 
 .filtersDemoTitle {
@@ -187,6 +201,12 @@
   font-weight: $font-weight-regular;
   color: $color-text;
   margin: 0 0 49px;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+    margin: 0 0 10px;
+    font-weight: 500;
+  }
 
   @media (min-width: $breakpoint-sm) {
     font-size: 28px;
@@ -204,6 +224,10 @@
 .filtersDemoMockup {
   width: 100%;
   margin-bottom: $spacing-10;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-bottom: 0;
+  }
 
   img {
     width: 100%;
@@ -223,6 +247,14 @@
   padding: 0 84px !important;
   font-size: 24px !important;
   font-weight: $font-weight-regular !important;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: $font-size-md !important;
+    height: 36px;
+    width: 100%;
+    padding: 0 !important;
+    margin-top: 10px;
+  }
 }
 
 // ----------------
@@ -305,18 +337,30 @@
 .properties {
   padding: 100px 0;
   background: $color-charcoal-grey-5;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 32px 16px;
+  }
 }
 
 .propertiesHeader {
   text-align: center;
   margin-bottom: 50px;
   padding: 0 $spacing-4;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-bottom: 24px;
+  }
 }
 
 .propertiesTitle {
   font-size: 40px;
   font-weight: $font-weight-semibold;
   margin: 0;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
 }
 
 .propertiesSubtitle {
@@ -326,6 +370,13 @@
   margin: $spacing-7 0 0;
   line-height: 1;
   white-space: pre-line;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+    font-weight: $font-weight-regular;
+    margin-top: 8px;
+    white-space: normal;
+  }
 }
 
 // Carousel
@@ -360,16 +411,8 @@
 }
 
 .carouselSlide {
-  flex: 0 0 280px;
+  flex: 0 0 340px;
   scroll-snap-align: start;
-
-  @media (min-width: $breakpoint-md) {
-    flex: 0 0 310px;
-  }
-
-  @media (min-width: $breakpoint-2xl) {
-    flex: 0 0 340px;
-  }
 }
 
 .carouselArrow {
@@ -394,6 +437,10 @@
     background: $color-text;
     color: $color-text-inverse;
     border-color: $color-text;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    display: none;
   }
 }
 
@@ -435,6 +482,10 @@
   display: flex;
   justify-content: center;
   margin-top: 50px;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 24px;
+  }
 }
 
 .seeMoreBtn {
@@ -443,6 +494,13 @@
   padding: 0 84px !important;
   font-size: 24px !important;
   font-weight: $font-weight-regular !important;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: $font-size-md !important;
+    height: 36px;
+    width: 100%;
+    padding: 0 !important;
+  }
 }
 
 // Skeleton (loading state)
@@ -523,6 +581,10 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 32px 16px;
+  }
 }
 
 .featuresTitle {
@@ -530,6 +592,10 @@
   font-weight: $font-weight-semibold;
   margin: 0;
   color: $color-text;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
 }
 
 .featuresSubtitle {
@@ -537,12 +603,21 @@
   font-weight: $font-weight-regular;
   color: $color-charcoal-grey-50;
   margin: $spacing-3 0 0;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 8px;
+    font-size: 14px;
+  }
 }
 
 .videoBlock {
   width: 100%;
   max-width: 800px;
   margin: 50px 0;
+
+  @media (max-width: $breakpoint-sm) {
+    margin: 24px 0;
+  }
 }
 
 .videoContainer {
@@ -603,6 +678,14 @@
   padding: 0 84px !important;
   font-size: 24px !important;
   font-weight: $font-weight-regular !important;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: $font-size-md !important;
+    height: 36px;
+    width: 100%;
+    padding: 0 !important;
+    margin-top: 10px;
+  }
 }
 
 // ----------------
@@ -615,6 +698,10 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 32px 16px;
+  }
 }
 
 .advantagesTitle {
@@ -622,6 +709,10 @@
   font-weight: $font-weight-semibold;
   margin: 0;
   color: $color-text;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
 }
 
 .advantagesSubtitle {
@@ -629,6 +720,10 @@
   font-weight: $font-weight-regular;
   color: $color-charcoal-grey-50;
   margin: $spacing-3 0 0;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+  }
 }
 
 .advantagesGrid {
@@ -638,6 +733,19 @@
   display: grid;
   gap: $spacing-4;
   grid-template-columns: 1fr;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-bottom: 24px;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 
   @media (min-width: $breakpoint-sm) {
     grid-template-columns: repeat(2, 1fr);
@@ -656,6 +764,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media (max-width: $breakpoint-sm) {
+    flex: 0 0 auto;
+    min-width: 343px;
+    max-width: 343px;
+    scroll-snap-align: start;
+  }
 }
 
 .advantageIcon {
@@ -683,6 +798,10 @@
   color: $color-charcoal-black;
   margin: 0;
   line-height: $line-height-normal;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+  }
 }
 
 .advantagesBtn {
@@ -691,6 +810,14 @@
   padding: 0 84px !important;
   font-size: 24px !important;
   font-weight: $font-weight-regular !important;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: $font-size-md !important;
+    height: 36px;
+    width: 100%;
+    padding: 0 !important;
+    margin-top: 10px;
+  }
 }
 
 // ----------------
@@ -698,6 +825,10 @@
 // ----------------
 .founder {
   background: $color-bg-card;
+
+  @media (max-width: $breakpoint-sm) {
+    background: linear-gradient(to bottom, $color-bg-card 80%, $color-charcoal-grey-5 80%);
+  }
 }
 
 .founderTop {
@@ -716,6 +847,11 @@
   flex: 1;
   padding: 100px $spacing-4 65px;
 
+  @media (max-width: $breakpoint-sm) {
+    padding: 32px 16px;
+    text-align: center;
+  }
+
   @media (min-width: $breakpoint-xl) {
     padding: 100px $spacing-8 65px 0;
   }
@@ -726,6 +862,10 @@
   font-weight: $font-weight-semibold;
   margin: 0;
   color: $color-text;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
 }
 
 .founderRole {
@@ -734,13 +874,24 @@
   color: $color-text;
   margin: $spacing-6 0 0;
   white-space: pre-line;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
 }
 
 .founderQuote {
   margin-top: $spacing-8;
 
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 0;
+  }
+
   p {
     font-size: 24px;
+
     font-weight: $font-weight-regular;
     color: $color-text;
     margin: 0 0 $spacing-4;
@@ -748,6 +899,12 @@
 
     &:last-child {
       margin-bottom: 0;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 14px;
+      color: $color-charcoal-grey-50;
+      margin: 0;
     }
   }
 }
@@ -758,6 +915,10 @@
 
   @media (min-width: $breakpoint-md) {
     width: 50%;
+  }
+
+  @media (max-width: $breakpoint-xl) {
+    width: 80%;
   }
 
   img {
@@ -774,6 +935,11 @@
 .followUs {
   padding: var(--folow-us-padding-top) 65px;
   background: $color-charcoal-grey-5;
+
+  @media (max-width: $breakpoint-sm) {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
 }
 
 .followUsCard {
@@ -786,6 +952,7 @@
 
   @media (max-width: $breakpoint-sm) {
     padding: 44px $spacing-4;
+    border-radius: 0px;
   }
 }
 
@@ -794,6 +961,10 @@
   font-weight: $font-weight-semibold;
   margin: 0;
   color: $color-text;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
 }
 
 .followUsSubtitle {
@@ -802,6 +973,11 @@
   color: $color-charcoal-grey-50;
   margin: $spacing-3 0 0;
   line-height: 1;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+    margin-top: 8px;
+  }
 }
 
 .followUsSocials {
@@ -813,6 +989,12 @@
   a {
     width: 56px;
     height: 56px;
+
+    @media (max-width: $breakpoint-sm) {
+      width: 50px;
+      height: 50px;
+    }
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -826,7 +1008,16 @@
     img {
       width: 64.5px;
       height: 64.5px;
+
+      @media (max-width: $breakpoint-sm) {
+        width: 37px;
+        height: 37px;
+      }
     }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    gap: 8px;
   }
 }
 
@@ -838,6 +1029,10 @@
   background: linear-gradient(135deg, $color-text 0%, color.mix(white, $color-text, 10%) 100%);
   text-align: center;
   color: $color-text-inverse;
+
+  @media (max-width: $breakpoint-sm) {
+    display: none;
+  }
 }
 
 .ctaInner {
@@ -875,6 +1070,10 @@
   padding: $spacing-12 $spacing-4 $spacing-6;
   background: $color-text;
   color: $color-text-inverse;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 32px 16px;
+  }
 }
 
 .footerInner {
@@ -957,30 +1156,4 @@
 .footerCopyright {
   font-size: $font-size-sm;
   opacity: 0.6;
-}
-
-.footerSocials {
-  display: flex;
-  gap: $spacing-3;
-
-  a {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: $radius-full;
-    color: $color-text-inverse;
-    transition: all $transition-fast;
-
-    &:hover {
-      background: $color-yellow;
-    }
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
 }

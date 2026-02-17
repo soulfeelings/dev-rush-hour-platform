@@ -1672,32 +1672,6 @@
   opacity: 0.6;
 }
 
-.footerSocials {
-  display: flex;
-  gap: $spacing-3;
-
-  a {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: $radius-full;
-    color: $color-text-inverse;
-    transition: all $transition-fast;
-
-    &:hover {
-      background: $color-yellow;
-    }
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-}
-
 // ----------------
 // ANIMATIONS
 // ----------------
