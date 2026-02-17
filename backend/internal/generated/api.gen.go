@@ -1128,6 +1128,9 @@ type ListProjectsParams struct {
 	// Search Поиск по названию проекта
 	Search *string `form:"search,omitempty" json:"search,omitempty"`
 
+	// Featured Фильтр по избранным проектам
+	Featured *bool `form:"featured,omitempty" json:"featured,omitempty"`
+
 	// Sort Сортировка
 	Sort *ListProjectsParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
 }
@@ -2802,6 +2805,13 @@ func (siw *ServerInterfaceWrapper) ListProjects(c *fiber.Ctx) error {
 	err = runtime.BindQueryParameter("form", true, false, "search", query, &params.Search)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter search: %w", err).Error())
+	}
+
+	// ------------- Optional query parameter "featured" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "featured", query, &params.Featured)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter featured: %w", err).Error())
 	}
 
 	// ------------- Optional query parameter "sort" -------------

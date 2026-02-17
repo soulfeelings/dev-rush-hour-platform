@@ -161,6 +161,10 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 		argPos++
 	}
 
+	if filters.Featured != nil && *filters.Featured {
+		whereClauses = append(whereClauses, "p.is_featured = true")
+	}
+
 	if filters.PriceMin != nil {
 		whereClauses = append(whereClauses, fmt.Sprintf("p.price_from_us IS NOT NULL AND p.price_from_us >= $%d", argPos))
 		args = append(args, *filters.PriceMin)

@@ -89,5 +89,6 @@ type ProjectFilters struct {
 	PriceMax      *float64
 	Status        *string  // Filter by project status (ready, construction, planning)
 	Search        *string  // Search by project name
+	Featured      *bool    // Filter by featured flag
 }
 

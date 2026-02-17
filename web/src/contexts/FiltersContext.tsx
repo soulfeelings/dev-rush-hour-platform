@@ -25,6 +25,8 @@ export type FilterValues = {
   priceRange: 'all' | '0-1m' | '1-2m' | '2-5m' | '5m+'
   minPrice: string
   maxPrice: string
+  minRoi: string
+  maxRoi: string
   status: 'all' | 'ready' | 'construction' | 'planning'
   sort: string
   search: string
@@ -54,6 +56,8 @@ const defaultFilters: FilterValues = {
   priceRange: 'all',
   minPrice: '',
   maxPrice: '',
+  minRoi: '',
+  maxRoi: '',
   status: 'all',
   sort: 'default',
   search: '',
@@ -101,6 +105,8 @@ const parseFiltersFromURL = (search: string): FilterValues => {
 
   if (params.get('minPrice')) filters.minPrice = params.get('minPrice') || ''
   if (params.get('maxPrice')) filters.maxPrice = params.get('maxPrice') || ''
+  if (params.get('minRoi')) filters.minRoi = params.get('minRoi') || ''
+  if (params.get('maxRoi')) filters.maxRoi = params.get('maxRoi') || ''
 
   const status = params.get('status')
   if (status && ['ready', 'construction', 'planning'].includes(status)) {
@@ -130,6 +136,8 @@ const buildURLParams = (filters: FilterValues): URLSearchParams => {
   if (filters.priceRange !== 'all') params.set('priceRange', filters.priceRange)
   if (filters.minPrice) params.set('minPrice', filters.minPrice)
   if (filters.maxPrice) params.set('maxPrice', filters.maxPrice)
+  if (filters.minRoi) params.set('minRoi', filters.minRoi)
+  if (filters.maxRoi) params.set('maxRoi', filters.maxRoi)
   if (filters.status !== 'all') params.set('status', filters.status)
   if (filters.sort !== 'default') params.set('sort', filters.sort)
   if (filters.search) params.set('search', filters.search)

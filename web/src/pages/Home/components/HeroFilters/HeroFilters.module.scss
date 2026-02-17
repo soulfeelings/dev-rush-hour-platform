@@ -1,0 +1,88 @@
+@use 'sass:color';
+@use '../../../../styles/variables' as *;
+
+.container {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: $color-snow-white;
+  border-radius: $radius-2xl;
+  padding: 27px 63px 35px 67px;
+  margin-bottom: $spacing-12;
+}
+
+.filterGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 234px) 338px;
+  grid-auto-rows: 56px;
+  row-gap: $spacing-2;
+  column-gap: $spacing-3;
+  align-items: stretch;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr 1fr;
+    row-gap: $spacing-2;
+    column-gap: $spacing-2;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.selectWrapper {
+  width: 100%;
+  min-width: 0;
+
+  button {
+    font-size: $font-size-2xl !important;
+
+    svg {
+      width: 24px !important;
+      height: 24px !important;
+    }
+  }
+
+  :global(.form-group) {
+    margin-bottom: 0;
+    width: 100%;
+  }
+}
+
+.searchButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 48px;
+  padding: 0 $spacing-6;
+  white-space: nowrap;
+  border-radius: $radius-full !important;
+  font-size: $font-size-2xl !important;
+  font-weight: $font-weight-medium !important;
+}
+
+.contactButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 48px;
+  padding: 0 $spacing-6;
+  white-space: nowrap;
+  border-radius: $radius-full;
+  font-family: $font-family-primary;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-regular;
+  color: $color-text;
+  background: transparent;
+  border: 1px solid $color-yellow;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: color.change($color-yellow, $alpha: 0.08);
+  }
+}

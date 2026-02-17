@@ -1,5 +1,5 @@
-@use '../../styles/variables' as *;
-@use 'sass:color';
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
 
 .formGroup {
   display: flex;
@@ -88,7 +88,7 @@
   }
 
   &:hover:not(:disabled) {
-    border-color: color.mix(black, $color-border, 15%);
+    border-color: mix(black, $color-border, 15%);
     color: $color-text;
   }
 
@@ -258,12 +258,12 @@
   transition: all $transition-fast;
 
   &:hover:not(:disabled) {
-    border-color: color.mix(black, $color-border, 15%);
+    border-color: mix(black, $color-border, 15%);
     color: $color-text;
   }
 
   &:active:not(:disabled) {
-    background: color.mix(black, $color-bg-card, 3%);
+    background: mix(black, $color-bg-card, 3%);
   }
 }
 

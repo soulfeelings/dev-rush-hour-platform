@@ -143,6 +143,11 @@ paths:
           schema:
             type: string
           description: Поиск по названию проекта
+        - name: featured
+          in: query
+          schema:
+            type: boolean
+          description: Фильтр по избранным проектам
         - name: sort
           in: query
           schema:
