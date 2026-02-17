@@ -39,8 +39,17 @@
 // Gallery
 .gallery {
   position: relative;
-  height: 280px;
   background: $color-bg;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  padding-bottom: $spacing-2;
+}
+
+.galleryMain {
+  position: relative;
+  height: 280px;
   overflow: hidden;
 
   @media (max-width: $breakpoint-md) {
@@ -148,34 +157,61 @@
   inset-inline-end: $spacing-2;
 }
 
-.badgesContainer {
-  position: absolute;
-  top: $spacing-3;
-  inset-inline-start: $spacing-3;
+.galleryThumbs {
   display: flex;
   gap: $spacing-2;
-  z-index: 2;
+  overflow-x: auto;
+  padding: 0 $spacing-2;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($color-charcoal-black, 0.25);
+    border-radius: $radius-full;
+  }
 }
 
-.progressBar {
-  position: absolute;
-  bottom: $spacing-2;
-  left: $spacing-3;
-  right: $spacing-3;
+.galleryThumb {
+  flex: 0 0 96px;
+  width: 96px;
+  height: 68px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color $transition-fast;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &:hover {
+    border-color: rgba($color-yellow, 0.55);
+  }
+}
+
+.galleryThumbActive {
+  border-color: $color-yellow;
+}
+
+.badgesContainer {
+  position: relative;
   display: flex;
-  gap: 2px;
-  z-index: 10;
-}
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-3 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 
-.progressSegment {
-  flex: 1;
-  height: 2px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.4);
-  transition: background 0.3s ease;
-
-  &Active {
-    background: $color-yellow;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 

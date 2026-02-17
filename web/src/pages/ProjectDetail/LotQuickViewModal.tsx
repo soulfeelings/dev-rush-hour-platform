@@ -90,8 +90,8 @@ export function LotQuickViewModal({
   const { t } = useTranslation()
   const { currency } = useSettings()
   const isRTL = useIsRTL()
-  const [planImageIndex, setPlanImageIndex] = useState(0)
   const [lotPhotoIndex, setLotPhotoIndex] = useState(0)
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
   const viewMapRef = useRef<L.Map | null>(null)
   const viewSectorRef = useRef<L.Polygon | null>(null)
   const [viewMapContainerEl, setViewMapContainerEl] = useState<HTMLDivElement | null>(null)
@@ -107,27 +107,32 @@ export function LotQuickViewModal({
     lotData?.media?.gallery?.map(item => item.url).filter((url): url is string => !!url) || []
   const coverImage = lotData?.media?.cover?.url
 
-  const planImages = [...floorPlanImages]
+  const planImages = Array.from(
+    new Set([...floorPlanImages, ...(coverImage ? [coverImage] : []), ...commonGalleryPhotos, ...galleryPhotos])
+  )
   const lotPhotos = Array.from(
     new Set([...(coverImage ? [coverImage] : []), ...commonGalleryPhotos, ...galleryPhotos])
   )
-  const activePlanImage = planImages[planImageIndex]
-  const lotVisiblePhotos = lotPhotos.length > 0
-    ? Array.from({ length: Math.min(4, lotPhotos.length) }, (_, i) => {
-        const idx = (lotPhotoIndex + i) % lotPhotos.length
-        return lotPhotos[idx]
-      })
-    : []
+  const activePlanImage =
+    (selectedImageUrl && planImages.includes(selectedImageUrl) ? selectedImageUrl : null) ||
+    planImages[0] ||
+    null
+  const activeOrientationImage = lotPhotos[lotPhotoIndex] || lotPhotos[0]
   const unitPrice = 10_000_000
   const feesAmount = 100_000
   const totalPrice = unitPrice + feesAmount
 
   useEffect(() => {
     if (!open) {
-      setPlanImageIndex(0)
       setLotPhotoIndex(0)
+      setSelectedImageUrl(null)
     }
   }, [open])
+
+  useEffect(() => {
+    setLotPhotoIndex(0)
+    setSelectedImageUrl(null)
+  }, [lot?.id])
 
   useEffect(() => {
     if (!open || !viewMapContainerEl || viewMapRef.current || lat == null || lng == null) return
@@ -214,14 +219,6 @@ export function LotQuickViewModal({
     }
   }, [open])
 
-  const goToPlanPrev = () => {
-    setPlanImageIndex(prev => (prev === 0 ? planImages.length - 1 : prev - 1))
-  }
-
-  const goToPlanNext = () => {
-    setPlanImageIndex(prev => (prev === planImages.length - 1 ? 0 : prev + 1))
-  }
-
   const goToLotPhotoPrev = () => {
     setLotPhotoIndex(prev => (prev === 0 ? lotPhotos.length - 1 : prev - 1))
   }
@@ -252,24 +249,6 @@ export function LotQuickViewModal({
                 {activePlanImage ? (
                   <>
                     <img src={activePlanImage} alt={modalTitle} className={styles.floorPlanImage} />
-                    {planImages.length > 1 && (
-                      <>
-                        <button
-                          className={`${styles.imageArrow} ${styles.leftArrow}`}
-                          onClick={goToPlanPrev}
-                          aria-label={t('apartmentCard.previousImage')}
-                        >
-                          {isRTL ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-                        </button>
-                        <button
-                          className={`${styles.imageArrow} ${styles.rightArrow}`}
-                          onClick={goToPlanNext}
-                          aria-label={t('apartmentCard.nextImage')}
-                        >
-                          {isRTL ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-                        </button>
-                      </>
-                    )}
                   </>
                 ) : (
                   <div className={styles.emptyState}>{t('lotDetail.imagePlaceholder')}</div>
@@ -286,13 +265,14 @@ export function LotQuickViewModal({
                   projectName={projectName}
                   projectSlug={projectSlug}
                   areaName={areaName}
-                roi={lot.roi ?? fallbackRoi}
-                onClick={() => {}}
-                fullWidth
-                coverFirst
-                disableHoverLift
-              />
-            </div>
+                  roi={lot.roi ?? fallbackRoi}
+                  onClick={() => {}}
+                  onImageClick={imageUrl => setSelectedImageUrl(imageUrl)}
+                  fullWidth
+                  coverFirst
+                  disableHoverLift
+                />
+              </div>
 
               <div className={styles.sectionCard}>
                 <h4>
@@ -302,13 +282,11 @@ export function LotQuickViewModal({
                 {lat != null && lng != null && lotData?.orientation ? (
                   <div className={styles.viewMap} ref={setViewMapContainerEl} />
                 ) : null}
-                {lotVisiblePhotos.length > 0 ? (
+                {lotPhotos.length > 0 ? (
                   <div className={styles.orientationGallery}>
-                    {lotVisiblePhotos.map((url, index) => (
-                      <div className={styles.orientationGalleryItem} key={`${url}-${index}`}>
-                        <img src={url} alt={`Lot photo ${index + 1}`} />
-                      </div>
-                    ))}
+                    <div className={styles.orientationMain}>
+                      <img src={activeOrientationImage} alt="Active orientation" />
+                    </div>
                     {lotPhotos.length > 1 && (
                       <>
                         <button
@@ -327,6 +305,29 @@ export function LotQuickViewModal({
                         </button>
                       </>
                     )}
+                    <div className={styles.orientationThumbs}>
+                      {lotPhotos.map((url, index) => {
+                        const realIndex = lotPhotos.findIndex(photo => photo === url)
+                        const isActive = url === activeOrientationImage
+                        return (
+                          <button
+                            type="button"
+                            className={`${styles.orientationGalleryItem} ${
+                              isActive ? styles.orientationGalleryItemActive : ''
+                            }`}
+                            key={`${url}-${index}`}
+                            onClick={() => {
+                              if (realIndex >= 0) {
+                                setLotPhotoIndex(realIndex)
+                              }
+                            }}
+                            aria-label={`Open lot photo ${index + 1}`}
+                          >
+                            <img src={url} alt={`Lot photo ${index + 1}`} />
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                 ) : (
                   <div className={styles.emptySecondary}>No lot photos</div>

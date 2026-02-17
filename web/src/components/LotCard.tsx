@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { getLotDetailRoute, getProjectDetailRoute } from '../constants/routes'
+import { Badge } from '../ui/Badge'
 import { useSettings } from '../features/Settings/Settings'
 import { openWhatsApp } from '../services/whatsapp'
 import { formatPrice, formatArea } from '../utils/format'
+import { translateBonusKey } from '../utils/bonusTranslations'
 import styles from './LotCard.module.scss'
 import type { Lot } from '../api'
 
@@ -26,6 +28,14 @@ interface LotMedia {
 interface LotCardProps {
   lot: LotWithProject
   onFavoriteClick?: (lotId: string) => void
+}
+
+interface DisplayBadge {
+  name: string
+  backgroundColor: string
+  textColor: string
+  icon?: string
+  iconColor?: string
 }
 
 interface WhatsAppMessagePayload {
@@ -187,6 +197,48 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
 
   const { firstPart, rest } = splitCompletionDate(lot.project?.completionDate)
 
+  const toBadgeText = (name?: string, slug?: string) => {
+    if (name && name.trim().length > 0) return name.trim()
+    if (slug && slug.trim().length > 0) {
+      return slug
+        .trim()
+        .replace(/[_-]+/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase())
+    }
+    return ''
+  }
+
+  const normalizedApiBadges: DisplayBadge[] = ((lot.badges && lot.badges.length > 0
+    ? lot.badges
+    : lot.project?.badges) || [])
+    .map(badge => ({
+      name: toBadgeText(badge.name, badge.slug),
+      backgroundColor: badge.backgroundColor || '#000',
+      textColor: badge.textColor || '#fff',
+      icon: badge.icon,
+      iconColor: badge.iconColor,
+    }))
+    .filter(badge => badge.name.length > 0)
+
+  const fallbackBonusBadges: DisplayBadge[] = (lot.bonusKeys || []).slice(0, 3).map((key, idx) => {
+    const palette = [
+      { backgroundColor: '#2E7D32', textColor: '#FFFFFF', iconName: 'gift', iconColor: '#FFD54F' },
+      { backgroundColor: '#2F6BFF', textColor: '#FFFFFF', iconName: 'sofa', iconColor: '#FFD54F' },
+      { backgroundColor: '#FF4B3A', textColor: '#FFFFFF', iconName: 'tag', iconColor: '#FFD54F' },
+    ] as const
+    const style = palette[idx % palette.length]
+
+    return {
+      name: translateBonusKey(key),
+      backgroundColor: style.backgroundColor,
+      textColor: style.textColor,
+      icon: style.iconName,
+      iconColor: style.iconColor,
+    }
+  })
+
+  const badges: DisplayBadge[] = normalizedApiBadges.length > 0 ? normalizedApiBadges : fallbackBonusBadges
+
   if (!lot.id) return null
 
   return (
@@ -196,14 +248,29 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
         <div className={styles.photoSection}>
           {allImages.length > 0 ? (
             <div className={styles.galleryContainer}>
-              <div className={styles.mainImageContainer}>
-                <img
-                  src={allImages[currentImageIndex]}
-                  alt={`${projectName} - image ${currentImageIndex + 1}`}
-                />
-                <button
-                  className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
-                  onClick={handleFavoriteClick}
+	              <div className={styles.mainImageContainer}>
+	                <img
+	                  src={allImages[currentImageIndex]}
+	                  alt={`${projectName} - image ${currentImageIndex + 1}`}
+	                />
+	                {badges.length > 0 && (
+	                  <div className={styles.badgesContainer}>
+	                    {badges.slice(0, 3).map((badge, idx) => (
+	                      <Badge
+	                        key={`${badge.name}-${idx}`}
+	                        text={badge.name}
+	                        backgroundColor={badge.backgroundColor}
+	                        textColor={badge.textColor}
+	                        iconName={badge.icon}
+	                        iconColor={badge.iconColor}
+	                        size="small"
+	                      />
+	                    ))}
+	                  </div>
+	                )}
+	                <button
+	                  className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
+	                  onClick={handleFavoriteClick}
                   aria-label={
                     isFavorited ? t('lotCard.removeFromFavorites') : t('lotCard.addToFavorites')
                   }

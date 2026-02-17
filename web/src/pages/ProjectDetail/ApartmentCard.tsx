@@ -13,6 +13,7 @@ import { formatPrice, formatArea, capitalize } from '../../utils/format'
 import { getLotDetailRoute, getProjectDetailRoute } from '../../constants/routes'
 import { openWhatsApp } from '../../services/whatsapp'
 import { useIsRTL } from '../../hooks/useDirection'
+import { translateBonusKey } from '../../utils/bonusTranslations'
 import type { Lot } from '../../api'
 import styles from './ApartmentCard.module.scss'
 import clsx from 'clsx'
@@ -22,6 +23,19 @@ interface LotData {
     cover?: { url?: string }
     floorPlanImages?: { url?: string }[]
   }
+  bonuses?: Array<{
+    title?: string
+    style?: string
+    description?: string
+  }>
+}
+
+interface DisplayBadge {
+  name: string
+  backgroundColor: string
+  textColor: string
+  icon?: string
+  iconColor?: string
 }
 
 interface ApartmentCardProps {
@@ -31,6 +45,8 @@ interface ApartmentCardProps {
   areaName?: string
   roi?: number
   onClick?: (lot: Lot) => void
+  onImageClick?: (imageUrl: string) => void
+  hideGallery?: boolean
   fullWidth?: boolean
   coverFirst?: boolean
   disableHoverLift?: boolean
@@ -43,6 +59,8 @@ export function ApartmentCard({
   areaName,
   roi,
   onClick,
+  onImageClick,
+  hideGallery = false,
   fullWidth = false,
   coverFirst = false,
   disableHoverLift = false,
@@ -57,7 +75,76 @@ export function ApartmentCard({
   const floorPlanImages =
     lotData?.media?.floorPlanImages?.map(img => img.url).filter((u): u is string => Boolean(u)) ||
     []
-  const badges = lot.badges || []
+  const toBadgeText = (name?: string, slug?: string) => {
+    if (name && name.trim().length > 0) return name.trim()
+    if (slug && slug.trim().length > 0) {
+      return slug
+        .trim()
+        .replace(/[_-]+/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase())
+    }
+    return ''
+  }
+
+  const normalizedApiBadges: DisplayBadge[] = ((lot.badges && lot.badges.length > 0 ? lot.badges : lot.project?.badges) || [])
+    .map(badge => ({
+      name: toBadgeText(badge.name, badge.slug),
+      backgroundColor: badge.backgroundColor || '#000',
+      textColor: badge.textColor || '#fff',
+      icon: badge.icon,
+      iconColor: badge.iconColor,
+    }))
+    .filter(badge => badge.name.length > 0)
+
+  const bonusStylePalette: Record<string, { backgroundColor: string; textColor: string }> = {
+    green: { backgroundColor: '#2E7D32', textColor: '#FFFFFF' },
+    blue: { backgroundColor: '#2F6BFF', textColor: '#FFFFFF' },
+    red: { backgroundColor: '#FF4B3A', textColor: '#FFFFFF' },
+    yellow: { backgroundColor: '#F4C400', textColor: '#131415' },
+    orange: { backgroundColor: '#FF8A00', textColor: '#FFFFFF' },
+  }
+  const bonusesFromData: DisplayBadge[] = (lotData?.bonuses || [])
+    .map((bonus, idx) => {
+      const title = (bonus.title || '').trim()
+      if (!title) return null
+      const styleKey = (bonus.style || '').trim().toLowerCase()
+      const palette =
+        bonusStylePalette[styleKey] ||
+        [
+          { backgroundColor: '#2E7D32', textColor: '#FFFFFF' },
+          { backgroundColor: '#2F6BFF', textColor: '#FFFFFF' },
+          { backgroundColor: '#FF4B3A', textColor: '#FFFFFF' },
+        ][idx % 3]
+
+      return {
+        name: title,
+        backgroundColor: palette.backgroundColor,
+        textColor: palette.textColor,
+      }
+    })
+    .filter((badge): badge is { name: string; backgroundColor: string; textColor: string } => badge != null)
+
+  const fallbackBonusBadges: DisplayBadge[] = (lot.bonusKeys || []).slice(0, 3).map((key, idx) => {
+    const palette = [
+      { backgroundColor: '#2E7D32', textColor: '#FFFFFF', iconName: 'gift', iconColor: '#FFD54F' },
+      { backgroundColor: '#2F6BFF', textColor: '#FFFFFF', iconName: 'sofa', iconColor: '#FFD54F' },
+      { backgroundColor: '#FF4B3A', textColor: '#FFFFFF', iconName: 'tag', iconColor: '#FFD54F' },
+    ] as const
+    const style = palette[idx % palette.length]
+
+    return {
+      name: translateBonusKey(key),
+      backgroundColor: style.backgroundColor,
+      textColor: style.textColor,
+      icon: style.iconName,
+      iconColor: style.iconColor,
+    }
+  })
+  const badges: DisplayBadge[] = normalizedApiBadges.length > 0
+    ? normalizedApiBadges
+    : bonusesFromData.length > 0
+      ? bonusesFromData
+      : fallbackBonusBadges
 
   // Combine floor plan images + cover into gallery
   const galleryImages = coverFirst
@@ -93,6 +180,11 @@ export function ApartmentCard({
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation()
     emblaApi?.scrollNext()
+  }
+
+  const handleThumbClick = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation()
+    emblaApi?.scrollTo(index)
   }
 
   const handleWhatsApp = (e: React.MouseEvent) => {
@@ -141,87 +233,103 @@ export function ApartmentCard({
     }
   }
 
+  const handleGalleryImageClick = (e: React.MouseEvent, imageUrl: string) => {
+    e.stopPropagation()
+    onImageClick?.(imageUrl)
+  }
+
   return (
     <div
       className={clsx(styles.card, fullWidth && styles.fullWidth, disableHoverLift && styles.noHoverLift)}
       onClick={handleCardClick}
     >
-      {/* Gallery */}
-      <div className={styles.gallery}>
-        {galleryImages.length > 0 ? (
-          <>
-            <div className={styles.galleryViewport} ref={emblaRef}>
-              <div className={styles.galleryContainer}>
-                {galleryImages.map((url, idx) => (
-                  <div className={styles.gallerySlide} key={idx}>
-                    <img
-                      src={url}
-                      alt={`${title} - image ${idx + 1}`}
-                      className={styles.galleryImage}
-                    />
+      {!hideGallery && (
+        <div className={styles.gallery}>
+          {galleryImages.length > 0 ? (
+            <>
+              <div className={styles.galleryMain}>
+                <div className={styles.galleryViewport} ref={emblaRef}>
+                  <div className={styles.galleryContainer}>
+                    {galleryImages.map((url, idx) => (
+                      <div className={styles.gallerySlide} key={idx}>
+                        <img
+                          src={url}
+                          alt={`${title} - image ${idx + 1}`}
+                          className={styles.galleryImage}
+                          onClick={e => handleGalleryImageClick(e, url)}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+                {canScroll && (
+                  <>
+                    <button
+                      className={`${styles.galleryArrow} ${styles.galleryArrowPrev}`}
+                      onClick={handlePrev}
+                      aria-label={t('apartmentCard.previousImage')}
+                    >
+                      {isRTL ? (
+                        <ChevronRight size={14} strokeWidth={2.5} />
+                      ) : (
+                        <ChevronLeft size={14} strokeWidth={2.5} />
+                      )}
+                    </button>
+                    <button
+                      className={`${styles.galleryArrow} ${styles.galleryArrowNext}`}
+                      onClick={handleNext}
+                      aria-label={t('apartmentCard.nextImage')}
+                    >
+                      {isRTL ? (
+                        <ChevronLeft size={14} strokeWidth={2.5} />
+                      ) : (
+                        <ChevronRight size={14} strokeWidth={2.5} />
+                      )}
+                    </button>
+                  </>
+                )}
               </div>
+              {galleryImages.length > 1 && (
+                <div className={styles.galleryThumbs}>
+                  {galleryImages.map((url, idx) => (
+                    <button
+                      key={`thumb-${idx}`}
+                      type="button"
+                      className={`${styles.galleryThumb} ${
+                        idx === selectedIndex ? styles.galleryThumbActive : ''
+                      }`}
+                      onClick={e => handleThumbClick(e, idx)}
+                      aria-label={`${t('apartmentCard.nextImage')} ${idx + 1}`}
+                    >
+                      <img src={url} alt={`Thumbnail ${idx + 1}`} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className={styles.galleryPlaceholder}>
+              <Building2 size={48} />
             </div>
-            {canScroll && (
-              <>
-                <button
-                  className={`${styles.galleryArrow} ${styles.galleryArrowPrev}`}
-                  onClick={handlePrev}
-                  aria-label={t('apartmentCard.previousImage')}
-                >
-                  {isRTL ? (
-                    <ChevronRight size={14} strokeWidth={2.5} />
-                  ) : (
-                    <ChevronLeft size={14} strokeWidth={2.5} />
-                  )}
-                </button>
-                <button
-                  className={`${styles.galleryArrow} ${styles.galleryArrowNext}`}
-                  onClick={handleNext}
-                  aria-label={t('apartmentCard.nextImage')}
-                >
-                  {isRTL ? (
-                    <ChevronLeft size={14} strokeWidth={2.5} />
-                  ) : (
-                    <ChevronRight size={14} strokeWidth={2.5} />
-                  )}
-                </button>
-              </>
-            )}
-            {galleryImages.length > 1 && (
-              <div className={styles.progressBar}>
-                {galleryImages.map((_, idx) => (
-                  <div
-                    key={idx}
-                    className={`${styles.progressSegment} ${idx === selectedIndex ? styles.progressSegmentActive : ''}`}
-                  />
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
-          <div className={styles.galleryPlaceholder}>
-            <Building2 size={48} />
-          </div>
-        )}
+          )}
+        </div>
+      )}
 
-        {badges.length > 0 && (
-          <div className={styles.badgesContainer}>
-            {badges.slice(0, 2).map((badge, i) => (
-              <Badge
-                key={i}
-                text={badge.name || ''}
-                backgroundColor={badge.backgroundColor || '#000'}
-                textColor={badge.textColor || '#fff'}
-                iconName={badge.icon}
-                iconColor={badge.iconColor}
-                size="small"
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {badges.length > 0 && (
+        <div className={styles.badgesContainer}>
+          {badges.slice(0, 3).map((badge, i) => (
+            <Badge
+              key={i}
+              text={badge.name || ''}
+              backgroundColor={badge.backgroundColor || '#000'}
+              textColor={badge.textColor || '#fff'}
+              iconName={badge.icon}
+              iconColor={badge.iconColor}
+              size="small"
+            />
+          ))}
+        </div>
+      )}
 
       {/* Info Section */}
       <div className={styles.infoSection}>
