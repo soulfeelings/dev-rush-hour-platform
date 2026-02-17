@@ -63,6 +63,23 @@ export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: S
           <div className={styles.navSection}>
             <button
               type="button"
+              className={`${styles.navItem} ${activeTab === 'cities-list' ? styles.active : ''}`}
+              onClick={() => onTabChange('cities-list')}
+            >
+              <span>Cities</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.navItem} ${activeTab === 'areas-list' ? styles.active : ''}`}
+              onClick={() => onTabChange('areas-list')}
+            >
+              <span>Areas</span>
+            </button>
+          </div>
+          <hr className={styles.divider} />
+          <div className={styles.navSection}>
+            <button
+              type="button"
               className={`${styles.navItem} ${activeTab === 'developers-list' ? styles.active : ''}`}
               onClick={() => onTabChange('developers-list')}
             >
@@ -82,20 +99,9 @@ export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: S
             >
               <span>Lots</span>
             </button>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'areas-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('areas-list')}
-            >
-              <span>Areas</span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'cities-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('cities-list')}
-            >
-              <span>Cities</span>
-            </button>
+          </div>
+          <hr className={styles.divider} />
+          <div className={styles.navSection}>
             <button
               type="button"
               className={`${styles.navItem} ${activeTab === 'badges-list' ? styles.active : ''}`}
