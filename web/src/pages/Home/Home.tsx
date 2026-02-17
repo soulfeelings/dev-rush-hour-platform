@@ -60,7 +60,7 @@ export default function Home() {
   const [preferredTime, setPreferredTime] = useState('morning')
 
   // Fetch featured projects
-  const { data: projects, isLoading: isProjectsLoading } = useListProjects({ featured: false })
+  const { data: projects, isLoading: isProjectsLoading } = useListProjects({ featured: true })
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (!carouselRef.current) return

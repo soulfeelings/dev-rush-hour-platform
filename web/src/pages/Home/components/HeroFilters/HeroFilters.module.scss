@@ -10,21 +10,34 @@
   border-radius: $radius-2xl;
   padding: 27px 63px 35px 67px;
   margin-bottom: $spacing-12;
+
+  @media (max-width: $breakpoint-xl) {
+    padding: 24px $spacing-6 28px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 20px $spacing-4;
+  }
 }
 
 .filterGrid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 234px) 338px;
+  grid-template-columns: repeat(3, 1fr) 1.4fr;
   grid-auto-rows: 56px;
   row-gap: $spacing-2;
   column-gap: $spacing-3;
   align-items: stretch;
 
-  @media (max-width: $breakpoint-md) {
-    grid-template-columns: 1fr 1fr;
-    row-gap: $spacing-2;
+  @media (max-width: $breakpoint-xl) {
+    grid-template-columns: repeat(2, 1fr);
     column-gap: $spacing-2;
+
+    // Reorder: City(1), Developer(2), Project(3), Beds(4), Price(5), ROI(6), Search(7), Contact(8)
+    > :nth-child(3) { order: 4; } // BedsBaths → after Project
+    > :nth-child(4) { order: 7; } // Search → end
+    > :nth-child(5) { order: 3; } // Project → before BedsBaths
+    > :nth-child(8) { order: 8; } // Contact → last
   }
 
   @media (max-width: $breakpoint-sm) {
@@ -62,6 +75,10 @@
   border-radius: $radius-full !important;
   font-size: $font-size-2xl !important;
   font-weight: $font-weight-medium !important;
+
+  @media (max-width: $breakpoint-xl) {
+    grid-column: 1 / -1;
+  }
 }
 
 .contactButton {
@@ -84,5 +101,9 @@
 
   &:hover {
     background: color.change($color-yellow, $alpha: 0.08);
+  }
+
+  @media (max-width: $breakpoint-xl) {
+    grid-column: 1 / -1;
   }
 }

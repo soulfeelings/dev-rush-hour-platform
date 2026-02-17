@@ -44,12 +44,16 @@
 
 .heroBrand {
   font-family: $font-family-primary;
-  font-size: 80px;
+  font-size: 40px;
   font-weight: $font-weight-semibold;
   line-height: 1;
   letter-spacing: -0.02em;
   color: $color-text;
   margin: 0;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: 80px;
+  }
 
   @media (min-width: $breakpoint-xl) {
     font-size: 150px;
@@ -74,7 +78,15 @@
 .heroTaglineScript {
   font-family: 'Corinthia', cursive;
   font-weight: $font-weight-regular;
-  font-size: 60px;
+  font-size: 21px;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 40px;
+  }
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: 60px;
+  }
 
   @media (min-width: $breakpoint-xl) {
     font-size: 110px;
@@ -88,7 +100,15 @@
 .heroTaglineSans {
   font-family: $font-family-primary;
   font-weight: $font-weight-regular;
-  font-size: 34px;
+  font-size: 40px;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 21px;
+  }
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: 34px;
+  }
 
   @media (min-width: $breakpoint-xl) {
     font-size: 60px;
@@ -112,8 +132,12 @@
 .heroBtn {
   border-radius: $radius-full !important;
   padding: $spacing-2 $spacing-5 !important;
-  font-size: $font-size-lg !important;
+  font-size: 12px !important;
   font-weight: $font-weight-medium !important;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: $font-size-lg !important;
+  }
 }
 
 .heroLinkBtn {
@@ -159,10 +183,14 @@
 
 .filtersDemoTitle {
   font-family: $font-family-primary;
-  font-size: 28px;
+  font-size: 14px;
   font-weight: $font-weight-regular;
   color: $color-text;
   margin: 0 0 49px;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: 28px;
+  }
 
   @media (min-width: $breakpoint-xl) {
     font-size: 42px;
