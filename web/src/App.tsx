@@ -22,13 +22,12 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <SettingsProvider>
-          <FiltersProvider>
-            <Header />
-            <div style={{ flex: 1, overflow: 'auto' }}>
+          <Header />
+          <div style={{ flex: 1, overflow: 'auto' }}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path={ROUTES.CATALOG} element={<Navigate to={ROUTES.PROJECTS} replace />} />
-                <Route path={ROUTES.PROJECTS} element={<Catalog />} />
+                <Route path={ROUTES.PROJECTS} element={<FiltersProvider><Catalog /></FiltersProvider>} />
                 <Route path={ROUTES.APARTMENTS} element={<Apartments />} />
                 <Route path={ROUTES.PROJECT_DETAIL} element={<ProjectDetail />} />
                 <Route path={ROUTES.LOT_DETAIL} element={<LotDetail />} />
@@ -42,8 +41,7 @@ function App() {
                 />
                 <Route path={`${ADMIN_ROUTES.BASE}/*`} element={<Admin />} />
               </Routes>
-            </div>
-          </FiltersProvider>
+          </div>
         </SettingsProvider>
       </BrowserRouter>
     </ErrorBoundary>

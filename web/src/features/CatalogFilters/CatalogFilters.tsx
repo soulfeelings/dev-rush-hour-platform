@@ -87,6 +87,12 @@ export const CatalogFilters = () => {
         fallback: [{ value: '', label: t('filters.area.all') }],
         emptyValue: '',
       }),
+      developer: mapFilterOptions({
+        apiOptions: options?.developers ? [{ value: '', label: '' }, ...options.developers] : undefined,
+        allLabel: t('filters.developer.all'),
+        fallback: [{ value: '', label: t('filters.developer.all') }],
+        emptyValue: '',
+      }),
       project: mapFilterOptions({
         apiOptions: options?.projects ? [{ value: '', label: '' }, ...options.projects] : undefined,
         allLabel: t('filters.project.all'),
@@ -119,6 +125,7 @@ export const CatalogFilters = () => {
       filters.status !== 'all' ||
       filters.search !== '' ||
       filters.area !== null ||
+      filters.developer !== null ||
       filters.project !== null ||
       filters.propertyType !== 'all'
     )
@@ -159,6 +166,17 @@ export const CatalogFilters = () => {
           triggerSize="xs"
           triggerIconLeft={<Plane size={16} />}
           hideChevronRight
+        />
+
+        <Select
+          options={filterOptions.developer}
+          value={filters.developer || ''}
+          onChange={value => updateFilter('developer', value || null)}
+          placeholder={t('filters.developer.all')}
+          triggerSize="xs"
+          searchable
+          clearable
+          defaultValue=""
         />
 
         <Select

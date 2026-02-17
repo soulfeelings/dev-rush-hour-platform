@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { useFilters, type FilterValues } from '../../../../contexts'
+import { useGetFilterOptions } from '../../../../api/generated/rushHourRealEstatePlatformAPI'
 import { ROUTES } from '../../../../constants/routes'
 import { Button } from '../../../../ui/Button'
 import { Select } from '../../../../ui/Select'
@@ -18,7 +19,18 @@ export default function HeroFilters() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { currency } = useSettings()
-  const { filters, options, isLoading, updateFilter, getFilteredProjects } = useFilters()
+
+  const { data: options, isLoading } = useGetFilterOptions()
+
+  const [city, setCity] = useState<string | null>(null)
+  const [developer, setDeveloper] = useState<string | null>(null)
+  const [project, setProject] = useState<string | null>(null)
+  const [bedrooms, setBedrooms] = useState<string[]>([])
+  const [bathrooms, setBathrooms] = useState<string[]>([])
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [minRoi, setMinRoi] = useState('')
+  const [maxRoi, setMaxRoi] = useState('')
 
   // Prepare options with "all" option
   const cityOptions = options?.cities
@@ -38,48 +50,48 @@ export default function HeroFilters() {
   const projectOptions = options?.projects
     ? [
       { value: 'all', label: t('filters.project.all') },
-      ...getFilteredProjects().map(p => ({ value: p.value || '', label: p.label || '' })),
+      ...options.projects.map(p => ({ value: p.value || '', label: p.label || '' })),
     ]
     : [{ value: 'all', label: t('filters.project.all') }]
 
   const handleSearch = () => {
     const params = new URLSearchParams()
-    if (filters.city) params.set('city', filters.city)
-    if (filters.area) params.set('area', filters.area)
-    if (filters.developer) params.set('developer', filters.developer)
-    if (filters.project) params.set('project', filters.project)
-    if (filters.bedrooms.length > 0) params.set('bedrooms', filters.bedrooms.join(','))
-    if (filters.bathrooms.length > 0) params.set('bathrooms', filters.bathrooms.join(','))
-    if (filters.minPrice) params.set('minPrice', filters.minPrice)
-    if (filters.maxPrice) params.set('maxPrice', filters.maxPrice)
-    if (filters.minRoi) params.set('minRoi', filters.minRoi)
-    if (filters.maxRoi) params.set('maxRoi', filters.maxRoi)
-    navigate(`${ROUTES.CATALOG}?${params.toString()}`)
+    if (city) params.set('city', city)
+    if (developer) params.set('developer', developer)
+    if (project) params.set('project', project)
+    if (bedrooms.length > 0) params.set('bedrooms', bedrooms.join(','))
+    if (bathrooms.length > 0) params.set('bathrooms', bathrooms.join(','))
+    if (minPrice) params.set('minPrice', minPrice)
+    if (maxPrice) params.set('maxPrice', maxPrice)
+    if (minRoi) params.set('minRoi', minRoi)
+    if (maxRoi) params.set('maxRoi', maxRoi)
+    const query = params.toString()
+    navigate(`${ROUTES.PROJECTS}${query ? `?${query}` : ''}`)
   }
 
   const handleContactAgent = () => {
     const cityLabel =
-      cityOptions.find(opt => opt.value === (filters.city || 'all'))?.label ||
+      cityOptions.find(opt => opt.value === (city || 'all'))?.label ||
       t('filters.location.placeholder')
     const developerLabel =
-      developerOptions.find(opt => opt.value === (filters.developer || 'all'))?.label ||
+      developerOptions.find(opt => opt.value === (developer || 'all'))?.label ||
       t('filters.developer.placeholder')
     const projectLabel =
-      projectOptions.find(opt => opt.value === (filters.project || 'all'))?.label ||
+      projectOptions.find(opt => opt.value === (project || 'all'))?.label ||
       t('filters.project.placeholder')
     const bedsLabel =
-      filters.bedrooms.length === 0
+      bedrooms.length === 0
         ? t('filters.bedrooms.all')
-        : filters.bedrooms.includes('studio')
+        : bedrooms.includes('studio')
           ? t('filters.bedrooms.studio')
-          : `${filters.bedrooms.join(', ')} ${t('filters.bedrooms.one').replace('1 ', '')}`
+          : `${bedrooms.join(', ')} ${t('filters.bedrooms.one').replace('1 ', '')}`
     const bathsLabel =
-      filters.bathrooms.length === 0
+      bathrooms.length === 0
         ? t('home.properties.baths')
-        : `${filters.bathrooms.join(', ')} ${t('home.properties.baths')}`
+        : `${bathrooms.join(', ')} ${t('home.properties.baths')}`
     const priceLabel =
-      filters.minPrice || filters.maxPrice
-        ? `${filters.minPrice || '0'} - ${filters.maxPrice || t('filters.price.any')} ${currency}`
+      minPrice || maxPrice
+        ? `${minPrice || '0'} - ${maxPrice || t('filters.price.any')} ${currency}`
         : t('filters.price.all')
 
     const message = [
@@ -91,7 +103,7 @@ export default function HeroFilters() {
       `- Bedrooms: ${bedsLabel}`,
       `- Bathrooms: ${bathsLabel}`,
       `- Price: ${priceLabel}`,
-      `- ROI: ${filters.minRoi || filters.maxRoi ? `${filters.minRoi || '0'}% - ${filters.maxRoi || t('filters.roi.any')}` : t('filters.roi.all')}`,
+      `- ROI: ${minRoi || maxRoi ? `${minRoi || '0'}% - ${maxRoi || t('filters.roi.any')}` : t('filters.roi.all')}`,
     ].join('\n')
 
     openWhatsApp(message)
@@ -107,8 +119,11 @@ export default function HeroFilters() {
         <div className={styles.selectWrapper}>
           <Select
             options={cityOptions}
-            value={filters.city || 'all'}
-            onChange={value => updateFilter('city', value === 'all' ? null : value)}
+            value={city || 'all'}
+            onChange={value => {
+              setCity(value === 'all' ? null : value)
+              setProject(null)
+            }}
             placeholder={t('filters.location.placeholder')}
             fullWidth
             fullHeight
@@ -118,8 +133,11 @@ export default function HeroFilters() {
         <div className={styles.selectWrapper}>
           <Select
             options={developerOptions}
-            value={filters.developer || 'all'}
-            onChange={value => updateFilter('developer', value === 'all' ? null : value)}
+            value={developer || 'all'}
+            onChange={value => {
+              setDeveloper(value === 'all' ? null : value)
+              setProject(null)
+            }}
             placeholder={t('filters.developer.placeholder')}
             fullWidth
             fullHeight
@@ -129,14 +147,10 @@ export default function HeroFilters() {
         </div>
         <div className={styles.selectWrapper}>
           <BedsBathsSelect
-            bedrooms={filters.bedrooms}
-            bathrooms={filters.bathrooms}
-            onBedroomsChange={value =>
-              updateFilter('bedrooms', value as FilterValues['bedrooms'])
-            }
-            onBathroomsChange={value =>
-              updateFilter('bathrooms', value as FilterValues['bathrooms'])
-            }
+            bedrooms={bedrooms}
+            bathrooms={bathrooms}
+            onBedroomsChange={setBedrooms}
+            onBathroomsChange={setBathrooms}
             placeholder={t('filters.bathrooms.placeholder')}
             fullWidth
             fullHeight
@@ -152,8 +166,8 @@ export default function HeroFilters() {
         <div className={styles.selectWrapper}>
           <Select
             options={projectOptions}
-            value={filters.project || 'all'}
-            onChange={value => updateFilter('project', value === 'all' ? null : value)}
+            value={project || 'all'}
+            onChange={value => setProject(value === 'all' ? null : value)}
             placeholder={t('filters.project.placeholder')}
             fullWidth
             fullHeight
@@ -163,10 +177,10 @@ export default function HeroFilters() {
         </div>
         <div className={styles.selectWrapper}>
           <PriceSelect
-            minPrice={filters.minPrice}
-            maxPrice={filters.maxPrice}
-            onMinPriceChange={value => updateFilter('minPrice', value)}
-            onMaxPriceChange={value => updateFilter('maxPrice', value)}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onMinPriceChange={setMinPrice}
+            onMaxPriceChange={setMaxPrice}
             placeholder={t('filters.price.placeholder')}
             fullWidth
             fullHeight
@@ -174,10 +188,10 @@ export default function HeroFilters() {
         </div>
         <div className={styles.selectWrapper}>
           <RoiSelect
-            minRoi={filters.minRoi}
-            maxRoi={filters.maxRoi}
-            onMinRoiChange={value => updateFilter('minRoi', value)}
-            onMaxRoiChange={value => updateFilter('maxRoi', value)}
+            minRoi={minRoi}
+            maxRoi={maxRoi}
+            onMinRoiChange={setMinRoi}
+            onMaxRoiChange={setMaxRoi}
             placeholder={t('filters.roi.placeholder')}
             fullWidth
             fullHeight
