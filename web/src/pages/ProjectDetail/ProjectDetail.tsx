@@ -36,6 +36,7 @@ import { ProjectDetailSkeleton } from './ProjectDetailSkeleton'
 import styles from './ProjectDetail.module.scss'
 
 const MAP_ZOOM_DEFAULT = 13
+const _forceSkeleton = false; // for testing purposes
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -295,7 +296,7 @@ export default function ProjectDetail() {
     }
   }, [])
 
-  if (loading) {
+  if (loading || _forceSkeleton) {
     return <ProjectDetailSkeleton />
   }
 
