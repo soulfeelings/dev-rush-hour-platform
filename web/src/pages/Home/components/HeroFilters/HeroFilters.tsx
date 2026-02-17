@@ -12,6 +12,8 @@ import { openWhatsApp } from '../../../../services/whatsapp'
 import styles from './HeroFilters.module.scss'
 import { HeroFiltersSkeleton } from './HeroFiltersSkeleton'
 
+const _forceSkeleton = false
+
 export default function HeroFilters() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -95,7 +97,7 @@ export default function HeroFilters() {
     openWhatsApp(message)
   }
 
-  if (isLoading) {
+  if (isLoading || _forceSkeleton) {
     return <HeroFiltersSkeleton />
   }
 
