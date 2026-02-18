@@ -1,9 +1,11 @@
-import { useState, useEffect, useContext, createContext } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PublicClientApplication } from '@azure/msal-browser'
 import { MsalProvider, useMsal } from '@azure/msal-react'
 import { adminFetch } from '../../utils/adminApi'
 import { ADMIN_ROUTES } from './constants'
+import { AdminMsalProviderContext } from './AdminMsalProviderContext'
+import { useAdminMsalProvider } from './useAdminMsalProvider'
 
 const msalInstance = new PublicClientApplication({
   auth: {
@@ -57,11 +59,6 @@ function MsalRedirectHandler() {
 
 type Props = { children: React.ReactNode }
 
-const AdminMsalProviderContext = createContext<{ loading: boolean, setLoading: React.Dispatch<React.SetStateAction<boolean>> }>({ loading: true, setLoading: () => { } })
-
-export function useAdminMsalProvider() {
-  return useContext(AdminMsalProviderContext)
-}
 
 export function AdminMsalProvider({ children }: Props) {
   const [loading, setLoading] = useState(true)
