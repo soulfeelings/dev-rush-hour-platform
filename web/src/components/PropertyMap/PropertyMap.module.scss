@@ -29,6 +29,7 @@
 
 // Leaflet Zoom Controls - Clean Modern Design
 :global(.leaflet-control-zoom) {
+  display: none;
   border: none !important;
   background: white !important;
   border-radius: 12px !important;

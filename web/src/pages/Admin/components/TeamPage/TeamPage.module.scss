@@ -1,0 +1,297 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.wrapper {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.loading,
+.empty {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+.error {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  border: 1px solid #fecaca;
+}
+
+// ─── Table ────────────────────────────────────────────────────────────────────
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-width: 640px;
+
+  thead {
+    background: #f5f5f5;
+  }
+
+  th {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #eee;
+    color: #444;
+    font-size: 0.875rem;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: #fafafa;
+  }
+}
+
+.emailCell {
+  font-weight: 500;
+  color: #111 !important;
+}
+
+.permissionsCell {
+  max-width: 220px;
+}
+
+.createdByCell {
+  color: #888 !important;
+  font-size: 0.8125rem !important;
+}
+
+.actionsCell {
+  width: 80px;
+  padding: 0.5rem !important;
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #333;
+  }
+}
+
+.iconBtnDanger {
+  &:hover {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+}
+
+// ─── Role badge ───────────────────────────────────────────────────────────────
+
+.roleBadge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.role_superadmin {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.role_admin {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.superadminNote {
+  color: #92400e;
+  font-size: 0.8125rem;
+  font-style: italic;
+}
+
+.noPerms {
+  color: #aaa;
+  font-size: 0.8125rem;
+}
+
+.permCount {
+  font-size: 0.8125rem;
+  color: #555;
+}
+
+// ─── Modal ────────────────────────────────────────────────────────────────────
+
+.howItWorks {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.howItWorksTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #0369a1;
+  margin: 0 0 0.5rem 0;
+}
+
+.howItWorksList {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  li {
+    font-size: 0.8125rem;
+    color: #0c4a6e;
+    line-height: 1.4;
+  }
+}
+
+.modalField {
+  margin-bottom: 1.5rem;
+}
+
+.modalSection {
+  margin-top: 0.5rem;
+}
+
+.modalSectionLabel {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #444;
+  margin: 0 0 0.75rem 0;
+}
+
+// ─── Permission matrix ────────────────────────────────────────────────────────
+
+.matrixWrapper {
+  overflow-x: auto;
+}
+
+.matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+
+  th,
+  td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  thead th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  tbody tr:nth-child(even) {
+    background: #f9fafb;
+  }
+
+  tbody tr:hover {
+    background: #f0f9ff;
+  }
+}
+
+.matrixEntityCell {
+  text-align: left !important;
+  min-width: 140px;
+}
+
+.matrixActionCell {
+  min-width: 80px;
+}
+
+.matrixActionHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+
+  span {
+    font-size: 0.75rem;
+    text-transform: capitalize;
+  }
+}
+
+.matrixEntityLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: capitalize;
+}
+
+.matrixCheckCell {
+  text-align: center;
+}
+
+.dangerBtn {
+  color: #dc2626 !important;
+  border-color: #fca5a5 !important;
+
+  &:hover {
+    background: #fef2f2 !important;
+    border-color: #dc2626 !important;
+  }
+}

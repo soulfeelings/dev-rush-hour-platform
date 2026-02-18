@@ -32,7 +32,7 @@
 
   @media (max-width: $breakpoint-md) {
     order: 1;
-    margin: 0 (-$spacing-4);
+    margin: 0 (-$spacing-4) $spacing-4 (-$spacing-4);
     gap: $spacing-2;
   }
 }
@@ -914,8 +914,10 @@
   height: 450px;
 
   @media (max-width: $breakpoint-md) {
+    order: 3;
     flex-direction: row;
     height: auto;
+    margin-bottom: $spacing-4;
   }
 }
 
@@ -930,7 +932,16 @@
 }
 
 .skeletonHeader {
+  margin-top: $spacing-6;
   margin-bottom: $spacing-6;
+  padding-left: $spacing-4;
+
+  @media (max-width: $breakpoint-md) {
+    order: 2;
+    margin-top: 0;
+    margin-bottom: $spacing-4;
+    padding-left: 0;
+  }
 }
 
 .skeletonHeaderTop {
@@ -975,14 +986,39 @@
   margin-bottom: $spacing-8;
 
   @media (max-width: $breakpoint-md) {
+    order: 4;
     margin-bottom: $spacing-4;
   }
+}
+
+.skeletonTimelineItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-2;
+  padding-bottom: $spacing-6;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.skeletonTimelineItemText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 1px;
 }
 
 .skeletonCards {
   display: flex;
   gap: $spacing-4;
   overflow: hidden;
+
+  @media (max-width: $breakpoint-md) {
+    order: 8;
+    overflow-x: auto;
+    margin-bottom: $spacing-4;
+  }
 }
 
 .skeletonCard {

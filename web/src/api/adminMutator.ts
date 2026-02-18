@@ -1,4 +1,3 @@
-import { getAdminKey } from '../utils/adminApi'
 import { apiClient } from './client'
 import { API_URL, BASE_PATH } from './constants'
 
@@ -15,20 +14,11 @@ export const adminInstance = async <T>(
   config: RequestConfig,
   options?: RequestInit
 ): Promise<T> => {
-  const adminKey = getAdminKey()
-  if (!adminKey) {
-    throw new Error('Admin key not found')
-  }
-
   const { url, method, params, data, signal, headers: configHeaders } = config
 
-  // Формируем базовый URL: если VITE_API_URL не задан, используем '/api' для работы через vite proxy
   const baseUrl = API_URL
-
-  // Объединяем baseUrl и url, убирая лишние слэши
   let fullPath = `${baseUrl}${BASE_PATH}${url.startsWith('/') ? url : `/${url}`}`
 
-  // Добавляем query параметры
   if (params) {
     const searchParams = new URLSearchParams()
     Object.entries(params).forEach(([key, value]) => {
@@ -42,10 +32,8 @@ export const adminInstance = async <T>(
     }
   }
 
-  // Объединяем headers: configHeaders > defaultHeaders (с X-Admin-Key) > options.headers
   const defaultHeaders: HeadersInit = {
     'Content-Type': 'application/json',
-    'X-Admin-Key': adminKey,
   }
   const headers = configHeaders
     ? { ...defaultHeaders, ...configHeaders }
@@ -53,13 +41,12 @@ export const adminInstance = async <T>(
       ? { ...defaultHeaders, ...options.headers }
       : defaultHeaders
 
-  // Используем относительный путь для работы через vite proxy
-  // Приоритет: config > options
   const response = await apiClient.fetch(fullPath, {
     ...options,
     method,
     signal: signal || options?.signal,
     headers,
+    credentials: 'include',
     body: data ? JSON.stringify(data) : options?.body,
   })
 
@@ -68,7 +55,6 @@ export const adminInstance = async <T>(
     throw new Error(error.message || `API Error: ${response.statusText}`)
   }
 
-  // Handle 204 No Content responses (e.g., DELETE operations)
   if (response.status === 204) {
     return undefined as T
   }

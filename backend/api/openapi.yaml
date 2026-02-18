@@ -143,6 +143,11 @@ paths:
           schema:
             type: string
           description: Поиск по названию проекта
+        - name: featured
+          in: query
+          schema:
+            type: boolean
+          description: Фильтр по избранным проектам
         - name: sort
           in: query
           schema:
@@ -1937,6 +1942,185 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
 
+  # ─── Auth ───────────────────────────────────────────────────────────────────
+
+  /admin/auth/microsoft:
+    post:
+      operationId: adminAuthMicrosoft
+      summary: Sign in with Microsoft (sets HttpOnly JWT cookie)
+      tags:
+        - Admin Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminMicrosoftLoginRequest"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAuthResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /admin/auth/me:
+    get:
+      operationId: adminAuthMe
+      summary: Get current admin user info from JWT cookie
+      tags:
+        - Admin Auth
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAuthResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /admin/auth/logout:
+    post:
+      operationId: adminAuthLogout
+      summary: Logout (clears JWT cookie)
+      tags:
+        - Admin Auth
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+
+  # ─── Team ───────────────────────────────────────────────────────────────────
+
+  /admin/team:
+    get:
+      operationId: adminListTeam
+      summary: List admin users (superadmin only)
+      tags:
+        - Admin Team
+      security:
+        - AdminApiKey: []
+      responses:
+        "200":
+          description: List of admin users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminUser"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      operationId: adminAddTeamMember
+      summary: Add admin user (superadmin only)
+      tags:
+        - Admin Team
+      security:
+        - AdminApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminTeamMemberRequest"
+      responses:
+        "201":
+          description: Admin user created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /admin/team/{id}:
+    put:
+      operationId: adminUpdateTeamMember
+      summary: Update admin user permissions (superadmin only)
+      tags:
+        - Admin Team
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminTeamMemberUpdateRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    delete:
+      operationId: adminRemoveTeamMember
+      summary: Remove admin user (superadmin only)
+      tags:
+        - Admin Team
+      security:
+        - AdminApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
 components:
   schemas:
 
@@ -3250,6 +3434,79 @@ components:
         data:
           $ref: "#/components/schemas/LotData"
 
+    AdminMicrosoftLoginRequest:
+      type: object
+      required:
+        - access_token
+      properties:
+        access_token:
+          type: string
+          description: Microsoft access token from MSAL (scope User.Read)
+
+    AdminAuthResponse:
+      type: object
+      properties:
+        email:
+          type: string
+        role:
+          type: string
+          enum: [superadmin, admin]
+        permissions:
+          type: array
+          items:
+            type: string
+          example: ["cities:view", "projects:create"]
+
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        role:
+          type: string
+          enum: [superadmin, admin]
+        permissions:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+
+    AdminTeamMemberRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin]
+          default: admin
+        permissions:
+          type: array
+          items:
+            type: string
+          example: ["cities:view", "projects:view", "projects:create"]
+
+    AdminTeamMemberUpdateRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [admin]
+        permissions:
+          type: array
+          items:
+            type: string
+
     Error:
       type: object
       properties:
@@ -3314,9 +3571,20 @@ components:
               code: "unauthorized"
               message: "Invalid or missing API key"
 
+    Forbidden:
+      description: Недостаточно прав
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: "forbidden"
+              message: "insufficient permissions"
+
   securitySchemes:
     AdminApiKey:
       type: apiKey
-      in: header
-      name: X-Admin-Key
-      description: API ключ для доступа к админ-эндпоинтам
+      in: cookie
+      name: rh_admin_jwt
+      description: JWT cookie issued via POST /admin/auth/microsoft

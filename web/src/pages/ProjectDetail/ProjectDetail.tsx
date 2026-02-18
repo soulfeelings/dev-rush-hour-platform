@@ -42,6 +42,7 @@ const ALWAYS_FRESH_QUERY_OPTIONS = {
   refetchOnMount: 'always' as const,
   refetchOnWindowFocus: true,
 }
+const _forceSkeleton = false
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -326,7 +327,7 @@ export default function ProjectDetail() {
     }
   }, [])
 
-  if (loading) {
+  if (loading || _forceSkeleton) {
     return <ProjectDetailSkeleton />
   }
 

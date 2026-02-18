@@ -2,12 +2,12 @@ import styles from './CatalogFilters.module.scss'
 import { useMemo, useState, useCallback, useEffect } from 'react'
 import { Plane, X, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useFilters, type FilterValues } from '../../contexts'
-import { Button } from '../../ui/Button'
-import { Select, type SelectOption } from '../../ui/Select'
-import { PriceSelect, BedsBathsSelect } from '../../components/HeroFilters'
+import { useFilters, type FilterValues } from '@/contexts'
+import { Button } from '@/ui/Button'
+import { Select, type SelectOption } from '@/ui/Select'
+import { PriceSelect, BedsBathsSelect } from '@/components/Filters'
 import { CatalogFiltersSkeleton } from './CatalogFiltersSkeleton'
-import type { FilterOption } from '../../api/generated/schemas/filterOption'
+import type { FilterOption } from '@/api/generated/schemas/filterOption'
 import { useDebounce } from '@/hooks'
 
 type FilterConfig = {
@@ -91,6 +91,12 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
         fallback: [{ value: '', label: t('filters.area.all') }],
         emptyValue: '',
       }),
+      developer: mapFilterOptions({
+        apiOptions: options?.developers ? [{ value: '', label: '' }, ...options.developers] : undefined,
+        allLabel: t('filters.developer.all'),
+        fallback: [{ value: '', label: t('filters.developer.all') }],
+        emptyValue: '',
+      }),
       project: mapFilterOptions({
         apiOptions: options?.projects ? [{ value: '', label: '' }, ...options.projects] : undefined,
         allLabel: t('filters.project.all'),
@@ -144,6 +150,7 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
       filters.bedrooms.length > 0 ||
       filters.bathrooms.length > 0 ||
       filters.area !== null ||
+      filters.developer !== null ||
       filters.project !== null ||
       filters.propertyType !== 'all' ||
       filters.status !== 'all' ||
@@ -226,7 +233,16 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
               clearable
               defaultValue=""
             />
-
+            <Select
+              options={filterOptions.developer}
+              value={filters.developer || ''}
+              onChange={value => updateFilter('developer', value || null)}
+              placeholder={t('filters.developer.all')}
+              triggerSize="xs"
+              searchable
+              clearable
+              defaultValue=""
+            />
             <Select
               options={filterOptions.propertyType}
               value={filters.propertyType}

@@ -1,5 +1,6 @@
 export const ADMIN_ROUTES = {
   BASE: '/admin',
+  AUTH: '/admin/auth',
   PROJECTS: '/admin/projects',
   LOTS: '/admin/lots',
   AREAS: '/admin/areas',
@@ -8,6 +9,7 @@ export const ADMIN_ROUTES = {
   INFRASTRUCTURES: '/admin/infrastructures',
   DEVELOPERS: '/admin/developers',
   MEDIA: '/admin/media',
+  TEAM: '/admin/team',
 } as const
 
 export const ADMIN_ROUTE_SEGMENTS = {
@@ -19,6 +21,7 @@ export const ADMIN_ROUTE_SEGMENTS = {
   INFRASTRUCTURES: 'infrastructures',
   DEVELOPERS: 'developers',
   MEDIA: 'media',
+  TEAM: 'team',
 } as const
 
 export const ADMIN_API_ENDPOINTS = {

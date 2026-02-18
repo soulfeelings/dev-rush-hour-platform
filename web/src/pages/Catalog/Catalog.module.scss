@@ -89,7 +89,7 @@
     right: auto;
     left: 0;
   }
-  width: 32px;
+  width: 16px;
   height: 64px;
   background: $color-bg-card;
   border: none;
@@ -357,7 +357,7 @@
 
 .grid {
   display: grid;
-  gap: $spacing-4;
+  gap: $spacing-2;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;

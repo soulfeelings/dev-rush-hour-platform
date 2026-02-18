@@ -3,16 +3,15 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ChevronUp, X } from 'lucide-react'
-import { useSettings } from '../../features/Settings/Settings'
-import styles from './PriceSelect.module.scss'
+import styles from './RoiSelect.module.scss'
 
 type TriggerSize = 'xs' | 'sm' | 'md' | 'lg'
 
-interface PriceSelectProps {
-  minPrice: string
-  maxPrice: string
-  onMinPriceChange: (value: string) => void
-  onMaxPriceChange: (value: string) => void
+interface RoiSelectProps {
+  minRoi: string
+  maxRoi: string
+  onMinRoiChange: (value: string) => void
+  onMaxRoiChange: (value: string) => void
   placeholder?: string
   icon?: React.ReactNode
   fullWidth?: boolean
@@ -21,69 +20,68 @@ interface PriceSelectProps {
   clearable?: boolean
 }
 
-export function PriceSelect({
-  minPrice,
-  maxPrice,
-  onMinPriceChange,
-  onMaxPriceChange,
+export function RoiSelect({
+  minRoi,
+  maxRoi,
+  onMinRoiChange,
+  onMaxRoiChange,
   placeholder: placeholderProp,
   icon,
   fullWidth = false,
   fullHeight = false,
   size = 'md',
   clearable = false,
-}: PriceSelectProps) {
+}: RoiSelectProps) {
   const { t } = useTranslation()
-  const { currency } = useSettings()
-  const placeholder = placeholderProp || `Price (${currency})`
+  const placeholder = placeholderProp || t('filters.roi.placeholder')
   const [isOpen, setIsOpen] = useState(false)
-  const [localMinPrice, setLocalMinPrice] = useState(minPrice)
-  const [localMaxPrice, setLocalMaxPrice] = useState(maxPrice)
+  const [localMinRoi, setLocalMinRoi] = useState(minRoi)
+  const [localMaxRoi, setLocalMaxRoi] = useState(maxRoi)
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 })
   const selectRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const minInputRef = useRef<HTMLInputElement>(null)
   const generatedId = useId()
-  const buttonId = `price-${generatedId}`
+  const buttonId = `roi-${generatedId}`
 
   const handleReset = () => {
-    setLocalMinPrice('')
-    setLocalMaxPrice('')
-    onMinPriceChange('')
-    onMaxPriceChange('')
+    setLocalMinRoi('')
+    setLocalMaxRoi('')
+    onMinRoiChange('')
+    onMaxRoiChange('')
     setIsOpen(false)
   }
 
   const handleDone = () => {
-    onMinPriceChange(localMinPrice)
-    onMaxPriceChange(localMaxPrice)
+    onMinRoiChange(localMinRoi)
+    onMaxRoiChange(localMaxRoi)
     setIsOpen(false)
   }
 
   useEffect(() => {
-    setLocalMinPrice(minPrice)
-    setLocalMaxPrice(maxPrice)
-  }, [minPrice, maxPrice])
+    setLocalMinRoi(minRoi)
+    setLocalMaxRoi(maxRoi)
+  }, [minRoi, maxRoi])
 
   const getDisplayText = () => {
-    if (!minPrice && !maxPrice) {
+    if (!minRoi && !maxRoi) {
       return placeholder
     }
     const parts: string[] = []
-    if (minPrice) {
-      parts.push(`${minPrice} ${currency}`)
+    if (minRoi) {
+      parts.push(`${minRoi}%`)
     }
-    if (maxPrice) {
-      parts.push(`${maxPrice} ${currency}`)
+    if (maxRoi) {
+      parts.push(`${maxRoi}%`)
     }
     return parts.join(' - ') || placeholder
   }
 
   useEffect(() => {
     const handleCancel = () => {
-      setLocalMinPrice(minPrice)
-      setLocalMaxPrice(maxPrice)
+      setLocalMinRoi(minRoi)
+      setLocalMaxRoi(maxRoi)
       setIsOpen(false)
     }
 
@@ -100,7 +98,7 @@ export function PriceSelect({
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [minPrice, maxPrice])
+  }, [minRoi, maxRoi])
 
   useEffect(() => {
     if (isOpen && triggerRef.current) {
@@ -152,13 +150,13 @@ export function PriceSelect({
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setLocalMinPrice('')
-    setLocalMaxPrice('')
-    onMinPriceChange('')
-    onMaxPriceChange('')
+    setLocalMinRoi('')
+    setLocalMaxRoi('')
+    onMinRoiChange('')
+    onMaxRoiChange('')
   }
 
-  const isActive = minPrice !== '' || maxPrice !== ''
+  const isActive = minRoi !== '' || maxRoi !== ''
 
   return (
     <div
@@ -182,7 +180,7 @@ export function PriceSelect({
           ) : (
             icon && <span className={styles.icon}>{icon}</span>
           )}
-          <span className={!minPrice && !maxPrice ? styles.placeholder : ''}>
+          <span className={!minRoi && !maxRoi ? styles.placeholder : ''}>
             {getDisplayText()}
           </span>
           <span className={styles.arrow}>
@@ -211,34 +209,34 @@ export function PriceSelect({
                 <div className={styles.content}>
                   <div className={styles.inputsRow}>
                     <div className={styles.inputGroup}>
-                      <label className={styles.label}>{t('filters.price.minimum')}</label>
+                      <label className={styles.label}>{t('filters.roi.minimum')}</label>
                       <input
                         ref={minInputRef}
                         type="text"
                         className={styles.input}
-                        placeholder="0"
-                        value={localMinPrice}
-                        onChange={e => setLocalMinPrice(e.target.value)}
+                        placeholder="0%"
+                        value={localMinRoi}
+                        onChange={e => setLocalMinRoi(e.target.value)}
                       />
                     </div>
                     <div className={styles.inputGroup}>
-                      <label className={styles.label}>{t('filters.price.maximum')}</label>
+                      <label className={styles.label}>{t('filters.roi.maximum')}</label>
                       <input
                         type="text"
                         className={styles.input}
-                        placeholder={t('filters.price.any')}
-                        value={localMaxPrice}
-                        onChange={e => setLocalMaxPrice(e.target.value)}
+                        placeholder={t('filters.roi.any')}
+                        value={localMaxRoi}
+                        onChange={e => setLocalMaxRoi(e.target.value)}
                       />
                     </div>
                   </div>
 
                   <div className={styles.actions}>
                     <button type="button" className={styles.resetButton} onClick={handleReset}>
-                      {t('filters.price.reset')}
+                      {t('filters.roi.reset')}
                     </button>
                     <button type="button" className={styles.doneButton} onClick={handleDone}>
-                      {t('filters.price.done')}
+                      {t('filters.roi.done')}
                     </button>
                   </div>
                 </div>

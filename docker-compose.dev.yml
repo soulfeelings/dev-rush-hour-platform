@@ -81,6 +81,8 @@ services:
       - DB_PASSWORD=rushhour_dev
       - DB_NAME=rushhour_db
       - DB_SSLMODE=disable
+      - JWT_SECRET=dev-secret-change-in-production
+      - SUPERADMIN_EMAIL=sergei@rush-hour.ae
     volumes:
       - ./backend:/app
       - /app/go/pkg/mod
