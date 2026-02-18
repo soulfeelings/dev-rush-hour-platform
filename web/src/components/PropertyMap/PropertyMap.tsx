@@ -214,11 +214,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
         L.tileLayer(
           'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-          {
-            attribution:
-              'Thanks for the amazing satellite imagery provided by Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
-            maxZoom: 19,
-          }
+
         ).addTo(mapRef.current)
       }
 

@@ -909,6 +909,18 @@ func GeneratedProjectCreateToDomain(req *generated.ProjectCreateRequest) (*domai
 		}
 		project.PricesByType = pbt
 	}
+	if req.BadgeIds != nil {
+		project.BadgeIDs = make([]uuid.UUID, len(*req.BadgeIds))
+		for i, id := range *req.BadgeIds {
+			project.BadgeIDs[i] = uuid.UUID(id)
+		}
+	}
+	if req.InfrastructureIds != nil {
+		project.InfrastructureIDs = make([]uuid.UUID, len(*req.InfrastructureIds))
+		for i, id := range *req.InfrastructureIds {
+			project.InfrastructureIDs[i] = uuid.UUID(id)
+		}
+	}
 
 	return project, nil
 }
@@ -1010,6 +1022,18 @@ func GeneratedProjectUpdateToDomain(req *generated.ProjectUpdateRequest) (*domai
 			}
 		}
 		project.PricesByType = pbt
+	}
+	if req.BadgeIds != nil {
+		project.BadgeIDs = make([]uuid.UUID, len(*req.BadgeIds))
+		for i, id := range *req.BadgeIds {
+			project.BadgeIDs[i] = uuid.UUID(id)
+		}
+	}
+	if req.InfrastructureIds != nil {
+		project.InfrastructureIDs = make([]uuid.UUID, len(*req.InfrastructureIds))
+		for i, id := range *req.InfrastructureIds {
+			project.InfrastructureIDs[i] = uuid.UUID(id)
+		}
 	}
 
 	return project, nil

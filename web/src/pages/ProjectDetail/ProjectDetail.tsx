@@ -32,11 +32,17 @@ import { formatPrice, formatArea } from '../../utils/format'
 import { useIsRTL } from '../../hooks/useDirection'
 import { ApartmentsCarousel } from './ApartmentsCarousel'
 import { ApartmentCard } from './ApartmentCard'
+import { LotQuickViewModal } from './LotQuickViewModal'
 import { ProjectDetailSkeleton } from './ProjectDetailSkeleton'
 import styles from './ProjectDetail.module.scss'
 
 const MAP_ZOOM_DEFAULT = 13
-const _forceSkeleton = false; // for testing purposes
+const ALWAYS_FRESH_QUERY_OPTIONS = {
+  staleTime: 0,
+  refetchOnMount: 'always' as const,
+  refetchOnWindowFocus: true,
+}
+const _forceSkeleton = false
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl
@@ -95,7 +101,11 @@ export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>()
   const [is3DModalOpen, setIs3DModalOpen] = useState(false)
   const [isFloorPlanModalOpen, setIsFloorPlanModalOpen] = useState(false)
+  const [selectedLot, setSelectedLot] = useState<Lot | null>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  )
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const [mapContainerEl, setMapContainerEl] = useState<HTMLDivElement | null>(null)
@@ -155,6 +165,7 @@ export default function ProjectDetail() {
   } = useGetProject(slug || '', undefined, {
     query: {
       enabled: !!slug,
+      ...ALWAYS_FRESH_QUERY_OPTIONS,
     },
   })
 
@@ -163,6 +174,7 @@ export default function ProjectDetail() {
     {
       query: {
         enabled: !!slug,
+        ...ALWAYS_FRESH_QUERY_OPTIONS,
       },
     }
   )
@@ -208,6 +220,25 @@ export default function ProjectDetail() {
     project?.lng !== undefined &&
     project.lat !== null &&
     project.lng !== null
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isMobile && selectedLot) {
+      setSelectedLot(null)
+    }
+  }, [isMobile, selectedLot])
 
   useEffect(() => {
     if (!hasCoordinates || !mapContainerEl || mapRef.current) return
@@ -569,57 +600,70 @@ export default function ProjectDetail() {
         )}
 
         {/* Apartments Sections by Bedroom Count */}
-        {groupedLots.length > 0 && (
-          <div className={styles.apartmentsHeaderTop}>
-            <Typography variant="h1">{t('projectDetail.allUnits')}</Typography>
-            <button className={styles.viewAllBtn}>
-              <Typography variant="body" size="small" weight="regular">
-                {t('projectDetail.viewTheGrid')}
-              </Typography>
-              <ArrowRight size={16} />
-            </button>
-          </div>
-        )}
-        {groupedLots.map(group => (
-          <section key={group.bedrooms} className={styles.apartmentsSection}>
-            <div className={styles.apartmentsHeader}>
-              <Typography variant="h1" className={styles.groupTypeLabel}>
-                {pluralizeType(group.type)}
-              </Typography>
-              <div className={styles.apartmentsStats}>
-                <span>{t('projectDetail.beds', { count: group.bedrooms })}</span>
-                <span className={styles.statDivider} />
-                <span>
-                  {t('from')}{' '}
-                  {formatPrice(group.minPrice === Infinity ? 0 : group.minPrice, currency)}
-                </span>
-                <span className={styles.statDivider} />
-                <span>{t('projectDetail.units', { count: group.totalUnits })}</span>
-                <span className={styles.statDivider} />
-                <span>
-                  {group.minArea === Infinity
-                    ? '-'
-                    : group.minArea === group.maxArea
-                      ? formatArea(group.minArea, unit)
-                      : `${formatArea(group.minArea, unit)} - ${formatArea(group.maxArea, unit)}`}
-                </span>
+        <div className={styles.apartmentsHeaderTop}>
+          <Typography variant="h1">{t('projectDetail.allUnits')}</Typography>
+          <button className={styles.viewAllBtn}>
+            <Typography variant="body" size="small" weight="regular">
+              {t('projectDetail.viewTheGrid')}
+            </Typography>
+            <ArrowRight size={16} />
+          </button>
+        </div>
+        {groupedLots.length > 0 ? (
+          groupedLots.map(group => (
+            <section key={group.bedrooms} className={styles.apartmentsSection}>
+              <div className={styles.apartmentsHeader}>
+                <Typography variant="h1" className={styles.groupTypeLabel}>
+                  {pluralizeType(group.type)}
+                </Typography>
+                <div className={styles.apartmentsStats}>
+                  <span>{t('projectDetail.beds', { count: group.bedrooms })}</span>
+                  <span className={styles.statDivider} />
+                  <span>
+                    {t('from')}{' '}
+                    {formatPrice(group.minPrice === Infinity ? 0 : group.minPrice, currency)}
+                  </span>
+                  <span className={styles.statDivider} />
+                  <span>{t('projectDetail.units', { count: group.totalUnits })}</span>
+                  <span className={styles.statDivider} />
+                  <span>
+                    {group.minArea === Infinity
+                      ? '-'
+                      : group.minArea === group.maxArea
+                        ? formatArea(group.minArea, unit)
+                        : `${formatArea(group.minArea, unit)} - ${formatArea(group.maxArea, unit)}`}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <ApartmentsCarousel>
-              {group.lots.map((lot, index) => (
-                <ApartmentCard
-                  key={lot.id || index}
-                  lot={lot}
-                  projectName={project.name}
-                  projectSlug={slug}
-                  areaName={project.area?.name}
-                  roi={project.roi}
-                />
-              ))}
-            </ApartmentsCarousel>
+              <ApartmentsCarousel>
+                {group.lots.map((lot, index) => (
+                  <ApartmentCard
+                    key={lot.id || index}
+                    lot={lot}
+                    projectName={project.name}
+                    projectSlug={slug}
+                    areaName={project.area?.name}
+                    roi={lot.roi ?? project.roi}
+                    onClick={
+                      isMobile
+                        ? undefined
+                        : openedLot => {
+                            setSelectedLot(openedLot)
+                          }
+                    }
+                  />
+                ))}
+              </ApartmentsCarousel>
+            </section>
+          ))
+        ) : (
+          <section className={styles.apartmentsSection}>
+            <div style={{ padding: '1rem 0', color: 'var(--color-text-secondary)' }}>
+              {t('projectDetail.noApartments')}
+            </div>
           </section>
-        ))}
+        )}
       </div>
 
       <div className={styles.rightContent}>
@@ -692,6 +736,22 @@ export default function ProjectDetail() {
           </div>
         )}
       </Modal>
+
+      {!isMobile && (
+        <LotQuickViewModal
+          open={!!selectedLot}
+          onClose={() => setSelectedLot(null)}
+          lot={selectedLot}
+          projectName={project.name}
+          projectSlug={project.slug}
+          areaName={project.area?.name}
+          projectCompletionDate={project.completionDate}
+          projectPaymentPlan={project.paymentPlan}
+          fallbackRoi={project.roi}
+          lat={project.lat}
+          lng={project.lng}
+        />
+      )}
     </div>
   )
 }

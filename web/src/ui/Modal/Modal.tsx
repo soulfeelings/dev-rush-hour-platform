@@ -77,13 +77,15 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
             >
               <div ref={ref} {...props}>
                 <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
-                  <X size={12} />
+                  <X size={18} />
                 </button>
-                <div className={styles.header}>
-                  <Typography variant="h1" size="large">
-                    {title}
-                  </Typography>
-                </div>
+                {title && (
+                  <div className={styles.header}>
+                    <Typography variant="h1" size="large">
+                      {title}
+                    </Typography>
+                  </div>
+                )}
                 {children}
               </div>
             </motion.div>

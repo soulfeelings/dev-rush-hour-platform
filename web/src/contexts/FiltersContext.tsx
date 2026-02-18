@@ -20,6 +20,8 @@ export type FilterValues = {
   developer: string | null
   project: string | null
   propertyType: 'all' | LotType
+  lotType: 'all' | LotType
+  roiMin: string
   bedrooms: string[]
   bathrooms: string[]
   priceRange: 'all' | '0-1m' | '1-2m' | '2-5m' | '5m+'
@@ -51,6 +53,8 @@ const defaultFilters: FilterValues = {
   developer: null,
   project: null,
   propertyType: 'all',
+  lotType: 'all',
+  roiMin: '',
   bedrooms: [],
   bathrooms: [],
   priceRange: 'all',
@@ -77,6 +81,11 @@ const parseFiltersFromURL = (search: string): FilterValues => {
   if (type && Object.values(LotType).includes(type as LotType)) {
     filters.propertyType = type as FilterValues['propertyType']
   }
+  const lotType = params.get('lotType')
+  if (lotType && (lotType === 'all' || Object.values(LotType).includes(lotType as LotType))) {
+    filters.lotType = lotType as FilterValues['lotType']
+  }
+  if (params.get('roiMin')) filters.roiMin = params.get('roiMin') || ''
 
   const beds = params.get('bedrooms')
   if (beds) {
@@ -131,6 +140,8 @@ const buildURLParams = (filters: FilterValues): URLSearchParams => {
   if (filters.developer) params.set('developer', filters.developer)
   if (filters.project) params.set('project', filters.project)
   if (filters.propertyType !== 'all') params.set('type', filters.propertyType)
+  if (filters.lotType !== 'all') params.set('lotType', filters.lotType)
+  if (filters.roiMin) params.set('roiMin', filters.roiMin)
   if (filters.bedrooms.length > 0) params.set('bedrooms', filters.bedrooms.join(','))
   if (filters.bathrooms.length > 0) params.set('bathrooms', filters.bathrooms.join(','))
   if (filters.priceRange !== 'all') params.set('priceRange', filters.priceRange)

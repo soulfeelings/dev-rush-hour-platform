@@ -173,6 +173,18 @@ func (r *InfrastructureRepo) HardDelete(id uuid.UUID) error {
 	return nil
 }
 
+// Project-level infrastructure links were removed from schema; keep compatibility for services.
+func (r *InfrastructureRepo) GetProjectInfrastructures(projectID uuid.UUID) ([]domain.Infrastructure, error) {
+	r.logger.Info("infrastructure_repo_get_project_infrastructures_completed", "project_id", projectID, "count", 0)
+	return []domain.Infrastructure{}, nil
+}
+
+// Project-level infrastructure links were removed from schema; keep compatibility for services.
+func (r *InfrastructureRepo) SetProjectInfrastructures(projectID uuid.UUID, infrastructureIDs []uuid.UUID) error {
+	r.logger.Info("infrastructure_repo_set_project_infrastructures_completed", "project_id", projectID, "count", len(infrastructureIDs))
+	return nil
+}
+
 // sqlcInfraToDomain converts sqlcgen.Infrastructure to domain.Infrastructure
 func sqlcInfraToDomain(row sqlcgen.Infrastructure) *domain.Infrastructure {
 	return &domain.Infrastructure{

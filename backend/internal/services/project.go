@@ -10,18 +10,20 @@ import (
 )
 
 type ProjectsService struct {
-	projectRepo *repo.ProjectRepo
-	lotRepo     *repo.LotRepo
-	badgeRepo   *repo.BadgeRepo
-	logger      *slog.Logger
+	projectRepo        *repo.ProjectRepo
+	lotRepo            *repo.LotRepo
+	badgeRepo          *repo.BadgeRepo
+	infrastructureRepo *repo.InfrastructureRepo
+	logger             *slog.Logger
 }
 
-func NewProjectsService(projectRepo *repo.ProjectRepo, lotRepo *repo.LotRepo, badgeRepo *repo.BadgeRepo) *ProjectsService {
+func NewProjectsService(projectRepo *repo.ProjectRepo, lotRepo *repo.LotRepo, badgeRepo *repo.BadgeRepo, infrastructureRepo *repo.InfrastructureRepo) *ProjectsService {
 	return &ProjectsService{
-		projectRepo: projectRepo,
-		lotRepo:     lotRepo,
-		badgeRepo:   badgeRepo,
-		logger:      slog.Default(),
+		projectRepo:        projectRepo,
+		lotRepo:            lotRepo,
+		badgeRepo:          badgeRepo,
+		infrastructureRepo: infrastructureRepo,
+		logger:             slog.Default(),
 	}
 }
 
@@ -40,19 +42,23 @@ func (s *ProjectsService) List(filters domain.ProjectFilters, sort domain.Projec
 		return nil, err
 	}
 
-	// Fetch badges for each project
-	if s.badgeRepo != nil {
-		for i := range projects {
-			badges, err := s.badgeRepo.GetProjectBadges(projects[i].ID)
-			if err != nil {
-				s.logger.Warn("project_service_list_get_badges_failed",
-					"project_id", projects[i].ID,
-					"error", err.Error(),
-				)
-				// Continue without badges on error
-				continue
-			}
+	for i := range projects {
+		if badges, err := s.badgeRepo.GetProjectBadges(projects[i].ID); err != nil {
+			s.logger.Warn("project_service_list_get_badges_failed",
+				"project_id", projects[i].ID,
+				"error", err.Error(),
+			)
+		} else {
 			projects[i].Badges = badges
+		}
+
+		if infras, err := s.infrastructureRepo.GetProjectInfrastructures(projects[i].ID); err != nil {
+			s.logger.Warn("project_service_list_get_infrastructures_failed",
+				"project_id", projects[i].ID,
+				"error", err.Error(),
+			)
+		} else {
+			projects[i].Infrastructures = infras
 		}
 	}
 
@@ -85,19 +91,22 @@ func (s *ProjectsService) GetBySlug(slug string, includeLots *int) (*domain.Proj
 		return nil, nil, ErrProjectNotFound
 	}
 
-	// Fetch badges for the project
-	if s.badgeRepo != nil {
-		badges, err := s.badgeRepo.GetProjectBadges(project.ID)
-		if err != nil {
-			s.logger.Warn("project_service_get_by_slug_get_badges_failed",
-				"slug", slug,
-				"project_id", project.ID,
-				"error", err.Error(),
-			)
-			// Continue without badges on error
-		} else {
-			project.Badges = badges
-		}
+	if badges, err := s.badgeRepo.GetProjectBadges(project.ID); err != nil {
+		s.logger.Warn("project_service_get_by_slug_get_badges_failed",
+			"project_id", project.ID,
+			"error", err.Error(),
+		)
+	} else {
+		project.Badges = badges
+	}
+
+	if infras, err := s.infrastructureRepo.GetProjectInfrastructures(project.ID); err != nil {
+		s.logger.Warn("project_service_get_by_slug_get_infrastructures_failed",
+			"project_id", project.ID,
+			"error", err.Error(),
+		)
+	} else {
+		project.Infrastructures = infras
 	}
 
 	var lots []domain.Lot
@@ -141,6 +150,24 @@ func (s *ProjectsService) Create(project *domain.Project) error {
 			"error", err.Error(),
 		)
 		return err
+	}
+
+	if len(project.BadgeIDs) > 0 {
+		if err := s.badgeRepo.SetProjectBadges(project.ID, project.BadgeIDs); err != nil {
+			s.logger.Warn("project_service_create_set_badges_failed",
+				"project_id", project.ID,
+				"error", err.Error(),
+			)
+		}
+	}
+
+	if len(project.InfrastructureIDs) > 0 {
+		if err := s.infrastructureRepo.SetProjectInfrastructures(project.ID, project.InfrastructureIDs); err != nil {
+			s.logger.Warn("project_service_create_set_infrastructures_failed",
+				"project_id", project.ID,
+				"error", err.Error(),
+			)
+		}
 	}
 
 	s.logger.Info("project_service_create_completed",
@@ -278,6 +305,25 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 		return err
 	}
 
+	// Update badges/infrastructures only if explicitly provided (nil means "no change")
+	if updates.BadgeIDs != nil {
+		if err := s.badgeRepo.SetProjectBadges(id, updates.BadgeIDs); err != nil {
+			s.logger.Warn("project_service_update_set_badges_failed",
+				"project_id", id,
+				"error", err.Error(),
+			)
+		}
+	}
+
+	if updates.InfrastructureIDs != nil {
+		if err := s.infrastructureRepo.SetProjectInfrastructures(id, updates.InfrastructureIDs); err != nil {
+			s.logger.Warn("project_service_update_set_infrastructures_failed",
+				"project_id", id,
+				"error", err.Error(),
+			)
+		}
+	}
+
 	s.logger.Info("project_service_update_completed",
 		"project_id", id,
 		"project_slug", existing.Slug,
@@ -323,6 +369,15 @@ func (s *ProjectsService) ListAll() ([]domain.Project, error) {
 			"error", err.Error(),
 		)
 		return nil, err
+	}
+
+	for i := range projects {
+		if badges, err := s.badgeRepo.GetProjectBadges(projects[i].ID); err == nil {
+			projects[i].Badges = badges
+		}
+		if infras, err := s.infrastructureRepo.GetProjectInfrastructures(projects[i].ID); err == nil {
+			projects[i].Infrastructures = infras
+		}
 	}
 
 	s.logger.Info("project_service_list_all_completed",

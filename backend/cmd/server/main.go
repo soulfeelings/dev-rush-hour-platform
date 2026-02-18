@@ -80,7 +80,7 @@ func NewServer(pool *pgxpool.Pool, eventBus *events.EventBus, cfg *config.Config
 	adminAuthService := services.NewAdminAuthService(adminUserRepo, cfg.Admin.SuperadminEmail)
 	areasService := services.NewAreasService(areaRepo)
 	citiesService := services.NewCitiesService(cityRepo)
-	projectsService := services.NewProjectsService(projectRepo, lotRepo, badgeRepo)
+	projectsService := services.NewProjectsService(projectRepo, lotRepo, badgeRepo, infrastructureRepo)
 	lotsService := services.NewLotsService(lotRepo, eventBus)
 	leadsService := services.NewLeadsService(leadRepo)
 	developersService := services.NewDevelopersService(developerRepo)

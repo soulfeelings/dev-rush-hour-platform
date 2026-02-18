@@ -30,7 +30,11 @@ const mapFilterOptions = ({
   }))
 }
 
-export const CatalogFilters = () => {
+interface CatalogFiltersProps {
+  activeTab?: 'projects' | 'lots'
+}
+
+export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) => {
   const { t } = useTranslation()
   const { filters, options, updateFilter, resetFilters, isLoading } = useFilters()
   const [searchInput, setSearchInput] = useState(filters.search)
@@ -112,24 +116,60 @@ export const CatalogFilters = () => {
           { value: 'triplex', label: t('filters.propertyType.triplex') },
         ],
       }),
+      lotType: [
+        { value: 'all', label: t('filters.lotType.all') },
+        { value: 'apartment', label: t('filters.lotType.apartment') },
+        { value: 'penthouse', label: t('filters.lotType.penthouse') },
+      ] as SelectOption[],
+      roiMin: [
+        { value: '', label: t('filters.roi.all') },
+        { value: '5', label: t('filters.roi.from5') },
+        { value: '7', label: t('filters.roi.from7') },
+        { value: '10', label: t('filters.roi.from10') },
+      ] as SelectOption[],
     }),
     [options, t]
   )
 
   const hasActiveFilters = useMemo(() => {
+    if (activeTab === 'lots') {
+      return (
+        filters.lotType !== 'all' ||
+        filters.roiMin !== '' ||
+        filters.minPrice !== '' ||
+        filters.maxPrice !== '' ||
+        filters.bedrooms.length > 0 ||
+        filters.bathrooms.length > 0 ||
+        filters.status !== 'all' ||
+        filters.search !== ''
+      )
+    }
     return (
       filters.minPrice !== '' ||
       filters.maxPrice !== '' ||
       filters.bedrooms.length > 0 ||
       filters.bathrooms.length > 0 ||
-      filters.status !== 'all' ||
-      filters.search !== '' ||
       filters.area !== null ||
       filters.developer !== null ||
       filters.project !== null ||
-      filters.propertyType !== 'all'
+      filters.propertyType !== 'all' ||
+      filters.status !== 'all' ||
+      filters.search !== ''
     )
-  }, [filters])
+  }, [
+    activeTab,
+    filters.lotType,
+    filters.roiMin,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.bedrooms,
+    filters.bathrooms,
+    filters.area,
+    filters.project,
+    filters.propertyType,
+    filters.status,
+    filters.search,
+  ])
 
   const handleClearFilters = useCallback(() => {
     setSearchInput('')
@@ -144,6 +184,19 @@ export const CatalogFilters = () => {
     <div className={styles.filtersWrapper}>
       {isSearchFocused && <div className={styles.searchOverlay} onClick={handleSearchBlur} />}
       <div className={styles.filtersBar}>
+        {/* City filter — always visible */}
+        <Select
+          options={filterOptions.city}
+          value={filters.city || ''}
+          onChange={value => updateFilter('city', value || null)}
+          placeholder={t('filters.location.all')}
+          triggerVariant="primary"
+          triggerSize="xs"
+          triggerIconLeft={<Plane size={16} />}
+          hideChevronRight
+        />
+
+        {/* Search — always visible */}
         <div className={`${styles.searchWrapper} ${isSearchFocused ? styles.searchFocused : ''}`}>
           <Search size={16} className={styles.searchIcon} />
           <input
@@ -157,89 +210,138 @@ export const CatalogFilters = () => {
           />
         </div>
 
-        <Select
-          options={filterOptions.city}
-          value={filters.city || ''}
-          onChange={value => updateFilter('city', value || null)}
-          placeholder={t('filters.location.all')}
-          triggerVariant="primary"
-          triggerSize="xs"
-          triggerIconLeft={<Plane size={16} />}
-          hideChevronRight
-        />
+        {activeTab === 'projects' ? (
+          <>
+            <Select
+              options={filterOptions.project}
+              value={filters.project || ''}
+              onChange={value => updateFilter('project', value || null)}
+              placeholder={t('filters.project.all')}
+              triggerSize="xs"
+              searchable
+              clearable
+              defaultValue=""
+            />
 
-        <Select
-          options={filterOptions.developer}
-          value={filters.developer || ''}
-          onChange={value => updateFilter('developer', value || null)}
-          placeholder={t('filters.developer.all')}
-          triggerSize="xs"
-          searchable
-          clearable
-          defaultValue=""
-        />
+            <Select
+              options={filterOptions.area}
+              value={filters.area || ''}
+              onChange={value => updateFilter('area', value || null)}
+              placeholder={t('filters.area.all')}
+              triggerSize="xs"
+              searchable
+              clearable
+              defaultValue=""
+            />
+            <Select
+              options={filterOptions.developer}
+              value={filters.developer || ''}
+              onChange={value => updateFilter('developer', value || null)}
+              placeholder={t('filters.developer.all')}
+              triggerSize="xs"
+              searchable
+              clearable
+              defaultValue=""
+            />
+            <Select
+              options={filterOptions.propertyType}
+              value={filters.propertyType}
+              onChange={value =>
+                updateFilter('propertyType', (value || 'all') as FilterValues['propertyType'])
+              }
+              placeholder={t('filters.propertyType.all')}
+              triggerSize="xs"
+              clearable
+              defaultValue="all"
+            />
 
-        <Select
-          options={filterOptions.project}
-          value={filters.project || ''}
-          onChange={value => updateFilter('project', value || null)}
-          placeholder={t('filters.project.all')}
-          triggerSize="xs"
-          searchable
-          clearable
-          defaultValue=""
-        />
+            <PriceSelect
+              minPrice={filters.minPrice}
+              maxPrice={filters.maxPrice}
+              onMinPriceChange={value => updateFilter('minPrice', value)}
+              onMaxPriceChange={value => updateFilter('maxPrice', value)}
+              placeholder={t('filters.price.placeholder')}
+              size="xs"
+              clearable
+            />
 
-        <Select
-          options={filterOptions.area}
-          value={filters.area || ''}
-          onChange={value => updateFilter('area', value || null)}
-          placeholder={t('filters.area.all')}
-          triggerSize="xs"
-          searchable
-          clearable
-          defaultValue=""
-        />
+            <BedsBathsSelect
+              bedrooms={filters.bedrooms}
+              bathrooms={filters.bathrooms}
+              onBedroomsChange={value => updateFilter('bedrooms', value)}
+              onBathroomsChange={value => updateFilter('bathrooms', value)}
+              placeholder={t('filters.bathrooms.placeholder')}
+              size="xs"
+              clearable
+            />
 
-        <Select
-          options={filterOptions.propertyType}
-          value={filters.propertyType}
-          onChange={value => updateFilter('propertyType', (value || 'all') as FilterValues['propertyType'])}
-          placeholder={t('filters.propertyType.all')}
-          triggerSize="xs"
-          clearable
-          defaultValue="all"
-        />
+            <Select
+              options={filterOptions.status}
+              value={filters.status}
+              onChange={value => updateFilter('status', value as FilterValues['status'])}
+              placeholder={t('filters.status.placeholder')}
+              triggerSize="xs"
+              clearable
+              defaultValue="all"
+            />
+          </>
+        ) : (
+          <>
+            {/* Object Type */}
+            <Select
+              options={filterOptions.lotType}
+              value={filters.lotType}
+              onChange={value => updateFilter('lotType', value as FilterValues['lotType'])}
+              placeholder={t('filters.lotType.placeholder')}
+              triggerSize="xs"
+              clearable
+              defaultValue="all"
+            />
 
-        <PriceSelect
-          minPrice={filters.minPrice}
-          maxPrice={filters.maxPrice}
-          onMinPriceChange={value => updateFilter('minPrice', value)}
-          onMaxPriceChange={value => updateFilter('maxPrice', value)}
-          placeholder={t('filters.price.placeholder')}
-          size="xs"
-          clearable
-        />
+            {/* Price */}
+            <PriceSelect
+              minPrice={filters.minPrice}
+              maxPrice={filters.maxPrice}
+              onMinPriceChange={value => updateFilter('minPrice', value)}
+              onMaxPriceChange={value => updateFilter('maxPrice', value)}
+              placeholder={t('filters.price.placeholder')}
+              size="xs"
+              clearable
+            />
 
-        <BedsBathsSelect
-          bedrooms={filters.bedrooms}
-          bathrooms={filters.bathrooms}
-          onBedroomsChange={value => updateFilter('bedrooms', value)}
-          onBathroomsChange={value => updateFilter('bathrooms', value)}
-          placeholder={t('filters.bathrooms.placeholder')}
-          size="xs"
-          clearable
-        />
+            {/* ROI */}
+            <Select
+              options={filterOptions.roiMin}
+              value={filters.roiMin}
+              onChange={value => updateFilter('roiMin', value)}
+              placeholder={t('filters.roi.placeholder')}
+              triggerSize="xs"
+              clearable
+            />
 
-        <Select
-          options={filterOptions.status}
-          value={filters.status}
-          onChange={value => updateFilter('status', value as FilterValues['status'])}
-          placeholder={t('filters.status.placeholder')}
-          triggerSize="xs"
-          clearable
-          defaultValue="all"
-        />
+            {/* Bedrooms */}
+            <BedsBathsSelect
+              bedrooms={filters.bedrooms}
+              bathrooms={filters.bathrooms}
+              onBedroomsChange={value => updateFilter('bedrooms', value)}
+              onBathroomsChange={value => updateFilter('bathrooms', value)}
+              placeholder={t('filters.bathrooms.placeholder')}
+              size="xs"
+              clearable
+            />
+
+            {/* Sales status */}
+            <Select
+              options={filterOptions.status}
+              value={filters.status}
+              onChange={value => updateFilter('status', value as FilterValues['status'])}
+              placeholder={t('filters.status.placeholder')}
+              triggerSize="xs"
+              clearable
+              defaultValue="all"
+            />
+          </>
+        )}
 
         <div className={styles.rightActions}>
           {hasActiveFilters && (

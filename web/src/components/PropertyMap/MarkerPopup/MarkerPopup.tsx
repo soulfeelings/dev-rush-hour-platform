@@ -25,10 +25,6 @@ export const MarkerPopup = ({ project, direction = 'top', currency = 'AED' }: Ma
   const coverImage = project.media?.cover?.url
   const logoUrl = project.media?.logo?.url
 
-  // Calculate discounted price if discount exists
-  const discountedPrice =
-    discount && project.priceFromUs ? project.priceFromUs * (1 - discount / 100) : null
-
   return (
     <div className={clsx('mp-wrapper', `mp-wrapper-${direction}`)}>
       <div className="mp-card">
@@ -83,31 +79,33 @@ export const MarkerPopup = ({ project, direction = 'top', currency = 'AED' }: Ma
         </div>
 
         <div className="mp-price-container">
-          {discountedPrice && (
+          {project.priceFromUs && (
             <div className="mp-price-row">
               <div className="mp-attribute-container">
                 <span className="mp-attribute-label">{t('markerPopup.ourPrice')}</span>
-                <span className="mp-discount-badge">-{discount}%</span>
+                {discount && <span className="mp-discount-badge">-{discount}%</span>}
               </div>
               <div className="mp-price-value-container">
                 <span className="mp-price-value">
                   <span className="mp-from">{t('from')}</span>{' '}
-                  {formatPrice(discountedPrice, currency)}
+                  {formatPrice(project.priceFromUs, currency)}
                 </span>
               </div>
             </div>
           )}
-          <div className="mp-price-row">
-            <div className="mp-attribute-container">
-              <span className="mp-attribute-label">{t('markerPopup.developerPrice')}</span>
+          {project.priceFromDeveloper && (
+            <div className="mp-price-row">
+              <div className="mp-attribute-container">
+                <span className="mp-attribute-label">{t('markerPopup.developerPrice')}</span>
+              </div>
+              <div className="mp-price-value-container">
+                <span className="mp-price-value">
+                  <span className="mp-from">{t('from')}</span>{' '}
+                  {formatPrice(project.priceFromDeveloper, currency)}
+                </span>
+              </div>
             </div>
-            <div className="mp-price-value-container">
-              <span className="mp-price-value">
-                <span className="mp-from">{t('from')}</span>{' '}
-                {formatPrice(project.priceFromUs, currency)}
-              </span>
-            </div>
-          </div>
+          )}
         </div>
 
         {(firstPart || paymentPlan) && (

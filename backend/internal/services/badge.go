@@ -231,26 +231,6 @@ func (s *BadgesService) Delete(id uuid.UUID) error {
 	return nil
 }
 
-// Project badges methods
-
-func (s *BadgesService) GetProjectBadges(projectID uuid.UUID) ([]domain.Badge, error) {
-	return s.badgeRepo.GetProjectBadges(projectID)
-}
-
-func (s *BadgesService) SetProjectBadges(projectID uuid.UUID, badgeIDs []uuid.UUID) error {
-	return s.badgeRepo.SetProjectBadges(projectID, badgeIDs)
-}
-
-// Lot badges methods
-
-func (s *BadgesService) GetLotBadges(lotID uuid.UUID) ([]domain.Badge, error) {
-	return s.badgeRepo.GetLotBadges(lotID)
-}
-
-func (s *BadgesService) SetLotBadges(lotID uuid.UUID, badgeIDs []uuid.UUID) error {
-	return s.badgeRepo.SetLotBadges(lotID, badgeIDs)
-}
-
 func (s *BadgesService) ListDeleted() ([]domain.Badge, error) {
 	s.logger.Info("badge_service_list_deleted_started")
 

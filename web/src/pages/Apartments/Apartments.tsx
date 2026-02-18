@@ -18,6 +18,12 @@ import styles from './Apartments.module.scss'
 
 type SortValue = 'default' | ListLotsSort
 
+const ALWAYS_FRESH_QUERY_OPTIONS = {
+  staleTime: 0,
+  refetchOnMount: 'always' as const,
+  refetchOnWindowFocus: true,
+}
+
 // =====================================
 // APARTMENTS PAGE
 // =====================================
@@ -70,7 +76,9 @@ export default function Apartments() {
   }, [projectSlug, sortValue])
 
   // Load lots
-  const { data: lotsData, isLoading, error } = useListLots(lotsParams)
+  const { data: lotsData, isLoading, error } = useListLots(lotsParams, {
+    query: ALWAYS_FRESH_QUERY_OPTIONS,
+  })
 
   const lots = useMemo(() => {
     if (!lotsData?.items) return []

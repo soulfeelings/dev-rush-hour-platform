@@ -50,8 +50,8 @@
   top: $spacing-4;
   inset-inline-end: $spacing-4;
   padding: 0;
-  width: $spacing-4;
-  height: $spacing-4;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,6 +60,7 @@
   cursor: pointer;
   border-radius: $radius-full;
   transition: background $transition-fast;
+  z-index: 1100;
 }
 
 .body {
