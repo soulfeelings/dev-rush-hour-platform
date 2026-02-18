@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAdminKey } from '../utils/adminApi'
 import { API_URL, BASE_PATH } from '../api/constants'
 
 const MEDIA_QUERY_KEY = 'admin-media'
@@ -36,15 +35,6 @@ type UploadResponse = {
 
 const baseUrl = `${API_URL}${BASE_PATH}`
 
-function adminHeaders(): Record<string, string> {
-  const adminKey = getAdminKey()
-  if (!adminKey) throw new Error('Admin key not found')
-  return {
-    'X-Admin-Key': adminKey,
-    'Content-Type': 'application/json',
-  }
-}
-
 export async function listMedia(params?: {
   status?: string
   limit?: number
@@ -58,7 +48,10 @@ export async function listMedia(params?: {
   const qs = search.toString()
   const url = `${baseUrl}/admin/media${qs ? `?${qs}` : ''}`
 
-  const res = await fetch(url, { headers: adminHeaders() })
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }))
     throw new Error(err.message || `Failed to list media: ${res.statusText}`)
@@ -67,15 +60,12 @@ export async function listMedia(params?: {
 }
 
 export async function uploadMedia(file: File): Promise<UploadResponse> {
-  const adminKey = getAdminKey()
-  if (!adminKey) throw new Error('Admin key not found')
-
   const form = new FormData()
   form.append('file', file)
 
   const res = await fetch(`${baseUrl}/admin/media/upload`, {
     method: 'POST',
-    headers: { 'X-Admin-Key': adminKey },
+    credentials: 'include',
     body: form,
   })
 
@@ -89,7 +79,8 @@ export async function uploadMedia(file: File): Promise<UploadResponse> {
 export async function deleteMedia(id: string): Promise<void> {
   const res = await fetch(`${baseUrl}/admin/media/${id}`, {
     method: 'DELETE',
-    headers: adminHeaders(),
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }))

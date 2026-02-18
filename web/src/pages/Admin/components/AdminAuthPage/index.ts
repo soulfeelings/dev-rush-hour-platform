@@ -1,0 +1,1 @@
+export { AdminAuthPage } from './AdminAuthPage'

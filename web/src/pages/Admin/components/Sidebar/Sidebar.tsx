@@ -13,16 +13,27 @@ type Tab =
   | 'infrastructures-list'
   | 'developers-list'
   | 'media-list'
+  | 'team-list'
 
 type SidebarProps = {
   activeTab: Tab
   onTabChange: (tab: Tab) => void
   onLogout: () => void
+  can: (entity: string, action: string) => boolean
+  isSuperadmin: boolean
   isOpen?: boolean
   onClose?: () => void
 }
 
-export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: SidebarProps) {
+export function Sidebar({
+  activeTab,
+  onTabChange,
+  onLogout,
+  can,
+  isSuperadmin,
+  isOpen,
+  onClose,
+}: SidebarProps) {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -60,70 +71,110 @@ export function Sidebar({ activeTab, onTabChange, onLogout, isOpen, onClose }: S
           <h1 className={styles.title}>Admin Panel</h1>
         </div>
         <nav className={styles.nav}>
-          <div className={styles.navSection}>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'cities-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('cities-list')}
-            >
-              <span>Cities</span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'areas-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('areas-list')}
-            >
-              <span>Areas</span>
-            </button>
-          </div>
-          <hr className={styles.divider} />
-          <div className={styles.navSection}>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'developers-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('developers-list')}
-            >
-              <span>Developers</span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'projects-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('projects-list')}
-            >
-              <span>Projects</span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'lots-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('lots-list')}
-            >
-              <span>Lots</span>
-            </button>
-          </div>
-          <hr className={styles.divider} />
-          <div className={styles.navSection}>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'badges-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('badges-list')}
-            >
-              <span>Badges</span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'infrastructures-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('infrastructures-list')}
-            >
-              <span>Infrastructures</span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeTab === 'media-list' ? styles.active : ''}`}
-              onClick={() => onTabChange('media-list')}
-            >
-              <span>Media</span>
-            </button>
-          </div>
+          {(can('cities', 'view') || can('areas', 'view')) && (
+            <div className={styles.navSection}>
+              {can('cities', 'view') && (
+                <button
+                  type="button"
+                  className={`${styles.navItem} ${activeTab === 'cities-list' ? styles.active : ''}`}
+                  onClick={() => onTabChange('cities-list')}
+                >
+                  <span>Cities</span>
+                </button>
+              )}
+              {can('areas', 'view') && (
+                <button
+                  type="button"
+                  className={`${styles.navItem} ${activeTab === 'areas-list' ? styles.active : ''}`}
+                  onClick={() => onTabChange('areas-list')}
+                >
+                  <span>Areas</span>
+                </button>
+              )}
+            </div>
+          )}
+          {(can('developers', 'view') || can('projects', 'view') || can('lots', 'view')) && (
+            <>
+              <hr className={styles.divider} />
+              <div className={styles.navSection}>
+                {can('developers', 'view') && (
+                  <button
+                    type="button"
+                    className={`${styles.navItem} ${activeTab === 'developers-list' ? styles.active : ''}`}
+                    onClick={() => onTabChange('developers-list')}
+                  >
+                    <span>Developers</span>
+                  </button>
+                )}
+                {can('projects', 'view') && (
+                  <button
+                    type="button"
+                    className={`${styles.navItem} ${activeTab === 'projects-list' ? styles.active : ''}`}
+                    onClick={() => onTabChange('projects-list')}
+                  >
+                    <span>Projects</span>
+                  </button>
+                )}
+                {can('lots', 'view') && (
+                  <button
+                    type="button"
+                    className={`${styles.navItem} ${activeTab === 'lots-list' ? styles.active : ''}`}
+                    onClick={() => onTabChange('lots-list')}
+                  >
+                    <span>Lots</span>
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+          {(can('badges', 'view') || can('infrastructures', 'view') || can('media', 'view')) && (
+            <>
+              <hr className={styles.divider} />
+              <div className={styles.navSection}>
+                {can('badges', 'view') && (
+                  <button
+                    type="button"
+                    className={`${styles.navItem} ${activeTab === 'badges-list' ? styles.active : ''}`}
+                    onClick={() => onTabChange('badges-list')}
+                  >
+                    <span>Badges</span>
+                  </button>
+                )}
+                {can('infrastructures', 'view') && (
+                  <button
+                    type="button"
+                    className={`${styles.navItem} ${activeTab === 'infrastructures-list' ? styles.active : ''}`}
+                    onClick={() => onTabChange('infrastructures-list')}
+                  >
+                    <span>Infrastructures</span>
+                  </button>
+                )}
+                {can('media', 'view') && (
+                  <button
+                    type="button"
+                    className={`${styles.navItem} ${activeTab === 'media-list' ? styles.active : ''}`}
+                    onClick={() => onTabChange('media-list')}
+                  >
+                    <span>Media</span>
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+          {isSuperadmin && (
+            <>
+              <hr className={styles.divider} />
+              <div className={styles.navSection}>
+                <button
+                  type="button"
+                  className={`${styles.navItem} ${activeTab === 'team-list' ? styles.active : ''}`}
+                  onClick={() => onTabChange('team-list')}
+                >
+                  <span>Team</span>
+                </button>
+              </div>
+            </>
+          )}
         </nav>
         <div className={styles.footer}>
           <Button

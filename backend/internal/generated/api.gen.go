@@ -18,6 +18,28 @@ const (
 	AdminApiKeyScopes = "AdminApiKey.Scopes"
 )
 
+// Defines values for AdminAuthResponseRole.
+const (
+	AdminAuthResponseRoleAdmin      AdminAuthResponseRole = "admin"
+	AdminAuthResponseRoleSuperadmin AdminAuthResponseRole = "superadmin"
+)
+
+// Defines values for AdminTeamMemberRequestRole.
+const (
+	AdminTeamMemberRequestRoleAdmin AdminTeamMemberRequestRole = "admin"
+)
+
+// Defines values for AdminTeamMemberUpdateRequestRole.
+const (
+	AdminTeamMemberUpdateRequestRoleAdmin AdminTeamMemberUpdateRequestRole = "admin"
+)
+
+// Defines values for AdminUserRole.
+const (
+	AdminUserRoleAdmin      AdminUserRole = "admin"
+	AdminUserRoleSuperadmin AdminUserRole = "superadmin"
+)
+
 // Defines values for AreaStatus.
 const (
 	AreaStatusActive   AreaStatus = "active"
@@ -212,6 +234,54 @@ const (
 	ListProjectsParamsSortPriceAsc  ListProjectsParamsSort = "price_asc"
 	ListProjectsParamsSortPriceDesc ListProjectsParamsSort = "price_desc"
 )
+
+// AdminAuthResponse defines model for AdminAuthResponse.
+type AdminAuthResponse struct {
+	Email       *string                `json:"email,omitempty"`
+	Permissions *[]string              `json:"permissions,omitempty"`
+	Role        *AdminAuthResponseRole `json:"role,omitempty"`
+}
+
+// AdminAuthResponseRole defines model for AdminAuthResponse.Role.
+type AdminAuthResponseRole string
+
+// AdminMicrosoftLoginRequest defines model for AdminMicrosoftLoginRequest.
+type AdminMicrosoftLoginRequest struct {
+	// AccessToken Microsoft access token from MSAL (scope User.Read)
+	AccessToken string `json:"access_token"`
+}
+
+// AdminTeamMemberRequest defines model for AdminTeamMemberRequest.
+type AdminTeamMemberRequest struct {
+	Email       openapi_types.Email         `json:"email"`
+	Permissions *[]string                   `json:"permissions,omitempty"`
+	Role        *AdminTeamMemberRequestRole `json:"role,omitempty"`
+}
+
+// AdminTeamMemberRequestRole defines model for AdminTeamMemberRequest.Role.
+type AdminTeamMemberRequestRole string
+
+// AdminTeamMemberUpdateRequest defines model for AdminTeamMemberUpdateRequest.
+type AdminTeamMemberUpdateRequest struct {
+	Permissions *[]string                         `json:"permissions,omitempty"`
+	Role        *AdminTeamMemberUpdateRequestRole `json:"role,omitempty"`
+}
+
+// AdminTeamMemberUpdateRequestRole defines model for AdminTeamMemberUpdateRequest.Role.
+type AdminTeamMemberUpdateRequestRole string
+
+// AdminUser defines model for AdminUser.
+type AdminUser struct {
+	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
+	CreatedBy   *string             `json:"createdBy,omitempty"`
+	Email       *string             `json:"email,omitempty"`
+	Id          *openapi_types.UUID `json:"id,omitempty"`
+	Permissions *[]string           `json:"permissions,omitempty"`
+	Role        *AdminUserRole      `json:"role,omitempty"`
+}
+
+// AdminUserRole defines model for AdminUser.Role.
+type AdminUserRole string
 
 // Area defines model for Area.
 type Area struct {
@@ -1024,6 +1094,9 @@ type ProjectUpdateRequestSale string
 // ProjectUpdateRequestStatus defines model for ProjectUpdateRequest.Status.
 type ProjectUpdateRequestStatus string
 
+// Forbidden defines model for Forbidden.
+type Forbidden = Error
+
 // InternalError defines model for InternalError.
 type InternalError = Error
 
@@ -1153,6 +1226,9 @@ type AdminCreateAreaJSONRequestBody = AreaCreateRequest
 // AdminUpdateAreaJSONRequestBody defines body for AdminUpdateArea for application/json ContentType.
 type AdminUpdateAreaJSONRequestBody = AreaUpdateRequest
 
+// AdminAuthMicrosoftJSONRequestBody defines body for AdminAuthMicrosoft for application/json ContentType.
+type AdminAuthMicrosoftJSONRequestBody = AdminMicrosoftLoginRequest
+
 // AdminCreateBadgeJSONRequestBody defines body for AdminCreateBadge for application/json ContentType.
 type AdminCreateBadgeJSONRequestBody = BadgeCreateRequest
 
@@ -1191,6 +1267,12 @@ type AdminCreateProjectJSONRequestBody = ProjectCreateRequest
 
 // AdminUpdateProjectJSONRequestBody defines body for AdminUpdateProject for application/json ContentType.
 type AdminUpdateProjectJSONRequestBody = ProjectUpdateRequest
+
+// AdminAddTeamMemberJSONRequestBody defines body for AdminAddTeamMember for application/json ContentType.
+type AdminAddTeamMemberJSONRequestBody = AdminTeamMemberRequest
+
+// AdminUpdateTeamMemberJSONRequestBody defines body for AdminUpdateTeamMember for application/json ContentType.
+type AdminUpdateTeamMemberJSONRequestBody = AdminTeamMemberUpdateRequest
 
 // CreateLeadJSONRequestBody defines body for CreateLead for application/json ContentType.
 type CreateLeadJSONRequestBody = LeadCreateRequest
@@ -1469,6 +1551,15 @@ type ServerInterface interface {
 	// Восстановить удаленный район (админ)
 	// (POST /admin/areas/{id}/restore)
 	AdminRestoreArea(c *fiber.Ctx, id openapi_types.UUID) error
+	// Logout (clears JWT cookie)
+	// (POST /admin/auth/logout)
+	AdminAuthLogout(c *fiber.Ctx) error
+	// Get current admin user info from JWT cookie
+	// (GET /admin/auth/me)
+	AdminAuthMe(c *fiber.Ctx) error
+	// Sign in with Microsoft (sets HttpOnly JWT cookie)
+	// (POST /admin/auth/microsoft)
+	AdminAuthMicrosoft(c *fiber.Ctx) error
 	// Получить список бейджей (админ)
 	// (GET /admin/badges)
 	AdminListBadges(c *fiber.Ctx) error
@@ -1625,6 +1716,18 @@ type ServerInterface interface {
 	// Восстановить удаленный проект (админ)
 	// (POST /admin/projects/{id}/restore)
 	AdminRestoreProject(c *fiber.Ctx, id openapi_types.UUID) error
+	// List admin users (superadmin only)
+	// (GET /admin/team)
+	AdminListTeam(c *fiber.Ctx) error
+	// Add admin user (superadmin only)
+	// (POST /admin/team)
+	AdminAddTeamMember(c *fiber.Ctx) error
+	// Remove admin user (superadmin only)
+	// (DELETE /admin/team/{id})
+	AdminRemoveTeamMember(c *fiber.Ctx, id openapi_types.UUID) error
+	// Update admin user permissions (superadmin only)
+	// (PUT /admin/team/{id})
+	AdminUpdateTeamMember(c *fiber.Ctx, id openapi_types.UUID) error
 	// Получить список районов
 	// (GET /areas)
 	ListAreas(c *fiber.Ctx, params ListAreasParams) error
@@ -1776,6 +1879,28 @@ func (siw *ServerInterfaceWrapper) AdminRestoreArea(c *fiber.Ctx) error {
 	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
 
 	return siw.Handler.AdminRestoreArea(c, id)
+}
+
+// AdminAuthLogout operation middleware
+func (siw *ServerInterfaceWrapper) AdminAuthLogout(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminAuthLogout(c)
+}
+
+// AdminAuthMe operation middleware
+func (siw *ServerInterfaceWrapper) AdminAuthMe(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminAuthMe(c)
+}
+
+// AdminAuthMicrosoft operation middleware
+func (siw *ServerInterfaceWrapper) AdminAuthMicrosoft(c *fiber.Ctx) error {
+
+	return siw.Handler.AdminAuthMicrosoft(c)
 }
 
 // AdminListBadges operation middleware
@@ -2542,6 +2667,58 @@ func (siw *ServerInterfaceWrapper) AdminRestoreProject(c *fiber.Ctx) error {
 	return siw.Handler.AdminRestoreProject(c, id)
 }
 
+// AdminListTeam operation middleware
+func (siw *ServerInterfaceWrapper) AdminListTeam(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminListTeam(c)
+}
+
+// AdminAddTeamMember operation middleware
+func (siw *ServerInterfaceWrapper) AdminAddTeamMember(c *fiber.Ctx) error {
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminAddTeamMember(c)
+}
+
+// AdminRemoveTeamMember operation middleware
+func (siw *ServerInterfaceWrapper) AdminRemoveTeamMember(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminRemoveTeamMember(c, id)
+}
+
+// AdminUpdateTeamMember operation middleware
+func (siw *ServerInterfaceWrapper) AdminUpdateTeamMember(c *fiber.Ctx) error {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
+	}
+
+	c.Context().SetUserValue(AdminApiKeyScopes, []string{})
+
+	return siw.Handler.AdminUpdateTeamMember(c, id)
+}
+
 // ListAreas operation middleware
 func (siw *ServerInterfaceWrapper) ListAreas(c *fiber.Ctx) error {
 
@@ -2893,6 +3070,12 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 
 	router.Post(options.BaseURL+"/admin/areas/:id/restore", wrapper.AdminRestoreArea)
 
+	router.Post(options.BaseURL+"/admin/auth/logout", wrapper.AdminAuthLogout)
+
+	router.Get(options.BaseURL+"/admin/auth/me", wrapper.AdminAuthMe)
+
+	router.Post(options.BaseURL+"/admin/auth/microsoft", wrapper.AdminAuthMicrosoft)
+
 	router.Get(options.BaseURL+"/admin/badges", wrapper.AdminListBadges)
 
 	router.Post(options.BaseURL+"/admin/badges", wrapper.AdminCreateBadge)
@@ -2996,6 +3179,14 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	router.Delete(options.BaseURL+"/admin/projects/:id/hard-delete", wrapper.AdminHardDeleteProject)
 
 	router.Post(options.BaseURL+"/admin/projects/:id/restore", wrapper.AdminRestoreProject)
+
+	router.Get(options.BaseURL+"/admin/team", wrapper.AdminListTeam)
+
+	router.Post(options.BaseURL+"/admin/team", wrapper.AdminAddTeamMember)
+
+	router.Delete(options.BaseURL+"/admin/team/:id", wrapper.AdminRemoveTeamMember)
+
+	router.Put(options.BaseURL+"/admin/team/:id", wrapper.AdminUpdateTeamMember)
 
 	router.Get(options.BaseURL+"/areas", wrapper.ListAreas)
 

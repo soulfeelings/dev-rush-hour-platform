@@ -9,6 +9,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AdminUser struct {
+	ID          uuid.UUID          `json:"id"`
+	Email       string             `json:"email"`
+	Role        string             `json:"role"`
+	Permissions []string           `json:"permissions"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	CreatedBy   pgtype.Text        `json:"created_by"`
+}
+
 type Area struct {
 	ID        uuid.UUID          `json:"id"`
 	Slug      string             `json:"slug"`

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { FiltersProvider } from './contexts'
 import { SettingsProvider } from './features/Settings/Settings'
@@ -11,11 +12,11 @@ import ProjectArea from './pages/ProjectArea'
 import DistrictDetail from './pages/DistrictDetail'
 import DeveloperDetail from './pages/DeveloperDetail'
 import DesignDemo from './design-demo/DesignDemo'
-import Admin from './pages/Admin'
-import { ADMIN_ROUTES } from './pages/Admin/constants'
 import { ROUTES } from './constants/routes'
 import { ErrorBoundary } from './ui/ErrorBoundary'
 import './App.css'
+
+const AdminApp = lazy(() => import('./pages/Admin/AdminApp'))
 
 function App() {
   return (
@@ -36,10 +37,13 @@ function App() {
                 <Route path={ROUTES.DEVELOPER_DETAIL} element={<DeveloperDetail />} />
                 <Route path={ROUTES.DESIGN_DEMO} element={<DesignDemo />} />
                 <Route
-                  path={ADMIN_ROUTES.BASE}
-                  element={<Navigate to={ADMIN_ROUTES.PROJECTS} replace />}
+                  path="/admin/*"
+                  element={
+                    <Suspense fallback={null}>
+                      <AdminApp />
+                    </Suspense>
+                  }
                 />
-                <Route path={`${ADMIN_ROUTES.BASE}/*`} element={<Admin />} />
               </Routes>
           </div>
         </SettingsProvider>
