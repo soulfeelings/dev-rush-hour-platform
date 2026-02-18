@@ -1,7 +1,7 @@
 import { useMsal } from '@azure/msal-react'
 import styles from './AuthForm.module.scss'
 import { ADMIN_ROUTES } from '../../constants'
-import { useAdminMsalProvider } from '../../AdminMsalProvider'
+import { useAdminMsalProvider } from '../../useAdminMsalProvider'
 type AuthFormProps = {
   error: string | null
 }

@@ -73,7 +73,7 @@ export function AdminMsalProvider({ children }: Props) {
   return (
     <MsalProvider instance={msalInstance}>
       <AdminMsalProviderContext.Provider value={{ loading, setLoading }}>
-        <MsalRedirectHandler setLoading={setLoading} />
+        <MsalRedirectHandler />
         {children}
       </AdminMsalProviderContext.Provider>
     </MsalProvider>
