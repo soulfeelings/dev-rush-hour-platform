@@ -6,16 +6,16 @@ import {
   uniq,
 } from '../helpers/assertions';
 
-test.describe('admin/cities', () => {
+test.describe('Админка / Города', () => {
   // Проверяем успешное создание города и сохранение в БД.
-  test('create → city is created and saved in DB', async ({ api, db }) => {
+  test('Создание: город создаётся и сохраняется в БД', async ({ api, db }) => {
     const suffix = uniq();
     const name = `test-city-name-${suffix}`;
     const slug = `test-city-slug-${suffix}`;
 
     let cityId: string;
 
-    await test.step('POST /api/admin/cities → create city', async () => {
+    await test.step('POST /api/admin/cities: создать город', async () => {
       const response = await api.admin.cities.create({
         slug,
         name
@@ -31,7 +31,7 @@ test.describe('admin/cities', () => {
       expect(body.slug).toBe(slug);
     });
 
-    await test.step('DB → cities record exists and is correct', async () => {
+    await test.step('Проверить в БД, что запись города создана корректно', async () => {
       const dbResult = await db.query(
         `
         SELECT id, name, slug, deleted_at
@@ -52,11 +52,11 @@ test.describe('admin/cities', () => {
   });
 
   // Проверяем, что API не допускает дублирование slug для города.
-  test('create → duplicate slug is rejected (DB unique constraint)', async ({ api, db }) => {
+  test('Создание: дублирующийся slug города отклоняется (ограничение уникальности)', async ({ api, db }) => {
     const suffix = uniq();
     const slug = `test-city-dup-slug-${suffix}`;
 
-    await test.step('POST /api/admin/cities → create first city', async () => {
+    await test.step('POST /api/admin/cities: создать первый город', async () => {
       const response = await api.admin.cities.create({
         slug,
         name: `test-city-first-${suffix}`,
@@ -65,7 +65,7 @@ test.describe('admin/cities', () => {
       expect(response.status()).toBe(201);
     });
 
-    await test.step('POST /api/admin/cities → create second city with same slug should fail', async () => {
+    await test.step('POST /api/admin/cities: создать второй город с тем же slug и получить ошибку', async () => {
       const response = await api.admin.cities.create({
         slug,
         name: `test-city-second-${suffix}`,
@@ -77,7 +77,7 @@ test.describe('admin/cities', () => {
       });
     });
 
-    await test.step('DB → only one cities record exists for slug', async () => {
+    await test.step('Проверить в БД, что для slug существует только одна запись', async () => {
       const dbResult = await db.query(
         `
         SELECT COUNT(*)::int AS count
@@ -92,7 +92,7 @@ test.describe('admin/cities', () => {
   });
 
   // Проверяем, что API отклоняет некорректные значения обязательных полей города.
-  test('create → required fields are validated', async ({ api }) => {
+  test('Создание: обязательные поля города валидируются', async ({ api }) => {
     const suffix = uniq();
     const validPayload = {
       slug: `required-city-slug-${suffix}`,

@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 test('Авторизация в админке', async ({ page }) => {
   // Проверяем, что главная страница открывается и имеет ожидаемый title.
   await test.step('Открыть главную страницу и проверить заголовок', async () => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveTitle('Rush Hour Real Estate Platform');
   });
 
@@ -15,7 +15,7 @@ test('Авторизация в админке', async ({ page }) => {
   });
 
   // Проверяем ввод валидных учётных данных и отправку формы.
-  await test.step('Ввести логин и пароль, и нажать Login', async () => {
+  await test.step('Ввести логин и пароль и нажать кнопку входа', async () => {
     const username = page.getByPlaceholder('Enter username');
     const password = page.getByPlaceholder('Enter password');
 

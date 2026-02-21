@@ -32,6 +32,8 @@
 
 - pnpm test:e2e - прогон всех тестов
 - pnpm test:ui - только UI тесты
+- pnpm test:ui:critical - критичные UI сценарии + фильтры каталога
+- pnpm test:ui:final - итоговый UI прогон (smoke + critical + filters)
 - pnpm test:api - только API тесты
 - pnpm test:api:smoke - быстрый smoke (public)
 - pnpm test:api:smoke:admin - быстрый smoke (admin)

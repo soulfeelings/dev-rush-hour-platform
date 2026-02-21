@@ -35,18 +35,18 @@ async function createLead(
   return body.id as string;
 }
 
-test.describe('leads', () => {
+test.describe('Лиды', () => {
   // Проверяем создание публичного лида и сохранение обязательных значений в БД.
-  test('public create → lead is created and saved in DB', async ({ api, db }) => {
+  test('Публичное создание: лид создаётся и сохраняется в БД', async ({ api, db }) => {
     const suffix = uniq();
 
     let leadId = '';
 
-    await test.step('POST /api/leads → create lead', async () => {
+    await test.step('POST /api/leads: создаём лида', async () => {
       leadId = await createLead((payload) => api.public.createLead(payload), suffix);
     });
 
-    await test.step('DB → leads record exists and has default status', async () => {
+    await test.step('Проверить в БД, что запись лида создана со статусом по умолчанию', async () => {
       const dbRows = await db.query(
         `
         SELECT id, status, type, name, phone, source, deleted_at
@@ -68,7 +68,7 @@ test.describe('leads', () => {
   });
 
   // Проверяем, что публичный endpoint лида отклоняет некорректные значения обязательных полей.
-  test('public create → required fields are validated', async ({ api }) => {
+  test('Публичное создание: обязательные поля валидируются', async ({ api }) => {
     const suffix = uniq();
     const phoneDigits = suffix.replace(/\D/g, '').slice(-9);
     const validPayload = {
@@ -89,12 +89,12 @@ test.describe('leads', () => {
   });
 
   // Проверяем админский lifecycle лида: обновление статуса и мягкое удаление.
-  test('admin update/delete → lead is updated and soft-deleted', async ({ api, db }) => {
+  test('Админский цикл обновления/удаления: лид обновляется и мягко удаляется', async ({ api, db }) => {
     const suffix = uniq();
     const leadId = await createLead((payload) => api.public.createLead(payload), suffix);
     const updatedSource = `admin-updated-${suffix}`;
 
-    await test.step('PATCH /api/admin/leads/{id} → update lead', async () => {
+    await test.step('PATCH /api/admin/leads/{id}: обновить лида', async () => {
       const response = await api.admin.leads.update(leadId, {
         status: 'done',
         source: updatedSource,
@@ -108,7 +108,7 @@ test.describe('leads', () => {
       expect(body.source).toBe(updatedSource);
     });
 
-    await test.step('DB → updated values are persisted', async () => {
+    await test.step('Проверить в БД, что обновлённые значения сохранены', async () => {
       const dbRows = await db.query(
         `
         SELECT status, source, deleted_at
@@ -124,7 +124,7 @@ test.describe('leads', () => {
       expect(dbRows[0].deleted_at).toBeNull();
     });
 
-    await test.step('DELETE /api/admin/leads/{id} → soft-delete lead', async () => {
+    await test.step('DELETE /api/admin/leads/{id}: выполнить мягкое удаление лида', async () => {
       const response = await api.admin.leads.delete(leadId);
       expect(response.status()).toBe(204);
 
@@ -141,7 +141,7 @@ test.describe('leads', () => {
       expect(dbRows[0].deleted_at).toBeTruthy();
     });
 
-    await test.step('GET /api/admin/leads/{id} → deleted lead is not accessible', async () => {
+    await test.step('GET /api/admin/leads/{id}: мягко удалённый лид недоступен', async () => {
       const response = await api.admin.leads.get(leadId);
 
       await expectApiErrorResponse(response, {

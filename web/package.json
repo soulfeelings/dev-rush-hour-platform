@@ -22,7 +22,9 @@
     "test:api:smoke": "playwright test --project=api tests/api/smoke.api.spec.ts",
     "test:api:smoke:admin": "playwright test --project=api tests/api/admin/smoke.spec.ts",
     "test:api:regress": "playwright test --project=api tests/api/all_gets.api.spec.ts",
-    "test:ui": "playwright test --project=ui"
+    "test:ui": "playwright test --project=ui tests/ui/*.spec.ts",
+    "test:ui:critical": "playwright test --project=ui tests/ui/critical.spec.ts tests/ui/catalog-filters.spec.ts",
+    "test:ui:final": "playwright test --project=ui tests/ui/smoke.spec.ts tests/ui/critical.spec.ts tests/ui/catalog-filters.spec.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

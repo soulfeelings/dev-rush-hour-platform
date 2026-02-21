@@ -22,6 +22,7 @@ type UpdateSpec = {
 
 type AdminLifecycleCase = {
   name: string;
+  titleRu: string;
   table: string;
   client: (admin: AdminClients) => AdminResourceClient;
   buildCreatePayload: (ctx: LifecycleContext) => Promise<Record<string, unknown>>;
@@ -56,6 +57,7 @@ async function createProject(admin: AdminClients, suffix: string): Promise<strin
 const lifecycleCases: AdminLifecycleCase[] = [
   {
     name: 'developers',
+    titleRu: 'Застройщики',
     table: 'developers',
     client: (admin) => admin.developers,
     buildCreatePayload: async ({ suffix }) => ({
@@ -76,6 +78,7 @@ const lifecycleCases: AdminLifecycleCase[] = [
   },
   {
     name: 'areas',
+    titleRu: 'Районы',
     table: 'areas',
     client: (admin) => admin.areas,
     buildCreatePayload: async ({ suffix }) => ({
@@ -98,6 +101,7 @@ const lifecycleCases: AdminLifecycleCase[] = [
   },
   {
     name: 'cities',
+    titleRu: 'Города',
     table: 'cities',
     client: (admin) => admin.cities,
     buildCreatePayload: async ({ suffix }) => ({
@@ -116,6 +120,7 @@ const lifecycleCases: AdminLifecycleCase[] = [
   },
   {
     name: 'projects',
+    titleRu: 'Проекты',
     table: 'projects',
     client: (admin) => admin.projects,
     buildCreatePayload: async ({ suffix }) => ({
@@ -135,6 +140,7 @@ const lifecycleCases: AdminLifecycleCase[] = [
   },
   {
     name: 'lots',
+    titleRu: 'Лоты',
     table: 'lots',
     client: (admin) => admin.lots,
     buildCreatePayload: async ({ admin, suffix }) => {
@@ -159,6 +165,7 @@ const lifecycleCases: AdminLifecycleCase[] = [
   },
   {
     name: 'badges',
+    titleRu: 'Бейджи',
     table: 'badges',
     client: (admin) => admin.badges,
     buildCreatePayload: async ({ suffix }) => ({
@@ -177,6 +184,7 @@ const lifecycleCases: AdminLifecycleCase[] = [
   },
   {
     name: 'infrastructures',
+    titleRu: 'Инфраструктуры',
     table: 'infrastructures',
     client: (admin) => admin.infrastructures,
     buildCreatePayload: async ({ suffix }) => ({
@@ -195,17 +203,17 @@ const lifecycleCases: AdminLifecycleCase[] = [
   },
 ];
 
-test.describe('admin mutations lifecycle', () => {
+test.describe('Жизненный цикл мутаций админ-API', () => {
   for (const resource of lifecycleCases) {
     // Проверяем полный жизненный цикл ресурса: create/get/list/update/delete/restore/hard-delete.
-    test(`${resource.name} → lifecycle methods are supported`, async ({ api, db }) => {
+    test(`${resource.titleRu} → поддерживается полный жизненный цикл`, async ({ api, db }) => {
       const suffix = `${resource.name}-${uniq()}`;
       const ctx: LifecycleContext = { admin: api.admin, suffix };
       const client = resource.client(api.admin);
 
       let entityId = '';
 
-      await test.step('POST /create → create entity', async () => {
+      await test.step('POST /create: создать сущность', async () => {
         const response = await client.create(await resource.buildCreatePayload(ctx));
         expect(response.status()).toBe(201);
 
@@ -215,7 +223,7 @@ test.describe('admin mutations lifecycle', () => {
         expect(entityId).toBeTruthy();
       });
 
-      await test.step('GET /list and GET /{id} → entity is available', async () => {
+      await test.step('GET /list и GET /{id}: сущность доступна', async () => {
         const listResponse = await client.list();
         expect(listResponse.status()).toBe(200);
 
@@ -226,7 +234,7 @@ test.describe('admin mutations lifecycle', () => {
         expect(String(getBody.id)).toBe(entityId);
       });
 
-      await test.step('PATCH /{id} → update entity', async () => {
+      await test.step('PATCH /{id}: обновить сущность', async () => {
         const updateSpec = await resource.buildUpdateSpec(ctx);
         const response = await client.update(entityId, updateSpec.payload);
         expect(response.status()).toBe(200);
@@ -248,7 +256,7 @@ test.describe('admin mutations lifecycle', () => {
         expectValue(dbRows[0].updated_value, updateSpec.expectedValue);
       });
 
-      await test.step('DELETE /{id} → soft-delete entity', async () => {
+      await test.step('DELETE /{id}: выполнить мягкое удаление', async () => {
         const response = await client.delete(entityId);
         expect(response.status()).toBe(204);
 
@@ -265,7 +273,7 @@ test.describe('admin mutations lifecycle', () => {
         expect(dbRows[0].deleted_at).toBeTruthy();
       });
 
-      await test.step('GET /deleted → entity is present in deleted list', async () => {
+      await test.step('GET /deleted: сущность присутствует в списке удалённых', async () => {
         const response = await client.listDeleted();
         expect(response.status()).toBe(200);
 
@@ -276,7 +284,7 @@ test.describe('admin mutations lifecycle', () => {
         expect(exists).toBe(true);
       });
 
-      await test.step('POST /{id}/restore → entity is restored', async () => {
+      await test.step('POST /{id}/restore: восстановить сущность', async () => {
         const restoreStatus = resource.restoreStatus ?? 204;
         const response = await client.restore(entityId);
         expect(response.status()).toBe(restoreStatus);
@@ -299,7 +307,7 @@ test.describe('admin mutations lifecycle', () => {
         expect(dbRows[0].deleted_at).toBeNull();
       });
 
-      await test.step('DELETE /{id}/hard-delete → entity is removed permanently', async () => {
+      await test.step('DELETE /{id}/hard-delete: удалить сущность навсегда', async () => {
         const softDeleteResponse = await client.delete(entityId);
         expect(softDeleteResponse.status()).toBe(204);
 
@@ -327,7 +335,7 @@ test.describe('admin mutations lifecycle', () => {
   }
 
   // Проверяем обязательные поля create для инфраструктуры, чтобы закрыть валидацию нового admin-ресурса.
-  test('infrastructures create → required fields are validated', async ({ api }) => {
+  test('Создание инфраструктуры: обязательные поля валидируются', async ({ api }) => {
     const suffix = uniq();
     const validPayload = {
       slug: `required-infra-slug-${suffix}`,

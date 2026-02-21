@@ -6,9 +6,9 @@ import {
   uniq,
 } from '../helpers/assertions';
 
-test.describe('admin/areas', () => {
+test.describe('Админка / Районы', () => {
   // Проверяем успешное создание района и сохранение в БД.
-  test('create → area is created and saved in DB', async ({ api, db }) => {
+  test('Создание: район создаётся и сохраняется в БД', async ({ api, db }) => {
     const suffix = uniq();
     const name = `test-area-name-${suffix}`;
     const slug = `test-area-slug-${suffix}`;
@@ -18,7 +18,7 @@ test.describe('admin/areas', () => {
 
     let areaId: string;
 
-    await test.step('POST /api/admin/areas → create area', async () => {
+    await test.step('POST /api/admin/areas: создать район', async () => {
       const response = await api.admin.areas.create({
         slug,
         name,
@@ -43,7 +43,7 @@ test.describe('admin/areas', () => {
       expect(body.lng).toBeCloseTo(lng, 4);
     });
 
-    await test.step('DB → areas record exists and is correct', async () => {
+    await test.step('Проверить в БД, что запись района создана корректно', async () => {
       const dbResult = await db.query(
         `
         SELECT
@@ -78,14 +78,14 @@ test.describe('admin/areas', () => {
   });
 
   // Проверяем, что API не допускает дублирование slug для района.
-  test('create → duplicate slug is rejected (DB unique constraint)', async ({ api, db }) => {
+  test('Создание: дублирующийся slug района отклоняется (ограничение уникальности)', async ({ api, db }) => {
     const suffix = uniq();
     const slug = `test-area-dup-slug-${suffix}`;
     const city = `Test City ${suffix}`;
     const lat = 25.2048;
     const lng = 55.2708;
 
-    await test.step('POST /api/admin/areas → create first area', async () => {
+    await test.step('POST /api/admin/areas: создать первый район', async () => {
       const response = await api.admin.areas.create({
         slug,
         name: `test-area-first-${suffix}`,
@@ -98,7 +98,7 @@ test.describe('admin/areas', () => {
       expect(response.status()).toBe(201);
     });
 
-    await test.step('POST /api/admin/areas → create second area with same slug should fail', async () => {
+    await test.step('POST /api/admin/areas: создать второй район с тем же slug и получить ошибку', async () => {
       const response = await api.admin.areas.create({
         slug,
         name: `test-area-second-${suffix}`,
@@ -114,7 +114,7 @@ test.describe('admin/areas', () => {
       });
     });
 
-    await test.step('DB → only one areas record exists for slug', async () => {
+    await test.step('Проверить в БД, что для slug существует только одна запись', async () => {
       const dbResult = await db.query(
         `
         SELECT COUNT(*)::int AS count
@@ -129,7 +129,7 @@ test.describe('admin/areas', () => {
   });
 
   // Проверяем, что API отклоняет некорректные значения обязательных полей района.
-  test('create → required fields are validated', async ({ api }) => {
+  test('Создание: обязательные поля района валидируются', async ({ api }) => {
     const suffix = uniq();
     const validPayload = {
       slug: `required-area-slug-${suffix}`,

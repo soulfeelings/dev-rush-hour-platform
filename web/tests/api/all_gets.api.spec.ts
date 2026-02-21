@@ -84,38 +84,44 @@ const endpoints: Endpoint[] = [
   { path: '/api/admin/infrastructures/{id}', type: 'object', listPath: '/api/admin/infrastructures', paramName: 'id' },
 ];
 
-test.describe('API regress (all GETs)', () => {
+test.describe('Регресс API (все GET-эндпоинты)', () => {
   for (const e of endpoints) {
     // Detail endpoints: resolve param from list endpoint
     if (e.listPath && e.paramName) {
       // Проверяем детальный endpoint: берём параметр из списка и валидируем тип ответа.
-      test(`GET ${e.path}`, async ({ request }, testInfo) => {
-        const listResp = await request.get(e.listPath!);
-        expect(listResp.ok(), `list ${e.listPath} should be OK`).toBeTruthy();
+      test(`GET ${e.path} возвращает контрактный тип`, async ({ request }, testInfo) => {
+        let resolvedPath = '';
 
-        const listBody = await listResp.json();
-        const list = (e.listSelector ?? asListDefault)(listBody);
+        await test.step(`Получить данные из списка ${e.listPath}`, async () => {
+          const listResp = await request.get(e.listPath!);
+          expect(listResp.ok(), `list ${e.listPath} should be OK`).toBeTruthy();
 
-        // If no data to resolve {param} -> skip with clear reason
-        if (list.length === 0) {
-          testInfo.skip(true, skipNoListDataMessage(e.listPath!, e.path, e.paramName!));
-        }
+          const listBody = await listResp.json();
+          const list = (e.listSelector ?? asListDefault)(listBody);
 
-        const first = list[0];
-        const param = first?.[e.paramName!];
+          // If no data to resolve {param} -> skip with clear reason
+          if (list.length === 0) {
+            testInfo.skip(true, skipNoListDataMessage(e.listPath!, e.path, e.paramName!));
+          }
 
-        // If list has items but field is missing -> skip with clear reason
-        if (param === undefined || param === null || param === '') {
-          testInfo.skip(true, skipNoParamMessage(e.listPath!, e.path, e.paramName!));
-        }
+          const first = list[0];
+          const param = first?.[e.paramName!];
 
-        const resolvedPath = e.path.replace(
-          `{${e.paramName}}`,
-          encodeURIComponent(String(param))
-        );
+          // If list has items but field is missing -> skip with clear reason
+          if (param === undefined || param === null || param === '') {
+            testInfo.skip(true, skipNoParamMessage(e.listPath!, e.path, e.paramName!));
+          }
 
-        const resp = await request.get(resolvedPath);
-        await expectJsonByType(resp, resolvedPath, e.type);
+          resolvedPath = e.path.replace(
+            `{${e.paramName}}`,
+            encodeURIComponent(String(param))
+          );
+        });
+
+        await test.step(`Проверить детальный endpoint ${e.path}`, async () => {
+          const resp = await request.get(resolvedPath);
+          await expectJsonByType(resp, resolvedPath, e.type);
+        });
       });
 
       continue;
@@ -123,9 +129,11 @@ test.describe('API regress (all GETs)', () => {
 
     // Collection endpoints: simple validation by declared type
     // Проверяем коллекционный endpoint на доступность и контрактный тип ответа.
-    test(`GET ${e.path}`, async ({ request }) => {
-      const resp = await request.get(e.path);
-      await expectJsonByType(resp, e.path, e.type);
+    test(`GET ${e.path} возвращает контрактный тип`, async ({ request }) => {
+      await test.step(`Отправить GET-запрос к ${e.path}`, async () => {
+        const resp = await request.get(e.path);
+        await expectJsonByType(resp, e.path, e.type);
+      });
     });
   }
 });

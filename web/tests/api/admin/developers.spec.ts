@@ -1,16 +1,16 @@
 import { test, expect } from '../fixtures/test';
 import { expectRequiredFieldRejections, invalidTypeValue, uniq } from '../helpers/assertions';
 
-test.describe('admin/developers', () => {
+test.describe('Админка / Застройщики', () => {
   // Проверяем успешное создание застройщика и сохранение в БД.
-  test('create → developer is created and saved in DB', async ({ api, db }) => {
+  test('Создание: застройщик создаётся и сохраняется в БД', async ({ api, db }) => {
     const suffix = uniq();
     const nameRandom = `testName-${suffix}`;
     const slugRandom = `testSlug-${suffix}`;
 
     let developerId: string;
 
-    await test.step('POST /api/admin/developers → create developer', async () => {
+    await test.step('POST /api/admin/developers: создать застройщика', async () => {
       const response = await api.admin.developers.create({
         name: nameRandom,
         slug: slugRandom,
@@ -29,7 +29,7 @@ test.describe('admin/developers', () => {
       expect(responseBody.status).toBe('active');
     });
 
-    await test.step('DB → developer record exists and is correct', async () => {
+    await test.step('Проверить в БД, что запись застройщика создана корректно', async () => {
       const dbResult = await db.query(
         `
         SELECT id, name, slug, status, deleted_at
@@ -50,7 +50,7 @@ test.describe('admin/developers', () => {
   });
 
   // Проверяем, что API отклоняет некорректные значения обязательных полей застройщика.
-  test('create → required fields are validated', async ({ api }) => {
+  test('Создание: обязательные поля застройщика валидируются', async ({ api }) => {
     const suffix = uniq();
     const validPayload = {
       slug: `required-developer-slug-${suffix}`,

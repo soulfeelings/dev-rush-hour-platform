@@ -22,9 +22,9 @@ async function createProject(admin: AdminClients, suffix: string): Promise<strin
   return body.id;
 }
 
-test.describe('admin/lots', () => {
+test.describe('Админка / Лоты', () => {
   // Проверяем успешное создание лота и сохранение данных в БД.
-  test('create → lot is created and saved in DB', async ({ api, db }) => {
+  test('Создание: лот создаётся и сохраняется в БД', async ({ api, db }) => {
     const suffix = uniq();
     const projectId = await createProject(api.admin, suffix);
 
@@ -37,7 +37,7 @@ test.describe('admin/lots', () => {
 
     let lotId: string;
 
-    await test.step('POST /api/admin/lots → create lot', async () => {
+    await test.step('POST /api/admin/lots: создать лот', async () => {
       const response = await api.admin.lots.create({
         projectId,
         type,
@@ -64,7 +64,7 @@ test.describe('admin/lots', () => {
       expect(body.floor).toBe(floor);
     });
 
-    await test.step('DB → lots record exists and is correct', async () => {
+    await test.step('Проверить в БД, что запись лота создана корректно', async () => {
       const dbResult = await db.query(
         `
         SELECT
@@ -103,7 +103,7 @@ test.describe('admin/lots', () => {
   });
 
   // Проверяем, что API не допускает дублирование бизнес-ключа лота.
-  test('create → duplicate business key is rejected (DB unique index)', async ({ api, db }) => {
+  test('Создание: дублирующийся бизнес-ключ лота отклоняется (ограничение уникальности)', async ({ api, db }) => {
     const suffix = uniq();
     const projectId = await createProject(api.admin, suffix);
 
@@ -114,7 +114,7 @@ test.describe('admin/lots', () => {
     const priceAmount = 2_000_000;
     const type = 'apartment';
 
-    await test.step('POST /api/admin/lots → create first lot', async () => {
+    await test.step('POST /api/admin/lots: создать первый лот', async () => {
       const response = await api.admin.lots.create({
         projectId,
         type,
@@ -128,7 +128,7 @@ test.describe('admin/lots', () => {
       expect(response.status()).toBe(201);
     });
 
-    await test.step('POST /api/admin/lots → create second lot with same business key should fail', async () => {
+    await test.step('POST /api/admin/lots: создать второй лот с тем же бизнес-ключом и получить ошибку', async () => {
       const response = await api.admin.lots.create({
         projectId,
         type,
@@ -145,7 +145,7 @@ test.describe('admin/lots', () => {
       });
     });
 
-    await test.step('DB → only one lots record exists for business key', async () => {
+    await test.step('Проверить в БД, что существует только одна запись с таким бизнес-ключом', async () => {
       const dbResult = await db.query(
         `
         SELECT COUNT(*)::int AS count
@@ -166,10 +166,10 @@ test.describe('admin/lots', () => {
   });
 
   // Проверяем, что API не создаёт лот с несуществующим projectId.
-  test('create → invalid projectId is rejected (DB foreign key constraint)', async ({ api, db }) => {
+  test('Создание: невалидный projectId отклоняется (ограничение внешнего ключа)', async ({ api, db }) => {
     const projectId = randomUUID();
 
-    await test.step('POST /api/admin/lots → create lot with non-existent projectId should fail', async () => {
+    await test.step('POST /api/admin/lots: создать лот с несуществующим projectId и получить ошибку', async () => {
       const response = await api.admin.lots.create({
         projectId,
         type: 'apartment',
@@ -186,7 +186,7 @@ test.describe('admin/lots', () => {
       });
     });
 
-    await test.step('DB → no lots record exists for non-existent projectId', async () => {
+    await test.step('Проверить в БД, что запись лота с несуществующим projectId не создана', async () => {
       const dbResult = await db.query(
         `
         SELECT COUNT(*)::int AS count
@@ -201,7 +201,7 @@ test.describe('admin/lots', () => {
   });
 
   // Проверяем, что API отклоняет некорректные значения обязательных полей лота.
-  test('create → required fields are validated', async ({ api }) => {
+  test('Создание: обязательные поля лота валидируются', async ({ api }) => {
     const suffix = uniq();
     const projectId = await createProject(api.admin, suffix);
     const validPayload = {

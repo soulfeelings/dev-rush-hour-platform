@@ -1,9 +1,9 @@
 import { test, expect } from '../fixtures/test';
 import { expectRequiredFieldRejections, invalidTypeValue, uniq } from '../helpers/assertions';
 
-test.describe('admin/projects', () => {
+test.describe('Админка / Проекты', () => {
   // Проверяем успешное создание проекта и сохранение данных в БД.
-  test('create → project is created and saved in DB', async ({ api, db }) => {
+  test('Создание: проект создаётся и сохраняется в БД', async ({ api, db }) => {
     const suffix = uniq();
     const nameRandom = `testName-${suffix}`;
     const slugRandom = `testSlug-${suffix}`;
@@ -11,7 +11,7 @@ test.describe('admin/projects', () => {
 
     let projectId: string;
 
-    await test.step('POST /api/admin/projects → create project', async () => {
+    await test.step('POST /api/admin/projects: создать проект', async () => {
       const response = await api.admin.projects.create({
         slug: slugRandom,
         name: nameRandom,
@@ -30,7 +30,7 @@ test.describe('admin/projects', () => {
       expect(body.deletedAt).toBeNull();
     });
 
-    await test.step('DB → projects record exists and is correct', async () => {
+    await test.step('Проверить в БД, что запись проекта создана корректно', async () => {
       const dbResult = await db.query(
         `
         SELECT
@@ -58,7 +58,7 @@ test.describe('admin/projects', () => {
   });
 
   // Проверяем, что API отклоняет некорректные значения обязательных полей проекта.
-  test('create → required fields are validated', async ({ api }) => {
+  test('Создание: обязательные поля проекта валидируются', async ({ api }) => {
     const suffix = uniq();
     const validPayload = {
       slug: `required-project-slug-${suffix}`,

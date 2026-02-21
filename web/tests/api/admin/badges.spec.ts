@@ -6,16 +6,16 @@ import {
   uniq,
 } from '../helpers/assertions';
 
-test.describe('admin/badges', () => {
+test.describe('Админка / Бейджи', () => {
   // Проверяем успешное создание бейджа и сохранение в БД.
-  test('create → badge is created and saved in DB', async ({ api, db }) => {
+  test('Создание: бейдж создаётся и сохраняется в БД', async ({ api, db }) => {
     const suffix = uniq();
     const name = `test-badge-name-${suffix}`;
     const slug = `test-badge-slug-${suffix}`;
 
     let badgeId: string;
     
-    await test.step('POST /api/admin/badges → create badge', async () => {
+    await test.step('POST /api/admin/badges: создать бейдж', async () => {
       const response = await api.admin.badges.create({
         slug,
         name
@@ -34,7 +34,7 @@ test.describe('admin/badges', () => {
       expect(body.sortOrder).toBe(0);
     });
 
-    await test.step('DB → badges record exists and is correct', async () => {
+    await test.step('Проверить в БД, что запись бейджа создана корректно', async () => {
       const dbResult = await db.query(
         `
         SELECT
@@ -67,11 +67,11 @@ test.describe('admin/badges', () => {
   });
 
   // Проверяем, что API не допускает дублирование slug для бейджа.
-  test('create → duplicate slug is rejected (DB unique constraint)', async ({ api, db }) => {
+  test('Создание: дублирующийся slug бейджа отклоняется (ограничение уникальности)', async ({ api, db }) => {
     const suffix = uniq();
     const slug = `test-badge-dup-slug-${suffix}`;
 
-    await test.step('POST /api/admin/badges → create first badge', async () => {
+    await test.step('POST /api/admin/badges: создать первый бейдж', async () => {
       const response = await api.admin.badges.create({
         slug,
         name: `test-badge-first-${suffix}`,
@@ -80,7 +80,7 @@ test.describe('admin/badges', () => {
       expect(response.status()).toBe(201);
     });
 
-    await test.step('POST /api/admin/badges → create second badge with same slug should fail', async () => {
+    await test.step('POST /api/admin/badges: создать второй бейдж с тем же slug и получить ошибку', async () => {
       const response = await api.admin.badges.create({
         slug,
         name: `test-badge-second-${suffix}`,
@@ -92,7 +92,7 @@ test.describe('admin/badges', () => {
       });
     });
 
-    await test.step('DB → only one badges record exists for slug', async () => {
+    await test.step('Проверить в БД, что для slug существует только одна запись', async () => {
       const dbResult = await db.query(
         `
         SELECT COUNT(*)::int AS count
@@ -107,7 +107,7 @@ test.describe('admin/badges', () => {
   });
 
   // Проверяем, что API отклоняет некорректные значения обязательных полей бейджа.
-  test('create → required fields are validated', async ({ api }) => {
+  test('Создание: обязательные поля бейджа валидируются', async ({ api }) => {
     const suffix = uniq();
     const validPayload = {
       slug: `required-badge-slug-${suffix}`,

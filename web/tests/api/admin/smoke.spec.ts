@@ -11,12 +11,14 @@ const endpoints = [
   { path: '/api/admin/infrastructures', type: 'array' as const },
 ];
 
-test.describe('admin/smoke', { tag: '@smoke' }, () => {
+test.describe('Смоук админ-API', { tag: '@smoke' }, () => {
   for (const e of endpoints) {
     // Проверяем, что admin GET-эндпоинт доступен и возвращает ожидаемый тип тела.
-    test(`GET ${e.path}`, async ({ request }) => {
-      const resp = await request.get(e.path);
-      await expectJsonByType(resp, e.path, e.type);
+    test(`GET ${e.path} возвращает контрактный тип`, async ({ request }) => {
+      await test.step(`Отправить GET-запрос к ${e.path}`, async () => {
+        const resp = await request.get(e.path);
+        await expectJsonByType(resp, e.path, e.type);
+      });
     });
   }
 });
