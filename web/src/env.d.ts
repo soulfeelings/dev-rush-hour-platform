@@ -6,3 +6,8 @@ declare module '*.svg?react' {
   const content: FC<SVGProps<SVGSVGElement>>
   export default content
 }
+
+declare module '*.module.scss' {
+  const classes: { [key: string]: string }
+  export default classes
+}

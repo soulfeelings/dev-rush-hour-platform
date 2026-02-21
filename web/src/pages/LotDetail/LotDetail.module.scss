@@ -615,3 +615,626 @@
     border-bottom: none;
   }
 }
+
+// View Card with Photos and Orientation Map
+.viewCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+  margin-top: $spacing-6;
+}
+
+.viewCardTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+  margin: 0 0 $spacing-6 0;
+}
+
+.viewPhotosSection {
+  margin-bottom: $spacing-6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.viewPhotosTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  margin: 0 0 $spacing-4 0;
+}
+
+.viewGallery {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  margin-bottom: $spacing-3;
+
+  &:hover {
+    .navButton {
+      opacity: 1;
+    }
+  }
+}
+
+.viewPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.viewThumbnails {
+  display: flex;
+  gap: $spacing-2;
+  overflow-x: auto;
+  padding: $spacing-2 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: $radius-full;
+  }
+}
+
+.viewThumbnail {
+  flex: 0 0 80px;
+  height: 60px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all $transition-fast;
+  box-shadow: $shadow-sm;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &.activeViewThumbnail {
+    border-color: $color-yellow;
+    transform: scale(1.05);
+  }
+
+  &:hover {
+    border-color: rgba($color-yellow, 0.5);
+  }
+}
+
+.orientationSection {
+  margin-top: $spacing-6;
+}
+
+.orientationTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  margin: 0 0 $spacing-4 0;
+}
+
+.viewMap {
+  width: 100%;
+  height: 350px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+}
+
+.paymentPlanCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-6;
+  box-shadow: $shadow-card;
+}
+
+.paymentPlanTitle {
+  margin: 0 0 $spacing-4;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
+}
+
+.paymentPlanRows {
+  border-bottom: 0.5px solid $color-charcoal-grey-10;
+}
+
+.paymentPlanRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $spacing-2;
+  padding: 10px 0 8px;
+  position: relative;
+
+  &:not(:last-child) .paymentPlanLeft::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 14px;
+    bottom: -12px;
+    width: 1px;
+    background: $color-charcoal-grey-50;
+    opacity: 0.55;
+  }
+}
+
+.paymentPlanLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-2;
+  position: relative;
+  min-width: 0;
+}
+
+.paymentPlanBullet {
+  width: 12px;
+  height: 12px;
+  border: 1px solid $color-charcoal-grey-50;
+  border-radius: 50%;
+  margin-top: 3px;
+  background: white;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.paymentPlanText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.paymentPlanStage {
+  color: $color-charcoal-black;
+  font-size: $font-size-lg;
+  line-height: 1.2;
+}
+
+.paymentPlanMeta {
+  color: $color-charcoal-grey-50;
+  font-size: $font-size-sm;
+  line-height: 1.2;
+}
+
+.paymentPlanRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.paymentPlanAmount {
+  color: $color-charcoal-black;
+  font-size: $font-size-xl;
+  white-space: nowrap;
+}
+
+.paymentPlanSubmeta {
+  color: $color-charcoal-grey-50;
+  font-size: $font-size-xs;
+  white-space: nowrap;
+}
+
+.paymentPlanSummary {
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.paymentPlanSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $spacing-2;
+  padding: 6px 0;
+}
+
+.paymentPlanSummaryLeft,
+.paymentPlanSummaryRight {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.paymentPlanSummaryLeft span,
+.paymentPlanSummaryRight span {
+  font-size: $font-size-lg;
+  color: $color-charcoal-black;
+  line-height: 1.2;
+}
+
+.paymentPlanSummaryLeft small,
+.paymentPlanSummaryRight small {
+  font-size: $font-size-sm;
+  color: $color-charcoal-grey-50;
+  line-height: 1.2;
+}
+
+.paymentPlanSummaryRight {
+  text-align: end;
+}
+
+.mobileLotContent {
+  display: none;
+}
+
+.desktopLotLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 68%) minmax(320px, 32%);
+  gap: $spacing-3;
+  align-items: start;
+  width: 100%;
+}
+
+.desktopCenterColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  width: 100%;
+  gap: $spacing-3;
+}
+
+.desktopMainGallery {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.desktopGalleryThumbs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: $spacing-2;
+}
+
+.desktopGalleryThumb {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 84px;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.desktopGalleryThumbActive {
+  border-color: $color-yellow;
+}
+
+.desktopCardWrap {
+  width: 100%;
+}
+
+.desktopSideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  width: 100%;
+}
+
+.desktopViewBlock {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-2;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.desktopSectionTitle {
+  margin: 0;
+  font-size: $font-size-md;
+  color: $color-charcoal-black;
+}
+
+.desktopViewGallery {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+
+  .navButton {
+    opacity: 1;
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+    top: 50%;
+  }
+
+  .prevButton {
+    left: $spacing-3;
+  }
+
+  .nextButton {
+    right: $spacing-3;
+  }
+}
+
+.desktopViewMain {
+  position: relative;
+  border-radius: $radius-md;
+  overflow: hidden;
+  border: 1px solid $color-border;
+}
+
+.desktopViewMainImage {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.desktopViewThumbs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $spacing-2;
+}
+
+.desktopViewThumb {
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color $transition-fast;
+
+  &:hover {
+    border-color: rgba($color-yellow, 0.5);
+  }
+
+  img {
+    width: 100%;
+    height: 74px;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.desktopViewThumbActive {
+  border-color: $color-yellow;
+}
+
+.desktopViewGalleryItem {
+  img {
+    width: 100%;
+    height: 96px;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.similarUnitsSection {
+  margin-top: $spacing-2;
+}
+
+.similarUnitsHeader {
+  margin-bottom: $spacing-4;
+}
+
+.similarUnitsTitle {
+  margin: 0;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-medium;
+  color: $color-charcoal-black;
+}
+
+.similarUnitsType {
+  margin: $spacing-1 0 0;
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-medium;
+  color: $color-charcoal-black;
+}
+
+.similarUnitsStats {
+  margin-top: $spacing-2;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  color: $color-charcoal-black;
+  font-size: $font-size-lg;
+}
+
+.similarUnitsDivider {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba($color-charcoal-black, 0.35);
+}
+
+@media (max-width: $breakpoint-md) {
+  .mobileLotContent {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+
+  .mobileHero {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+
+  .mobileHeroMain {
+    border-radius: $radius-lg;
+    overflow: hidden;
+    border: 1px solid $color-border;
+    background: $color-bg-card;
+  }
+
+  .mobileHeroImage {
+    display: block;
+    width: 100%;
+    max-height: 440px;
+    object-fit: contain;
+    background: $color-bg-card;
+  }
+
+  .mobileHeroThumbs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-2;
+  }
+
+  .mobileHeroThumb {
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: $radius-md;
+    background: transparent;
+    overflow: hidden;
+    cursor: pointer;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 128px;
+      object-fit: cover;
+    }
+  }
+
+  .mobileHeroThumbActive {
+    border-color: $color-charcoal-black;
+  }
+
+  .mobileCardBlock {
+    margin-top: $spacing-1;
+  }
+
+  .mobileViewBlock {
+    background: $color-bg-card;
+    border-radius: $radius-lg;
+    border: 1px solid $color-border;
+    padding: $spacing-3;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+
+  .mobileSectionTitle {
+    margin: 0;
+    font-size: $font-size-lg;
+    color: $color-charcoal-black;
+  }
+
+  .mobileViewThumbs {
+    display: flex;
+    gap: $spacing-2;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba($color-charcoal-black, 0.25);
+      border-radius: $radius-full;
+    }
+  }
+
+  .mobileViewGallery {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  .mobileViewMain {
+    position: relative;
+    border-radius: $radius-md;
+    overflow: hidden;
+    border: 1px solid $color-border;
+  }
+
+  .mobileViewMainImage {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .mobileViewThumb {
+    flex: 0 0 168px;
+    padding: 0;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: $radius-md;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color $transition-fast;
+
+    img {
+      width: 100%;
+      height: 124px;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  .mobileViewThumbActive {
+    border-color: $color-charcoal-black;
+  }
+
+  .mobileViewArrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(253, 253, 253, 0.86);
+    color: $color-charcoal-black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .mobileViewArrowLeft {
+    left: $spacing-2;
+  }
+
+  .mobileViewArrowRight {
+    right: $spacing-2;
+  }
+
+  .viewMap {
+    height: 260px;
+  }
+
+  .paymentPlanCard {
+    margin-top: 0;
+  }
+
+  .similarUnitsSection {
+    margin-top: $spacing-3;
+  }
+
+  .similarUnitsType {
+    font-size: $font-size-2xl;
+  }
+
+  .similarUnitsStats {
+    font-size: $font-size-md;
+    gap: $spacing-1;
+  }
+}

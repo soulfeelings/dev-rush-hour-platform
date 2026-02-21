@@ -16,4 +16,6 @@ export interface LotData {
   bonuses?: Bonus[]
   floorPosition?: FloorPosition
   tags?: string[]
+  view?: string
+  orientation?: string
 }

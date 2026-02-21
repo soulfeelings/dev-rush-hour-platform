@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { MemoryRouter } from 'react-router-dom'
 import { ProjectCard } from './ProjectCard'
-import type { Property, PropertyBadge } from '../types/property'
+import type { Project } from '../api/generated/schemas/project'
+import type { Badge } from '../api/generated/schemas/badge'
 
-const demoBadges: PropertyBadge[] = [
+const demoBadges: Badge[] = [
   {
     id: '1',
     slug: 'service-charge',
@@ -30,28 +31,34 @@ const demoBadges: PropertyBadge[] = [
   },
 ]
 
-const mockProperty: Property = {
+const mockProject: Project = {
   id: '1',
-  title: 'Vitality Residence',
-  location: 'Jumeirah Village Circle (JVC)',
-  developer: 'Segrex Development',
-  priceFrom: 20000000,
+  slug: '1',
+  name: 'Vitality Residence',
+  area: { name: 'Jumeirah Village Circle (JVC)' },
+  developer: { name: 'Segrex Development' },
+  priceFromUs: 20000000,
+  priceFromDeveloper: 26666667,
   currency: 'AED',
-  types: ['Apartment', 'Penthouse'],
+  propertyTypes: ['Apartment', 'Penthouse'],
   bedrooms: ['studio', '1', '2'],
   completionDate: 'Q1 2026',
-  area: 85,
+  areaSize: 85,
   areaUnit: 'sqm',
-  image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
-  hoverImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
-  gallery: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800'],
-  logoUrl: 'https://placehold.co/70x70/2a5a4a/fff?text=V',
-  coordinates: [25.0657, 55.1713],
+  media: {
+    cover: { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800' },
+    hover: { url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800' },
+    logo: { url: 'https://placehold.co/70x70/2a5a4a/fff?text=V' },
+    gallery: [
+      { url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800' },
+    ],
+  },
+  lat: 25.0657,
+  lng: 55.1713,
   sale: 'sale',
   status: 'active',
   description: 'Premium living in the heart of JVC.',
   roi: 7,
-  discount: 25,
   paymentPlan: '30/10/60',
   pricesByType: [
     { type: 'studio, 1-2 beds', price: 15000000 },
@@ -102,13 +109,13 @@ export const Default: Story = {
                 <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 11 }}>
                   Default
                 </p>
-                <ProjectCard property={mockProperty} compact={compact} />
+                <ProjectCard project={mockProject} compact={compact} />
               </div>
               <div style={{ width }}>
                 <p style={{ textAlign: 'center', marginBottom: 8, color: '#888', fontSize: 11 }}>
                   Hovered
                 </p>
-                <ProjectCard property={mockProperty} forceHovered compact={compact} />
+                <ProjectCard project={mockProject} forceHovered compact={compact} />
               </div>
             </div>
           </div>
@@ -117,7 +124,7 @@ export const Default: Story = {
     ),
   ],
   args: {
-    property: mockProperty,
+    project: mockProject,
   },
 }
 
@@ -130,8 +137,8 @@ export const WithoutBadges: Story = {
     ),
   ],
   args: {
-    property: {
-      ...mockProperty,
+    project: {
+      ...mockProject,
       badges: [],
     },
   },
@@ -146,9 +153,12 @@ export const WithoutLogo: Story = {
     ),
   ],
   args: {
-    property: {
-      ...mockProperty,
-      logoUrl: undefined,
+    project: {
+      ...mockProject,
+      media: {
+        ...mockProject.media,
+        logo: undefined,
+      },
     },
   },
 }

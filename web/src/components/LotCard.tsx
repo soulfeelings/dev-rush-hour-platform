@@ -2,9 +2,12 @@ import { Heart, Building2, ChevronLeft, ChevronRight, Bed, ShowerHead, Move } fr
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { getLotDetailRoute } from '../constants/routes'
+import { getLotDetailRoute, getProjectDetailRoute } from '../constants/routes'
+import { Badge } from '../ui/Badge'
 import { useSettings } from '../features/Settings/Settings'
+import { openWhatsApp } from '../services/whatsapp'
 import { formatPrice, formatArea } from '../utils/format'
+import { translateBonusKey } from '../utils/bonusTranslations'
 import styles from './LotCard.module.scss'
 import type { Lot } from '../api'
 
@@ -27,8 +30,68 @@ interface LotCardProps {
   onFavoriteClick?: (lotId: string) => void
 }
 
+interface DisplayBadge {
+  name: string
+  backgroundColor: string
+  textColor: string
+  icon?: string
+  iconColor?: string
+}
+
+interface WhatsAppMessagePayload {
+  projectName: string
+  areaName?: string
+  typeLabel: string
+  bedrooms?: number
+  bathrooms?: number
+  areaSqm?: number
+  floor?: number
+  ourPrice: number
+  currency: Parameters<typeof formatPrice>[1]
+  unit: Parameters<typeof formatArea>[1]
+  lotLink?: string | null
+  projectLink?: string | null
+  lang: string
+}
+
+const buildLotWhatsAppMessage = ({
+  projectName,
+  areaName,
+  typeLabel,
+  bedrooms,
+  bathrooms,
+  areaSqm,
+  floor,
+  ourPrice,
+  currency,
+  unit,
+  lotLink,
+  projectLink,
+  lang,
+}: WhatsAppMessagePayload) =>
+  [
+    'Hello! I\'m a user from Rush Hour Platform. I\'m interested in this property:',
+    `- Project: ${projectName || '-'}`,
+    areaName ? `- Area: ${areaName}` : null,
+    `- Type: ${typeLabel}`,
+    bedrooms != null ? `- Bedrooms: ${bedrooms}` : null,
+    bathrooms != null ? `- Bathrooms: ${bathrooms}` : null,
+    areaSqm != null ? `- Size: ${formatArea(areaSqm, unit)}` : null,
+    floor != null ? `- Floor: ${floor}` : null,
+    ourPrice ? `- Price: ${formatPrice(ourPrice, currency)}` : null,
+    '',
+    lotLink ? `Lot: ${lotLink}` : null,
+    projectLink ? `Project: ${projectLink}` : null,
+    '',
+    `User language: ${lang}`,
+  ]
+    .filter(v => v != null)
+    .join('\n')
+
 // Функция для разделения completionDate на первые 2 символа и остальное
-const splitCompletionDate = (dateString: string) => {
+const splitCompletionDate = (dateString: string | undefined) => {
+  if (!dateString) return { firstPart: '', rest: '' }
+
   if (dateString.length <= 2) {
     return {
       firstPart: dateString,
@@ -48,10 +111,24 @@ const splitCompletionDate = (dateString: string) => {
 }
 
 export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { currency, unit } = useSettings()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isFavorited, setIsFavorited] = useState(false)
+
+  const projectName = lot.project?.name || 'Project'
+  const developerName = lot.developer?.name || lot.project?.developer?.name || 'Developer'
+  const areaName = lot.area?.name || lot.project?.area?.name
+  const cityName = lot.area?.city
+  const location = [areaName, cityName].filter(Boolean).join(', ') || 'Dubai'
+  const logoUrl = lot.project?.developer?.logoUrl || lot.developer?.logoUrl
+  const typeLabel = lot.type ? lot.type.charAt(0).toUpperCase() + lot.type.slice(1) : 'Apartment'
+  const ourPrice = lot.priceFromUs || 0
+  const developerPrice = lot.priceFromDeveloper || 0
+  const hasDiscount = ourPrice > 0 && developerPrice > 0 && developerPrice > ourPrice
+  const discountPercent = hasDiscount
+    ? Math.round(((developerPrice - ourPrice) / developerPrice) * 100)
+    : 0
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -81,15 +158,31 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log('Open WhatsApp for lot:', lot.id)
-  }
 
-  const projectName = lot.project?.name || 'Project'
-  const developerName = lot.developer?.name || lot.project?.developer?.name || 'Developer'
-  const areaName = lot.area?.name || lot.project?.area?.name
-  const cityName = lot.area?.city
-  const location = [areaName, cityName].filter(Boolean).join(', ') || 'Dubai'
-  const logoUrl = lot.project?.developer?.logoUrl || lot.developer?.logoUrl
+    const lang = i18n.language
+    const origin = window.location.origin
+    const lotLink = lot.id ? `${origin}${getLotDetailRoute(lot.id)}` : null
+    const projectSlug = lot.project?.slug
+    const projectLink = projectSlug ? `${origin}${getProjectDetailRoute(projectSlug)}` : null
+
+    openWhatsApp(
+      buildLotWhatsAppMessage({
+        projectName,
+        areaName,
+        typeLabel,
+        bedrooms: lot.bedrooms ?? undefined,
+        bathrooms: lot.bathrooms ?? undefined,
+        areaSqm: lot.areaSqm ?? undefined,
+        floor: lot.floor ?? undefined,
+        ourPrice,
+        currency,
+        unit,
+        lotLink,
+        projectLink,
+        lang,
+      })
+    )
+  }
 
   const lotMedia = lot.data?.media as LotMedia | undefined
   const allImages = [
@@ -102,11 +195,49 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
       .filter((url): url is string => Boolean(url)) || []),
   ]
 
-  const typeLabel = lot.type ? lot.type.charAt(0).toUpperCase() + lot.type.slice(1) : 'Apartment'
-  const price = lot.priceAmount || 0
-  const discountedPrice = price * 0.75 // Скидка 25%
+  const { firstPart, rest } = splitCompletionDate(lot.project?.completionDate)
 
-  const { firstPart, rest } = splitCompletionDate(lot.project?.data?.completionDate || 'Q1 2026')
+  const toBadgeText = (name?: string, slug?: string) => {
+    if (name && name.trim().length > 0) return name.trim()
+    if (slug && slug.trim().length > 0) {
+      return slug
+        .trim()
+        .replace(/[_-]+/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase())
+    }
+    return ''
+  }
+
+  const normalizedApiBadges: DisplayBadge[] = ((lot.badges && lot.badges.length > 0
+    ? lot.badges
+    : lot.project?.badges) || [])
+    .map(badge => ({
+      name: toBadgeText(badge.name, badge.slug),
+      backgroundColor: badge.backgroundColor || '#000',
+      textColor: badge.textColor || '#fff',
+      icon: badge.icon,
+      iconColor: badge.iconColor,
+    }))
+    .filter(badge => badge.name.length > 0)
+
+  const fallbackBonusBadges: DisplayBadge[] = (lot.bonusKeys || []).slice(0, 3).map((key, idx) => {
+    const palette = [
+      { backgroundColor: '#2E7D32', textColor: '#FFFFFF', iconName: 'gift', iconColor: '#FFD54F' },
+      { backgroundColor: '#2F6BFF', textColor: '#FFFFFF', iconName: 'sofa', iconColor: '#FFD54F' },
+      { backgroundColor: '#FF4B3A', textColor: '#FFFFFF', iconName: 'tag', iconColor: '#FFD54F' },
+    ] as const
+    const style = palette[idx % palette.length]
+
+    return {
+      name: translateBonusKey(key),
+      backgroundColor: style.backgroundColor,
+      textColor: style.textColor,
+      icon: style.iconName,
+      iconColor: style.iconColor,
+    }
+  })
+
+  const badges: DisplayBadge[] = normalizedApiBadges.length > 0 ? normalizedApiBadges : fallbackBonusBadges
 
   if (!lot.id) return null
 
@@ -117,14 +248,29 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
         <div className={styles.photoSection}>
           {allImages.length > 0 ? (
             <div className={styles.galleryContainer}>
-              <div className={styles.mainImageContainer}>
-                <img
-                  src={allImages[currentImageIndex]}
-                  alt={`${projectName} - image ${currentImageIndex + 1}`}
-                />
-                <button
-                  className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
-                  onClick={handleFavoriteClick}
+	              <div className={styles.mainImageContainer}>
+	                <img
+	                  src={allImages[currentImageIndex]}
+	                  alt={`${projectName} - image ${currentImageIndex + 1}`}
+	                />
+	                {badges.length > 0 && (
+	                  <div className={styles.badgesContainer}>
+	                    {badges.slice(0, 3).map((badge, idx) => (
+	                      <Badge
+	                        key={`${badge.name}-${idx}`}
+	                        text={badge.name}
+	                        backgroundColor={badge.backgroundColor}
+	                        textColor={badge.textColor}
+	                        iconName={badge.icon}
+	                        iconColor={badge.iconColor}
+	                        size="small"
+	                      />
+	                    ))}
+	                  </div>
+	                )}
+	                <button
+	                  className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
+	                  onClick={handleFavoriteClick}
                   aria-label={
                     isFavorited ? t('lotCard.removeFromFavorites') : t('lotCard.addToFavorites')
                   }
@@ -158,9 +304,8 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                   {allImages.map((_, idx) => (
                     <button
                       key={idx}
-                      className={`${styles.paginationDot} ${
-                        idx === currentImageIndex ? styles.activePagination : ''
-                      }`}
+                      className={`${styles.paginationDot} ${idx === currentImageIndex ? styles.activePagination : ''
+                        }`}
                       onClick={e => handleImageClick(e, idx)}
                       aria-label={`Go to image ${idx + 1}`}
                     />
@@ -191,7 +336,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
               </div>
 
               <div className={styles.roiContainer}>
-                <span className={styles.roiValue}>ROI 7%</span>
+                <span className={styles.roiValue}>{lot.roi != null ? `ROI ${lot.roi}%` : 'ROI -'}</span>
               </div>
             </div>
 
@@ -248,13 +393,15 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
               <div className={styles.priceItem}>
                 <div className={styles.priceLabel}>
                   <span className={styles.priceLabelText}>{t('lotCard.ourPrice')}</span>
-                  <div className={styles.discountBadge}>
-                    <span className={styles.discountValue}>{t('lotCard.discount')}</span>
-                  </div>
+                  {hasDiscount && (
+                    <div className={styles.discountBadge}>
+                      <span className={styles.discountValue}>-{discountPercent}%</span>
+                    </div>
+                  )}
                 </div>
                 <span className={styles.priceValue}>
                   <span className={styles.from}>{t('from')}</span>
-                  {formatPrice(discountedPrice, currency)}
+                  {formatPrice(ourPrice, currency)}
                 </span>
               </div>
 
@@ -262,7 +409,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
                 <span className={styles.priceLabelText}>{t('lotCard.developerPrice')}</span>
                 <span className={styles.priceValue}>
                   <span className={styles.from}>{t('from')}</span>
-                  {formatPrice(price, currency)}
+                  {formatPrice(developerPrice || ourPrice, currency)}
                 </span>
               </div>
             </div>

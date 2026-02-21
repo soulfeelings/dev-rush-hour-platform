@@ -1,31 +1,29 @@
 import { useTranslation } from 'react-i18next'
-import type { Property } from '../../../types/property'
+import type { Project } from '../../../api/generated/schemas/project'
+import { getDiscount, getValidBadges } from '../../../utils/project'
 import { Badge } from '../../../ui/Badge'
 import { Typography } from '../../../ui/Typography'
 import { RoiBadge } from '../../../ui/RoiBadge'
 import { splitCompletionDate } from '../../splitCompletionDate'
-import { useSettings } from '../../../features/Settings/Settings'
 import { formatPrice } from '../../../utils/format'
 import clsx from 'clsx'
 
 interface MarkerPopupProps {
-  property: Property
+  project: Project
   direction?: 'bottom' | 'left' | 'right' | 'top'
+  currency?: 'AED' | 'USD'
 }
 
-export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) => {
+export const MarkerPopup = ({ project, direction = 'top', currency = 'AED' }: MarkerPopupProps) => {
   const { t } = useTranslation()
-  const { currency } = useSettings()
-  const { firstPart, rest } = splitCompletionDate(property.completionDate)
-  const discount = property.discount
-  const roi = property.roi
-  const paymentPlan = property.paymentPlan
-  const badges = property.badges ?? []
-  const pricesByType = property.pricesByType ?? []
-
-  // Calculate discounted price if discount exists
-  const discountedPrice =
-    discount && property.priceFrom ? property.priceFrom * (1 - discount / 100) : null
+  const { firstPart, rest } = splitCompletionDate(project.completionDate)
+  const discount = getDiscount(project)
+  const roi = project.roi
+  const paymentPlan = project.paymentPlan
+  const badges = getValidBadges(project.badges)
+  const pricesByType = project.pricesByType ?? []
+  const coverImage = project.media?.cover?.url
+  const logoUrl = project.media?.logo?.url
 
   return (
     <div className={clsx('mp-wrapper', `mp-wrapper-${direction}`)}>
@@ -46,32 +44,32 @@ export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) =
               ))}
             </div>
           )}
-          <img src={property.image} alt={property.title} />
+          {coverImage && <img src={coverImage} alt={project.name} />}
         </div>
 
         <div className="mp-info-container">
           <div className="mp-project-info">
             <div className="mp-project-logo-container">
-              {property.logoUrl && (
+              {logoUrl && (
                 <div className="mp-project-logo">
-                  <img src={property.logoUrl} alt={property.developer} />
+                  <img src={logoUrl} alt={project.developer?.name} />
                 </div>
               )}
             </div>
             <div className="mp-project-name-container">
               <div className="mp-project-title-row">
                 <Typography size="small" className="mp-project-title">
-                  {property.title}
+                  {project.name}
                 </Typography>
               </div>
               <div className="mp-developer-row">
                 <Typography size="xs" className="mp-developer-name">
-                  {property.developer}
+                  {project.developer?.name}
                 </Typography>
               </div>
               <div className="mp-region-row">
                 <Typography size="xs" className="mp-region-name">
-                  {property.location}
+                  {project.area?.name}
                 </Typography>
               </div>
             </div>
@@ -81,31 +79,33 @@ export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) =
         </div>
 
         <div className="mp-price-container">
-          {discountedPrice && (
+          {project.priceFromUs && (
             <div className="mp-price-row">
               <div className="mp-attribute-container">
                 <span className="mp-attribute-label">{t('markerPopup.ourPrice')}</span>
-                <span className="mp-discount-badge">-{discount}%</span>
+                {discount && <span className="mp-discount-badge">-{discount}%</span>}
               </div>
               <div className="mp-price-value-container">
                 <span className="mp-price-value">
                   <span className="mp-from">{t('from')}</span>{' '}
-                  {formatPrice(discountedPrice, currency)}
+                  {formatPrice(project.priceFromUs, currency)}
                 </span>
               </div>
             </div>
           )}
-          <div className="mp-price-row">
-            <div className="mp-attribute-container">
-              <span className="mp-attribute-label">{t('markerPopup.developerPrice')}</span>
+          {project.priceFromDeveloper && (
+            <div className="mp-price-row">
+              <div className="mp-attribute-container">
+                <span className="mp-attribute-label">{t('markerPopup.developerPrice')}</span>
+              </div>
+              <div className="mp-price-value-container">
+                <span className="mp-price-value">
+                  <span className="mp-from">{t('from')}</span>{' '}
+                  {formatPrice(project.priceFromDeveloper, currency)}
+                </span>
+              </div>
             </div>
-            <div className="mp-price-value-container">
-              <span className="mp-price-value">
-                <span className="mp-from">{t('from')}</span>{' '}
-                {formatPrice(property.priceFrom, currency)}
-              </span>
-            </div>
-          </div>
+          )}
         </div>
 
         {(firstPart || paymentPlan) && (
@@ -142,14 +142,6 @@ export const MarkerPopup = ({ property, direction = 'top' }: MarkerPopupProps) =
           </div>
         )}
       </div>
-      {/* <PopupArrow
-        className={clsx('mp-arrow', {
-          'mp-arrow-bottom': direction === 'bottom',
-          'mp-arrow-left': direction === 'left',
-          'mp-arrow-right': direction === 'right',
-          'mp-arrow-top': direction === 'top',
-        })}
-      /> */}
     </div>
   )
 }

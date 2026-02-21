@@ -10,38 +10,64 @@ import { RoiBadge } from '../../ui/RoiBadge'
 import { IconBed, IconBath, IconArea } from '../../components/icons'
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice, formatArea, capitalize } from '../../utils/format'
-import { getLotDetailRoute } from '../../constants/routes'
+import { getLotDetailRoute, getProjectDetailRoute } from '../../constants/routes'
+import { openWhatsApp } from '../../services/whatsapp'
 import { useIsRTL } from '../../hooks/useDirection'
+import { translateBonusKey } from '../../utils/bonusTranslations'
 import type { Lot } from '../../api'
 import styles from './ApartmentCard.module.scss'
+import clsx from 'clsx'
 
 interface LotData {
   media?: {
     cover?: { url?: string }
     floorPlanImages?: { url?: string }[]
   }
+  bonuses?: Array<{
+    title?: string
+    style?: string
+    description?: string
+  }>
+}
+
+interface DisplayBadge {
+  name: string
+  backgroundColor: string
+  textColor: string
+  icon?: string
+  iconColor?: string
 }
 
 interface ApartmentCardProps {
   lot: Lot
   projectName?: string
+  projectSlug?: string
   areaName?: string
   roi?: number
-  ourPrice?: number
-  developerPrice?: number
+  onClick?: (lot: Lot) => void
+  onImageClick?: (imageUrl: string) => void
+  hideGallery?: boolean
+  fullWidth?: boolean
+  coverFirst?: boolean
+  disableHoverLift?: boolean
 }
 
 export function ApartmentCard({
   lot,
   projectName,
+  projectSlug,
   areaName,
   roi,
-  ourPrice,
-  developerPrice,
+  onClick,
+  onImageClick,
+  hideGallery = false,
+  fullWidth = false,
+  coverFirst = false,
+  disableHoverLift = false,
 }: ApartmentCardProps) {
   const { currency, unit } = useSettings()
   const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const isRTL = useIsRTL()
 
   const lotData = lot.data as LotData | undefined
@@ -49,10 +75,81 @@ export function ApartmentCard({
   const floorPlanImages =
     lotData?.media?.floorPlanImages?.map(img => img.url).filter((u): u is string => Boolean(u)) ||
     []
-  const badges = lot.badges || []
+  const toBadgeText = (name?: string, slug?: string) => {
+    if (name && name.trim().length > 0) return name.trim()
+    if (slug && slug.trim().length > 0) {
+      return slug
+        .trim()
+        .replace(/[_-]+/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase())
+    }
+    return ''
+  }
+
+  const normalizedApiBadges: DisplayBadge[] = ((lot.badges && lot.badges.length > 0 ? lot.badges : lot.project?.badges) || [])
+    .map(badge => ({
+      name: toBadgeText(badge.name, badge.slug),
+      backgroundColor: badge.backgroundColor || '#000',
+      textColor: badge.textColor || '#fff',
+      icon: badge.icon,
+      iconColor: badge.iconColor,
+    }))
+    .filter(badge => badge.name.length > 0)
+
+  const bonusStylePalette: Record<string, { backgroundColor: string; textColor: string }> = {
+    green: { backgroundColor: '#2E7D32', textColor: '#FFFFFF' },
+    blue: { backgroundColor: '#2F6BFF', textColor: '#FFFFFF' },
+    red: { backgroundColor: '#FF4B3A', textColor: '#FFFFFF' },
+    yellow: { backgroundColor: '#F4C400', textColor: '#131415' },
+    orange: { backgroundColor: '#FF8A00', textColor: '#FFFFFF' },
+  }
+  const bonusesFromData: DisplayBadge[] = (lotData?.bonuses || [])
+    .map((bonus, idx) => {
+      const title = (bonus.title || '').trim()
+      if (!title) return null
+      const styleKey = (bonus.style || '').trim().toLowerCase()
+      const palette =
+        bonusStylePalette[styleKey] ||
+        [
+          { backgroundColor: '#2E7D32', textColor: '#FFFFFF' },
+          { backgroundColor: '#2F6BFF', textColor: '#FFFFFF' },
+          { backgroundColor: '#FF4B3A', textColor: '#FFFFFF' },
+        ][idx % 3]
+
+      return {
+        name: title,
+        backgroundColor: palette.backgroundColor,
+        textColor: palette.textColor,
+      }
+    })
+    .filter((badge): badge is { name: string; backgroundColor: string; textColor: string } => badge != null)
+
+  const fallbackBonusBadges: DisplayBadge[] = (lot.bonusKeys || []).slice(0, 3).map((key, idx) => {
+    const palette = [
+      { backgroundColor: '#2E7D32', textColor: '#FFFFFF', iconName: 'gift', iconColor: '#FFD54F' },
+      { backgroundColor: '#2F6BFF', textColor: '#FFFFFF', iconName: 'sofa', iconColor: '#FFD54F' },
+      { backgroundColor: '#FF4B3A', textColor: '#FFFFFF', iconName: 'tag', iconColor: '#FFD54F' },
+    ] as const
+    const style = palette[idx % palette.length]
+
+    return {
+      name: translateBonusKey(key),
+      backgroundColor: style.backgroundColor,
+      textColor: style.textColor,
+      icon: style.iconName,
+      iconColor: style.iconColor,
+    }
+  })
+  const badges: DisplayBadge[] = normalizedApiBadges.length > 0
+    ? normalizedApiBadges
+    : bonusesFromData.length > 0
+      ? bonusesFromData
+      : fallbackBonusBadges
 
   // Combine floor plan images + cover into gallery
-  const galleryImages = [...floorPlanImages, ...(coverImage ? [coverImage] : [])]
+  const galleryImages = coverFirst
+    ? [...(coverImage ? [coverImage] : []), ...floorPlanImages]
+    : [...floorPlanImages, ...(coverImage ? [coverImage] : [])]
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: isRTL ? 'rtl' : 'ltr' })
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -85,96 +182,154 @@ export function ApartmentCard({
     emblaApi?.scrollNext()
   }
 
-  const handleWhatsApp = (e: React.MouseEvent) => {
+  const handleThumbClick = (e: React.MouseEvent, index: number) => {
     e.stopPropagation()
-    // TODO: open WhatsApp link
+    emblaApi?.scrollTo(index)
   }
 
+  const handleWhatsApp = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const lang = i18n.language
+    const origin = window.location.origin
+    const lotLink = lot.id ? `${origin}${getLotDetailRoute(lot.id)}` : null
+    const projectLink = projectSlug ? `${origin}${getProjectDetailRoute(projectSlug)}` : null
+
+    const lines = [
+      'Hello! I\'m a user from Rush Hour Platform. I\'m interested in this property:',
+      `- Project: ${projectName || '-'}`,
+      areaName ? `- Area: ${areaName}` : null,
+      lot.type ? `- Type: ${capitalize(lot.type)}` : null,
+      lot.bedrooms != null ? `- Bedrooms: ${lot.bedrooms}` : null,
+      lot.bathrooms != null ? `- Bathrooms: ${lot.bathrooms}` : null,
+      lot.areaSqm != null ? `- Size: ${formatArea(lot.areaSqm, unit)}` : null,
+      lot.floor != null ? `- Floor: ${lot.floor}` : null,
+      lotOurPrice ? `- Price: ${formatPrice(lotOurPrice, currency)}` : null,
+      '',
+      lotLink ? `Lot: ${lotLink}` : null,
+      projectLink ? `Project: ${projectLink}` : null,
+      '',
+      `User language: ${lang}`,
+    ].filter(v => v != null).join('\n')
+
+    openWhatsApp(lines)
+  }
+
+  const lotOurPrice = lot.priceFromUs
+  const lotDevPrice = lot.priceFromDeveloper
   const discount =
-    ourPrice && developerPrice && developerPrice > ourPrice
-      ? Math.round((1 - ourPrice / developerPrice) * 100)
+    lotOurPrice && lotDevPrice && lotDevPrice > lotOurPrice
+      ? Math.round((1 - lotOurPrice / lotDevPrice) * 100)
       : null
 
   const title = t('apartmentCard.title', { type: capitalize(lot.type), count: lot.bedrooms ?? 0 })
 
-  return (
-    <div className={styles.card} onClick={() => lot.id && navigate(getLotDetailRoute(lot.id))}>
-      {/* Gallery */}
-      <div className={styles.gallery}>
-        {galleryImages.length > 0 ? (
-          <>
-            <div className={styles.galleryViewport} ref={emblaRef}>
-              <div className={styles.galleryContainer}>
-                {galleryImages.map((url, idx) => (
-                  <div className={styles.gallerySlide} key={idx}>
-                    <img
-                      src={url}
-                      alt={`${title} - image ${idx + 1}`}
-                      className={styles.galleryImage}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            {canScroll && (
-              <>
-                <button
-                  className={`${styles.galleryArrow} ${styles.galleryArrowPrev}`}
-                  onClick={handlePrev}
-                  aria-label={t('apartmentCard.previousImage')}
-                >
-                  {isRTL ? (
-                    <ChevronRight size={14} strokeWidth={2.5} />
-                  ) : (
-                    <ChevronLeft size={14} strokeWidth={2.5} />
-                  )}
-                </button>
-                <button
-                  className={`${styles.galleryArrow} ${styles.galleryArrowNext}`}
-                  onClick={handleNext}
-                  aria-label={t('apartmentCard.nextImage')}
-                >
-                  {isRTL ? (
-                    <ChevronLeft size={14} strokeWidth={2.5} />
-                  ) : (
-                    <ChevronRight size={14} strokeWidth={2.5} />
-                  )}
-                </button>
-              </>
-            )}
-            {galleryImages.length > 1 && (
-              <div className={styles.progressBar}>
-                {galleryImages.map((_, idx) => (
-                  <div
-                    key={idx}
-                    className={`${styles.progressSegment} ${idx === selectedIndex ? styles.progressSegmentActive : ''}`}
-                  />
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
-          <div className={styles.galleryPlaceholder}>
-            <Building2 size={48} />
-          </div>
-        )}
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick(lot)
+      return
+    }
+    if (lot.id) {
+      navigate(getLotDetailRoute(lot.id))
+    }
+  }
 
-        {badges.length > 0 && (
-          <div className={styles.badgesContainer}>
-            {badges.slice(0, 2).map((badge, i) => (
-              <Badge
-                key={i}
-                text={badge.name || ''}
-                backgroundColor={badge.backgroundColor || '#000'}
-                textColor={badge.textColor || '#fff'}
-                iconName={badge.icon}
-                iconColor={badge.iconColor}
-                size="small"
-              />
-            ))}
-          </div>
-        )}
-      </div>
+  const handleGalleryImageClick = (e: React.MouseEvent, imageUrl: string) => {
+    e.stopPropagation()
+    onImageClick?.(imageUrl)
+  }
+
+  return (
+    <div
+      className={clsx(styles.card, fullWidth && styles.fullWidth, disableHoverLift && styles.noHoverLift)}
+      onClick={handleCardClick}
+    >
+      {!hideGallery && (
+        <div className={styles.gallery}>
+          {galleryImages.length > 0 ? (
+            <>
+              <div className={styles.galleryMain}>
+                <div className={styles.galleryViewport} ref={emblaRef}>
+                  <div className={styles.galleryContainer}>
+                    {galleryImages.map((url, idx) => (
+                      <div className={styles.gallerySlide} key={idx}>
+                        <img
+                          src={url}
+                          alt={`${title} - image ${idx + 1}`}
+                          className={styles.galleryImage}
+                          onClick={e => handleGalleryImageClick(e, url)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {canScroll && (
+                  <>
+                    <button
+                      className={`${styles.galleryArrow} ${styles.galleryArrowPrev}`}
+                      onClick={handlePrev}
+                      aria-label={t('apartmentCard.previousImage')}
+                    >
+                      {isRTL ? (
+                        <ChevronRight size={14} strokeWidth={2.5} />
+                      ) : (
+                        <ChevronLeft size={14} strokeWidth={2.5} />
+                      )}
+                    </button>
+                    <button
+                      className={`${styles.galleryArrow} ${styles.galleryArrowNext}`}
+                      onClick={handleNext}
+                      aria-label={t('apartmentCard.nextImage')}
+                    >
+                      {isRTL ? (
+                        <ChevronLeft size={14} strokeWidth={2.5} />
+                      ) : (
+                        <ChevronRight size={14} strokeWidth={2.5} />
+                      )}
+                    </button>
+                  </>
+                )}
+              </div>
+              {galleryImages.length > 1 && (
+                <div className={styles.galleryThumbs}>
+                  {galleryImages.map((url, idx) => (
+                    <button
+                      key={`thumb-${idx}`}
+                      type="button"
+                      className={`${styles.galleryThumb} ${
+                        idx === selectedIndex ? styles.galleryThumbActive : ''
+                      }`}
+                      onClick={e => handleThumbClick(e, idx)}
+                      aria-label={`${t('apartmentCard.nextImage')} ${idx + 1}`}
+                    >
+                      <img src={url} alt={`Thumbnail ${idx + 1}`} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className={styles.galleryPlaceholder}>
+              <Building2 size={48} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {badges.length > 0 && (
+        <div className={styles.badgesContainer}>
+          {badges.slice(0, 3).map((badge, i) => (
+            <Badge
+              key={i}
+              text={badge.name || ''}
+              backgroundColor={badge.backgroundColor || '#000'}
+              textColor={badge.textColor || '#fff'}
+              iconName={badge.icon}
+              iconColor={badge.iconColor}
+              size="small"
+            />
+          ))}
+        </div>
+      )}
 
       {/* Info Section */}
       <div className={styles.infoSection}>
@@ -196,7 +351,7 @@ export function ApartmentCard({
 
         {/* Price Rows */}
         <div className={styles.pricesSection}>
-          {ourPrice && developerPrice && ourPrice < developerPrice && (
+          {lotOurPrice && (
             <div className={styles.ourPriceRow}>
               <div className={styles.priceLabelContainer}>
                 <Typography size="regular" weight="medium" className={styles.priceLabel}>
@@ -207,24 +362,24 @@ export function ApartmentCard({
               <div className={styles.priceValue}>
                 <Typography className={styles.from}>{t('from')}</Typography>{' '}
                 <Typography size="large" weight="semibold">
-                  {formatPrice(ourPrice, currency)}
+                  {formatPrice(lotOurPrice, currency)}
                 </Typography>
               </div>
             </div>
           )}
-          <div className={styles.developerPriceRow}>
-            <Typography size="regular" weight="medium" className={styles.priceLabel}>
-              {ourPrice && developerPrice
-                ? t('apartmentCard.developerPrice')
-                : t('apartmentCard.price')}
-            </Typography>
-            <div className={styles.priceValue}>
-              <Typography className={styles.from}>{t('from')}</Typography>{' '}
-              <Typography size="large" weight="semibold">
-                {formatPrice(lot.priceAmount, currency)}
+          {lotDevPrice && (
+            <div className={styles.developerPriceRow}>
+              <Typography size="regular" weight="medium" className={styles.priceLabel}>
+                {t('apartmentCard.developerPrice')}
               </Typography>
+              <div className={styles.priceValue}>
+                <Typography className={styles.from}>{t('from')}</Typography>{' '}
+                <Typography size="large" weight="semibold">
+                  {formatPrice(lotDevPrice, currency)}
+                </Typography>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Specs Row */}

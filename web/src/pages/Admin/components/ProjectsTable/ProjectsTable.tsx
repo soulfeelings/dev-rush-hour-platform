@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { Project } from '../../../../api/generated/schemas/project'
 import { TableSkeleton } from '../TableSkeleton'
+import { TableActionButtons } from '../TableActionButtons'
 import styles from './ProjectsTable.module.scss'
 
-const { useAdminListProjects } = AdminApi
+const { useAdminListProjects, useAdminListDevelopers, useAdminListAreas, useAdminListCities } = AdminApi
 
 type ProjectsTableProps = {
   onNewClick: () => void
@@ -25,6 +26,10 @@ export function ProjectsTable({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [projectsToDelete, setProjectsToDelete] = useState<string[]>([])
+  const [filterCityId, setFilterCityId] = useState<string>('')
+  const [filterAreaId, setFilterAreaId] = useState<string>('')
+  const [filterDeveloperId, setFilterDeveloperId] = useState<string>('')
+
   const {
     data: projects,
     isLoading,
@@ -33,7 +38,38 @@ export function ProjectsTable({
     query: { enabled: true },
   })
 
-  const projectsList = projects || []
+  const { data: developersData } = useAdminListDevelopers({ query: { enabled: true } })
+  const { data: areasData } = useAdminListAreas({ query: { enabled: true } })
+  const { data: citiesData } = useAdminListCities({ query: { enabled: true } })
+
+  const allProjects = projects || []
+  const developers = developersData || []
+  const areas = areasData || []
+  const cities = citiesData || []
+
+  // Build a set of area IDs belonging to the selected city
+  const cityAreaIds = useMemo(() => {
+    if (!filterCityId) return null
+    const city = cities.find(c => c.id === filterCityId)
+    if (!city) return null
+    return new Set(areas.filter(a => a.city === city.name).map(a => a.id))
+  }, [filterCityId, cities, areas])
+
+  const projectsList = useMemo(() => {
+    let filtered = allProjects
+
+    if (filterDeveloperId) {
+      filtered = filtered.filter(p => p.developerId === filterDeveloperId)
+    }
+
+    if (filterAreaId) {
+      filtered = filtered.filter(p => p.areaId === filterAreaId)
+    } else if (cityAreaIds) {
+      filtered = filtered.filter(p => p.areaId && cityAreaIds.has(p.areaId))
+    }
+
+    return filtered
+  }, [allProjects, filterDeveloperId, filterAreaId, cityAreaIds])
 
   const handleSelectAll = () => {
     if (selectedIds.size === projectsList.length) {
@@ -74,11 +110,11 @@ export function ProjectsTable({
   const isSomeSelected = selectedIds.size > 0
 
   const getProjectImageUrl = (project: (typeof projectsList)[0]) => {
-    if (project.data?.media?.cover?.url) {
-      return project.data.media.cover.url
+    if (project.media?.cover?.url) {
+      return project.media.cover.url
     }
-    if (project.data?.media?.gallery && project.data.media.gallery.length > 0) {
-      return project.data.media.gallery[0]?.url
+    if (project.media?.gallery && project.media.gallery.length > 0) {
+      return project.media.gallery[0]?.url
     }
     return null
   }
@@ -95,7 +131,7 @@ export function ProjectsTable({
           <Button onClick={onNewClick}>New</Button>
         </div>
         <TableSkeleton
-          headers={['', '', 'Image', 'ID', 'Name', 'Slug', 'Status', 'Sale', 'Created At']}
+          headers={['', '', 'Image', 'ID', 'Name', 'Developer', 'Area', 'Slug', 'Status', 'Sale', 'Created At']}
           columns={[
             { width: '40px' },
             { isActions: true, width: '50px' },
@@ -106,8 +142,10 @@ export function ProjectsTable({
             {},
             {},
             {},
+            {},
+            {},
           ]}
-          minWidth="850px"
+          minWidth="1000px"
         />
       </div>
     )
@@ -135,8 +173,56 @@ export function ProjectsTable({
           <Button onClick={onNewClick}>New</Button>
         </div>
       </div>
+
+      <div className={styles.filters}>
+        <Select
+          options={[
+            { value: '', label: 'All Cities' },
+            ...cities.map(c => ({ value: c.id || '', label: c.name || '' })),
+          ]}
+          value={filterCityId}
+          onChange={setFilterCityId}
+          clearable
+          defaultValue=""
+        />
+        <Select
+          options={[
+            { value: '', label: 'All Areas' },
+            ...areas.map(a => ({ value: a.id || '', label: a.name || '' })),
+          ]}
+          value={filterAreaId}
+          onChange={setFilterAreaId}
+          clearable
+          defaultValue=""
+        />
+        <Select
+          options={[
+            { value: '', label: 'All Developers' },
+            ...developers.map(d => ({ value: d.id || '', label: d.name || '' })),
+          ]}
+          value={filterDeveloperId}
+          onChange={setFilterDeveloperId}
+          clearable
+          defaultValue=""
+        />
+        {(filterCityId || filterAreaId || filterDeveloperId) && (
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setFilterCityId('')
+              setFilterAreaId('')
+              setFilterDeveloperId('')
+            }}
+          >
+            Clear Filters
+          </Button>
+        )}
+      </div>
+
       {projectsList.length === 0 ? (
-        <div className={styles.empty}>No projects</div>
+        <div className={styles.empty}>
+          {allProjects.length === 0 ? 'No projects' : 'No projects match the selected filters'}
+        </div>
       ) : (
         <table className={styles.table}>
           <thead>
@@ -152,6 +238,8 @@ export function ProjectsTable({
               <th>Image</th>
               <th>ID</th>
               <th>Name</th>
+              <th>Developer</th>
+              <th>Area</th>
               <th>Slug</th>
               <th>Status</th>
               <th>Sale</th>
@@ -174,27 +262,12 @@ export function ProjectsTable({
                   />
                 </td>
                 <td className={styles.actionsCell}>
-                  {hoveredRowId === project.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.editButton}
-                        onClick={() => onEditClick(project)}
-                        aria-label="Edit project"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteButton}
-                        onClick={() => project.id && handleDeleteClick([project.id])}
-                        aria-label="Delete project"
-                        disabled={deleteLoading}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
+                  <TableActionButtons
+                    show={hoveredRowId === project.id}
+                    onEdit={() => onEditClick(project)}
+                    onDelete={() => project.id && handleDeleteClick([project.id])}
+                    deleteLoading={deleteLoading}
+                  />
                 </td>
                 <td className={styles.imageCell}>
                   {getProjectImageUrl(project) ? (
@@ -209,6 +282,8 @@ export function ProjectsTable({
                 </td>
                 <td>{project.id}</td>
                 <td>{project.name || '-'}</td>
+                <td>{project.developer?.name || '-'}</td>
+                <td>{project.area?.name || '-'}</td>
                 <td>{project.slug || '-'}</td>
                 <td>{project.status || '-'}</td>
                 <td>{project.sale || '-'}</td>

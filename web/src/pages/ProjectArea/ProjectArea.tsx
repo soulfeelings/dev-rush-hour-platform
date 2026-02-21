@@ -21,7 +21,7 @@ export default function ProjectArea() {
 
       <div className={styles.content}>
         <div className={styles.mapSection}>
-          <PropertyMap properties={mockProperties} showDistrictFilter={true} />
+          <PropertyMap projects={mockProperties} showDistrictFilter={true} />
         </div>
 
         <div className={styles.districtsList}>

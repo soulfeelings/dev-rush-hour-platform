@@ -4,12 +4,15 @@ import { Map, LayoutGrid, ChevronRight } from 'lucide-react'
 import { Select } from '../../ui/Select'
 import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
 import PropertyMap from '../../components/PropertyMap'
-import { useListProjects } from '../../api'
-import { apiProjectsToProperties } from '../../utils/apiAdapters'
+import { useListProjects, useListLots } from '../../api'
+import { getProjectSlug } from '../../utils/project'
+import type { Lot } from '../../api'
+import type { ListLotsParams } from '../../api/generated/schemas/listLotsParams'
 import { useFilters } from '../../contexts'
 import styles from './Catalog.module.scss'
 import type { PropertyMapRef } from '../../components/PropertyMap/PropertyMap'
 import ProjectsView from './components/ProjectsView'
+import LotsView from './components/LotsView'
 import { ListProjectsSort } from '../../api/generated/schemas/listProjectsSort'
 import type { ListProjectsParams } from '../../api/generated/schemas/listProjectsParams'
 
@@ -89,14 +92,39 @@ const useIsDesktop = () => {
 
 type SortValue = 'default' | ListProjectsSort
 
+const ALWAYS_FRESH_QUERY_OPTIONS = {
+  staleTime: 0,
+  refetchOnMount: 'always' as const,
+  refetchOnWindowFocus: true,
+}
+
+// Moved outside component — pure function, no deps on props/state
+const getPriceRange = (priceRange: string): { min?: number; max?: number } => {
+  switch (priceRange) {
+    case '0-1m':
+      return { min: 0, max: 1000000 }
+    case '1-2m':
+      return { min: 1000000, max: 2000000 }
+    case '2-5m':
+      return { min: 2000000, max: 5000000 }
+    case '5m+':
+      return { min: 5000000 }
+    default:
+      return {}
+  }
+}
+
+type CatalogTab = 'projects' | 'lots'
+
 // =====================================
-// CATALOG COMPONENT (PROJECTS ONLY)
+// CATALOG COMPONENT
 // =====================================
 
 export default function Catalog() {
   const { filters, updateFilter } = useFilters()
   const [layoutMode, setLayoutMode] = useState<DesktopView>(loadLayoutMode)
   const [mobileView, setMobileView] = useState<MobileView>(loadMobileView)
+  const [activeTab, setActiveTab] = useState<CatalogTab>('projects')
   const mapRef = useRef<PropertyMapRef | null>(null)
   const isDesktop = useIsDesktop()
   const { t } = useTranslation()
@@ -112,22 +140,6 @@ export default function Catalog() {
   )
 
   const sortValue = (filters.sort || 'default') as SortValue
-
-  // Helper to convert priceRange to min/max values
-  const getPriceRange = (priceRange: string): { min?: number; max?: number } => {
-    switch (priceRange) {
-      case '0-1m':
-        return { min: 0, max: 1000000 }
-      case '1-2m':
-        return { min: 1000000, max: 2000000 }
-      case '2-5m':
-        return { min: 2000000, max: 5000000 }
-      case '5m+':
-        return { min: 5000000 }
-      default:
-        return {}
-    }
-  }
 
   // Prepare API params for projects
   const projectsParams = useMemo((): ListProjectsParams => {
@@ -198,12 +210,44 @@ export default function Catalog() {
     data: projectsData,
     isLoading: projectsLoading,
     error: projectsError,
-  } = useListProjects(projectsParams)
+  } = useListProjects(projectsParams, {
+    query: ALWAYS_FRESH_QUERY_OPTIONS,
+  })
 
   const projects = useMemo(() => {
     if (!projectsData) return []
-    return apiProjectsToProperties(projectsData)
-  }, [projectsData])
+    let result = [...projectsData]
+
+    if (filters.project) {
+      result = result.filter(p => getProjectSlug(p) === filters.project)
+    }
+
+    if (filters.propertyType !== 'all') {
+      result = result.filter(p =>
+        p.propertyTypes?.some(t => t.toLowerCase() === filters.propertyType)
+      )
+    }
+
+    return result
+  }, [projectsData, filters.project, filters.propertyType])
+
+  // Load all lots without filters — filtering is done on the frontend via useMemo in LotsView
+  const lotsParams = useMemo((): ListLotsParams => ({ limit: 1000 }), [])
+
+  // Load lots — only when lots tab is active
+  const {
+    data: lotsData,
+    isLoading: lotsLoading,
+    error: lotsError,
+  } = useListLots(lotsParams, {
+    query: {
+      enabled: activeTab === 'lots',
+      ...ALWAYS_FRESH_QUERY_OPTIONS,
+    },
+  })
+
+  // State to track displayed lots count
+  const [displayedLotsCount, setDisplayedLotsCount] = useState<number>(0)
 
   // Desktop layout mode change handler
   const handleLayoutChange = useCallback((mode: DesktopView) => {
@@ -231,17 +275,48 @@ export default function Catalog() {
     setTimeout(() => mapRef.current?.refreshMap(), 350)
   }, [isDesktop])
 
-  const activeProperties = projects.filter(p => p.status === 'active')
-  const totalResults = activeProperties.length
-  const displayedResults = activeProperties.filter(p => !p.isFeatured).length
+  const lots = useMemo((): Lot[] => {
+    if (!lotsData?.items) return []
+    return lotsData.items as Lot[]
+  }, [lotsData])
+
+  const activeProjects = useMemo(
+    () => projects.filter(p => p.status === 'active'),
+    [projects]
+  )
+  const totalResults = activeTab === 'projects' ? activeProjects.length : lots.length
+  const displayedResults =
+    activeTab === 'projects'
+      ? activeProjects.filter(p => !p.isFeatured).length
+      : displayedLotsCount
 
   const catalogContent = (
     <div className={styles.catalogContent}>
+      <div className={styles.tabSwitcher}>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'projects' ? styles.tabButtonActive : ''}`}
+          onClick={() => setActiveTab('projects')}
+          type="button"
+        >
+          {t('catalog.tabs.projects')}
+        </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'lots' ? styles.tabButtonActive : ''}`}
+          onClick={() => setActiveTab('lots')}
+          type="button"
+        >
+          {t('catalog.tabs.lots')}
+        </button>
+      </div>
       <div className={styles.resultsHeader}>
         <span className={styles.resultsCount}>
-          {t('catalog.results.count', { displayed: displayedResults, total: totalResults })}
+          {t(activeTab === 'projects' ? 'catalog.results.count' : 'catalog.results.count.lots', {
+            displayed: displayedResults,
+            total: totalResults,
+          })}
         </span>
         <div className={styles.headerActions}>
+          {/* Sorting for both tabs */}
           <div className={styles.sortContainer}>
             <span className={styles.sortLabel}>{t('catalog.sort.label')}</span>
             <Select
@@ -255,16 +330,27 @@ export default function Catalog() {
         </div>
       </div>
       <div className={styles.viewContainer}>
-        <ProjectsView properties={projects} isLoading={projectsLoading} error={projectsError} />
+        {activeTab === 'projects' ? (
+          <ProjectsView projects={projects} isLoading={projectsLoading} error={projectsError} />
+        ) : (
+          <LotsView
+            lots={lots}
+            filters={filters}
+            isLoading={lotsLoading}
+            error={lotsError}
+            onFavoriteClick={() => {}}
+            setDisplayedCount={setDisplayedLotsCount}
+          />
+        )}
       </div>
     </div>
   )
 
-  const mapContent = <PropertyMap ref={mapRef} properties={activeProperties} />
+  const mapContent = <PropertyMap ref={mapRef} projects={activeProjects} />
 
   return (
     <div className={styles.container}>
-      <CatalogFilters />
+      <CatalogFilters activeTab={activeTab} />
       <div className={styles.contentWrapper}>
         {isDesktop ? (
           /* Desktop: CSS Grid layout with mode switching (>=1024px) */

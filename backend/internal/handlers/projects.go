@@ -117,6 +117,10 @@ func (h *ProjectsHandler) ListProjects(c *fiber.Ctx, params generated.ListProjec
 		filters.PriceMax = &priceMax
 	}
 
+	if params.Featured != nil {
+		filters.Featured = params.Featured
+	}
+
 	// Parse sort parameter
 	sort := domain.ProjectSortNameAsc // default
 	if params.Sort != nil {

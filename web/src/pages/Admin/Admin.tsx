@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams, useNavigate, Routes, Route, Navigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
-import { getAdminKey, setAdminKey, removeAdminKey } from '../../utils/adminApi'
+import { adminFetch } from '../../utils/adminApi'
 import {
   AdminApi,
   type DeveloperCreateRequest,
@@ -28,6 +28,7 @@ import {
   getAdminListDeletedCitiesQueryKey,
   getAdminListDeletedBadgesQueryKey,
   getAdminListDeletedInfrastructuresQueryKey,
+  getListLotsQueryKey,
 } from '../../api'
 import type { Badge } from '../../api/generated/schemas/badge'
 import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreateRequest'
@@ -35,7 +36,6 @@ import type { Infrastructure } from '../../api/generated/schemas/infrastructure'
 import type { InfrastructureCreateRequest } from '../../api/generated/schemas/infrastructureCreateRequest'
 import { Toast } from '../../ui'
 import { cleanupOldDrafts } from '../../constants/storage'
-import { AuthForm } from './components/AuthForm'
 import { Sidebar } from './components/Sidebar'
 import { RightSidebar } from './components/RightSidebar'
 import { DeveloperForm } from './components/DeveloperForm'
@@ -59,6 +59,8 @@ import { DeletedBadgesTable } from './components/DeletedBadgesTable'
 import { InfrastructuresTable } from './components/InfrastructuresTable'
 import { InfrastructureForm } from './components/InfrastructureForm'
 import { DeletedInfrastructuresTable } from './components/DeletedInfrastructuresTable'
+import { MediaTable } from './components/MediaTable'
+import { TeamPage } from './components/TeamPage'
 import { ADMIN_ROUTES, ADMIN_ROUTE_SEGMENTS, ADMIN_API_ENDPOINTS } from './constants'
 
 const {
@@ -108,11 +110,24 @@ import styles from './Admin.module.scss'
 
 cleanupOldDrafts()
 
+const isProjectsQueryKey = (queryKey: readonly unknown[]) => {
+  const key = queryKey[0]
+  return typeof key === 'string' && key.startsWith('/projects')
+}
+
+type AdminClaims = {
+  email: string
+  role: 'superadmin' | 'admin'
+  permissions: string[]
+}
+
 export default function Admin() {
   const queryClient = useQueryClient()
   const params = useParams<'*'>()
   const navigate = useNavigate()
-  const [isAuthenticated, setIsAuthenticated] = useState(!!getAdminKey())
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [claims, setClaims] = useState<AdminClaims | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [formKey, setFormKey] = useState(0)
@@ -124,6 +139,48 @@ export default function Admin() {
     Project | LotListItem | Developer | Area | City | Badge | Infrastructure | null
   >(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Check existing session via cookie
+  useEffect(() => {
+    adminFetch('/admin/auth/me', { method: 'GET' })
+      .then(res => {
+        if (res.ok) return res.json()
+        return null
+      })
+      .then((data: AdminClaims | null) => {
+        if (data) {
+          setClaims(data)
+          setIsAuthenticated(true)
+        } else {
+          navigate(ADMIN_ROUTES.AUTH, { replace: true })
+        }
+      })
+      .catch(() => {
+        navigate(ADMIN_ROUTES.AUTH, { replace: true })
+      })
+      .finally(() => setAuthLoading(false))
+  }, [navigate])
+
+  // Silent refresh — re-validate session every 14 min (TTL is 15 min)
+  useEffect(() => {
+    if (!isAuthenticated) return
+    const id = setInterval(async () => {
+      const res = await adminFetch('/admin/auth/me', { method: 'GET' }).catch(() => null)
+      if (!res || res.status === 401) {
+        navigate(ADMIN_ROUTES.AUTH, { replace: true })
+      } else if (res.ok) {
+        const data: AdminClaims = await res.json()
+        setClaims(data)
+      }
+    }, 14 * 60 * 1000)
+    return () => clearInterval(id)
+  }, [isAuthenticated, navigate])
+
+  const can = (entity: string, action: string): boolean => {
+    if (!claims) return false
+    if (claims.role === 'superadmin') return true
+    return claims.permissions.includes(`${entity}:${action}`)
+  }
 
   const { data: developersData } = useAdminListDevelopers({
     query: { enabled: isAuthenticated },
@@ -150,6 +207,13 @@ export default function Admin() {
   const badges = badgesData || []
   const infrastructures = infrastructuresData || []
   const cities = citiesData || []
+
+  const invalidatePublicLotCardsCache = () => {
+    queryClient.invalidateQueries({ queryKey: getListLotsQueryKey() })
+    queryClient.invalidateQueries({
+      predicate: query => isProjectsQueryKey(query.queryKey),
+    })
+  }
 
   const createDeveloperMutation = useAdminCreateDeveloper({
     mutation: {
@@ -187,6 +251,7 @@ export default function Admin() {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.LOTS] })
+        invalidatePublicLotCardsCache()
         setSuccess('Lot created successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
@@ -235,6 +300,7 @@ export default function Admin() {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.LOTS] })
+        invalidatePublicLotCardsCache()
         setSuccess('Lot updated successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
@@ -396,6 +462,7 @@ export default function Admin() {
           oldData ? oldData.filter(item => item.id !== variables.id) : []
         )
         queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
+        invalidatePublicLotCardsCache()
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to delete lot')
@@ -527,6 +594,7 @@ export default function Admin() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.LOTS] })
         queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
+        invalidatePublicLotCardsCache()
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to restore lot')
@@ -538,6 +606,7 @@ export default function Admin() {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
+        invalidatePublicLotCardsCache()
       },
       onError: err => {
         setError(err instanceof Error ? err.message : 'Failed to permanently delete lot')
@@ -668,19 +737,9 @@ export default function Admin() {
     deleteInfrastructureMutation.isPending ||
     deleteDeveloperMutation.isPending
 
-  const handleAuth = (username: string, password: string) => {
-    setError(null)
-    if (username === 'admin' && password === 'admin') {
-      const adminKey = import.meta.env.VITE_ADMIN_KEY || 'admin-key'
-      setAdminKey(adminKey)
-      setIsAuthenticated(true)
-    } else {
-      setError('Invalid username or password')
-    }
-  }
-
-  const handleLogout = () => {
-    removeAdminKey()
+  const handleLogout = async () => {
+    await adminFetch('/admin/auth/logout', { method: 'POST' }).catch(() => { })
+    setClaims(null)
     setIsAuthenticated(false)
     setError(null)
     setSuccess(null)
@@ -688,7 +747,7 @@ export default function Admin() {
     setRightSidebarOpen(false)
     setRightSidebarForm(null)
     setSidebarOpen(false)
-    navigate(ADMIN_ROUTES.PROJECTS)
+    navigate(ADMIN_ROUTES.AUTH, { replace: true })
   }
 
   const getActiveTab = ():
@@ -698,7 +757,9 @@ export default function Admin() {
     | 'cities-list'
     | 'badges-list'
     | 'infrastructures-list'
-    | 'developers-list' => {
+    | 'developers-list'
+    | 'media-list'
+    | 'team-list' => {
     const path = params['*'] || ADMIN_ROUTE_SEGMENTS.PROJECTS
     if (path === ADMIN_ROUTE_SEGMENTS.LOTS) return 'lots-list'
     if (path === ADMIN_ROUTE_SEGMENTS.AREAS) return 'areas-list'
@@ -706,6 +767,8 @@ export default function Admin() {
     if (path === ADMIN_ROUTE_SEGMENTS.BADGES) return 'badges-list'
     if (path === ADMIN_ROUTE_SEGMENTS.INFRASTRUCTURES) return 'infrastructures-list'
     if (path === ADMIN_ROUTE_SEGMENTS.DEVELOPERS) return 'developers-list'
+    if (path === ADMIN_ROUTE_SEGMENTS.MEDIA) return 'media-list'
+    if (path === ADMIN_ROUTE_SEGMENTS.TEAM) return 'team-list'
     return 'projects-list'
   }
 
@@ -720,6 +783,8 @@ export default function Admin() {
       | 'badges-list'
       | 'infrastructures-list'
       | 'developers-list'
+      | 'media-list'
+      | 'team-list'
   ) => {
     const pathMap: Record<typeof tab, string> = {
       'developers-list': ADMIN_ROUTE_SEGMENTS.DEVELOPERS,
@@ -729,6 +794,8 @@ export default function Admin() {
       'cities-list': ADMIN_ROUTE_SEGMENTS.CITIES,
       'badges-list': ADMIN_ROUTE_SEGMENTS.BADGES,
       'infrastructures-list': ADMIN_ROUTE_SEGMENTS.INFRASTRUCTURES,
+      'media-list': ADMIN_ROUTE_SEGMENTS.MEDIA,
+      'team-list': ADMIN_ROUTE_SEGMENTS.TEAM,
     }
     navigate(`${ADMIN_ROUTES.BASE}/${pathMap[tab]}`)
     setRightSidebarOpen(false)
@@ -1266,14 +1333,8 @@ export default function Admin() {
     }
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className={styles.admin}>
-        <div className={styles.authForm}>
-          <AuthForm onAuth={handleAuth} error={error} />
-        </div>
-      </div>
-    )
+  if (authLoading || !isAuthenticated) {
+    return null
   }
 
   const getRightSidebarTitle = () => {
@@ -1300,6 +1361,8 @@ export default function Admin() {
           setSidebarOpen(false)
         }}
         onLogout={handleLogout}
+        can={can}
+        isSuperadmin={claims?.role === 'superadmin'}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
@@ -1440,6 +1503,18 @@ export default function Admin() {
             }
           />
 
+          <Route
+            path={ADMIN_ROUTE_SEGMENTS.MEDIA}
+            element={
+              <MediaTable
+                onError={(msg: string) => setError(msg)}
+                onSuccess={(msg: string) => setSuccess(msg)}
+              />
+            }
+          />
+
+          <Route path={ADMIN_ROUTE_SEGMENTS.TEAM} element={<TeamPage />} />
+
           <Route path="*" element={<Navigate to={ADMIN_ROUTES.PROJECTS} replace />} />
         </Routes>
       </div>
@@ -1478,8 +1553,7 @@ export default function Admin() {
           <LotForm
             key={formKey}
             projects={projects}
-            developers={developers}
-            areas={areas}
+            badges={badges}
             onSubmit={handleLotSubmit}
             loading={loading}
             initialData={

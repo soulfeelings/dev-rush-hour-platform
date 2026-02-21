@@ -11,15 +11,15 @@ import type { LotData } from './lotData'
 
 export interface LotCreateRequest {
   projectId: string
-  developerId?: string
-  areaId?: string
   type: LotType
   status?: LotCreateRequestStatus
   bedrooms?: number
   bathrooms?: number
   areaSqm?: number
   floor?: number
-  priceAmount: number
+  priceFromUs: number
+  priceFromDeveloper?: number
+  roi?: number
   bonusKeys?: string[]
   badgeIds?: string[]
   data?: LotData

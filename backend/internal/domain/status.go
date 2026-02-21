@@ -53,13 +53,6 @@ const (
 
 type LotType string
 
-const (
-	LotTypeApartment LotType = "apartment"
-	LotTypeVilla     LotType = "villa"
-	LotTypeTownhouse LotType = "townhouse"
-	LotTypePenthouse LotType = "penthouse"
-)
-
 type LeadType string
 
 const (

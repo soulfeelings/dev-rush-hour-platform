@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"rush-hour-platform/backend/internal/config"
 	"rush-hour-platform/backend/internal/delivery"
+	"rush-hour-platform/backend/internal/events"
 	"rush-hour-platform/backend/internal/generated"
 	"rush-hour-platform/backend/internal/handlers"
 	"rush-hour-platform/backend/internal/middleware"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
@@ -39,24 +41,47 @@ type Server struct {
 	adminLeadsHandler      *handlers.AdminLeadsHandler
 	adminBadgesHandler           *handlers.AdminBadgesHandler
 	adminInfrastructuresHandler  *handlers.AdminInfrastructuresHandler
+	adminAuthHandler  *handlers.AdminAuthHandler
+	adminTeamHandler  *handlers.AdminTeamHandler
 }
 
-func NewServer(db *sql.DB) *Server {
+func NewServer(pool *pgxpool.Pool, eventBus *events.EventBus, cfg *config.Config) *Server {
 	// Repositories
-	areaRepo := repo.NewAreaRepo(db)
-	cityRepo := repo.NewCityRepo(db)
-	projectRepo := repo.NewProjectRepo(db)
-	lotRepo := repo.NewLotRepo(db)
-	leadRepo := repo.NewLeadRepo(db)
-	developerRepo := repo.NewDeveloperRepo(db)
-	badgeRepo := repo.NewBadgeRepo(db)
-	infrastructureRepo := repo.NewInfrastructureRepo(db)
+	areaRepo := repo.NewAreaRepo(pool)
+	cityRepo := repo.NewCityRepo(pool)
+	projectRepo := repo.NewProjectRepo(pool)
+	lotRepo := repo.NewLotRepo(pool)
+	leadRepo := repo.NewLeadRepo(pool)
+	developerRepo := repo.NewDeveloperRepo(pool)
+	badgeRepo := repo.NewBadgeRepo(pool)
+	infrastructureRepo := repo.NewInfrastructureRepo(pool)
+	adminUserRepo := repo.NewAdminUserRepo(pool)
+
+	// Register event subscriber: recalculate project prices on lot changes
+	eventBus.Subscribe(events.LotChanged, func(e events.Event) {
+		payload := e.Payload.(events.LotChangedPayload)
+		if err := projectRepo.RecalculatePricesFromLots(payload.ProjectID); err != nil {
+			slog.Error("event_handler_recalculate_failed",
+				"project_id", payload.ProjectID,
+				"lot_id", payload.LotID,
+				"operation", payload.Operation,
+				"error", err.Error(),
+			)
+		} else {
+			slog.Info("event_handler_recalculate_completed",
+				"project_id", payload.ProjectID,
+				"lot_id", payload.LotID,
+				"operation", payload.Operation,
+			)
+		}
+	})
 
 	// Services
+	adminAuthService := services.NewAdminAuthService(adminUserRepo, cfg.Admin.SuperadminEmail)
 	areasService := services.NewAreasService(areaRepo)
 	citiesService := services.NewCitiesService(cityRepo)
-	projectsService := services.NewProjectsService(projectRepo, lotRepo, badgeRepo)
-	lotsService := services.NewLotsService(lotRepo)
+	projectsService := services.NewProjectsService(projectRepo, lotRepo, badgeRepo, infrastructureRepo)
+	lotsService := services.NewLotsService(lotRepo, eventBus)
 	leadsService := services.NewLeadsService(leadRepo)
 	developersService := services.NewDevelopersService(developerRepo)
 	badgesService := services.NewBadgesService(badgeRepo)
@@ -80,6 +105,8 @@ func NewServer(db *sql.DB) *Server {
 		adminLeadsHandler:      handlers.NewAdminLeadsHandler(leadsService),
 		adminBadgesHandler:          handlers.NewAdminBadgesHandler(badgesService),
 		adminInfrastructuresHandler: handlers.NewAdminInfrastructuresHandler(infrastructuresService),
+		adminAuthHandler:            handlers.NewAdminAuthHandler(adminAuthService, cfg),
+		adminTeamHandler:            handlers.NewAdminTeamHandler(adminAuthService),
 	}
 }
 
@@ -370,9 +397,41 @@ func (s *Server) AdminHardDeleteInfrastructure(c *fiber.Ctx, id openapi_types.UU
 	return s.adminInfrastructuresHandler.HardDeleteInfrastructure(c, id)
 }
 
+// Auth methods
+
+func (s *Server) AdminAuthMicrosoft(c *fiber.Ctx) error {
+	return s.adminAuthHandler.LoginWithMicrosoft(c)
+}
+
+func (s *Server) AdminAuthMe(c *fiber.Ctx) error {
+	return s.adminAuthHandler.Me(c)
+}
+
+func (s *Server) AdminAuthLogout(c *fiber.Ctx) error {
+	return s.adminAuthHandler.Logout(c)
+}
+
+// Team methods
+
+func (s *Server) AdminListTeam(c *fiber.Ctx) error {
+	return s.adminTeamHandler.ListTeam(c)
+}
+
+func (s *Server) AdminAddTeamMember(c *fiber.Ctx) error {
+	return s.adminTeamHandler.AddTeamMember(c)
+}
+
+func (s *Server) AdminUpdateTeamMember(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminTeamHandler.UpdateTeamMember(c)
+}
+
+func (s *Server) AdminRemoveTeamMember(c *fiber.Ctx, id openapi_types.UUID) error {
+	return s.adminTeamHandler.RemoveTeamMember(c)
+}
+
 // initMediaService initializes the media service with appropriate storage and delivery
-func initMediaService(ctx context.Context, cfg *config.Config, db *sql.DB) (*services.MediaService, error) {
-	mediaRepo := repo.NewMediaRepo(db)
+func initMediaService(ctx context.Context, cfg *config.Config, pool *pgxpool.Pool) (*services.MediaService, error) {
+	mediaRepo := repo.NewMediaRepo(pool)
 
 	var mediaStorage storage.MediaStorage
 	var mediaDelivery delivery.MediaDelivery
@@ -434,36 +493,41 @@ func main() {
 	cfg := config.Load()
 
 	// Подключение к БД
-	db, err := repo.NewDB(cfg)
+	pool, err := repo.NewDB(cfg)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer db.Close()
+	defer pool.Close()
 	log.Println("Database connected successfully")
 
 	// Initialize media service
 	ctx := context.Background()
-	mediaService, err := initMediaService(ctx, cfg, db)
+	mediaService, err := initMediaService(ctx, cfg, pool)
 	if err != nil {
 		log.Fatalf("Failed to initialize media service: %v", err)
 	}
 	log.Printf("Media service initialized (driver: %s)", cfg.Media.Driver)
+
+	// Event bus for cross-service communication
+	eventBus := events.NewEventBus(100)
+	eventBus.Start()
+	defer eventBus.Stop()
+	log.Println("Event bus started")
 
 	app := fiber.New()
 
 	// Logger middleware
 	app.Use(middleware.RequestLogger())
 
-	// Настраиваем CORS для разработки
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "*",
+		AllowOrigins:     cfg.CORS.AllowedOrigin,
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,PATCH",
-		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Requested-With,X-Admin-Key",
-		AllowCredentials: false,
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Requested-With",
+		AllowCredentials: true,
 		ExposeHeaders:    "Content-Length",
 	}))
 
-	server := NewServer(db)
+	server := NewServer(pool, eventBus, cfg)
 
 	// Legacy media handler (for serving local files)
 	legacyMediaHandler := handlers.NewMediaHandler(cfg.Media.UploadDir, cfg.Media.PublicURL)
@@ -476,32 +540,28 @@ func main() {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	// === Media V2 API Routes ===
-
-	// Admin media endpoints (require authentication)
-	adminMedia := app.Group("/api/admin/media", middleware.AdminAuth(cfg))
-	adminMedia.Post("/init", mediaV2Handler.InitUpload)         // Init presigned upload
-	adminMedia.Post("/complete", mediaV2Handler.CompleteUpload) // Complete upload
-	adminMedia.Delete("/:id", mediaV2Handler.Delete)            // Delete media
-	adminMedia.Get("/", mediaV2Handler.List)                    // List media
-	adminMedia.Post("/upload", mediaV2Handler.Upload)           // Legacy multipart upload
-
-	// Public media endpoints (no authentication required)
-	app.Get("/api/media/:id/url", mediaV2Handler.GetURL) // Get signed URL for single media
-	app.Post("/api/media/urls", mediaV2Handler.GetURLs)  // Get signed URLs for batch
-
-	// Legacy: Serve uploaded media files directly (for local storage backward compatibility)
+	// === Public media endpoints (no auth) ===
+	app.Get("/api/media/:id/url", mediaV2Handler.GetURL)
+	app.Post("/api/media/urls", mediaV2Handler.GetURLs)
 	app.Get("/api/media/:filename", func(c *fiber.Ctx) error {
 		return legacyMediaHandler.ServeFile(c)
 	})
 
-	// Apply admin auth middleware to all routes (it checks path internally)
+	// === Admin auth + permission middlewares ===
 	app.Use(middleware.AdminAuth(cfg))
+	app.Use(middleware.RequireEntityPermission())
 
-	// Apply rate limiting middleware (it checks path internally)
+	// === Admin media routes (registered separately, not in generated spec) ===
+	app.Post("/api/admin/media/init", mediaV2Handler.InitUpload)
+	app.Post("/api/admin/media/complete", mediaV2Handler.CompleteUpload)
+	app.Delete("/api/admin/media/:id", mediaV2Handler.Delete)
+	app.Get("/api/admin/media", mediaV2Handler.List)
+	app.Post("/api/admin/media/upload", mediaV2Handler.Upload)
+
+	// === Rate limiting (leads only, checks path internally) ===
 	app.Use(middleware.LeadsRateLimitMiddleware())
 
-	// Register all routes (public + admin)
+	// === Generated OpenAPI routes (public + admin) ===
 	generated.RegisterHandlersWithOptions(app, server, generated.FiberServerOptions{
 		BaseURL: "/api",
 	})

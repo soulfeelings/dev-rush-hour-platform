@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
+import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import SidebarMenu from '../SidebarMenu'
 import { Settings } from '../Settings/Settings'
@@ -50,14 +51,28 @@ function LanguageSelector() {
 export default function Header() {
   const { t } = useTranslation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isLotDetailPage = location.pathname.startsWith('/lot/')
 
   return (
     <>
       <header data-testid="header" className={styles.header}>
         <div className={styles.container}>
           <div className={styles.headerInner}>
-            <button className={styles.menuBtn} onClick={() => setIsMenuOpen(true)} type="button">
-              <IconMenu />
+            <button
+              className={styles.menuBtn}
+              onClick={() => {
+                if (isLotDetailPage) {
+                  navigate(-1)
+                  return
+                }
+                setIsMenuOpen(true)
+              }}
+              type="button"
+              aria-label={isLotDetailPage ? 'Close' : 'Open menu'}
+            >
+              {isLotDetailPage ? <X size={22} /> : <IconMenu />}
             </button>
             <RouterLink to="/" className={styles.logo}>
               Rush&nbsp;Hour

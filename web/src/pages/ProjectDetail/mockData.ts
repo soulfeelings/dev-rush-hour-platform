@@ -43,8 +43,8 @@ export const mockProject = {
   data: {
     description:
       'The Oasis Tower is a prestigious residential development located in the heart of Downtown Dubai, offering breathtaking views of the Burj Khalifa and the Dubai Fountain. This luxury high-rise features world-class amenities, spacious apartments, and unmatched connectivity. Designed for those who desire a sophisticated urban lifestyle, each unit has been meticulously planned with premium finishes, floor-to-ceiling windows, and smart home technology. Residents will enjoy access to a rooftop infinity pool, state-of-the-art fitness center, private cinema, and lush landscaped gardens.',
-    ourPrice: 1_850_000,
-    developerPrice: 2_200_000,
+    priceFromUs: 1_850_000,
+    priceFromDeveloper: 2_200_000,
     roi: 8.5,
     paymentPlan: '60/40',
     completionDate: 'Q4 2026',
@@ -84,7 +84,7 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 42,
     floor: 5,
-    priceAmount: 850_000,
+    priceFromUs: 850_000,
     badges: [
       { name: 'Special Price', backgroundColor: '#ff6b9d', textColor: '#ffffff' },
       { name: 'New', backgroundColor: '#2dd4bf', textColor: '#1A1A1A' },
@@ -104,7 +104,7 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 48,
     floor: 12,
-    priceAmount: 920_000,
+    priceFromUs: 920_000,
     data: {
       media: {
         cover: { url: 'https://placehold.co/600x400/2a4a6a/e0e0e0?text=Studio+B' },
@@ -120,7 +120,7 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 65,
     floor: 8,
-    priceAmount: 1_350_000,
+    priceFromUs: 1_350_000,
     badges: [{ name: 'Best Layout', backgroundColor: '#E8F5E9', textColor: '#2E7D32' }],
     data: {
       media: {
@@ -137,7 +137,7 @@ export const mockLots: Lot[] = [
     bathrooms: 1,
     areaSqm: 72,
     floor: 15,
-    priceAmount: 1_500_000,
+    priceFromUs: 1_500_000,
     data: {
       media: {
         cover: { url: 'https://placehold.co/600x400/4a6a2a/e0e0e0?text=1BR+B' },
@@ -152,7 +152,7 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 78,
     floor: 22,
-    priceAmount: 1_650_000,
+    priceFromUs: 1_650_000,
     badges: [{ name: 'Sea View', backgroundColor: '#E3F2FD', textColor: '#1565C0' }],
     data: {
       media: {
@@ -169,7 +169,7 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 110,
     floor: 10,
-    priceAmount: 2_100_000,
+    priceFromUs: 2_100_000,
     badges: [{ name: 'Special Price', backgroundColor: '#ff6b9d', textColor: '#ffffff' }],
     data: {
       media: {
@@ -186,7 +186,7 @@ export const mockLots: Lot[] = [
     bathrooms: 2,
     areaSqm: 125,
     floor: 18,
-    priceAmount: 2_450_000,
+    priceFromUs: 2_450_000,
     data: {
       media: {
         cover: { url: 'https://placehold.co/600x400/6a2a4a/e0e0e0?text=2BR+B' },
@@ -201,7 +201,7 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 140,
     floor: 25,
-    priceAmount: 2_800_000,
+    priceFromUs: 2_800_000,
     badges: [
       { name: 'Burj Khalifa View', backgroundColor: '#FFF3E0', textColor: '#E65100' },
       { name: 'New', backgroundColor: '#2dd4bf', textColor: '#1A1A1A' },
@@ -221,7 +221,7 @@ export const mockLots: Lot[] = [
     bathrooms: 3,
     areaSqm: 180,
     floor: 30,
-    priceAmount: 3_900_000,
+    priceFromUs: 3_900_000,
     badges: [{ name: 'Premium', backgroundColor: '#F3E5F5', textColor: '#7B1FA2' }],
     data: {
       media: {
@@ -238,7 +238,7 @@ export const mockLots: Lot[] = [
     bathrooms: 4,
     areaSqm: 210,
     floor: 35,
-    priceAmount: 4_500_000,
+    priceFromUs: 4_500_000,
     badges: [{ name: 'Penthouse Level', backgroundColor: '#FFF8E1', textColor: '#F57F17' }],
     data: {
       media: {

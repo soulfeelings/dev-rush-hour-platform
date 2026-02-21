@@ -9,6 +9,8 @@ type Config struct {
 	DB     DBConfig
 	Server ServerConfig
 	Admin  AdminConfig
+	CORS   CORSConfig
+	Cookie CookieConfig
 	Media  MediaConfig
 	S3     S3Config
 }
@@ -27,7 +29,18 @@ type ServerConfig struct {
 }
 
 type AdminConfig struct {
-	APIKey string
+	JWTSecret       string
+	SuperadminEmail string
+	GoogleClientID  string
+}
+
+type CORSConfig struct {
+	AllowedOrigin string
+}
+
+type CookieConfig struct {
+	SameSite string // strict | lax | none
+	Secure   bool
 }
 
 type MediaConfig struct {
@@ -75,7 +88,16 @@ func Load() *Config {
 			Port: getEnv("PORT", "8080"),
 		},
 		Admin: AdminConfig{
-			APIKey: getEnv("ADMIN_API_KEY", ""),
+			JWTSecret:       getEnv("JWT_SECRET", ""),
+			SuperadminEmail: getEnv("SUPERADMIN_EMAIL", ""),
+			GoogleClientID:  getEnv("GOOGLE_CLIENT_ID", ""),
+		},
+		CORS: CORSConfig{
+			AllowedOrigin: getEnv("CORS_ALLOWED_ORIGIN", "http://localhost:5173"),
+		},
+		Cookie: CookieConfig{
+			SameSite: getEnv("COOKIE_SAME_SITE", "lax"),
+			Secure:   getEnvBool("COOKIE_SECURE", false),
 		},
 		Media: MediaConfig{
 			Driver:           getEnv("MEDIA_DRIVER", "local"),

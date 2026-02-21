@@ -46,6 +46,10 @@ export type ListProjectsParams = {
    */
   search?: string
   /**
+   * Фильтр по избранным проектам
+   */
+  featured?: boolean
+  /**
    * Сортировка
    */
   sort?: ListProjectsSort

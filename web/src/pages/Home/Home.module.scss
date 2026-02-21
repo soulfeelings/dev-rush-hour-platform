@@ -1,0 +1,1043 @@
+@use 'sass:color';
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+// ============================================
+// HOME PAGE - Landing Page Styles
+// ============================================
+
+// Landing-specific sizing tokens (not in global variables)
+$section-padding-top: 100px;
+$section-padding-bottom: 65px;
+$section-padding-mobile: 32px 16px;
+$cta-btn-height: 56px;
+$cta-btn-height-mobile: 36px;
+$cta-btn-padding-h: 84px;
+$cta-btn-font-size: 24px;
+
+// Shared CTA button override mixin (landing sections only)
+@mixin landing-cta-btn {
+  border-radius: $radius-full !important;
+  height: $cta-btn-height;
+  padding: 0 $cta-btn-padding-h !important;
+  font-size: $cta-btn-font-size !important;
+  font-weight: $font-weight-regular !important;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: $font-size-md !important;
+    height: $cta-btn-height-mobile;
+    width: 100%;
+    padding: 0 !important;
+  }
+}
+
+.home {
+  font-family: $font-family-primary;
+  background: $color-bg;
+  color: $color-text;
+  min-height: 100vh;
+  line-height: $line-height-normal;
+
+  --follow-us-padding-top: 44px;
+
+  @media (max-width: $breakpoint-sm) {
+    --follow-us-padding-top: 0px;
+  }
+}
+
+// ----------------
+// HERO SECTION
+// ----------------
+.hero {
+  padding: $section-padding-bottom 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+}
+
+.heroInner {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.heroBrand {
+  font-family: $font-family-primary;
+  font-size: 40px;
+  font-weight: $font-weight-semibold;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: $color-text;
+  margin: 0;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: 80px;
+  }
+
+  @media (min-width: $breakpoint-xl) {
+    font-size: 150px;
+  }
+
+  @media (min-width: $breakpoint-2xl) {
+    font-size: 225px;
+  }
+}
+
+.heroTagline {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 $spacing-6;
+  color: $color-text;
+  margin: 0;
+  line-height: 1.1;
+}
+
+// Base = mobile value; scale up via min-width breakpoints
+.heroTaglineScript {
+  font-family: 'Corinthia', cursive;
+  font-weight: $font-weight-regular;
+  font-size: 40px;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: 60px;
+  }
+
+  @media (min-width: $breakpoint-xl) {
+    font-size: 110px;
+  }
+
+  @media (min-width: $breakpoint-2xl) {
+    font-size: 170px;
+  }
+}
+
+// Base = mobile value; scale up via min-width breakpoints
+.heroTaglineSans {
+  font-family: $font-family-primary;
+  font-weight: $font-weight-regular;
+  font-size: 21px;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: 34px;
+  }
+
+  @media (min-width: $breakpoint-xl) {
+    font-size: 60px;
+  }
+
+  @media (min-width: $breakpoint-2xl) {
+    font-size: 94px;
+  }
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  margin-top: 42px;
+  border: 1px solid $color-yellow;
+  border-radius: $radius-full;
+  padding: $spacing-2;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 2px;
+  }
+}
+
+.heroBtn {
+  border-radius: $radius-full !important;
+  padding: $spacing-2 $spacing-5 !important;
+  font-size: 12px !important;
+  font-weight: $font-weight-medium !important;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: $font-size-lg !important;
+  }
+}
+
+.heroLinkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  background: none;
+  border: none;
+  font-family: $font-family-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  cursor: pointer;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 10px;
+  }
+}
+
+.heroArrow {
+  font-size: 22px;
+  transition: transform $transition-fast;
+
+  .heroLinkBtn:hover & {
+    transform: translateX(2px);
+  }
+}
+
+// ----------------
+// FILTERS & DEMO SECTION
+// ----------------
+.filtersDemo {
+  padding: $section-padding-bottom $spacing-4;
+  background: linear-gradient(to bottom, $color-charcoal-grey-5 66%, $color-bg-card 66%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 32px 10px;
+  }
+}
+
+.filtersDemoTitle {
+  font-family: $font-family-primary;
+  font-weight: $font-weight-regular;
+  color: $color-text;
+  margin: 0 0 49px;
+  font-size: 14px;
+
+  @media (max-width: $breakpoint-sm) {
+    margin: 0 0 10px;
+    font-weight: 500;
+  }
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: 28px;
+  }
+
+  @media (min-width: $breakpoint-xl) {
+    font-size: 42px;
+  }
+
+  @media (min-width: $breakpoint-2xl) {
+    font-size: 55px;
+  }
+}
+
+.filtersDemoMockup {
+  width: 100%;
+  margin-bottom: $spacing-10;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-bottom: 0;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+
+    @media (min-width: $breakpoint-xl) {
+      height: 947px;
+      object-fit: contain;
+    }
+  }
+}
+
+.filtersDemoGoBtn {
+  @include landing-cta-btn;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 10px;
+  }
+}
+
+// ----------------
+// FEATURED PROPERTIES
+// ----------------
+.properties {
+  padding: $section-padding-top 0;
+  background: $color-charcoal-grey-5;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $section-padding-mobile;
+  }
+}
+
+.propertiesHeader {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 0 $spacing-4;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-bottom: 24px;
+  }
+}
+
+.propertiesTitle {
+  font-size: 40px;
+  font-weight: $font-weight-semibold;
+  margin: 0;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
+}
+
+.propertiesSubtitle {
+  font-size: 24px;
+  font-weight: $font-weight-regular;
+  color: $color-charcoal-grey-50;
+  margin: $spacing-7 0 0;
+  line-height: 1;
+  white-space: pre-line;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+    font-weight: $font-weight-regular;
+    margin-top: $spacing-2;
+    white-space: normal;
+  }
+}
+
+// Carousel
+.carouselWrapper {
+  position: relative;
+}
+
+.carouselTrack {
+  display: flex;
+  gap: $spacing-4;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: $spacing-2 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.carouselSlide {
+  flex: 0 0 340px;
+  scroll-snap-align: start;
+}
+
+.carouselArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-full;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all $transition-fast;
+  box-shadow: $shadow-card;
+  color: $color-text;
+
+  &:hover {
+    background: $color-text;
+    color: $color-text-inverse;
+    border-color: $color-text;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    display: none;
+  }
+}
+
+.carouselArrowLeft {
+  left: $spacing-1;
+
+  @media (min-width: $breakpoint-xl) {
+    left: $spacing-3;
+  }
+
+  @include rtl {
+    left: auto;
+    right: $spacing-1;
+
+    @media (min-width: $breakpoint-xl) {
+      right: $spacing-3;
+    }
+  }
+}
+
+.carouselArrowRight {
+  right: $spacing-1;
+
+  @media (min-width: $breakpoint-xl) {
+    right: $spacing-3;
+  }
+
+  @include rtl {
+    right: auto;
+    left: $spacing-1;
+
+    @media (min-width: $breakpoint-xl) {
+      left: $spacing-3;
+    }
+  }
+}
+
+.propertiesCta {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 24px;
+  }
+}
+
+.seeMoreBtn {
+  @include landing-cta-btn;
+}
+
+// Skeleton (loading state)
+.skeletonCarousel {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-4;
+  padding: 0 $spacing-4;
+}
+
+.skeletonCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  aspect-ratio: 1 / 1.6;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonCardBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  padding: $spacing-3;
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+.skeletonLines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+// ----------------
+// FEATURES SECTION
+// ----------------
+.features {
+  padding: $section-padding-top $spacing-4 $section-padding-bottom;
+  background: $color-bg-card;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $section-padding-mobile;
+  }
+}
+
+.featuresTitle {
+  font-size: 40px;
+  font-weight: $font-weight-semibold;
+  margin: 0;
+  color: $color-text;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
+}
+
+.featuresSubtitle {
+  font-size: 24px;
+  font-weight: $font-weight-regular;
+  color: $color-charcoal-grey-50;
+  margin: $spacing-3 0 0;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: $spacing-2;
+    font-size: 14px;
+  }
+}
+
+.videoBlock {
+  width: 100%;
+  max-width: 800px;
+  margin: 50px 0;
+
+  @media (max-width: $breakpoint-sm) {
+    margin: 24px 0;
+  }
+}
+
+.videoContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: $color-charcoal-black;
+  border-radius: $radius-xl;
+  overflow: hidden;
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+}
+
+.videoPlayBtn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  background: transparent;
+  border: 3px solid $color-text-inverse;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-normal;
+  z-index: 1;
+
+  &::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 12px 0 12px 20px;
+    border-color: transparent transparent transparent $color-text-inverse;
+    margin-inline-start: 4px;
+  }
+
+  &:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  @media (min-width: $breakpoint-md) {
+    width: 88px;
+    height: 88px;
+
+    &::before {
+      border-width: 14px 0 14px 24px;
+      margin-inline-start: 5px;
+    }
+  }
+}
+
+.featuresBtn {
+  @include landing-cta-btn;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 10px;
+  }
+}
+
+// ----------------
+// ADVANTAGES SECTION
+// ----------------
+.advantages {
+  padding: $section-padding-top $spacing-4 $section-padding-bottom;
+  background: $color-charcoal-grey-5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $section-padding-mobile;
+  }
+}
+
+.advantagesTitle {
+  font-size: 40px;
+  font-weight: $font-weight-semibold;
+  margin: 0;
+  color: $color-text;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
+}
+
+.advantagesSubtitle {
+  font-size: 24px;
+  font-weight: $font-weight-regular;
+  color: $color-charcoal-grey-50;
+  margin: $spacing-3 0 0;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+  }
+}
+
+.advantagesGrid {
+  width: 100%;
+  max-width: 1200px;
+  margin: 50px 0;
+  display: grid;
+  gap: $spacing-4;
+  grid-template-columns: 1fr;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-bottom: 24px;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @media (min-width: $breakpoint-sm) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.advantageCard {
+  background: $color-bg-card;
+  padding: $spacing-8 $spacing-6;
+  border-radius: $radius-xl;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  @media (max-width: $breakpoint-sm) {
+    flex: 0 0 auto;
+    min-width: 343px;
+    max-width: 343px;
+    scroll-snap-align: start;
+  }
+}
+
+.advantageIcon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: $spacing-4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-yellow;
+  border-radius: $radius-lg;
+  color: $color-charcoal-black;
+}
+
+.advantageCardTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-medium;
+  margin: 0 0 $spacing-2;
+  color: $color-text;
+}
+
+.advantageCardDesc {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-regular;
+  color: $color-charcoal-black;
+  margin: 0;
+  line-height: $line-height-normal;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+  }
+}
+
+.advantagesBtn {
+  @include landing-cta-btn;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 10px;
+  }
+}
+
+// ----------------
+// FOUNDER SECTION
+// ----------------
+.founder {
+  background: $color-bg-card;
+
+  @media (max-width: $breakpoint-sm) {
+    background: linear-gradient(to bottom, $color-bg-card 80%, $color-charcoal-grey-5 80%);
+  }
+}
+
+.founderTop {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: $breakpoint-xl) {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.founderText {
+  flex: 1;
+  padding: $section-padding-top $spacing-4 $section-padding-bottom;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $section-padding-mobile;
+    text-align: center;
+  }
+
+  @media (min-width: $breakpoint-xl) {
+    padding: $section-padding-top $spacing-8 $section-padding-bottom 0;
+  }
+}
+
+.founderName {
+  font-size: 40px;
+  font-weight: $font-weight-semibold;
+  margin: 0;
+  color: $color-text;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
+}
+
+.founderRole {
+  font-size: 24px;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  margin: $spacing-6 0 0;
+  white-space: pre-line;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+    margin-bottom: 12px;
+    margin-top: $spacing-2;
+  }
+}
+
+.founderQuote {
+  margin-top: $spacing-8;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 0;
+  }
+
+  p {
+    font-size: 24px;
+    font-weight: $font-weight-regular;
+    color: $color-text;
+    margin: 0 0 $spacing-4;
+    line-height: $line-height-normal;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 14px;
+      color: $color-charcoal-grey-50;
+      margin: 0;
+    }
+  }
+}
+
+.founderPhoto {
+  flex-shrink: 0;
+  width: 50%;
+  margin-bottom: calc(var(--follow-us-padding-top) * -1);
+
+  // In column layout (< xl), the photo spans 80% width centered
+  @media (max-width: $breakpoint-sm) {
+    width: 100%;
+  }
+
+  @media (min-width: $breakpoint-sm) and (max-width: $breakpoint-xl) {
+    width: 80%;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// ----------------
+// FOLLOW US SECTION
+// ----------------
+.followUs {
+  padding: var(--follow-us-padding-top) 65px;
+  background: $color-charcoal-grey-5;
+
+  @media (max-width: $breakpoint-sm) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.followUsCard {
+  width: 100%;
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: 44px;
+  text-align: center;
+  box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 44px $spacing-4;
+    border-radius: 0;
+  }
+}
+
+.followUsTitle {
+  font-size: 40px;
+  font-weight: $font-weight-semibold;
+  margin: 0;
+  color: $color-text;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 20px;
+  }
+}
+
+.followUsSubtitle {
+  font-size: 24px;
+  font-weight: $font-weight-regular;
+  color: $color-charcoal-grey-50;
+  margin: $spacing-3 0 0;
+  line-height: 1;
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: 14px;
+    margin-top: $spacing-2;
+  }
+}
+
+.followUsSocials {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-6;
+  margin-top: $spacing-8;
+
+  a {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $color-charcoal-black;
+    transition: opacity $transition-fast;
+
+    &:hover {
+      opacity: 0.6;
+    }
+
+    img {
+      width: 64.5px;
+      height: 64.5px;
+
+      @media (max-width: $breakpoint-sm) {
+        width: 37px;
+        height: 37px;
+      }
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      width: 50px;
+      height: 50px;
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    gap: $spacing-2;
+  }
+}
+
+// ----------------
+// CTA SECTION
+// ----------------
+.cta {
+  padding: $spacing-16 $spacing-4;
+  background: linear-gradient(135deg, $color-text 0%, color.mix(white, $color-text, 10%) 100%);
+  text-align: center;
+  color: $color-text-inverse;
+
+  @media (max-width: $breakpoint-sm) {
+    display: none;
+  }
+}
+
+.ctaInner {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ctaTitle {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  margin: 0 0 $spacing-4;
+
+  @media (min-width: $breakpoint-xl) {
+    font-size: $font-size-3xl;
+  }
+}
+
+.ctaDesc {
+  font-size: $font-size-lg;
+  opacity: 0.8;
+  margin: 0 0 $spacing-6;
+}
+
+.ctaActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $spacing-3;
+}
+
+// ----------------
+// FOOTER
+// ----------------
+.footer {
+  padding: $spacing-12 $spacing-4 $spacing-6;
+  background: $color-text;
+  color: $color-text-inverse;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $section-padding-mobile;
+  }
+}
+
+.footerInner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footerGrid {
+  display: grid;
+  gap: $spacing-8;
+  margin-bottom: $spacing-8;
+
+  @media (min-width: $breakpoint-2xl) {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+  }
+}
+
+.footerBrand {
+  h3 {
+    font-size: $font-size-xl;
+    margin: 0 0 $spacing-3;
+
+    span {
+      color: $color-yellow;
+    }
+  }
+
+  p {
+    font-size: $font-size-sm;
+    opacity: 0.7;
+    margin: 0;
+    max-width: 280px;
+  }
+}
+
+.footerColumn {
+  h4 {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 $spacing-4;
+    opacity: 0.5;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    margin-bottom: $spacing-2;
+  }
+
+  a {
+    color: $color-text-inverse;
+    text-decoration: none;
+    font-size: $font-size-sm;
+    opacity: 0.8;
+    transition: opacity $transition-fast;
+
+    &:hover {
+      opacity: 1;
+      color: $color-yellow;
+    }
+  }
+}
+
+.footerBottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-4;
+  padding-top: $spacing-6;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footerCopyright {
+  font-size: $font-size-sm;
+  opacity: 0.6;
+}

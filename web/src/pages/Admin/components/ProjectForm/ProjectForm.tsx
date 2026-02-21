@@ -10,7 +10,7 @@ import {
   Textarea,
   Badge as BadgeUI,
 } from '../../../../ui'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Image as ImageIcon } from 'lucide-react'
 import {
   type ProjectCreateRequest,
   type Project,
@@ -18,6 +18,7 @@ import {
   type Infrastructure,
 } from '../../../../api'
 import { MapPicker } from '../MapPicker'
+import { MediaPicker } from '../MediaPicker'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './ProjectForm.module.scss'
 
@@ -198,7 +199,7 @@ export function ProjectForm({
 
   const initialForm = useMemo(() => {
     if (initialData) {
-      const descriptionValue = initialData.data?.description
+      const descriptionValue = initialData.description
       const descriptionStr =
         typeof descriptionValue === 'string'
           ? descriptionValue
@@ -214,28 +215,28 @@ export function ProjectForm({
         areaId: initialData.areaId || '',
         lat: initialData.lat?.toString() || '',
         lng: initialData.lng?.toString() || '',
-        coverUrl: initialData.data?.media?.cover?.url || '',
-        hoverUrl: initialData.data?.media?.hover?.url || '',
-        logoUrl: initialData.data?.media?.logo?.url || '',
+        coverUrl: initialData.media?.cover?.url || '',
+        hoverUrl: initialData.media?.hover?.url || '',
+        logoUrl: initialData.media?.logo?.url || '',
         gallery:
-          initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
-        youtubeUrl: initialData.data?.youtubeUrl || '',
+          initialData.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
+        youtubeUrl: initialData.youtubeUrl || '',
         timeline: {
-          projectAnnouncement: initialData.data?.timeline?.projectAnnouncement || '',
-          bookingStarted: initialData.data?.timeline?.bookingStarted || '',
-          constructionStarted: initialData.data?.timeline?.constructionStarted || '',
-          constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+          projectAnnouncement: initialData.timeline?.projectAnnouncement || '',
+          bookingStarted: initialData.timeline?.bookingStarted || '',
+          constructionStarted: initialData.timeline?.constructionStarted || '',
+          constructionProgress: initialData.timeline?.constructionProgress || '',
           constructionProgressPercent:
-            initialData.data?.timeline?.constructionProgressPercent?.toString() || '',
-          expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
+            initialData.timeline?.constructionProgressPercent?.toString() || '',
+          expectedCompletion: initialData.timeline?.expectedCompletion || '',
         },
         description: descriptionStr,
-        roi: initialData.data?.roi?.toString() || '',
-        ourPrice: initialData.data?.ourPrice?.toString() || '',
-        developerPrice: initialData.data?.developerPrice?.toString() || '',
-        paymentPlan: initialData.data?.paymentPlan || '',
-        completionDate: initialData.data?.completionDate || '',
-        isFeatured: initialData.data?.isFeatured ?? false,
+        roi: initialData.roi?.toString() || '',
+        ourPrice: initialData.priceFromUs?.toString() || '',
+        developerPrice: initialData.priceFromDeveloper?.toString() || '',
+        paymentPlan: initialData.paymentPlan || '',
+        completionDate: initialData.completionDate || '',
+        isFeatured: initialData.isFeatured ?? false,
         badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
         infrastructureIds:
           initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -306,7 +307,7 @@ export function ProjectForm({
 
   const initialFormData = useMemo(() => {
     if (!initialData) return null
-    const descriptionValue = initialData.data?.description
+    const descriptionValue = initialData.description
     const descriptionStr =
       typeof descriptionValue === 'string'
         ? descriptionValue
@@ -322,29 +323,29 @@ export function ProjectForm({
       areaId: initialData.areaId || '',
       lat: initialData.lat?.toString() || '',
       lng: initialData.lng?.toString() || '',
-      coverUrl: initialData.data?.media?.cover?.url || '',
-      hoverUrl: initialData.data?.media?.hover?.url || '',
-      logoUrl: initialData.data?.media?.logo?.url || '',
-      gallery: initialData.data?.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
-      youtubeUrl: initialData.data?.youtubeUrl || '',
+      coverUrl: initialData.media?.cover?.url || '',
+      hoverUrl: initialData.media?.hover?.url || '',
+      logoUrl: initialData.media?.logo?.url || '',
+      gallery: initialData.media?.gallery?.map(item => item.url || '').filter(Boolean) || [],
+      youtubeUrl: initialData.youtubeUrl || '',
       timeline: {
-        projectAnnouncement: initialData.data?.timeline?.projectAnnouncement || '',
-        bookingStarted: initialData.data?.timeline?.bookingStarted || '',
-        constructionStarted: initialData.data?.timeline?.constructionStarted || '',
-        constructionProgress: initialData.data?.timeline?.constructionProgress || '',
+        projectAnnouncement: initialData.timeline?.projectAnnouncement || '',
+        bookingStarted: initialData.timeline?.bookingStarted || '',
+        constructionStarted: initialData.timeline?.constructionStarted || '',
+        constructionProgress: initialData.timeline?.constructionProgress || '',
         constructionProgressPercent:
           (
-            initialData.data?.timeline as Record<string, unknown> | undefined
+            initialData.timeline as Record<string, unknown> | undefined
           )?.constructionProgressPercent?.toString() || '',
-        expectedCompletion: initialData.data?.timeline?.expectedCompletion || '',
+        expectedCompletion: initialData.timeline?.expectedCompletion || '',
       },
       description: descriptionStr,
-      roi: initialData.data?.roi?.toString() || '',
-      ourPrice: initialData.data?.ourPrice?.toString() || '',
-      developerPrice: initialData.data?.developerPrice?.toString() || '',
-      paymentPlan: initialData.data?.paymentPlan || '',
-      completionDate: initialData.data?.completionDate || '',
-      isFeatured: initialData.data?.isFeatured ?? false,
+      roi: initialData.roi?.toString() || '',
+      ourPrice: initialData.priceFromUs?.toString() || '',
+      developerPrice: initialData.priceFromDeveloper?.toString() || '',
+      paymentPlan: initialData.paymentPlan || '',
+      completionDate: initialData.completionDate || '',
+      isFeatured: initialData.isFeatured ?? false,
       badgeIds: initialData.badges?.map(b => b.id).filter((id): id is string => !!id) || [],
       infrastructureIds:
         initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
@@ -400,6 +401,11 @@ export function ProjectForm({
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState(false)
 
+  // Media picker state
+  const [pickerOpen, setPickerOpen] = useState<
+    'coverUrl' | 'hoverUrl' | 'logoUrl' | 'gallery' | null
+  >(null)
+
   const validate = (): ValidationErrors => {
     const newErrors: ValidationErrors = {}
     if (!form.status) {
@@ -445,8 +451,6 @@ export function ProjectForm({
       ...(form.infrastructureIds.length > 0 && { infrastructureIds: form.infrastructureIds }),
     }
 
-    const dataPayload: Record<string, unknown> = {}
-
     const mediaData: Record<string, unknown> = {}
     if (form.coverUrl) {
       mediaData.cover = { url: form.coverUrl }
@@ -461,11 +465,11 @@ export function ProjectForm({
       mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
     }
     if (Object.keys(mediaData).length > 0) {
-      dataPayload.media = mediaData
+      payload.media = mediaData as ProjectCreateRequest['media']
     }
 
     if (form.youtubeUrl) {
-      dataPayload.youtubeUrl = form.youtubeUrl
+      payload.youtubeUrl = form.youtubeUrl
     }
 
     const timelineData: Record<string, string | number> = {}
@@ -484,32 +488,28 @@ export function ProjectForm({
     if (form.timeline.expectedCompletion)
       timelineData.expectedCompletion = form.timeline.expectedCompletion
     if (Object.keys(timelineData).length > 0) {
-      dataPayload.timeline = timelineData
+      payload.timeline = timelineData as ProjectCreateRequest['timeline']
     }
 
     if (form.description) {
-      dataPayload.description = form.description
+      payload.description = form.description as ProjectCreateRequest['description']
     }
     if (form.roi) {
-      dataPayload.roi = parseFloat(form.roi)
+      payload.roi = parseFloat(form.roi)
     }
     if (form.ourPrice) {
-      dataPayload.ourPrice = parseFloat(form.ourPrice)
+      payload.priceFromUs = parseFloat(form.ourPrice)
     }
     if (form.developerPrice) {
-      dataPayload.developerPrice = parseFloat(form.developerPrice)
+      payload.priceFromDeveloper = parseFloat(form.developerPrice)
     }
     if (form.paymentPlan) {
-      dataPayload.paymentPlan = form.paymentPlan
+      payload.paymentPlan = form.paymentPlan
     }
     if (form.completionDate) {
-      dataPayload.completionDate = form.completionDate
+      payload.completionDate = form.completionDate
     }
-    dataPayload.isFeatured = form.isFeatured
-
-    if (Object.keys(dataPayload).length > 0) {
-      payload.data = dataPayload
-    }
+    payload.isFeatured = form.isFeatured
 
     if (!isEditMode) {
       clearCache()
@@ -747,44 +747,88 @@ export function ProjectForm({
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Media</h3>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Cover Image URL"
-            type="url"
-            value={form.coverUrl}
-            onChange={e => setForm({ ...form, coverUrl: e.target.value })}
-            placeholder="https://example.com/image.jpg"
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Cover Image URL"
+              type="url"
+              value={form.coverUrl}
+              onChange={e => setForm({ ...form, coverUrl: e.target.value })}
+              placeholder="https://example.com/image.jpg"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('coverUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
         </div>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Hover Image URL"
-            type="url"
-            value={form.hoverUrl}
-            onChange={e => setForm({ ...form, hoverUrl: e.target.value })}
-            placeholder="https://example.com/hover-image.jpg"
-            error={errors.hoverUrl}
-            required
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Hover Image URL"
+              type="url"
+              value={form.hoverUrl}
+              onChange={e => setForm({ ...form, hoverUrl: e.target.value })}
+              placeholder="https://example.com/hover-image.jpg"
+              error={errors.hoverUrl}
+              required
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('hoverUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.hoverUrl && <ImagePreview src={form.hoverUrl} alt="Hover preview" />}
         </div>
         <div className={styles.coverImageWrapper}>
-          <Input
-            label="Project Logo URL"
-            type="url"
-            value={form.logoUrl}
-            onChange={e => setForm({ ...form, logoUrl: e.target.value })}
-            placeholder="https://example.com/logo.png"
-          />
+          <div className={styles.inputWithButton}>
+            <Input
+              label="Project Logo URL"
+              type="url"
+              value={form.logoUrl}
+              onChange={e => setForm({ ...form, logoUrl: e.target.value })}
+              placeholder="https://example.com/logo.png"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setPickerOpen('logoUrl')}
+              iconLeft={<ImageIcon size={16} />}
+            >
+              Browse
+            </Button>
+          </div>
           {form.logoUrl && <ImagePreview src={form.logoUrl} alt="Logo preview" />}
         </div>
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
             <label className={styles.mediaListLabel}>Gallery</label>
-            <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm">
-              <Plus size={16} />
-              Add Image
-            </Button>
+            <div className={styles.mediaListActions}>
+              <Button
+                type="button"
+                onClick={() => setPickerOpen('gallery')}
+                variant="secondary"
+                size="sm"
+                iconLeft={<ImageIcon size={16} />}
+              >
+                Browse
+              </Button>
+              <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm">
+                <Plus size={16} />
+                Add Image
+              </Button>
+            </div>
           </div>
           {form.gallery.map((url, index) => (
             <div key={index} className={styles.mediaItem}>
@@ -912,6 +956,29 @@ export function ProjectForm({
             ? 'Save'
             : 'Create Project'}
       </Button>
+
+      {/* Media Pickers */}
+      <MediaPicker
+        open={pickerOpen === 'coverUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, coverUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'hoverUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, hoverUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'logoUrl'}
+        onClose={() => setPickerOpen(null)}
+        onSelect={url => setForm({ ...form, logoUrl: url })}
+      />
+      <MediaPicker
+        open={pickerOpen === 'gallery'}
+        onClose={() => setPickerOpen(null)}
+        multiple
+        onSelectMultiple={urls => setForm({ ...form, gallery: [...form.gallery, ...urls] })}
+      />
     </form>
   )
 }

@@ -26,11 +26,10 @@ type Project struct {
 	IsFeatured        bool
 	YoutubeURL        string
 	ROI               *float64
-	OurPrice          *float64
-	DeveloperPrice    *float64
+	PriceFromUs        *float64
+	PriceFromDeveloper *float64
 	PaymentPlan       string
 	CompletionDate    string
-	PriceFrom         *float64
 	Currency          string
 	PropertyTypes     []string
 	Bedrooms          []string
@@ -38,11 +37,16 @@ type Project struct {
 	AreaUnit          string
 	PricesByType      []PriceByType
 	Timeline          *ProjectTimeline
+	// Badge IDs (used for saving to project_badges junction table)
+	BadgeIDs []uuid.UUID
+	// Infrastructure IDs (used for saving to project_infrastructures junction table)
+	InfrastructureIDs []uuid.UUID
 	// Embedded related data (populated by joins)
-	Developer *Developer
-	Area      *Area
-	Badges    []Badge
-	DeletedAt *time.Time
+	Developer       *Developer
+	Area            *Area
+	Badges          []Badge
+	Infrastructures []Infrastructure
+	DeletedAt       *time.Time
 }
 
 type PriceByType struct {
@@ -90,5 +94,6 @@ type ProjectFilters struct {
 	PriceMax      *float64
 	Status        *string  // Filter by project status (ready, construction, planning)
 	Search        *string  // Search by project name
+	Featured      *bool    // Filter by featured flag
 }
 

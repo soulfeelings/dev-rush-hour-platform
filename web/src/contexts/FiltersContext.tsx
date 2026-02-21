@@ -12,18 +12,23 @@ import { useGetFilterOptions } from '../api/generated/rushHourRealEstatePlatform
 
 import type { FilterOptions } from '../api/generated/schemas/filterOptions'
 import type { FilterOption } from '../api/generated/schemas/filterOption'
+import { LotType } from '../api/generated/schemas/lotType'
 
 export type FilterValues = {
   city: string | null
   area: string | null
   developer: string | null
   project: string | null
-  propertyType: 'all' | 'apartment' | 'villa' | 'townhouse' | 'penthouse' | 'duplex'
+  propertyType: 'all' | LotType
+  lotType: 'all' | LotType
+  roiMin: string
   bedrooms: string[]
   bathrooms: string[]
   priceRange: 'all' | '0-1m' | '1-2m' | '2-5m' | '5m+'
   minPrice: string
   maxPrice: string
+  minRoi: string
+  maxRoi: string
   status: 'all' | 'ready' | 'construction' | 'planning'
   sort: string
   search: string
@@ -48,11 +53,15 @@ const defaultFilters: FilterValues = {
   developer: null,
   project: null,
   propertyType: 'all',
+  lotType: 'all',
+  roiMin: '',
   bedrooms: [],
   bathrooms: [],
   priceRange: 'all',
   minPrice: '',
   maxPrice: '',
+  minRoi: '',
+  maxRoi: '',
   status: 'all',
   sort: 'default',
   search: '',
@@ -69,9 +78,14 @@ const parseFiltersFromURL = (search: string): FilterValues => {
   if (params.get('project')) filters.project = params.get('project')
 
   const type = params.get('type')
-  if (type && ['apartment', 'villa', 'townhouse', 'penthouse', 'duplex'].includes(type)) {
+  if (type && Object.values(LotType).includes(type as LotType)) {
     filters.propertyType = type as FilterValues['propertyType']
   }
+  const lotType = params.get('lotType')
+  if (lotType && (lotType === 'all' || Object.values(LotType).includes(lotType as LotType))) {
+    filters.lotType = lotType as FilterValues['lotType']
+  }
+  if (params.get('roiMin')) filters.roiMin = params.get('roiMin') || ''
 
   const beds = params.get('bedrooms')
   if (beds) {
@@ -100,6 +114,8 @@ const parseFiltersFromURL = (search: string): FilterValues => {
 
   if (params.get('minPrice')) filters.minPrice = params.get('minPrice') || ''
   if (params.get('maxPrice')) filters.maxPrice = params.get('maxPrice') || ''
+  if (params.get('minRoi')) filters.minRoi = params.get('minRoi') || ''
+  if (params.get('maxRoi')) filters.maxRoi = params.get('maxRoi') || ''
 
   const status = params.get('status')
   if (status && ['ready', 'construction', 'planning'].includes(status)) {
@@ -124,11 +140,15 @@ const buildURLParams = (filters: FilterValues): URLSearchParams => {
   if (filters.developer) params.set('developer', filters.developer)
   if (filters.project) params.set('project', filters.project)
   if (filters.propertyType !== 'all') params.set('type', filters.propertyType)
+  if (filters.lotType !== 'all') params.set('lotType', filters.lotType)
+  if (filters.roiMin) params.set('roiMin', filters.roiMin)
   if (filters.bedrooms.length > 0) params.set('bedrooms', filters.bedrooms.join(','))
   if (filters.bathrooms.length > 0) params.set('bathrooms', filters.bathrooms.join(','))
   if (filters.priceRange !== 'all') params.set('priceRange', filters.priceRange)
   if (filters.minPrice) params.set('minPrice', filters.minPrice)
   if (filters.maxPrice) params.set('maxPrice', filters.maxPrice)
+  if (filters.minRoi) params.set('minRoi', filters.minRoi)
+  if (filters.maxRoi) params.set('maxRoi', filters.maxRoi)
   if (filters.status !== 'all') params.set('status', filters.status)
   if (filters.sort !== 'default') params.set('sort', filters.sort)
   if (filters.search) params.set('search', filters.search)

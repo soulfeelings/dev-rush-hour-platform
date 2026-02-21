@@ -10,7 +10,8 @@ import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { RoiBadge } from '../ui/RoiBadge'
 import styles from './ProjectCard.module.scss'
-import type { Property } from '../types/property'
+import type { Project } from '../api/generated/schemas/project'
+import { getProjectSlug, getDiscount, getValidBadges } from '../utils/project'
 import { splitCompletionDate } from './splitCompletionDate'
 import { useSettings } from '../features/Settings/Settings'
 import { formatPrice } from '../utils/format'
@@ -35,14 +36,14 @@ const useIsMobile = () => {
 }
 
 interface ProjectCardProps {
-  property: Property
-  onFavoriteClick?: (propertyId: string) => void
+  project: Project
+  onFavoriteClick?: (projectId: string) => void
   forceHovered?: boolean
   compact?: boolean
 }
 
 export const ProjectCard = ({
-  property,
+  project,
   onFavoriteClick,
   forceHovered,
   compact,
@@ -55,19 +56,24 @@ export const ProjectCard = ({
   const isHovered = forceHovered ?? isMouseHovered
   const isCompact = compact === true
 
-  const { firstPart, rest } = splitCompletionDate(property.completionDate)
-  const hoverImage = property.hoverImage
-  const badges = property.badges ?? []
+  const slug = getProjectSlug(project)
+  const discount = getDiscount(project)
+  const badges = getValidBadges(project.badges)
+  const { firstPart, rest } = splitCompletionDate(project.completionDate)
+  const coverImage = project.media?.cover?.url
+  const hoverImage = project.media?.hover?.url
+  const logoUrl = project.media?.logo?.url
+  const pricesByType = project.pricesByType ?? []
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setIsFavorited(!isFavorited)
-    onFavoriteClick?.(property.id)
+    onFavoriteClick?.(slug)
   }
 
   return (
-    <Link to={getProjectDetailRoute(property.id)} className={styles.cardLink}>
+    <Link to={getProjectDetailRoute(slug)} className={styles.cardLink}>
       <div
         className={clsx(styles.card, {
           [styles.compact]: compact === true,
@@ -81,7 +87,7 @@ export const ProjectCard = ({
           <div className={styles.imagesWrapper}>
             {/* Основная картинка */}
             <div className={styles.imageContainer}>
-              {property.image && <img src={property.image} alt={property.title} />}
+              {coverImage && <img src={coverImage} alt={project.name} />}
             </div>
 
             {/* Hover картинка */}
@@ -91,7 +97,7 @@ export const ProjectCard = ({
                 animate={{ opacity: isHovered || isMobile ? 1 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <img src={hoverImage} alt={`${property.title} - hover`} />
+                <img src={hoverImage} alt={`${project.name} - hover`} />
               </motion.div>
             )}
 
@@ -130,9 +136,9 @@ export const ProjectCard = ({
             <div className={styles.headerRow}>
               <div className={styles.projectInfo}>
                 <div className={styles.projectLogoContainer}>
-                  {property.logoUrl && (
+                  {logoUrl && (
                     <div className={styles.projectLogo}>
-                      <img src={property.logoUrl} alt={property.title} />
+                      <img src={logoUrl} alt={project.name} />
                     </div>
                   )}
                 </div>
@@ -143,25 +149,27 @@ export const ProjectCard = ({
                       : { variant: 'h1' as const })}
                     className={styles.projectTitle}
                   >
-                    {property.title}
+                    {project.name}
                   </Typography>
-                  {property.developer && (
-                    <Typography className={styles.developerName}>{property.developer}</Typography>
+                  {project.developer?.name && (
+                    <Typography className={styles.developerName}>
+                      {project.developer.name}
+                    </Typography>
                   )}
-                  {property.location && (
-                    <Typography className={styles.regionName}>{property.location}</Typography>
+                  {project.area?.name && (
+                    <Typography className={styles.regionName}>{project.area.name}</Typography>
                   )}
                 </div>
               </div>
-              {property.roi && (
-                <RoiBadge value={property.roi} size={isCompact ? 'small' : 'default'} />
+              {project.roi && (
+                <RoiBadge value={project.roi} size={isCompact ? 'small' : 'default'} />
               )}
             </div>
 
             {/* Цены */}
             <div className={styles.pricesSection}>
-              {/* Our price (со скидкой, только при наведении) */}
-              {property.discount && property.discount > 0 && property.priceFrom && (
+              {/* Our price */}
+              {project.priceFromUs && (
                 <motion.div
                   initial={false}
                   animate={{ height: isHovered || isMobile ? 'auto' : 0 }}
@@ -177,7 +185,9 @@ export const ProjectCard = ({
                       >
                         {t('ourPrice')}:
                       </Typography>
-                      <span className={styles.discountBadge}>-{property.discount}%</span>
+                      {discount && discount > 0 && (
+                        <span className={styles.discountBadge}>-{discount}%</span>
+                      )}
                     </div>
                     <div className={styles.priceValue}>
                       <Typography className={styles.from}>{t('from')}</Typography>{' '}
@@ -187,37 +197,39 @@ export const ProjectCard = ({
                           : { variant: 'h1' as const })}
                         className={styles.priceAmount}
                       >
-                        {formatPrice(property.priceFrom * (1 - property.discount / 100), currency)}
+                        {formatPrice(project.priceFromUs, currency)}
                       </Typography>
                     </div>
                   </div>
                 </motion.div>
               )}
               {/* Developer price */}
-              <div className={styles.priceRow}>
-                <Typography
-                  size={isCompact ? 'regular' : 'large'}
-                  weight="medium"
-                  className={styles.priceLabel}
-                >
-                  {t('developerPrice')}:
-                </Typography>
-                <div className={styles.priceValue}>
-                  <Typography className={styles.from}>{t('from')}</Typography>{' '}
+              {project.priceFromDeveloper && (
+                <div className={styles.priceRow}>
                   <Typography
-                    {...(isCompact
-                      ? { size: 'large', weight: 'semibold' }
-                      : { variant: 'h1' as const })}
-                    className={styles.priceAmount}
+                    size={isCompact ? 'regular' : 'large'}
+                    weight="medium"
+                    className={styles.priceLabel}
                   >
-                    {formatPrice(property.priceFrom, currency)}
+                    {t('developerPrice')}:
                   </Typography>
+                  <div className={styles.priceValue}>
+                    <Typography className={styles.from}>{t('from')}</Typography>{' '}
+                    <Typography
+                      {...(isCompact
+                        ? { size: 'large', weight: 'semibold' }
+                        : { variant: 'h1' as const })}
+                      className={styles.priceAmount}
+                    >
+                      {formatPrice(project.priceFromDeveloper, currency)}
+                    </Typography>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Дата и payment plan */}
-            {(firstPart || property.paymentPlan) && (
+            {(firstPart || project.paymentPlan) && (
               <div className={styles.footerRow}>
                 {firstPart && (
                   <Typography size={isCompact ? 'regular' : 'large'} className={styles.dateValue}>
@@ -225,14 +237,14 @@ export const ProjectCard = ({
                     {rest && <span className={styles.year}> {rest}</span>}
                   </Typography>
                 )}
-                {property.paymentPlan && (
+                {project.paymentPlan && (
                   <Typography
                     size={isCompact ? 'regular' : 'large'}
                     weight="medium"
                     className={styles.planValue}
                   >
                     <span className={styles.planLabel}>PP:</span>{' '}
-                    <span className={styles.planNumbers}>{property.paymentPlan}</span>
+                    <span className={styles.planNumbers}>{project.paymentPlan}</span>
                   </Typography>
                 )}
               </div>
@@ -246,9 +258,9 @@ export const ProjectCard = ({
               style={{ overflow: 'hidden' }}
             >
               <div className={styles.additionalInfo}>
-                {property.pricesByType && property.pricesByType.length > 0 ? (
+                {pricesByType.length > 0 ? (
                   <div className={styles.additionalInfoGrid}>
-                    {property.pricesByType.map((item, index) => (
+                    {pricesByType.map((item, index) => (
                       <div key={index} className={styles.additionalInfoItem}>
                         <Typography size="small" className={styles.additionalInfoLabel}>
                           {item.type}
