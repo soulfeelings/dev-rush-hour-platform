@@ -9,37 +9,65 @@
 
 ## Автотесты (Playwright)
 
-Автотесты пока в процессе написания. Сейчас есть локальная настройка, структура и конфиги для запуска UI и API тестов.
+### Что есть в проекте
 
-### Структура
+- `tests/ui` — UI E2E тесты (smoke, critical, regression, admin auth/smoke/crud)
+- `tests/api` — API тесты (public/admin smoke, regress, create/mutations, leads)
+- `playwright.config.ts` — два проекта: `ui` и `api`
 
-- tests/ui - UI e2e тесты (Playwright page)
-- tests/api - API тесты (Playwright request)
-- tests/_helpers - общие хелперы (например, для БД)
+### Требования
 
-### Конфигурация
+- Node.js `>= 18.12`
+- `pnpm`
+- Запущенные сервисы (`web`, `backend`, `postgres`)
 
-- playwright.config.ts - проекты ui и api, базовые URL
-- WEB_BASE_URL (по умолчанию http://localhost:5173)
-- API_BASE_URL (по умолчанию http://localhost:8080/api)
+Запуск dev-окружения:
 
-### База данных (для API тестов)
+```bash
+docker compose -f ../docker-compose.dev.yml up -d
+```
 
-- DATABASE_URL или DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME
-- DB_SSLMODE (по умолчанию disable)
+### Переменные окружения для тестов
 
-### Запуск (из папки web)
+Базовые:
 
-- pnpm test:e2e - прогон всех тестов
-- pnpm test:ui - только UI тесты
-- pnpm test:ui:critical - критичные UI сценарии + фильтры каталога
-- pnpm test:ui:final - итоговый UI прогон (smoke + critical + filters)
-- pnpm test:api - только API тесты
-- pnpm test:api:smoke - быстрый smoke (public)
-- pnpm test:api:smoke:admin - быстрый smoke (admin)
-- pnpm test:api:regress - полный прогон всех API/GET
+- `WEB_BASE_URL` (по умолчанию `http://localhost:5173`)
 
-### Локально
+Для API DB fixtures:
 
-- Для UI тестов нужен запущенный фронтенд (Vite).
-- Для API тестов нужны запущенные backend и Postgres.
+- `DATABASE_URL` **или** `DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME`
+- `DB_SSLMODE` (`disable` по умолчанию)
+
+Для admin-авторизации в UI/API тестах (JWT cookie):
+
+- `API_ADMIN_EMAIL` (по умолчанию `ui-tests@local` для UI, `api-tests@local` для API)
+- `API_ADMIN_ROLE` (по умолчанию `superadmin`)
+- `API_ADMIN_JWT_SECRET` (по умолчанию `dev-secret-change-in-production`)
+- `API_ADMIN_JWT` (опционально, если нужен готовый токен)
+- `API_ADMIN_PERMISSIONS` (опционально, CSV)
+
+Для автосоздания admin пользователя в UI-тестах:
+
+- `ADMIN_TEST_DATABASE_URL` **или** `ADMIN_DB_HOST/ADMIN_DB_PORT/ADMIN_DB_USER/ADMIN_DB_PASSWORD/ADMIN_DB_NAME`
+
+### Скрипты запуска (из папки `web`)
+
+```bash
+pnpm install
+```
+
+- `pnpm run test:e2e` — все Playwright тесты (`ui` + `api`)
+- `pnpm run test:ui` — все UI тесты
+- `pnpm run test:ui:admin` — только admin UI (`auth + smoke + crud`)
+- `pnpm run test:ui:critical` — критичные UI + фильтры
+- `pnpm run test:ui:regress` — регресс UI
+- `pnpm run test:ui:final` — полный целевой UI прогон (smoke + critical + filters + admin)
+- `pnpm run test:api` — все API тесты
+- `pnpm run test:api:smoke` — public smoke API
+- `pnpm run test:api:smoke:admin` — admin smoke API
+- `pnpm run test:api:regress` — регресс GET API
+
+### Быстрые проверки конфигурации
+
+- Список UI тестов: `pnpm exec playwright test --project=ui --list`
+- Список API тестов: `pnpm exec playwright test --project=api --list`

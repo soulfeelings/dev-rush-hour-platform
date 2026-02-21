@@ -37,55 +37,50 @@ cd web
 pnpm install
 ```
 
-Все тесты:
+Основные команды (из папки `web`):
 
 ```bash
-cd web
-pnpm exec playwright test
+pnpm run test:e2e
 ```
 
-Только API:
+- только API:
 
 ```bash
-cd web
-pnpm exec playwright test --project=api
+pnpm run test:api
 ```
 
-Smoke public:
+- smoke public:
 
 ```bash
-cd web
 pnpm run test:api:smoke
 ```
 
-Smoke admin:
+- smoke admin:
 
 ```bash
-cd web
 pnpm run test:api:smoke:admin
 ```
 
-Regress GET:
+- regress GET:
 
 ```bash
-cd web
 pnpm run test:api:regress
 ```
 
-Только UI:
+- проверить discoverability (без прогона):
 
 ```bash
-cd web
-pnpm exec playwright test --project=ui
+pnpm exec playwright test --project=api --list
 ```
 
-HTML отчёт:
+- HTML отчёт:
 
 ```bash
-cd web
 pnpm exec playwright show-report
 ```
 
 ## Важно
 - Playwright ищет тесты внутри `./tests`.
 - Для detail-эндпоинтов пустой список данных приводит к `skipped` — это корректное поведение.
+- Базовый URL берётся из `WEB_BASE_URL` (по умолчанию `http://localhost:5173`).
+- Для DB-фикстур нужны `DATABASE_URL` или `DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME`.

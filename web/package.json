@@ -23,10 +23,10 @@
     "test:api:smoke:admin": "playwright test --project=api tests/api/admin/smoke.spec.ts",
     "test:api:regress": "playwright test --project=api tests/api/all_gets.api.spec.ts",
     "test:ui": "playwright test --project=ui tests/ui/*.spec.ts",
-    "test:ui:admin": "playwright test --project=ui tests/ui/admin.spec.ts",
+    "test:ui:admin": "playwright test --project=ui tests/ui/admin-auth.spec.ts tests/ui/admin.spec.ts tests/ui/admin-crud.spec.ts",
     "test:ui:critical": "playwright test --project=ui tests/ui/critical.spec.ts tests/ui/catalog-filters.spec.ts",
     "test:ui:regress": "playwright test --project=ui tests/ui/regression.spec.ts",
-    "test:ui:final": "playwright test --project=ui tests/ui/smoke.spec.ts tests/ui/critical.spec.ts tests/ui/catalog-filters.spec.ts tests/ui/regression.spec.ts tests/ui/admin.spec.ts"
+    "test:ui:final": "playwright test --project=ui tests/ui/smoke.spec.ts tests/ui/critical.spec.ts tests/ui/catalog-filters.spec.ts tests/ui/regression.spec.ts tests/ui/admin-auth.spec.ts tests/ui/admin.spec.ts tests/ui/admin-crud.spec.ts"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.2.0",
