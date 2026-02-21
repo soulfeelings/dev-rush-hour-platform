@@ -1,4 +1,5 @@
 import type { APIRequestContext, APIResponse } from '@playwright/test';
+import { buildAdminCookieHeader } from '../../helpers/admin-auth';
 
 /**
  * Универсальный CRUD-клиент для одного Admin REST-ресурса.
@@ -61,10 +62,15 @@ export class AdminResourceClient {
       }
     }
 
-    const response = await this.request[method](
-      fullUrl,
-      data !== undefined ? { data } : undefined
-    );
+    const headers = buildAdminCookieHeader(fullUrl);
+    const options =
+      data !== undefined
+        ? { data, ...(headers ? { headers } : {}) }
+        : headers
+          ? { headers }
+          : undefined;
+
+    const response = await this.request[method](fullUrl, options);
 
     if (this.verbose) {
       const responseText = await response.text();

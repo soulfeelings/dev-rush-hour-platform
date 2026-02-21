@@ -32,7 +32,11 @@ type AdminLifecycleCase = {
 
 function expectValue(actual: unknown, expected: unknown): void {
   if (typeof expected === 'number') {
-    expect(Number(actual)).toBeCloseTo(expected, 2);
+    expect(actual, 'numeric field should be present').not.toBeUndefined();
+    expect(actual, 'numeric field should not be null').not.toBeNull();
+    const actualNumber = typeof actual === 'string' ? parseFloat(actual) : Number(actual);
+    expect(Number.isFinite(actualNumber), 'numeric field should be a finite number').toBe(true);
+    expect(actualNumber).toBeCloseTo(expected, 2);
     return;
   }
 
@@ -149,7 +153,7 @@ const lifecycleCases: AdminLifecycleCase[] = [
       return {
         projectId,
         type: 'apartment',
-        priceAmount: 1_050_000,
+        priceFromUs: 1_050_000,
         bedrooms: 1,
         bathrooms: 1,
         areaSqm: 53,
@@ -157,10 +161,10 @@ const lifecycleCases: AdminLifecycleCase[] = [
       };
     },
     buildUpdateSpec: async () => ({
-      payload: { priceAmount: 1_150_000 },
-      responseField: 'priceAmount',
+      payload: { priceFromUs: 1_150_000 },
+      responseField: 'priceFromUs',
       expectedValue: 1_150_000,
-      dbColumn: 'price_amount',
+      dbColumn: 'price_from_us',
     }),
   },
   {

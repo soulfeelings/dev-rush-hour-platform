@@ -32,7 +32,7 @@ test.describe('Админка / Лоты', () => {
     const bathrooms = 1;
     const areaSqm = 50;
     const floor = 3;
-    const priceAmount = 1_000_000;
+    const priceFromUs = 1_000_000;
     const type = 'apartment';
 
     let lotId: string;
@@ -45,7 +45,7 @@ test.describe('Админка / Лоты', () => {
         bathrooms,
         areaSqm,
         floor,
-        priceAmount      
+        priceFromUs
       });
 
       expect(response.status()).toBe(201);
@@ -57,7 +57,7 @@ test.describe('Админка / Лоты', () => {
       expect(body.projectId).toBe(projectId);
       expect(body.type).toBe(type);
       expect(body.deletedAt).toBeNull();
-      expect(body.priceAmount).toBeCloseTo(priceAmount, 2);
+      expect(body.priceFromUs).toBeCloseTo(priceFromUs, 2);
       expect(body.bedrooms).toBe(bedrooms);
       expect(body.bathrooms).toBe(bathrooms);
       expect(body.areaSqm).toBeCloseTo(areaSqm, 2);
@@ -75,7 +75,7 @@ test.describe('Админка / Лоты', () => {
           bathrooms,
           area_sqm,
           floor,
-          price_amount,
+          price_from_us,
           bonus_keys,
           data,
           deleted_at
@@ -95,7 +95,7 @@ test.describe('Админка / Лоты', () => {
       expect(dbLot.bathrooms).toBe(bathrooms);
       expect(Number(dbLot.area_sqm)).toBeCloseTo(areaSqm, 2);
       expect(dbLot.floor).toBe(floor);
-      expect(Number(dbLot.price_amount)).toBeCloseTo(priceAmount, 2);
+      expect(Number(dbLot.price_from_us)).toBeCloseTo(priceFromUs, 2);
       expect(dbLot.bonus_keys).toEqual([]);
       expect(dbLot.data).toMatchObject({});
       expect(dbLot.deleted_at).toBeNull();
@@ -111,7 +111,7 @@ test.describe('Админка / Лоты', () => {
     const bathrooms = 2;
     const areaSqm = 60;
     const floor = 5;
-    const priceAmount = 2_000_000;
+    const priceFromUs = 2_000_000;
     const type = 'apartment';
 
     await test.step('POST /api/admin/lots: создать первый лот', async () => {
@@ -122,7 +122,7 @@ test.describe('Админка / Лоты', () => {
         bathrooms,
         areaSqm,
         floor,
-        priceAmount
+        priceFromUs
       });
 
       expect(response.status()).toBe(201);
@@ -136,7 +136,7 @@ test.describe('Админка / Лоты', () => {
         bathrooms,
         areaSqm,
         floor,
-        priceAmount
+        priceFromUs
       });
 
       await expectApiErrorResponse(response, {
@@ -156,9 +156,9 @@ test.describe('Админка / Лоты', () => {
           AND bathrooms = $4
           AND area_sqm = $5
           AND floor = $6
-          AND price_amount = $7
+          AND price_from_us = $7
         `,
-        [projectId, type, bedrooms, bathrooms, areaSqm, floor, priceAmount]
+        [projectId, type, bedrooms, bathrooms, areaSqm, floor, priceFromUs]
       );
 
       expect(Number(dbResult[0].count)).toBe(1);
@@ -177,7 +177,7 @@ test.describe('Админка / Лоты', () => {
         bathrooms: 1,
         areaSqm: 45,
         floor: 2,
-        priceAmount: 900_000
+        priceFromUs: 900_000
       });
 
       await expectApiErrorResponse(response, {
@@ -207,7 +207,7 @@ test.describe('Админка / Лоты', () => {
     const validPayload = {
       projectId,
       type: 'apartment',
-      priceAmount: 1_500_000,
+      priceFromUs: 1_500_000,
       bedrooms: 1,
       bathrooms: 1,
       areaSqm: 55,
@@ -220,7 +220,7 @@ test.describe('Админка / Лоты', () => {
       cases: [
         { field: 'projectId', payload: { ...validPayload, projectId: invalidTypeValue() } },
         { field: 'type', payload: { ...validPayload, type: invalidTypeValue() } },
-        { field: 'priceAmount', payload: { ...validPayload, priceAmount: invalidTypeValue() } },
+        { field: 'priceFromUs', payload: { ...validPayload, priceFromUs: invalidTypeValue() } },
       ],
     });
   });

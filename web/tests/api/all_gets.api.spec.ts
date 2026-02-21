@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures/test';
 import { expectJsonByType } from './helpers/assertions';
+import { buildAdminCookieHeader } from './helpers/admin-auth';
 
 type Endpoint = {
   path: string;
@@ -17,6 +18,11 @@ const asListDefault = (body: any): any[] => {
   if (Array.isArray(body?.data)) return body.data;
   if (Array.isArray(body?.results)) return body.results;
   return [];
+};
+
+const getRequestOptions = (path: string) => {
+  const headers = buildAdminCookieHeader(path);
+  return headers ? { headers } : undefined;
 };
 
 const skipNoListDataMessage = (listPath: string, detailPath: string, paramName: string) =>
@@ -93,7 +99,7 @@ test.describe('Регресс API (все GET-эндпоинты)', () => {
         let resolvedPath = '';
 
         await test.step(`Получить данные из списка ${e.listPath}`, async () => {
-          const listResp = await request.get(e.listPath!);
+          const listResp = await request.get(e.listPath!, getRequestOptions(e.listPath!));
           expect(listResp.ok(), `list ${e.listPath} should be OK`).toBeTruthy();
 
           const listBody = await listResp.json();
@@ -119,7 +125,7 @@ test.describe('Регресс API (все GET-эндпоинты)', () => {
         });
 
         await test.step(`Проверить детальный endpoint ${e.path}`, async () => {
-          const resp = await request.get(resolvedPath);
+          const resp = await request.get(resolvedPath, getRequestOptions(resolvedPath));
           await expectJsonByType(resp, resolvedPath, e.type);
         });
       });
@@ -131,7 +137,7 @@ test.describe('Регресс API (все GET-эндпоинты)', () => {
     // Проверяем коллекционный endpoint на доступность и контрактный тип ответа.
     test(`GET ${e.path} возвращает контрактный тип`, async ({ request }) => {
       await test.step(`Отправить GET-запрос к ${e.path}`, async () => {
-        const resp = await request.get(e.path);
+        const resp = await request.get(e.path, getRequestOptions(e.path));
         await expectJsonByType(resp, e.path, e.type);
       });
     });

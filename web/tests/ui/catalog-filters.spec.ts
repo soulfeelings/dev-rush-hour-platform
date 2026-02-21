@@ -10,8 +10,12 @@ type FilterOptionsResponse = {
   statuses?: FilterOption[]
 }
 
-async function selectOptionInDropdown(page: Page, triggerText: string, optionText: string) {
-  await page.getByRole('button', { name: triggerText, exact: true }).click()
+async function selectOptionInDropdown(
+  page: Page,
+  triggerText: string | RegExp,
+  optionText: string
+) {
+  await page.getByRole('button', { name: triggerText }).click()
 
   const dropdown = page.locator('[id^="dropdown-"]').last()
   await expect(dropdown).toBeVisible()
@@ -66,7 +70,7 @@ test.describe('Фильтры каталога', () => {
         return
       }
 
-      await selectOptionInDropdown(page, 'Sale Status', statusOption.label)
+      await selectOptionInDropdown(page, /Sale Status/, statusOption.label)
       await expect(page).toHaveURL(new RegExp(`status=${encodeURIComponent(statusOption.value)}`))
     })
   })

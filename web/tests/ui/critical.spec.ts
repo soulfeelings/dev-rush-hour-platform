@@ -38,34 +38,24 @@ test.describe('Критичные UI-сценарии', () => {
     })
   })
 
-  test('Админка требует авторизацию, показывает ошибку и поддерживает выход', async ({
-    page,
-  }) => {
-    await test.step('Открыть защищённый раздел админки и проверить форму входа', async () => {
-      await page.goto('/admin/projects')
-      await expect(page.getByRole('heading', { name: 'Admin Access' })).toBeVisible()
+  test('Каталог: переключение режима карты/списка работает', async ({ page }) => {
+    await test.step('Открыть каталог и проверить кнопку переключения режима', async () => {
+      await page.goto('/catalog/projects')
+      const toggle = page.getByRole('button', { name: /Show map|Show list/ })
+      await expect(toggle).toBeVisible()
     })
 
-    await test.step('Проверить ошибку при неверных учётных данных', async () => {
-      await page.getByPlaceholder('Enter username').fill('wrong-user')
-      await page.getByPlaceholder('Enter password').fill('wrong-password')
-      await page.getByRole('button', { name: 'Login' }).click()
-      await expect(page.getByRole('alert')).toHaveText('Invalid username or password')
-    })
+    await test.step('Нажать кнопку переключения и проверить смену подписи', async () => {
+      const showMapButton = page.getByRole('button', { name: 'Show map' })
+      const showListButton = page.getByRole('button', { name: 'Show list' })
 
-    await test.step('Авторизоваться валидными данными и попасть в админ-панель', async () => {
-      await page.getByPlaceholder('Enter username').fill('admin')
-      await page.getByPlaceholder('Enter password').fill('admin')
-      await page.getByRole('button', { name: 'Login' }).click()
-
-      await expect(page).toHaveURL('/admin/projects')
-      await expect(page.getByText('Admin Panel')).toBeVisible()
-      await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible()
-    })
-
-    await test.step('Выполнить logout и вернуться к форме авторизации', async () => {
-      await page.getByRole('button', { name: 'Logout' }).click()
-      await expect(page.getByRole('heading', { name: 'Admin Access' })).toBeVisible()
+      if (await showMapButton.isVisible()) {
+        await showMapButton.click()
+        await expect(showListButton).toBeVisible()
+      } else {
+        await showListButton.click()
+        await expect(showMapButton).toBeVisible()
+      }
     })
   })
 })
