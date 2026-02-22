@@ -12,6 +12,8 @@ menu:
 	@echo "  \033[33m5)\033[0m Railway"
 	@echo "  \033[33m6)\033[0m Reset Dev Environment (with seed)"
 	@echo "  \033[33m7)\033[0m Rebuild Web Dependencies"
+	@echo "  \033[33m8)\033[0m Git pull (web-platform)"
+	@echo "  \033[33m9)\033[0m Git push (web-platform)"
 	@echo ""
 	@read -p "Select option: " choice; \
 	case $$choice in \
@@ -22,10 +24,15 @@ menu:
 		5) $(MAKE) railway-menu ;; \
 		6) $(MAKE) reset-dev ;; \
 		7) $(MAKE) web-deps ;; \
+		8) $(MAKE) git-pull ;; \
+		9) $(MAKE) git-push ;; \
 		*) echo "Invalid option" ;; \
 	esac
 
-.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-reset railway-migrate railway-seed web-deps
+WEB_PLATFORM_REMOTE := web-platform
+WEB_PLATFORM_URL := git@github.com:Rush-Hour-Real-Estate-Brokerage/web-platform.git
+
+.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-reset railway-migrate railway-seed web-deps git-setup git-pull git-push
 
 up:
 	@echo "\033[1;32mStarting services with Docker Compose (production)...\033[0m"
@@ -143,3 +150,19 @@ railway-seed:
 	echo "\033[1;33mSeeding database...\033[0m"; \
 	db_url="postgresql://$$db_user:$$db_password@$$db_host:$$db_port/$$db_name?sslmode=require"; \
 	cd backend && psql "$$db_url" -f internal/seeds/seed.sql
+
+git-setup:
+	@if ! git remote get-url $(WEB_PLATFORM_REMOTE) 2>/dev/null; then \
+		git remote add $(WEB_PLATFORM_REMOTE) $(WEB_PLATFORM_URL); \
+		echo "\033[1;32mAdded remote $(WEB_PLATFORM_REMOTE)\033[0m"; \
+	else \
+		echo "\033[1;33mRemote $(WEB_PLATFORM_REMOTE) already exists\033[0m"; \
+	fi
+
+git-pull: git-setup
+	@echo "\033[1;32mPulling from $(WEB_PLATFORM_REMOTE)...\033[0m"
+	git pull $(WEB_PLATFORM_REMOTE) $$(git branch --show-current) --no-edit
+
+git-push: git-setup
+	@echo "\033[1;32mPushing to $(WEB_PLATFORM_REMOTE)...\033[0m"
+	git push $(WEB_PLATFORM_REMOTE) $(shell git branch --show-current)
