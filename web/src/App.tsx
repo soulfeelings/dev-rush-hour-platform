@@ -14,6 +14,7 @@ import DeveloperDetail from './pages/DeveloperDetail'
 import DesignDemo from './design-demo/DesignDemo'
 import { ROUTES } from './constants/routes'
 import { ErrorBoundary } from './ui/ErrorBoundary'
+import AmplitudePageTracker from './lib/AmplitudePageTracker'
 import './App.css'
 
 const AdminApp = lazy(() => import('./pages/Admin/AdminApp'))
@@ -22,6 +23,7 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        <AmplitudePageTracker />
         <SettingsProvider>
           <Header />
           <div style={{ flex: 1, overflow: 'auto' }}>

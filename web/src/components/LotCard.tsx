@@ -8,6 +8,7 @@ import { useSettings } from '../features/Settings/Settings'
 import { openWhatsApp } from '../services/whatsapp'
 import { formatPrice, formatArea } from '../utils/format'
 import { translateBonusKey } from '../utils/bonusTranslations'
+import { getImageUrl } from '../utils/imageUrl'
 import styles from './LotCard.module.scss'
 import type { Lot } from '../api'
 
@@ -250,7 +251,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
             <div className={styles.galleryContainer}>
 	              <div className={styles.mainImageContainer}>
 	                <img
-	                  src={allImages[currentImageIndex]}
+	                  src={getImageUrl(allImages[currentImageIndex], 'card')}
 	                  alt={`${projectName} - image ${currentImageIndex + 1}`}
 	                />
 	                {badges.length > 0 && (
@@ -327,7 +328,7 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
             {/* Developer контейнер */}
             <div className={styles.developerContainer}>
               <div className={styles.developerLogoContainer}>
-                {logoUrl && <img src={logoUrl} alt={developerName} />}
+                {logoUrl && <img src={getImageUrl(logoUrl, 'thumbnail')} alt={developerName} />}
               </div>
               <div className={styles.projectInfo}>
                 <span className={styles.projectTitle}>{projectName}</span>

@@ -8,8 +8,7 @@ import (
 // MediaStorage defines the interface for object storage operations
 type MediaStorage interface {
 	// CreateUploadPolicy creates a presigned upload policy for direct client upload
-	// For S3: returns presigned POST URL and form fields
-	// For Local: returns empty policy (local uses multipart upload instead)
+	// For Local/CF proxy: returns backend upload URL
 	CreateUploadPolicy(ctx context.Context, key, contentType string, maxSizeBytes int64, expires time.Duration) (*UploadPolicy, error)
 
 	// DeleteObject removes an object from storage

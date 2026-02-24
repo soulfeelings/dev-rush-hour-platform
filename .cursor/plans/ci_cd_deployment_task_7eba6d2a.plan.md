@@ -1,13 +1,13 @@
 ---
 name: CI/CD deployment task
-overview: "План для стороннего разработчика: развернуть бекенд на Railway, фронтенд на Cloudflare Pages, медиа в S3 + CloudFront CDN, с соблюдением SameSite куков для admin OAuth."
+overview: "План для стороннего разработчика: развернуть бекенд на Railway, фронтенд на Cloudflare Pages, медиа в Cloudflare Images, с соблюдением SameSite куков для admin OAuth."
 todos: []
 isProject: false
 ---
 
 # Задача: CI/CD и Production Deployment
 
-Развернуть приложение Rush Hour Platform по архитектуре: backend на Railway, frontend на Cloudflare Pages, медиа в S3 + CloudFront CDN. Обеспечить работу admin-авторизации (Microsoft OAuth + HttpOnly куки).
+Развернуть приложение Rush Hour Platform по архитектуре: backend на Railway, frontend на Cloudflare Pages, медиа в Cloudflare Images. Обеспечить работу admin-авторизации (Microsoft OAuth + HttpOnly куки).
 
 ## Архитектура
 
@@ -17,8 +17,9 @@ flowchart TB
         A[app.domain.com]
     end
 
-    subgraph CF [Cloudflare Pages]
-        A
+    subgraph CF [Cloudflare]
+        Pages[Pages]
+        Images[Images / imagedelivery.net]
     end
 
     subgraph Rail [Railway]
@@ -26,62 +27,35 @@ flowchart TB
         DB[(PostgreSQL)]
     end
 
-    subgraph AWS [AWS]
-        CloudFront[CloudFront CDN]
-        S3[(S3 Bucket)]
-        CloudFront --> S3
-    end
-
     A -->|"XHR credentials:include"| B
     B --> DB
-    B -->|"CloudFront signed URLs"| CloudFront
-    A -->|"IMG src signed URL"| CloudFront
+    B -->|"POST direct_upload proxy"| Images
+    A -->|"IMG src"| Images
 ```
 
 ## Предварительные требования (от заказчика)
 
-Исполнителю нужны доступы и данные:
-
 - **Домен**: например `rushhour.com` (или поддомены: `app.rushhour.com`, `api.rushhour.com`)
-- **Azure AD**: app registration с redirect URI `https://app.{domain}/admin` (или корень, в зависимости от роутинга)
-- **AWS**: IAM пользователь с правами на S3 + CloudFront Key Pair для signed URLs
-- **Railway**: доступ к проекту (или инструкция по созданию)
-- **Cloudflare**: доступ к аккаунту (или инструкция по созданию)
+- **Azure AD**: app registration с redirect URI `https://app.{domain}/admin`
+- **Railway**: доступ к проекту
+- **Cloudflare**: доступ к аккаунту (Pages + Images)
 
-## Этап 1: S3 и CloudFront CDN
+## Этап 1: Cloudflare Images
 
-### 1.1 S3 Bucket
+### 1.1 Cloudflare Images
 
-1. Создать S3 bucket (например `rush-hour-media`), регион — по требованию (например `eu-central-1`).
-2. Bucket: private (без public read).
-3. CORS для bucket — разрешить `GET`, `PUT`, `HEAD` от домена фронта (по необходимости).
-4. Создать IAM-пользователя с политикой на этот bucket, сохранить `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`.
+1. Cloudflare Dashboard → Images → Enable Cloudflare Images.
+2. Создать API Token с правами `Cloudflare Images:Edit`.
+3. Скопировать **Account ID** и **Account Hash** (из URL варианта, например `imagedelivery.net/Vi7wi5.../xxx/public` — hash это средняя часть).
 
-### 1.2 CloudFront Distribution (CDN)
+### 1.2 Backend env
 
-1. **Создать CloudFront Distribution**:
+Backend уже поддерживает `cloudflare_images`:
 
-- Origin: S3 bucket (выбрать bucket из списка).
-- Origin Access Control (OAC): создать новый OAC, привязка к distribution.
-- После создания — скопировать policy из CloudFront и добавить в S3 bucket policy (доступ только через CloudFront).
-
-1. **CloudFront Key Pair** (для signed URLs):
-
-- AWS Console → Account → Security credentials → Key pairs for CloudFront signed URLs.
-- Create key pair → сохранить `Key Pair ID` и PEM файл (приватный ключ).
-- Убедиться, что key pair привязан к публичному ключу в CloudFront (автоматически при создании).
-
-1. **Опционально: кастомный домен** — добавить `cdn.{domain}` как Alternate Domain Names в CloudFront, выдать SSL через ACM.
-
-### 1.3 Backend: CloudFront delivery
-
-В коде есть placeholder [cloudfront.go](backend/internal/delivery/cloudfront.go) — **реализация не завершена**. Исполнитель должен:
-
-- Реализовать `CloudFrontDelivery.GetReadURL()` — генерация CloudFront signed URLs (AWS SDK v2 или `crypto/rsa`).
-- Подключить `CloudFrontDelivery` в [main.go](backend/cmd/server/main.go) при `MEDIA_DELIVERY=cloudfront`.
-- Добавить в [config.go](backend/internal/config/config.go): `CLOUDFRONT_DOMAIN`, `CLOUDFRONT_KEY_PAIR_ID`, `CLOUDFRONT_PRIVATE_KEY`.
-
-Формат signed URL: `https://{domain}/{key}?Expires={}&Signature={}&Key-Pair-Id={}`.
+- `MEDIA_DRIVER=cloudflare_images`
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_IMAGES_ACCOUNT_HASH`
 
 ---
 
@@ -103,30 +77,25 @@ flowchart TB
 
 ### 2.3 Переменные окружения backend
 
-| Переменная                 | Значение                                | Обязательно       |
-| -------------------------- | --------------------------------------- | ----------------- |
-| `PORT`                     | (Railway подставит)                     | Да                |
-| `DB_HOST`                  | из PostgreSQL plugin                    | Да                |
-| `DB_PORT`                  | из PostgreSQL plugin                    | Да                |
-| `DB_USER`                  | из PostgreSQL plugin                    | Да                |
-| `DB_PASSWORD`              | из PostgreSQL plugin                    | Да                |
-| `DB_NAME`                  | из PostgreSQL plugin                    | Да                |
-| `DB_SSLMODE`               | `require`                               | Да                |
-| `JWT_SECRET`               | случайная строка 32+ символов           | Да                |
-| `SUPERADMIN_EMAIL`         | email первого админа                    | Да                |
-| `CORS_ALLOWED_ORIGIN`      | `https://app.{domain}`                  | Да                |
-| `COOKIE_SECURE`            | `true`                                  | Да                |
-| `COOKIE_SAME_SITE`         | `strict` или `lax`                      | Да                |
-| `MEDIA_DRIVER`             | `s3`                                    | Да                |
-| `MEDIA_DELIVERY`           | `cloudfront` (пусто = s3_presign)       | Да для CDN        |
-| `S3_BUCKET`                | имя bucket                              | Да                |
-| `S3_REGION`                | регион bucket                           | Да                |
-| `AWS_ACCESS_KEY_ID`        | из IAM                                  | Да                |
-| `AWS_SECRET_ACCESS_KEY`    | из IAM                                  | Да                |
-| `CLOUDFRONT_DOMAIN`        | `xxx.cloudfront.net` или `cdn.{domain}` | Да при cloudfront |
-| `CLOUDFRONT_KEY_PAIR_ID`   | Key Pair ID из AWS                      | Да при cloudfront |
-| `CLOUDFRONT_PRIVATE_KEY`   | содержимое PEM — секрет                 | Да при cloudfront |
-| `MEDIA_SIGNED_TTL_SECONDS` | `3600` (или больше)                     | Опционально       |
+| Переменная                       | Значение                      | Обязательно      |
+| -------------------------------- | ----------------------------- | ---------------- |
+| `PORT`                           | (Railway подставит)           | Да               |
+| `DB_HOST`                        | из PostgreSQL plugin          | Да               |
+| `DB_PORT`                        | из PostgreSQL plugin          | Да               |
+| `DB_USER`                        | из PostgreSQL plugin          | Да               |
+| `DB_PASSWORD`                    | из PostgreSQL plugin          | Да               |
+| `DB_NAME`                        | из PostgreSQL plugin          | Да               |
+| `DB_SSLMODE`                     | `require`                     | Да               |
+| `JWT_SECRET`                     | случайная строка 32+ символов | Да               |
+| `SUPERADMIN_EMAIL`               | email первого админа          | Да               |
+| `CORS_ALLOWED_ORIGIN`            | `https://app.{domain}`        | Да               |
+| `COOKIE_SECURE`                  | `true`                        | Да               |
+| `COOKIE_SAME_SITE`               | `strict` или `lax`            | Да               |
+| `MEDIA_DRIVER`                   | `cloudflare_images`           | Да для prod      |
+| `CLOUDFLARE_ACCOUNT_ID`          | из CF dashboard               | Да при CF Images |
+| `CLOUDFLARE_API_TOKEN`           | API token CF                  | Да при CF Images |
+| `CLOUDFLARE_IMAGES_ACCOUNT_HASH` | из URL варианта               | Да при CF Images |
+| `MEDIA_SIGNED_TTL_SECONDS`       | `3600`                        | Опционально      |
 
 ### 2.4 Миграции
 
@@ -188,7 +157,7 @@ flowchart TB
 1. **Медиа**
 
 - Загрузка изображений в админке.
-- Отображение на публичных страницах (presigned S3 URLs).
+- Отображение на публичных страницах (imagedelivery.net URLs).
 
 1. **Admin OAuth**
 
@@ -211,7 +180,6 @@ flowchart TB
 
 ## Возможные проблемы
 
-- **CloudFront delivery**: Сейчас в коде всегда используется S3 presign ([main.go](backend/cmd/server/main.go) ~457). Для CDN нужна реализация `CloudFrontDelivery` и ветвление по `MEDIA_DELIVERY`. Можно развернуть сначала без CDN (S3 presign), затем добавить CloudFront.
 - **Preview deployments (Cloudflare)**: URL вида `xxx.pages.dev` — другой домен, не same-site. Admin auth на preview может не работать. Для тестов — использовать staging-домен (`app-staging.{domain}`).
 - **Миграции**: Если в репозитории нет готового deploy-скрипта для миграций, добавить инструкцию или one-off job в Railway.
 - **CORS**: Fiber уже использует `AllowCredentials: true` ([main.go:526](backend/cmd/server/main.go)); `AllowOrigins` должен быть одним точным origin.
@@ -222,3 +190,119 @@ flowchart TB
 ## Структура репозитория (без разделения)
 
 Один монорепозиторий. Railway использует `backend/`, Cloudflare Pages — `web/`. Разделять репозиторий не требуется.
+
+---
+
+## Уточнения и дополнения (code review)
+
+### 6.1 Dockerfile: использовать только `*.railway` варианты
+
+- `**backend/Dockerfile`** — копирует бинарник в `scratch`, но **не включает `/api/openapi.yaml`. Endpoint `/api/openapi.yaml` будет возвращать 404.
+- `**backend/Dockerfile.railway` — корректно копирует `openapi.yaml` и обрабатывает `PORT`.
+- `**web/Dockerfile.railway` — принимает `VITE_API_URL` как build arg, использует `${PORT}` шаблон для nginx.
+
+**Правило:** всегда использовать `Dockerfile.railway` для обоих сервисов. Обычные `Dockerfile` предназначены только для docker-compose.
+
+### 6.2 `COOKIE_SAME_SITE`: дерево решений для cross-domain
+
+В текущем плане указано `strict` или `lax`, но выбор зависит от топологии доменов:
+
+| Сценарий                                                          | `COOKIE_SAME_SITE` | `COOKIE_SECURE`      | Примечание                                                                                                                |
+| ----------------------------------------------------------------- | ------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Один домен (proxy) — фронт и API на одном origin                  | `lax`              | `true`               | Самый простой вариант                                                                                                     |
+| Поддомены одного домена (`app.rush-hour.ae` → `api.rush-hour.ae`) | `lax`              | `true`               | Требуется задать cookie `Domain=.rush-hour.ae` в бекенде (проверить `jwtutil` — сейчас `Domain` может не устанавливаться) |
+| Разные домены (например `app.pages.dev` → `api.railway.app`)      | `none`             | `true` (обязательно) | Браузеры не отправят куку при `lax`/`strict` на cross-site XHR                                                            |
+
+**Важно:** `SameSite=Strict` — кука **не отправляется** при cross-origin fetch/XHR. `SameSite=Lax` — отправляется только при top-level navigation (GET), **не при POST/fetch**. Для admin API с `credentials: 'include'` на разных поддоменах без явного `Domain` атрибута — нужен `none`.
+
+**Рекомендация:** проверить код `jwtutil` на предмет установки `Domain` атрибута куки. Если `Domain` не задаётся — добавить env-переменную `COOKIE_DOMAIN` (например `.rush-hour.ae`), чтобы кука была доступна на всех поддоменах.
+
+### 6.3 Health check в Railway
+
+Бекенд имеет endpoint `GET /health` → `{"status":"ok"}` (без авторизации).
+
+- В Railway: **Settings → Deploy → Health Check Path** → `/health`.
+- Это предотвратит роутинг трафика на контейнер, который ещё стартует или упал.
+
+### 6.4 Автоматические миграции при деплое
+
+Текущий план покрывает только первоначальный запуск миграций. При каждом новом деплое с новыми миграциями нужен механизм их автоматического применения.
+
+**Рекомендация:** в Railway настроить **Release Command** (Settings → Deploy → Release Command):
+
+```bash
+go run cmd/migrate/main.go -direction=up
+```
+
+Этот command выполняется **перед** запуском нового контейнера. Если миграция падает — деплой отменяется, старая версия остаётся.
+
+### 6.5 CORS для нескольких origins
+
+`CORS_ALLOWED_ORIGIN` сейчас принимает одну строку. В реальности может понадобиться несколько origins:
+
+- Production: `https://app.rush-hour.ae`
+- Staging: `https://staging.rush-hour.ae`
+- Preview: `https://xxx.pages.dev`
+
+Fiber `cors.Config.AllowOrigins` поддерживает несколько значений через запятую:
+
+```
+CORS_ALLOWED_ORIGIN=https://app.rush-hour.ae,https://staging.rush-hour.ae
+```
+
+**Учесть:** при `AllowCredentials: true` wildcard (`*`) запрещён — нужны явные origins.
+
+### 6.6 Seed данных при первом деплое
+
+После миграций на свежей БД нужны начальные данные (города, районы, и т.д.).
+
+- Запустить один раз: `make railway-seed` (Makefile, запрашивает DB credentials, выполняет `psql -f internal/seeds/seed.sql`).
+- Или вручную: подключиться к Railway PostgreSQL и выполнить `seed.sql`.
+- **Не добавлять seed в Release Command** — он должен выполняться только один раз, не при каждом деплое.
+
+### 6.7 Rollback стратегия
+
+При проблемах после деплоя:
+
+1. **Railway backend:** Deployments → выбрать предыдущий успешный деплой → **Redeploy**. Мгновенный откат.
+2. **Cloudflare Pages frontend:** Deployments → выбрать предыдущий билд → **Rollback to this deploy**.
+3. **Миграции БД:** `golang-migrate` поддерживает `go run cmd/migrate/main.go -direction=down`. Но откат миграций рискован — тестировать на staging.
+
+**Правило:** всегда деплоить сначала backend (с миграциями), потом frontend. При откате — сначала frontend, потом backend.
+
+### 6.8 Preview deployments: практическое решение
+
+Cloudflare Pages автоматически создаёт preview на `xxx.pages.dev`. Admin auth на них **не будет работать** (другой домен, куки не отправляются).
+
+**Решение:**
+
+- **Для тестирования публичной части** — preview работает без проблем (публичные API не требуют кук).
+- **Для тестирования admin** — настроить постоянный staging:
+  - Домен: `staging.rush-hour.ae` (CNAME на Pages)
+  - Azure AD: добавить `https://staging.rush-hour.ae` в redirect URIs
+  - Backend CORS: добавить staging origin через запятую
+- **Не пытаться** заставить admin работать на `*.pages.dev` — это создаёт дыру в безопасности.
+
+### 6.9 Мониторинг и observability
+
+| Инструмент                                                                         | Что делает                              | Стоимость                    |
+| ---------------------------------------------------------------------------------- | --------------------------------------- | ---------------------------- |
+| Railway Logs                                                                       | Встроенные логи бекенда (stdout/stderr) | Бесплатно (в рамках Railway) |
+| [Better Stack](https://betterstack.com) или [UptimeRobot](https://uptimerobot.com) | Uptime мониторинг `GET /health`         | Бесплатный tier              |
+| [Sentry](https://sentry.io)                                                        | Error tracking (frontend + backend)     | Бесплатно до 5K events/мес   |
+| Cloudflare Analytics                                                               | Статистика посещений frontend           | Бесплатно                    |
+
+**Минимум для production:**
+
+- Uptime мониторинг на `/health` с алертами в Telegram/email.
+- Sentry на фронтенде для отлова JS-ошибок у пользователей.
+
+### 6.10 `MEDIA_PUBLIC_URL`
+
+Backend config ожидает `MEDIA_PUBLIC_URL` (по умолчанию `http://localhost:8080/api/media`). При использовании `MEDIA_DRIVER=cloudflare_images` URL медиа приходят из `imagedelivery.net`, но переменную стоит явно задать на всякий случай:
+
+```
+MEDIA_PUBLIC_URL=https://api.{domain}/api/media
+```
+
+Это нужно для fallback-сценариев и для URL подписанных ресурсов.

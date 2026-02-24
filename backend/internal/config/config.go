@@ -6,13 +6,13 @@ import (
 )
 
 type Config struct {
-	DB     DBConfig
-	Server ServerConfig
-	Admin  AdminConfig
-	CORS   CORSConfig
-	Cookie CookieConfig
-	Media  MediaConfig
-	S3     S3Config
+	DB                DBConfig
+	Server            ServerConfig
+	Admin             AdminConfig
+	CORS              CORSConfig
+	Cookie            CookieConfig
+	Media             MediaConfig
+	CloudflareImages  CloudflareImagesConfig
 }
 
 type DBConfig struct {
@@ -44,7 +44,7 @@ type CookieConfig struct {
 }
 
 type MediaConfig struct {
-	// Storage driver: "local" or "s3"
+	// Storage driver: "local" or "cloudflare_images"
 	Driver string
 
 	// Local storage settings
@@ -54,24 +54,14 @@ type MediaConfig struct {
 	// Signed URL TTL in seconds (default 3600 = 1 hour)
 	SignedTTLSeconds int
 
-	// Delivery mode: "local", "s3_presign", "cloudfront"
+	// Delivery mode (auto-detected from driver if empty)
 	DeliveryMode string
 }
 
-type S3Config struct {
-	Bucket          string
-	Region          string
-	Endpoint        string // Optional: for S3-compatible services (e.g., MinIO)
-	AccessKeyID     string
-	SecretAccessKey string
-	ForcePathStyle  bool // For S3-compatible services
-}
-
-// CloudFront config placeholder for future use
-type CloudFrontConfig struct {
-	DistributionDomain string
-	KeyPairID          string
-	PrivateKeyPath     string
+type CloudflareImagesConfig struct {
+	AccountID  string
+	APIToken   string
+	AccountHash string // For delivery URL: imagedelivery.net/{hash}/{id}
 }
 
 func Load() *Config {
@@ -104,15 +94,12 @@ func Load() *Config {
 			UploadDir:        getEnv("MEDIA_UPLOAD_DIR", "./uploads"),
 			PublicURL:        getEnv("MEDIA_PUBLIC_URL", "http://localhost:8080/api/media"),
 			SignedTTLSeconds: getEnvInt("MEDIA_SIGNED_TTL_SECONDS", 3600),
-			DeliveryMode:     getEnv("MEDIA_DELIVERY", ""), // Auto-detected based on driver if empty
+			DeliveryMode:     getEnv("MEDIA_DELIVERY", ""),
 		},
-		S3: S3Config{
-			Bucket:          getEnv("S3_BUCKET", ""),
-			Region:          getEnv("S3_REGION", "us-east-1"),
-			Endpoint:        getEnv("S3_ENDPOINT", ""), // Empty for AWS, set for compatible services
-			AccessKeyID:     getEnv("AWS_ACCESS_KEY_ID", ""),
-			SecretAccessKey: getEnv("AWS_SECRET_ACCESS_KEY", ""),
-			ForcePathStyle:  getEnvBool("S3_FORCE_PATH_STYLE", false),
+		CloudflareImages: CloudflareImagesConfig{
+			AccountID:   getEnv("CLOUDFLARE_ACCOUNT_ID", ""),
+			APIToken:    getEnv("CLOUDFLARE_API_TOKEN", ""),
+			AccountHash: getEnv("CLOUDFLARE_IMAGES_ACCOUNT_HASH", ""),
 		},
 	}
 }

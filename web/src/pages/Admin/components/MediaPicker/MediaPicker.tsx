@@ -3,6 +3,7 @@ import { Upload } from 'lucide-react'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { useMediaList, useMediaUpload, useMediaUrls } from '../../../../services/media'
 import type { MediaItem } from '../../../../services/media'
+import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './MediaPicker.module.scss'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -165,7 +166,7 @@ export function MediaPicker({
                   )}
                   {url ? (
                     <img
-                      src={url}
+                      src={getImageUrl(url, 'thumbnail')}
                       alt={item.originalName || 'media'}
                       className={styles.thumbnail}
                       loading="lazy"

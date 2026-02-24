@@ -25,8 +25,8 @@ type MediaFile struct {
 type StorageDriver string
 
 const (
-	StorageDriverLocal StorageDriver = "local"
-	StorageDriverS3    StorageDriver = "s3"
+	StorageDriverLocal          StorageDriver = "local"
+	StorageDriverCloudflareImages StorageDriver = "cloudflare_images"
 )
 
 type MediaFileStatus string

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"path/filepath"
 	"rush-hour-platform/backend/internal/delivery"
@@ -31,7 +32,13 @@ type MediaService struct {
 	storage     storage.MediaStorage
 	delivery    delivery.MediaDelivery
 	signedTTL   time.Duration
+	driver      string
 	logger      *slog.Logger
+}
+
+// StorageDriver returns the current storage driver name
+func (s *MediaService) StorageDriver() string {
+	return s.driver
 }
 
 // NewMediaService creates a new media service
@@ -51,6 +58,7 @@ func NewMediaService(
 		storage:   storage,
 		delivery:  delivery,
 		signedTTL: ttl,
+		driver:    storage.Driver(),
 		logger:    slog.Default(),
 	}
 }
@@ -158,38 +166,6 @@ func (s *MediaService) CompleteUpload(ctx context.Context, id uuid.UUID) (*domai
 		return media, nil
 	}
 
-	// Verify file exists in storage (for S3)
-	if s.storage.Driver() == "s3" {
-		info, err := s.storage.HeadObject(ctx, media.StorageKey)
-		if err != nil {
-			s.logger.Error("media_service_complete_upload_head_failed",
-				"id", id,
-				"key", media.StorageKey,
-				"error", err.Error(),
-			)
-			return nil, fmt.Errorf("failed to verify upload: %w", err)
-		}
-		if info == nil {
-			s.logger.Warn("media_service_complete_upload_file_not_found",
-				"id", id,
-				"key", media.StorageKey,
-			)
-			return nil, ErrUploadNotFound
-		}
-
-		// Update size
-		if info.Size > 0 {
-			if err := s.repo.UpdateSizeBytes(id, info.Size); err != nil {
-				s.logger.Error("media_service_complete_upload_update_size_failed",
-					"id", id,
-					"error", err.Error(),
-				)
-				// Non-fatal, continue
-			}
-			media.SizeBytes = &info.Size
-		}
-	}
-
 	// Update status to ready
 	if err := s.repo.UpdateStatus(id, domain.MediaFileStatusReady); err != nil {
 		s.logger.Error("media_service_complete_upload_status_failed",
@@ -291,6 +267,11 @@ func (s *MediaService) GetURL(ctx context.Context, id uuid.UUID) (*domain.MediaU
 		return nil, fmt.Errorf("failed to generate signed URL: %w", err)
 	}
 
+	expiresIn := int(s.signedTTL.Seconds())
+	if s.driver == "cloudflare_images" {
+		expiresIn = 0
+	}
+
 	s.logger.Info("media_service_get_url_completed",
 		"id", id,
 	)
@@ -298,7 +279,7 @@ func (s *MediaService) GetURL(ctx context.Context, id uuid.UUID) (*domain.MediaU
 	return &domain.MediaURL{
 		ID:        media.ID,
 		URL:       url,
-		ExpiresIn: int(s.signedTTL.Seconds()),
+		ExpiresIn: expiresIn,
 	}, nil
 }
 
@@ -342,6 +323,11 @@ func (s *MediaService) GetURLs(ctx context.Context, ids []uuid.UUID) (*GetURLsRe
 		return nil, fmt.Errorf("failed to get media: %w", err)
 	}
 
+	expiresIn := int(s.signedTTL.Seconds())
+	if s.driver == "cloudflare_images" {
+		expiresIn = 0
+	}
+
 	// Generate URLs
 	var items []domain.MediaURL
 	for _, media := range mediaList {
@@ -358,7 +344,7 @@ func (s *MediaService) GetURLs(ctx context.Context, ids []uuid.UUID) (*GetURLsRe
 		items = append(items, domain.MediaURL{
 			ID:        media.ID,
 			URL:       url,
-			ExpiresIn: int(s.signedTTL.Seconds()),
+			ExpiresIn: expiresIn,
 		})
 	}
 
@@ -401,6 +387,55 @@ func (s *MediaService) List(status *string, limit, offset int) ([]domain.MediaFi
 
 	s.logger.Info("media_service_list_completed",
 		"count", len(media),
+	)
+
+	return media, nil
+}
+
+// CreateFromCFUpload uploads file to Cloudflare Images and creates media record
+// Returns media with storage_key = CF image ID, status = ready
+func (s *MediaService) CreateFromCFUpload(ctx context.Context, fileReader io.Reader, filename string, originalName string, mimeType string, sizeBytes int64) (*domain.MediaFile, error) {
+	s.logger.Info("media_service_create_from_cf_upload_started",
+		"filename", filename,
+		"original_name", originalName,
+		"mime_type", mimeType,
+		"size", sizeBytes,
+	)
+
+	cfStorage, ok := s.storage.(*storage.CFImagesStorage)
+	if !ok {
+		return nil, fmt.Errorf("storage is not CF Images")
+	}
+
+	cfImageID, err := cfStorage.UploadToCF(ctx, fileReader, filename, mimeType, sizeBytes)
+	if err != nil {
+		s.logger.Error("media_service_create_from_cf_upload_failed",
+			"error", err.Error(),
+		)
+		return nil, fmt.Errorf("CF upload failed: %w", err)
+	}
+
+	ext := filepath.Ext(filename)
+	media := &domain.MediaFile{
+		StorageKey:    cfImageID,
+		OriginalName:  &originalName,
+		MimeType:      mimeType,
+		Ext:           ext,
+		SizeBytes:     &sizeBytes,
+		StorageDriver: domain.StorageDriverCloudflareImages,
+		Status:        domain.MediaFileStatusReady,
+	}
+
+	if err := s.repo.Create(media); err != nil {
+		s.logger.Error("media_service_create_from_cf_upload_db_failed",
+			"error", err.Error(),
+		)
+		return nil, fmt.Errorf("failed to create media record: %w", err)
+	}
+
+	s.logger.Info("media_service_create_from_cf_upload_completed",
+		"id", media.ID,
+		"cf_image_id", cfImageID,
 	)
 
 	return media, nil

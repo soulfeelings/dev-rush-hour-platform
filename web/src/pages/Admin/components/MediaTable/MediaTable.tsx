@@ -3,6 +3,7 @@ import { Trash2, Upload } from 'lucide-react'
 import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { useMediaList, useMediaUpload, useMediaUrls, deleteMedia } from '../../../../services/media'
 import type { MediaItem } from '../../../../services/media'
+import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './MediaTable.module.scss'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -225,11 +226,11 @@ export function MediaTable({ onError, onSuccess }: MediaTableProps) {
                 </div>
                 {url ? (
                   <img
-                    src={url}
+                    src={getImageUrl(url, 'thumbnail')}
                     alt={item.originalName || 'media'}
                     className={styles.thumbnail}
                     loading="lazy"
-                    onClick={() => setPreviewUrl(url)}
+                    onClick={() => setPreviewUrl(getImageUrl(url, 'hero'))}
                   />
                 ) : (
                   <div className={styles.thumbnailPlaceholder}>Loading...</div>

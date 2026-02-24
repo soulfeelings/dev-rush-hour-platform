@@ -25,6 +25,16 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+func mustTrimMediaBase(cfg *config.Config) string {
+	// publicURL like http://localhost:8080/api/media -> base http://localhost:8080
+	// upload URL = base + /api/admin/media
+	u := cfg.Media.PublicURL
+	if idx := strings.Index(u, "/api/"); idx >= 0 {
+		u = u[:idx]
+	}
+	return u + "/api/admin/media"
+}
+
 type Server struct {
 	projectsHandler      *handlers.ProjectsHandler
 	areasHandler         *handlers.AreasHandler
@@ -437,50 +447,28 @@ func initMediaService(ctx context.Context, cfg *config.Config, pool *pgxpool.Poo
 	var mediaDelivery delivery.MediaDelivery
 
 	switch cfg.Media.Driver {
-	case "s3":
-		log.Println("Initializing S3 storage...")
+	case "cloudflare_images":
+		log.Println("Initializing Cloudflare Images storage...")
 
-		// Initialize S3 storage
-		s3Storage, err := storage.NewS3Storage(ctx, storage.S3Config{
-			Bucket:          cfg.S3.Bucket,
-			Region:          cfg.S3.Region,
-			Endpoint:        cfg.S3.Endpoint,
-			AccessKeyID:     cfg.S3.AccessKeyID,
-			SecretAccessKey: cfg.S3.SecretAccessKey,
-			ForcePathStyle:  cfg.S3.ForcePathStyle,
-		})
-		if err != nil {
-			return nil, err
-		}
-		mediaStorage = s3Storage
+		uploadBaseURL := mustTrimMediaBase(cfg)
+		cfStorage := storage.NewCFImagesStorage(
+			cfg.CloudflareImages.AccountID,
+			cfg.CloudflareImages.APIToken,
+			uploadBaseURL,
+		)
+		mediaStorage = cfStorage
+		mediaDelivery = delivery.NewCFImagesDelivery(cfg.CloudflareImages.AccountHash)
 
-		// Initialize S3 presign delivery
-		s3Delivery, err := delivery.NewS3PresignDelivery(ctx, delivery.S3PresignConfig{
-			Bucket:          cfg.S3.Bucket,
-			Region:          cfg.S3.Region,
-			Endpoint:        cfg.S3.Endpoint,
-			AccessKeyID:     cfg.S3.AccessKeyID,
-			SecretAccessKey: cfg.S3.SecretAccessKey,
-			ForcePathStyle:  cfg.S3.ForcePathStyle,
-		})
-		if err != nil {
-			return nil, err
-		}
-		mediaDelivery = s3Delivery
-
-		log.Printf("S3 storage initialized: bucket=%s, region=%s", cfg.S3.Bucket, cfg.S3.Region)
+		log.Printf("Cloudflare Images initialized: account=%s", cfg.CloudflareImages.AccountID)
 
 	default: // "local"
 		log.Println("Initializing local storage...")
 
-		// Initialize local storage
 		localStorage, err := storage.NewLocalStorage(cfg.Media.UploadDir, cfg.Media.PublicURL)
 		if err != nil {
 			return nil, err
 		}
 		mediaStorage = localStorage
-
-		// Initialize local delivery
 		mediaDelivery = delivery.NewLocalDelivery(cfg.Media.PublicURL)
 
 		log.Printf("Local storage initialized: dir=%s, url=%s", cfg.Media.UploadDir, cfg.Media.PublicURL)
@@ -532,7 +520,7 @@ func main() {
 	// Legacy media handler (for serving local files)
 	legacyMediaHandler := handlers.NewMediaHandler(cfg.Media.UploadDir, cfg.Media.PublicURL)
 
-	// New media v2 handler with S3 support
+	// Media v2 handler (local or Cloudflare Images)
 	mediaV2Handler := handlers.NewMediaV2Handler(mediaService, cfg.Media.UploadDir, cfg.Media.PublicURL)
 
 	// Health check

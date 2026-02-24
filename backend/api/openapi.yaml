@@ -2385,6 +2385,17 @@ components:
           items:
             $ref: "#/components/schemas/MediaItem"
 
+    ImageVariant:
+      type: string
+      description: Cloudflare Images variant for responsive delivery
+      enum: [thumbnail, card, medium, hero, full]
+      x-image-variant-params:
+        thumbnail: { width: 200 }
+        card: { width: 400 }
+        medium: { width: 800 }
+        hero: { width: 1200 }
+        full: {}
+
     MediaItem:
       type: object
       properties:
@@ -2392,6 +2403,10 @@ components:
           type: string
         url:
           type: string
+          description: Base URL for CF (append /{variant}), or full URL for local
+        expiresIn:
+          type: integer
+          description: 0 = never expires (CF), >0 = seconds until expiry
 
     Lot:
       type: object

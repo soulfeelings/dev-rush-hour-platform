@@ -12,6 +12,7 @@ import { RoiBadge } from '../ui/RoiBadge'
 import styles from './ProjectCard.module.scss'
 import type { Project } from '../api/generated/schemas/project'
 import { getProjectSlug, getDiscount, getValidBadges } from '../utils/project'
+import { getImageUrl } from '../utils/imageUrl'
 import { splitCompletionDate } from './splitCompletionDate'
 import { useSettings } from '../features/Settings/Settings'
 import { formatPrice } from '../utils/format'
@@ -87,7 +88,7 @@ export const ProjectCard = ({
           <div className={styles.imagesWrapper}>
             {/* Основная картинка */}
             <div className={styles.imageContainer}>
-              {coverImage && <img src={coverImage} alt={project.name} />}
+              {coverImage && <img src={getImageUrl(coverImage, 'card')} alt={project.name} />}
             </div>
 
             {/* Hover картинка */}
@@ -97,7 +98,7 @@ export const ProjectCard = ({
                 animate={{ opacity: isHovered || isMobile ? 1 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <img src={hoverImage} alt={`${project.name} - hover`} />
+                <img src={getImageUrl(hoverImage, 'card')} alt={`${project.name} - hover`} />
               </motion.div>
             )}
 
@@ -138,7 +139,7 @@ export const ProjectCard = ({
                 <div className={styles.projectLogoContainer}>
                   {logoUrl && (
                     <div className={styles.projectLogo}>
-                      <img src={logoUrl} alt={project.name} />
+                      <img src={getImageUrl(logoUrl, 'thumbnail')} alt={project.name} />
                     </div>
                   )}
                 </div>

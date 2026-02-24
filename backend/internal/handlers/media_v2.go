@@ -11,12 +11,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// MediaV2Handler handles media file operations with S3 support
+// MediaV2Handler handles media file operations (local, Cloudflare Images)
 type MediaV2Handler struct {
-	service   *services.MediaService
-	uploadDir string // For local multipart uploads
-	publicURL string // For local URL generation
-	logger    *slog.Logger
+	service       *services.MediaService
+	uploadDir     string // For local multipart uploads
+	publicURL     string // For local URL generation
+	cfAccountHash string // For CF delivery URL (empty if not CF)
+	logger        *slog.Logger
 }
 
 // NewMediaV2Handler creates a new media v2 handler
@@ -511,11 +512,11 @@ func (h *MediaV2Handler) GetURLs(c *fiber.Ctx) error {
 // === Legacy Multipart Upload (backward compatibility) ===
 
 // Upload handles POST /api/admin/media/upload (multipart)
-// This is the legacy endpoint that uploads directly to the server
+// For cloudflare_images: proxies file to CF Images
+// For local: saves to disk and creates record
 func (h *MediaV2Handler) Upload(c *fiber.Ctx) error {
 	h.logger.Info("media_v2_handler_upload_started")
 
-	// Get file from form
 	file, err := c.FormFile("file")
 	if err != nil {
 		h.logger.Error("media_v2_handler_upload_no_file",
@@ -529,7 +530,6 @@ func (h *MediaV2Handler) Upload(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check file size (max 10MB)
 	if file.Size > 10*1024*1024 {
 		h.logger.Warn("media_v2_handler_upload_file_too_large",
 			"filename", file.Filename,
@@ -543,57 +543,62 @@ func (h *MediaV2Handler) Upload(c *fiber.Ctx) error {
 		})
 	}
 
-	// Generate unique filename
 	ext := filepath.Ext(file.Filename)
-	id := uuid.New().String()
-	filename := id + ext
-
-	// Save file locally
-	savePath := filepath.Join(h.uploadDir, filename)
-	if err := c.SaveFile(file, savePath); err != nil {
-		h.logger.Error("media_v2_handler_upload_save_failed",
-			"filename", filename,
-			"error", err.Error(),
-		)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": fiber.Map{
-				"code":    "upload_failed",
-				"message": fmt.Sprintf("Failed to save file: %v", err),
-			},
-		})
-	}
-
-	// Determine mime type from extension
 	mimeType := getMimeTypeFromExt(ext)
 
-	// Create media record in DB
-	media, err := h.service.CreateFromMultipart(c.Context(), filename, file.Filename, mimeType, file.Size)
-	if err != nil {
-		h.logger.Error("media_v2_handler_upload_db_failed",
-			"filename", filename,
-			"error", err.Error(),
-		)
-		// File was saved, but DB record failed - try to clean up
-		os.Remove(savePath)
+	// Cloudflare Images: proxy upload
+	if h.service.StorageDriver() == "cloudflare_images" {
+		f, err := file.Open()
+		if err != nil {
+			h.logger.Error("media_v2_handler_upload_open_failed", "error", err.Error())
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": fiber.Map{"code": "upload_failed", "message": "Failed to read file"},
+			})
+		}
+		defer f.Close()
 
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": fiber.Map{
-				"code":    "upload_failed",
-				"message": "Failed to create media record",
-			},
+		media, err := h.service.CreateFromCFUpload(c.Context(), f, file.Filename, file.Filename, mimeType, file.Size)
+		if err != nil {
+			h.logger.Error("media_v2_handler_upload_cf_failed", "error", err.Error())
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": fiber.Map{"code": "upload_failed", "message": err.Error()},
+			})
+		}
+
+		url, _ := h.service.GetURL(c.Context(), media.ID)
+		urlStr := ""
+		if url != nil {
+			urlStr = url.URL
+		}
+
+		h.logger.Info("media_v2_handler_upload_completed", "id", media.ID, "original", file.Filename)
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+			"id":  media.ID.String(),
+			"url": urlStr,
 		})
 	}
 
-	// Generate public URL
+	// Local: save to disk and create record
+	filename := uuid.New().String() + ext
+	savePath := filepath.Join(h.uploadDir, filename)
+	if err := c.SaveFile(file, savePath); err != nil {
+		h.logger.Error("media_v2_handler_upload_save_failed", "filename", filename, "error", err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": fiber.Map{"code": "upload_failed", "message": fmt.Sprintf("Failed to save file: %v", err)},
+		})
+	}
+
+	media, err := h.service.CreateFromMultipart(c.Context(), filename, file.Filename, mimeType, file.Size)
+	if err != nil {
+		h.logger.Error("media_v2_handler_upload_db_failed", "filename", filename, "error", err.Error())
+		os.Remove(savePath)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": fiber.Map{"code": "upload_failed", "message": "Failed to create media record"},
+		})
+	}
+
 	url := fmt.Sprintf("%s/%s", h.publicURL, filename)
-
-	h.logger.Info("media_v2_handler_upload_completed",
-		"id", media.ID,
-		"filename", filename,
-		"original", file.Filename,
-		"size", file.Size,
-	)
-
+	h.logger.Info("media_v2_handler_upload_completed", "id", media.ID, "filename", filename)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"id":  media.ID.String(),
 		"url": url,
