@@ -11,6 +11,15 @@ importers:
 
   .:
     dependencies:
+      '@amplitude/unified':
+        specifier: 1.0.0-beta.36
+        version: 1.0.0-beta.36(@amplitude/rrweb@2.0.0-alpha.35)
+      '@azure/msal-browser':
+        specifier: ^5.2.0
+        version: 5.2.0
+      '@azure/msal-react':
+        specifier: ^5.0.4
+        version: 5.0.4(@azure/msal-browser@5.2.0)(react@19.2.4)
       '@react-three/drei':
         specifier: ^10.7.7
         version: 10.7.7(@react-three/fiber@9.5.0(@types/react@19.2.10)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.182.0))(@types/react@19.2.10)(@types/three@0.182.0)(immer@9.0.21)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.182.0)
@@ -287,6 +296,21 @@ packages:
 
   '@asyncapi/specs@6.10.0':
     resolution: {integrity: sha512-vB5oKLsdrLUORIZ5BXortZTlVyGWWMC1Nud/0LtgxQ3Yn2738HigAD6EVqScvpPsDUI/bcLVsYEXN4dtXQHVng==}
+
+  '@azure/msal-browser@5.2.0':
+    resolution: {integrity: sha512-YP2XEo6Bsi9urkyWxe5s2yl0ZJhJ46BJjUYIhXe6TUQguj460+wFioztwNAGgL33ECn/s3p0UK6CAQDJ5K7bnw==}
+    engines: {node: '>=0.8.0'}
+
+  '@azure/msal-common@16.0.4':
+    resolution: {integrity: sha512-0KZ9/wbUyZN65JLAx5bGNfWjkD0kRMUgM99oSpZFg7wEOb3XcKIiHrFnIpgyc8zZ70fHodyh8JKEOel1oN24Gw==}
+    engines: {node: '>=0.8.0'}
+
+  '@azure/msal-react@5.0.4':
+    resolution: {integrity: sha512-T75XBZ+QIKcBrR+Vz8g3r+lbsPEF7EL6i/ew5+52zZo1ymyyFAMnQung4rJXeMGzLYKwzB5D49PRpbjf0fg9Tw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@azure/msal-browser': ^5.2.0
+      react: ^19.2.1
 
   '@babel/code-frame@7.28.6':
     resolution: {integrity: sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q==}
@@ -1893,6 +1917,9 @@ packages:
   '@types/webxr@0.5.24':
     resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
 
+  '@types/zen-observable@0.8.3':
+    resolution: {integrity: sha512-fbF6oTd4sGGy0xjHPKAt+eS2CrxJ3+6gQ3FGcBoIJR2TLAyCkCyI8JqZNy+FeON0AhVgNJoUumVoZQjBFUqHkw==}
+
   '@typescript-eslint/eslint-plugin@8.54.0':
     resolution: {integrity: sha512-hAAP5io/7csFStuOmR782YmTthKBJ9ND3WVL60hcOjvtGFb+HJxH4O5huAcmcZ9v9G8P+JETiZ/G1B8MALnWZQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -3462,6 +3489,9 @@ packages:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
 
+  mitt@3.0.1:
+    resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
+
   motion-dom@12.29.2:
     resolution: {integrity: sha512-/k+NuycVV8pykxyiTCoFzIVLA95Nb1BFIVvfSu9L50/6K6qNeAYtkxXILy/LRutt7AzaYDc2myj0wkCVVYAPPA==}
 
@@ -4917,6 +4947,17 @@ snapshots:
   '@asyncapi/specs@6.10.0':
     dependencies:
       '@types/json-schema': 7.0.15
+
+  '@azure/msal-browser@5.2.0':
+    dependencies:
+      '@azure/msal-common': 16.0.4
+
+  '@azure/msal-common@16.0.4': {}
+
+  '@azure/msal-react@5.0.4(@azure/msal-browser@5.2.0)(react@19.2.4)':
+    dependencies:
+      '@azure/msal-browser': 5.2.0
+      react: 19.2.4
 
   '@babel/code-frame@7.28.6':
     dependencies:
@@ -7625,6 +7666,8 @@ snapshots:
       tinyrainbow: 3.0.3
 
   '@webgpu/types@0.1.69': {}
+
+  '@xstate/fsm@1.6.5': {}
 
   abort-controller@3.0.0:
     dependencies:
