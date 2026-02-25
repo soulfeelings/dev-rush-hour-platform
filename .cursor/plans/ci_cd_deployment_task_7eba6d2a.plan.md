@@ -75,6 +75,10 @@ Backend уже поддерживает `cloudflare_images`:
 - Railway создаст БД и прокинет `DATABASE_URL` или отдельные переменные (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`).
 - При необходимости — маппинг в `DB_` (см. [config.go](backend/internal/config/config.go)).
 
+> TODO (вернуться позже): когда основной домен будет подключён, пересобрать значения CORS / cookie:
+> - `CORS_ALLOWED_ORIGIN` → `https://app.{domain}` (или список нескольких origins через запятую);
+> - при необходимости пересмотреть `COOKIE_SAME_SITE` в зависимости от финальной схемы доменов (поддомены / разные домены).
+
 ### 2.3 Переменные окружения backend
 
 | Переменная                       | Значение                      | Обязательно      |

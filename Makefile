@@ -166,3 +166,7 @@ git-pull: git-setup
 git-push: git-setup
 	@echo "\033[1;32mPushing to $(WEB_PLATFORM_REMOTE)...\033[0m"
 	git push $(WEB_PLATFORM_REMOTE) $(shell git branch --show-current)
+
+git-push-force: git-setup
+	@echo "\033[1;31mForce-pushing to $(WEB_PLATFORM_REMOTE)...\033[0m"
+	git push --force-with-lease $(WEB_PLATFORM_REMOTE) $(shell git branch --show-current)
