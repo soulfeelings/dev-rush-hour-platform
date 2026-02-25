@@ -1,0 +1,112 @@
+@use '../../styles' as *;
+
+// ─── Page variant (centered, for content areas) ──────────────────────────────
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: $spacing-12 $spacing-6;
+  min-height: 240px;
+}
+
+.iconCircle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba($color-error, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-5;
+
+  svg {
+    color: $color-error;
+  }
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-charcoal-black;
+  margin: 0 0 $spacing-2 0;
+}
+
+.message {
+  font-size: $font-size-sm;
+  color: $color-charcoal-grey-50;
+  margin: 0 0 $spacing-6 0;
+  max-width: 320px;
+  line-height: $line-height-relaxed;
+}
+
+.retryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  background: $color-charcoal-black;
+  color: $color-snow-white;
+  border: none;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  padding: $spacing-2 $spacing-5;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ─── Inline variant (banner, for admin panels) ──────────────────────────────
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: rgba($color-error, 0.06);
+  border: 1px solid rgba($color-error, 0.15);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-4;
+}
+
+.inlineIcon {
+  flex-shrink: 0;
+  color: $color-error;
+}
+
+.inlineText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-error;
+  line-height: $line-height-normal;
+}
+
+.inlineRetry {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  background: none;
+  border: none;
+  color: $color-error;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $radius-sm;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: rgba($color-error, 0.08);
+  }
+}
