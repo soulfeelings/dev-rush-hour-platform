@@ -14,6 +14,7 @@ menu:
 	@echo "  \033[33m7)\033[0m Rebuild Web Dependencies"
 	@echo "  \033[33m8)\033[0m Git pull (web-platform)"
 	@echo "  \033[33m9)\033[0m Git push (web-platform)"
+	@echo "  \033[33m10)\033[0m Git push FORCE (web-platform)"
 	@echo ""
 	@read -p "Select option: " choice; \
 	case $$choice in \
@@ -26,13 +27,14 @@ menu:
 		7) $(MAKE) web-deps ;; \
 		8) $(MAKE) git-pull ;; \
 		9) $(MAKE) git-push ;; \
+		10) $(MAKE) git-push-force ;; \
 		*) echo "Invalid option" ;; \
 	esac
 
 WEB_PLATFORM_REMOTE := web-platform
 WEB_PLATFORM_URL := git@github.com:Rush-Hour-Real-Estate-Brokerage/web-platform.git
 
-.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-reset railway-migrate railway-seed web-deps git-setup git-pull git-push
+.PHONY: up up-dev down down-dev rebuild rebuild-dev logs logs-dev seed-dev reset-dev railway-menu railway-reset railway-migrate railway-seed web-deps git-setup git-pull git-push git-push-force
 
 up:
 	@echo "\033[1;32mStarting services with Docker Compose (production)...\033[0m"
