@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { TableSkeleton } from '../TableSkeleton'
 import styles from './DeletedLotsTable.module.scss'
 
@@ -116,7 +116,7 @@ export function DeletedLotsTable({
   }
 
   if (error) {
-    return <div className={styles.error}>Error loading deleted lots</div>
+    return <ErrorState message="Error loading deleted lots" onRetry={() => window.location.reload()} variant="inline" />
   }
 
   if (lotsList.length === 0) {

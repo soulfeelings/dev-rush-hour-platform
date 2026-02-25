@@ -404,9 +404,11 @@
   "model3d.area": "المساحة:",
   "model3d.price": "السعر:",
 
-  "error.loadingError": "خطأ في التحميل: {{message}}",
-  "error.unknownError": "خطأ غير معروف",
-  "error.retry": "إعادة المحاولة",
+  "error.loadingError": "{{message}}",
+  "error.unknownError": "تعذّر تحميل البيانات حالياً",
+  "error.retry": "حاول مرة أخرى",
+  "error.title": "حدث خطأ ما",
+  "error.titleNetwork": "مشكلة في الاتصال",
 
   "heroFilters.whatsappMessage.greeting": "مرحباً! أنا مهتم بالعقارات في دبي.",
   "heroFilters.whatsappMessage.filters": "الفلاتر:",

@@ -7,6 +7,7 @@ import { Button } from '../../ui/Button'
 import { useListLots, useListProjects } from '../../api'
 import LotCard from '../../components/LotCard'
 import { SkeletonCard } from '../../ui/Skeleton'
+import { ErrorState } from '../../ui'
 import { ListLotsSort } from '../../api/generated/schemas/listLotsSort'
 import type { ListLotsParams } from '../../api/generated/schemas/listLotsParams'
 import type { Lot } from '../../api'
@@ -142,14 +143,12 @@ export default function Apartments() {
             ))}
           </div>
         ) : error ? (
-          <div className={styles.error}>
-            <p>
-              {t('apartments.error', {
-                message: error instanceof Error ? error.message : t('apartments.errorUnknown'),
-              })}
-            </p>
-            <button onClick={() => window.location.reload()}>{t('apartments.retry')}</button>
-          </div>
+          <ErrorState
+            title={t(error instanceof Error && error.message?.toLowerCase().includes('fetch') ? 'error.titleNetwork' : 'error.title')}
+            message={error instanceof Error ? error.message : t('error.unknownError')}
+            onRetry={() => window.location.reload()}
+            retryLabel={t('error.retry')}
+          />
         ) : activeLots.length === 0 ? (
           <div className={styles.empty}>
             <p>{t('apartments.empty')}</p>

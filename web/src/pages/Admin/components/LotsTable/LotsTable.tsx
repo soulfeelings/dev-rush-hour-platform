@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
@@ -178,7 +178,7 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
   }
 
   if (error) {
-    return <div className={styles.error}>Error loading lots</div>
+    return <ErrorState message="Error loading lots" onRetry={() => window.location.reload()} variant="inline" />
   }
 
   return (

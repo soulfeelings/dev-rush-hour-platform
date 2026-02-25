@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Trash2, Pencil, UserPlus } from 'lucide-react'
 import { adminFetch } from '../../../../utils/adminApi'
-import { Button, Checkbox, Input, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Input, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import styles from './TeamPage.module.scss'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -280,7 +280,7 @@ export function TeamPage() {
         </Button>
       </div>
 
-      {error && <div className={styles.error}>{error}</div>}
+      {error && <ErrorState message={error} variant="inline" />}
 
       {users.length === 0 ? (
         <div className={styles.empty}>No team members yet</div>

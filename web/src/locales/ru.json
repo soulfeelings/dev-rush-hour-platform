@@ -404,9 +404,11 @@
   "model3d.area": "Площадь:",
   "model3d.price": "Цена:",
 
-  "error.loadingError": "Ошибка загрузки: {{message}}",
-  "error.unknownError": "Неизвестная ошибка",
-  "error.retry": "Повторить",
+  "error.loadingError": "{{message}}",
+  "error.unknownError": "Не удалось загрузить данные",
+  "error.retry": "Попробовать снова",
+  "error.title": "Что-то пошло не так",
+  "error.titleNetwork": "Проблема с подключением",
 
   "heroFilters.whatsappMessage.greeting": "Здравствуйте! Меня интересует недвижимость в Dubai.",
   "heroFilters.whatsappMessage.filters": "Фильтры:",

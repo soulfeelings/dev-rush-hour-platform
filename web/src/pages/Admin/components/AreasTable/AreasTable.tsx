@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { Area } from '../../../../api/generated/schemas/area'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
@@ -100,7 +100,7 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading }:
   }
 
   if (error) {
-    return <div className={styles.error}>Error loading areas</div>
+    return <ErrorState message="Error loading areas" onRetry={() => window.location.reload()} variant="inline" />
   }
 
   return (

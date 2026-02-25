@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { TableSkeleton } from '../TableSkeleton'
 import styles from './DeletedBadgesTable.module.scss'
 
@@ -111,7 +111,7 @@ export function DeletedBadgesTable({
   }
 
   if (error) {
-    return <div className={styles.error}>Error loading deleted badges</div>
+    return <ErrorState message="Error loading deleted badges" onRetry={() => window.location.reload()} variant="inline" />
   }
 
   if (badgesList.length === 0) {

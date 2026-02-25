@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { getInfrastructureIcon } from '../../../../utils/infrastructureIcons'
 import type { Infrastructure } from '../../../../api/generated/schemas/infrastructure'
 import { TableSkeleton } from '../TableSkeleton'
@@ -96,7 +96,7 @@ export function InfrastructuresTable({
   }
 
   if (error) {
-    return <div className={styles.error}>Error loading infrastructures</div>
+    return <ErrorState message="Error loading infrastructures" onRetry={() => window.location.reload()} variant="inline" />
   }
 
   return (

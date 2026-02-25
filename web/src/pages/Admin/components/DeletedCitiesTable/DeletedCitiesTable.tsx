@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { TableSkeleton } from '../TableSkeleton'
 import styles from './DeletedCitiesTable.module.scss'
 
@@ -111,7 +111,7 @@ export function DeletedCitiesTable({
   }
 
   if (error) {
-    return <div className={styles.error}>Error loading deleted cities</div>
+    return <ErrorState message="Error loading deleted cities" onRetry={() => window.location.reload()} variant="inline" />
   }
 
   if (citiesList.length === 0) {

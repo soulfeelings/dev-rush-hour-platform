@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { ProjectCard } from '../../../components/ProjectCard'
 import { ProjectsViewSkeleton } from './ProjectsViewSkeleton'
+import { ErrorState } from '../../../ui'
 import styles from '../Catalog.module.scss'
 import type { Project } from '../../../api/generated/schemas/project'
 
@@ -19,15 +20,14 @@ export default function ProjectsView({ projects, isLoading, error }: ProjectsVie
   }
 
   if (error) {
+    const msg = error instanceof Error ? error.message : undefined
     return (
-      <div className={styles.error}>
-        <p>
-          {t('error.loadingError', {
-            message: error instanceof Error ? error.message : t('error.unknownError'),
-          })}
-        </p>
-        <button onClick={() => window.location.reload()}>{t('error.retry')}</button>
-      </div>
+      <ErrorState
+        title={t(msg?.toLowerCase().includes('fetch') ? 'error.titleNetwork' : 'error.title')}
+        message={t('error.loadingError', { message: msg || t('error.unknownError') })}
+        onRetry={() => window.location.reload()}
+        retryLabel={t('error.retry')}
+      />
     )
   }
 

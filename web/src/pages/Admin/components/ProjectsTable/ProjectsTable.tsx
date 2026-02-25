@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { Project } from '../../../../api/generated/schemas/project'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
@@ -152,7 +152,7 @@ export function ProjectsTable({
   }
 
   if (error) {
-    return <div className={styles.error}>Error loading projects</div>
+    return <ErrorState message="Error loading projects" onRetry={() => window.location.reload()} variant="inline" />
   }
 
   return (

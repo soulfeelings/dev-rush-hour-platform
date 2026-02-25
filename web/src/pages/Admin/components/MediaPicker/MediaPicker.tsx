@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react'
 import { Upload } from 'lucide-react'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { useMediaList, useMediaUpload, useMediaUrls } from '../../../../services/media'
 import type { MediaItem } from '../../../../services/media'
 import { getImageUrl } from '../../../../utils/imageUrl'
@@ -123,7 +123,7 @@ export function MediaPicker({
           />
         </div>
 
-        {uploadError && <div className={styles.error}>{uploadError}</div>}
+        {uploadError && <ErrorState message={uploadError} variant="inline" />}
 
         {isLoading ? (
           <div className={styles.grid}>
@@ -134,7 +134,7 @@ export function MediaPicker({
             ))}
           </div>
         ) : error ? (
-          <div className={styles.errorState}>Error loading media</div>
+          <ErrorState message="Error loading media" onRetry={() => window.location.reload()} variant="inline" />
         ) : items.length === 0 ? (
           <div className={styles.empty}>No media files. Upload an image to get started.</div>
         ) : (

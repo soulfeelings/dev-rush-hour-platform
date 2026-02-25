@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react'
 import { Trash2, Upload } from 'lucide-react'
-import { Button, Checkbox, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { useMediaList, useMediaUpload, useMediaUrls, deleteMedia } from '../../../../services/media'
 import type { MediaItem } from '../../../../services/media'
 import { getImageUrl } from '../../../../utils/imageUrl'
@@ -161,7 +161,7 @@ export function MediaTable({ onError, onSuccess }: MediaTableProps) {
         <div className={styles.header}>
           <h2 className={styles.title}>Media</h2>
         </div>
-        <div className={styles.error}>Error loading media</div>
+        <ErrorState message="Error loading media" onRetry={() => window.location.reload()} variant="inline" />
       </div>
     )
   }

@@ -404,9 +404,11 @@
   "model3d.area": "Area:",
   "model3d.price": "Price:",
 
-  "error.loadingError": "Loading error: {{message}}",
-  "error.unknownError": "Unknown error",
-  "error.retry": "Retry",
+  "error.loadingError": "{{message}}",
+  "error.unknownError": "We couldn't load the data right now",
+  "error.retry": "Try again",
+  "error.title": "Something went wrong",
+  "error.titleNetwork": "Connection issue",
 
   "heroFilters.whatsappMessage.greeting": "Hello! I'm interested in properties in Dubai.",
   "heroFilters.whatsappMessage.filters": "Filters:",
