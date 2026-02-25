@@ -4,6 +4,7 @@ import { PublicClientApplication } from '@azure/msal-browser'
 import { MsalProvider, useMsal } from '@azure/msal-react'
 import { adminFetch } from '../../utils/adminApi'
 import { ADMIN_ROUTES } from './constants'
+import { FullPageSpinner } from '../../ui'
 import { AdminMsalProviderContext } from './AdminMsalProviderContext'
 import { useAdminMsalProvider } from './useAdminMsalProvider'
 
@@ -68,7 +69,7 @@ export function AdminMsalProvider({ children }: Props) {
     msalInstance.initialize().then(() => setReady(true))
   }, [])
 
-  if (!ready) return null
+  if (!ready) return <FullPageSpinner />
 
   return (
     <MsalProvider instance={msalInstance}>

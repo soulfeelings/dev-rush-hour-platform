@@ -14,6 +14,7 @@ import DeveloperDetail from './pages/DeveloperDetail'
 import DesignDemo from './design-demo/DesignDemo'
 import { ROUTES } from './constants/routes'
 import { ErrorBoundary } from './ui/ErrorBoundary'
+import { FullPageSpinner } from './ui'
 import AmplitudePageTracker from './lib/AmplitudePageTracker'
 import './App.css'
 
@@ -41,7 +42,7 @@ function App() {
                 <Route
                   path="/admin/*"
                   element={
-                    <Suspense fallback={null}>
+                    <Suspense fallback={<FullPageSpinner />}>
                       <AdminApp />
                     </Suspense>
                   }

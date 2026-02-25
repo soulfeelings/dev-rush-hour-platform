@@ -34,7 +34,7 @@ import type { Badge } from '../../api/generated/schemas/badge'
 import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreateRequest'
 import type { Infrastructure } from '../../api/generated/schemas/infrastructure'
 import type { InfrastructureCreateRequest } from '../../api/generated/schemas/infrastructureCreateRequest'
-import { Toast } from '../../ui'
+import { Toast, FullPageSpinner } from '../../ui'
 import { cleanupOldDrafts } from '../../constants/storage'
 import { Sidebar } from './components/Sidebar'
 import { RightSidebar } from './components/RightSidebar'
@@ -1334,7 +1334,7 @@ export default function Admin() {
   }
 
   if (authLoading || !isAuthenticated) {
-    return null
+    return <FullPageSpinner />
   }
 
   const getRightSidebarTitle = () => {
