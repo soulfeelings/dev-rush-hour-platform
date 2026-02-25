@@ -63,7 +63,7 @@
 | Сервис | Расчёт | Стоимость |
 |--------|--------|-----------|
 | Cloudflare Pages | Unlimited static | $0 |
-| Cloudflare Images | 1K × $5/100K | ~$0.05 |
+| Cloudflare Images | Storage пакет $5 (≤100K изображений), без delivery | ~$5 |
 | Railway (backend + Postgres) | Hobby: 0.5GB+1GB RAM, 0.5+0.25 vCPU, 5GB vol | ~$25–30 |
 | **Итого** | | **~$25–30/мес** |
 
@@ -73,7 +73,7 @@
 | Сервис | Расчёт | Стоимость |
 |--------|--------|-----------|
 | Cloudflare Pages | Unlimited static | $0 |
-| Cloudflare Images | 1K stored + 600K delivered | ~$6 |
+| Cloudflare Images | 1K stored (storage $5) + 600K delivered ($6) | ~$11 |
 | Railway | backend 0.5GB/0.5vCPU + postgres 1GB/0.5vCPU | ~$38 |
 | **Итого** | | **~$44/мес** |
 
@@ -83,7 +83,7 @@
 | Сервис | Расчёт | Стоимость |
 |--------|--------|-----------|
 | Cloudflare Pages | Unlimited static | $0 |
-| Cloudflare Images | 3K stored + 6M delivered | ~$60 |
+| Cloudflare Images | 3K stored (storage $5) + 6M delivered ($60) | ~$65 |
 | Railway | 1GB/0.5vCPU backend + postgres, ~8 GB egress | ~$50 |
 | **Итого** | | **~$110/мес** |
 
@@ -93,7 +93,7 @@
 | Сервис | Расчёт | Стоимость |
 |--------|--------|-----------|
 | Cloudflare Pages | Unlimited static | $0 |
-| Cloudflare Images | 5K stored + 60M delivered | ~$600 |
+| Cloudflare Images | 5K stored (storage $5) + 60M delivered ($600) | ~$605 |
 | Railway | 2 replicas backend, postgres 2GB/1vCPU, ~80 GB egress | ~$110 |
 | **Итого** | | **~$710/мес** |
 
@@ -103,7 +103,7 @@
 | Сервис | Расчёт | Стоимость |
 |--------|--------|-----------|
 | Cloudflare Pages | Unlimited static | $0 |
-| Cloudflare Images | 8K stored + 300M delivered | ~$3 001 |
+| Cloudflare Images | 8K stored (storage $5) + 300M delivered ($3 000) | ~$3 005 |
 | Railway | 4–6 replicas, postgres 4GB/2vCPU, ~600 GB egress | ~$250 |
 | **Итого** | | **~$3 251/мес** |
 
@@ -113,7 +113,7 @@
 | Сервис | Расчёт | Стоимость |
 |--------|--------|-----------|
 | Cloudflare Pages | Unlimited static | $0 |
-| Cloudflare Images | 10K stored + 600M delivered | ~$6 001 |
+| Cloudflare Images | 10K stored (storage $5) + 600M delivered ($6 000) | ~$6 005 |
 | Railway | 8–12 replicas, postgres 8GB/4vCPU, ~1.5 TB egress | ~$500 |
 | **Итого** | | **~$6 501/мес** |
 
@@ -123,12 +123,12 @@
 
 | Целевой горизонт | DAU | CF Images | CF Pages | Railway | **Всего/мес** |
 |------------------|-----|------------|----------|---------|---------------|
-| Запуск / MVP | 0 | ~$0.05 | $0 | ~$28 | **~$28** |
-| Ранний рост | 100 | ~$6 | $0 | ~$38 | **~$44** |
-| Рост | 1K | ~$60 | $0 | ~$50 | **~$110** |
-| Масштабирование | 10K | ~$600 | $0 | ~$110 | **~$710** |
-| Крупный игрок в регионе | 50K | ~$3 001 | $0 | ~$250 | **~$3 251** |
-| Топ-площадка | 100K | ~$6 001 | $0 | ~$500 | **~$6 501** |
+| Запуск / MVP | 0 | ~$5 | $0 | ~$28 | **~$33** |
+| Ранний рост | 100 | ~$11 | $0 | ~$38 | **~$49** |
+| Рост | 1K | ~$65 | $0 | ~$50 | **~$115** |
+| Масштабирование | 10K | ~$605 | $0 | ~$110 | **~$715** |
+| Крупный игрок в регионе | 50K | ~$3 005 | $0 | ~$250 | **~$3 255** |
+| Топ-площадка | 100K | ~$6 005 | $0 | ~$500 | **~$6 505** |
 
 ---
 
