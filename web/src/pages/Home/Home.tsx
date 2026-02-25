@@ -49,7 +49,7 @@ export default function Home() {
   return (
     <div className={styles.home}>
       {/* Hero Section */}
-      <section className={styles.hero}>
+      <section className={styles.hero} data-testid="hero-section">
         <div className={styles.heroInner}>
           <div className={styles.heroContent}>
             <h1 className={styles.heroBrand}>RUSH HOUR</h1>
@@ -78,7 +78,7 @@ export default function Home() {
       </section>
 
       {/* Filters & Demo Section */}
-      <section className={styles.filtersDemo}>
+      <section className={styles.filtersDemo} data-testid="filters-demo-section">
         <h2 className={styles.filtersDemoTitle}>{t('home.filtersDemo.title')}</h2>
 
         <HeroFilters />
@@ -96,79 +96,81 @@ export default function Home() {
         </Button>
       </section>
 
-      {/* Properties Section */}
-      <section className={styles.properties}>
-        <div className={styles.propertiesHeader}>
-          <h2 className={styles.propertiesTitle}>{t('home.properties.title')}</h2>
-          <p className={styles.propertiesSubtitle}>{t('home.properties.subtitle')}</p>
-        </div>
-
-        {isProjectsLoading ? (
-          <div className={styles.skeletonCarousel}>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className={styles.carouselSlide}>
-                <div className={styles.skeletonCard}>
-                  <Skeleton variant="rectangular" height="55%" />
-                  <div className={styles.skeletonCardBody}>
-                    <div className={styles.skeletonRow}>
-                      <Skeleton variant="circular" width={48} height={48} />
-                      <div className={styles.skeletonLines}>
-                        <Skeleton width="70%" height={16} />
-                        <Skeleton width="50%" height={12} />
-                        <Skeleton width="60%" height={12} />
-                      </div>
-                    </div>
-                    <Skeleton width="100%" height={14} />
-                    <Skeleton width="100%" height={14} />
-                    <Skeleton width="80%" height={14} />
-                    <Skeleton width="100%" height={40} />
-                  </div>
-                </div>
-              </div>
-            ))}
+      {/* Properties Section — hidden when no featured projects */}
+      {(isProjectsLoading || (projects && projects.length > 0)) && (
+        <section className={styles.properties} data-testid="properties-section">
+          <div className={styles.propertiesHeader}>
+            <h2 className={styles.propertiesTitle}>{t('home.properties.title')}</h2>
+            <p className={styles.propertiesSubtitle}>{t('home.properties.subtitle')}</p>
           </div>
-        ) : projects && projects.length > 0 ? (
-          <div className={styles.carouselWrapper}>
-            <button
-              className={`${styles.carouselArrow} ${styles.carouselArrowLeft}`}
-              onClick={() => scrollCarousel('left')}
-              aria-label="Previous"
-            >
-              {isRTL ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-            </button>
 
-            <div className={styles.carouselTrack} ref={carouselRef}>
-              {projects.map(project => (
-                <div key={project.id} className={styles.carouselSlide}>
-                  <ProjectCard project={project} forceHovered />
+          {isProjectsLoading ? (
+            <div className={styles.skeletonCarousel}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className={styles.carouselSlide}>
+                  <div className={styles.skeletonCard}>
+                    <Skeleton variant="rectangular" height="55%" />
+                    <div className={styles.skeletonCardBody}>
+                      <div className={styles.skeletonRow}>
+                        <Skeleton variant="circular" width={48} height={48} />
+                        <div className={styles.skeletonLines}>
+                          <Skeleton width="70%" height={16} />
+                          <Skeleton width="50%" height={12} />
+                          <Skeleton width="60%" height={12} />
+                        </div>
+                      </div>
+                      <Skeleton width="100%" height={14} />
+                      <Skeleton width="100%" height={14} />
+                      <Skeleton width="80%" height={14} />
+                      <Skeleton width="100%" height={40} />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
+          ) : (
+            <div className={styles.carouselWrapper}>
+              <button
+                className={`${styles.carouselArrow} ${styles.carouselArrowLeft}`}
+                onClick={() => scrollCarousel('left')}
+                aria-label="Previous"
+              >
+                {isRTL ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+              </button>
 
-            <button
-              className={`${styles.carouselArrow} ${styles.carouselArrowRight}`}
-              onClick={() => scrollCarousel('right')}
-              aria-label="Next"
+              <div className={styles.carouselTrack} ref={carouselRef}>
+                {projects!.map(project => (
+                  <div key={project.id} className={styles.carouselSlide}>
+                    <ProjectCard project={project} forceHovered />
+                  </div>
+                ))}
+              </div>
+
+              <button
+                className={`${styles.carouselArrow} ${styles.carouselArrowRight}`}
+                onClick={() => scrollCarousel('right')}
+                aria-label="Next"
+              >
+                {isRTL ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+              </button>
+            </div>
+          )}
+
+          <div className={styles.propertiesCta}>
+            <Button
+              variant="primary"
+              size="lg"
+              className={styles.seeMoreBtn}
+              onClick={() => navigate(ROUTES.CATALOG)}
             >
-              {isRTL ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-            </button>
+              {t('home.properties.viewAll')}
+            </Button>
           </div>
-        ) : null}
-
-        <div className={styles.propertiesCta}>
-          <Button
-            variant="primary"
-            size="lg"
-            className={styles.seeMoreBtn}
-            onClick={() => navigate(ROUTES.CATALOG)}
-          >
-            {t('home.properties.viewAll')}
-          </Button>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Features Section */}
-      <section className={styles.features}>
+      <section className={styles.features} data-testid="features-section">
         <h2 className={styles.featuresTitle}>{t('home.features.title')}</h2>
         <p className={styles.featuresSubtitle}>{t('home.features.subtitle')}</p>
 
@@ -193,7 +195,7 @@ export default function Home() {
       </section>
 
       {/* Advantages Section */}
-      <section className={styles.advantages}>
+      <section className={styles.advantages} data-testid="advantages-section">
         <h2 className={styles.advantagesTitle}>{t('home.advantages.title')}</h2>
         <p className={styles.advantagesSubtitle}>{t('home.advantages.subtitle')}</p>
 
@@ -259,7 +261,7 @@ export default function Home() {
       </section>
 
       {/* Founder Section */}
-      <section className={styles.founder}>
+      <section className={styles.founder} data-testid="founder-section">
         <div className={styles.founderTop}>
           <div className={styles.founderText}>
             <h2 className={styles.founderName}>{t('home.founder.name')}</h2>
@@ -278,7 +280,7 @@ export default function Home() {
       </section>
 
       {/* Follow Us Section */}
-      <section className={styles.followUs}>
+      <section className={styles.followUs} data-testid="follow-us-section">
         <div className={styles.followUsCard}>
           <h2 className={styles.followUsTitle}>{t('home.followUs.title')}</h2>
           <p className={styles.followUsSubtitle}>{t('home.followUs.subtitle')}</p>
@@ -297,7 +299,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className={styles.cta}>
+      <section className={styles.cta} data-testid="cta-section">
         <div className={styles.ctaInner}>
           <h2 className={styles.ctaTitle}>{t('home.cta.title')}</h2>
           <p className={styles.ctaDesc}>{t('home.cta.description')}</p>
@@ -318,7 +320,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className={styles.footer}>
+      <footer className={styles.footer} data-testid="footer-section">
         <div className={styles.footerInner}>
           <div className={styles.footerGrid}>
             <div className={styles.footerBrand}>

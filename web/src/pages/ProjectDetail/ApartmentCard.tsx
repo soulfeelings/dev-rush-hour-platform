@@ -13,6 +13,7 @@ import { formatPrice, formatArea, capitalize } from '../../utils/format'
 import { getLotDetailRoute, getProjectDetailRoute } from '../../constants/routes'
 import { openWhatsApp } from '../../services/whatsapp'
 import { useIsRTL } from '../../hooks/useDirection'
+import { getImageUrl } from '../../utils/imageUrl'
 import { translateBonusKey } from '../../utils/bonusTranslations'
 import type { Lot } from '../../api'
 import styles from './ApartmentCard.module.scss'
@@ -253,7 +254,7 @@ export function ApartmentCard({
                     {galleryImages.map((url, idx) => (
                       <div className={styles.gallerySlide} key={idx}>
                         <img
-                          src={url}
+                          src={getImageUrl(url, 'card')}
                           alt={`${title} - image ${idx + 1}`}
                           className={styles.galleryImage}
                           onClick={e => handleGalleryImageClick(e, url)}
@@ -301,7 +302,7 @@ export function ApartmentCard({
                       onClick={e => handleThumbClick(e, idx)}
                       aria-label={`${t('apartmentCard.nextImage')} ${idx + 1}`}
                     >
-                      <img src={url} alt={`Thumbnail ${idx + 1}`} />
+                      <img src={getImageUrl(url, 'thumbnail')} alt={`Thumbnail ${idx + 1}`} />
                     </button>
                   ))}
                 </div>

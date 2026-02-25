@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice } from '../../utils/format'
 import { DeveloperDetailSkeleton } from './DeveloperDetailSkeleton'
+import { getImageUrl } from '../../utils/imageUrl'
 import styles from './DeveloperDetail.module.scss'
 
 type ProjectWithRelations = Project & {
@@ -71,7 +72,7 @@ export default function DeveloperDetail() {
       <section className={styles.heroSection}>
         <div className={styles.developerHeader}>
           {developer.logoUrl && (
-            <img src={developer.logoUrl} alt={developer.name} className={styles.developerLogo} />
+            <img src={getImageUrl(developer.logoUrl!, 'thumbnail')} alt={developer.name} className={styles.developerLogo} />
           )}
           <div className={styles.developerInfo}>
             <h1 className={styles.developerName}>{developer.name}</h1>
@@ -107,7 +108,7 @@ export default function DeveloperDetail() {
                 >
                   <div className={styles.projectCardImage}>
                     {coverImage ? (
-                      <img src={coverImage} alt={project.name} />
+                      <img src={getImageUrl(coverImage, 'card')} alt={project.name} />
                     ) : (
                       <div className={styles.imagePlaceholder}>
                         <Building2 size={48} />

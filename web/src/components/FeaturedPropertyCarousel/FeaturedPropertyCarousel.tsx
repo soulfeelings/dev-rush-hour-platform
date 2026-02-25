@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useIsRTL } from '../../hooks/useDirection'
 import { getDescriptionText } from '../../utils/project'
+import { getImageUrl } from '../../utils/imageUrl'
 import styles from './FeaturedPropertyCarousel.module.scss'
 import type { Project } from '../../api/generated/schemas/project'
 
@@ -55,7 +56,7 @@ export default function FeaturedPropertyCarousel({
     <div className={styles.carousel}>
       <div className={styles.card}>
         <div className={styles.imageContainer}>
-          {coverImage && <img src={coverImage} alt={current.name} />}
+          {coverImage && <img src={getImageUrl(coverImage, 'card')} alt={current.name} />}
           {current.tags && current.tags.length > 0 && (
             <div className={styles.tags}>
               {current.tags.map((tag, idx) => (

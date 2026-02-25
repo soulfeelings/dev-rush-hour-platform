@@ -3,6 +3,7 @@ import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { TableSkeleton } from '../TableSkeleton'
+import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './DeletedDevelopersTable.module.scss'
 
 const { useAdminListDeletedDevelopers } = AdminApi
@@ -216,7 +217,7 @@ export function DeletedDevelopersTable({
               <td className={styles.logoCell}>
                 {developer.logoUrl ? (
                   <img
-                    src={developer.logoUrl}
+                    src={getImageUrl(developer.logoUrl!, 'thumbnail')}
                     alt={`${developer.name} logo`}
                     className={styles.logoImage}
                   />

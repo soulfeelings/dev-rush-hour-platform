@@ -9,6 +9,7 @@ import type { Lot } from '../../api'
 import { capitalize, formatPrice } from '../../utils/format'
 import { ApartmentCard } from './ApartmentCard'
 import styles from './LotQuickViewModal.module.scss'
+import { getImageUrl } from '../../utils/imageUrl'
 import { useSettings } from '../../features/Settings/Settings'
 
 const VIEW_MAP_ZOOM = 16
@@ -248,7 +249,7 @@ export function LotQuickViewModal({
               <div className={styles.floorPlanFrame}>
                 {activePlanImage ? (
                   <>
-                    <img src={activePlanImage} alt={modalTitle} className={styles.floorPlanImage} />
+                    <img src={getImageUrl(activePlanImage, 'hero')} alt={modalTitle} className={styles.floorPlanImage} />
                   </>
                 ) : (
                   <div className={styles.emptyState}>{t('lotDetail.imagePlaceholder')}</div>
@@ -285,7 +286,7 @@ export function LotQuickViewModal({
                 {lotPhotos.length > 0 ? (
                   <div className={styles.orientationGallery}>
                     <div className={styles.orientationMain}>
-                      <img src={activeOrientationImage} alt="Active orientation" />
+                      <img src={getImageUrl(activeOrientationImage, 'hero')} alt="Active orientation" />
                     </div>
                     {lotPhotos.length > 1 && (
                       <>
@@ -323,7 +324,7 @@ export function LotQuickViewModal({
                             }}
                             aria-label={`Open lot photo ${index + 1}`}
                           >
-                            <img src={url} alt={`Lot photo ${index + 1}`} />
+                            <img src={getImageUrl(url, 'thumbnail')} alt={`Lot photo ${index + 1}`} />
                           </button>
                         )
                       })}

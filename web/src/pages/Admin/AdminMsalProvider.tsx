@@ -26,7 +26,6 @@ function MsalRedirectHandler() {
     setLoading(true)
     instance.handleRedirectPromise()
       .then(async (result) => {
-        console.log('[MSAL] handleRedirectPromise', result)
         if (!result?.accessToken) return
 
         try {

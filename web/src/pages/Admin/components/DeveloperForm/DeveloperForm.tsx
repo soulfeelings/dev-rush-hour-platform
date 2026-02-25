@@ -4,6 +4,7 @@ import { Image as ImageIcon } from 'lucide-react'
 import { type DeveloperCreateRequest, type Developer } from '../../../../api'
 import { MediaPicker } from '../MediaPicker'
 import { generateSlug } from '../../../../utils/generateSlug'
+import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './DeveloperForm.module.scss'
 
 import { STORAGE_KEYS } from '../../../../constants/storage'
@@ -143,7 +144,7 @@ export function DeveloperForm({
         <div className={styles.logoPreview}>
           <span className={styles.logoPreviewLabel}>Logo Preview:</span>
           <img
-            src={form.logoUrl}
+            src={getImageUrl(form.logoUrl, 'thumbnail')}
             alt="Developer logo preview"
             className={styles.logoPreviewImage}
             onError={e => {

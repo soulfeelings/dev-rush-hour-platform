@@ -5,6 +5,7 @@ import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../
 import type { Developer } from '../../../../api/generated/schemas/developer'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
+import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './DevelopersTable.module.scss'
 
 const { useAdminListDevelopers } = AdminApi
@@ -175,7 +176,7 @@ export function DevelopersTable({
                 <td className={styles.logoCell}>
                   {developer.logoUrl ? (
                     <img
-                      src={developer.logoUrl}
+                      src={getImageUrl(developer.logoUrl!, 'thumbnail')}
                       alt={`${developer.name} logo`}
                       className={styles.logoImage}
                     />

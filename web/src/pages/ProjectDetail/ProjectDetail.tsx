@@ -34,6 +34,7 @@ import { ApartmentsCarousel } from './ApartmentsCarousel'
 import { ApartmentCard } from './ApartmentCard'
 import { LotQuickViewModal } from './LotQuickViewModal'
 import { ProjectDetailSkeleton } from './ProjectDetailSkeleton'
+import { getImageUrl } from '../../utils/imageUrl'
 import styles from './ProjectDetail.module.scss'
 
 const MAP_ZOOM_DEFAULT = 13
@@ -417,7 +418,7 @@ export default function ProjectDetail() {
                     {allImages.map((url, idx) => (
                       <div className={styles.emblaSlide} key={idx}>
                         <img
-                          src={url}
+                          src={getImageUrl(url, 'hero')}
                           alt={`${project.name} - image ${idx + 1}`}
                           className={styles.projectImage}
                         />
@@ -468,7 +469,7 @@ export default function ProjectDetail() {
                     }`}
                   onClick={() => scrollTo(idx, true)}
                 >
-                  <img src={url} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
+                  <img src={getImageUrl(url, 'thumbnail')} alt={`Thumbnail ${idx + 1}`} className={styles.thumbnailImage} />
                 </div>
               ))}
             </div>

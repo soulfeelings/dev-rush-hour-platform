@@ -15,6 +15,7 @@ import { formatPrice, formatArea } from '../../utils/format'
 import { LotDetailSkeleton } from './LotDetailSkeleton'
 import { ApartmentCard } from '../ProjectDetail/ApartmentCard'
 import { ApartmentsCarousel } from '../ProjectDetail/ApartmentsCarousel'
+import { getImageUrl } from '../../utils/imageUrl'
 import styles from './LotDetail.module.scss'
 import { saveCatalogViewMode } from '../../utils/catalogViewMode'
 import { useTranslation } from 'react-i18next'
@@ -606,7 +607,7 @@ export default function LotDetail() {
                   {allImages.length > 0 ? (
                     <>
                       <img
-                        src={allImages[currentImageIndex]}
+                        src={getImageUrl(allImages[currentImageIndex], 'hero')}
                         alt={`${finalProject?.name || 'Unit'} - image ${currentImageIndex + 1}`}
                         className={styles.projectImage}
                       />
@@ -645,7 +646,7 @@ export default function LotDetail() {
                       }`}
                       onClick={() => setCurrentImageIndex(idx)}
                     >
-                      <img src={url} alt={`Thumbnail ${idx + 1}`} />
+                      <img src={getImageUrl(url, 'thumbnail')} alt={`Thumbnail ${idx + 1}`} />
                     </button>
                   ))}
                 </div>
@@ -682,7 +683,7 @@ export default function LotDetail() {
                   <div className={styles.desktopViewGallery}>
                     <div className={styles.desktopViewMain}>
                       <img
-                        src={mobileViewPhotos[currentViewPhotoIndex]}
+                        src={getImageUrl(mobileViewPhotos[currentViewPhotoIndex], 'hero')}
                         alt={`View photo ${currentViewPhotoIndex + 1}`}
                         className={styles.desktopViewMainImage}
                       />
@@ -715,7 +716,7 @@ export default function LotDetail() {
                             onClick={() => setCurrentViewPhotoIndex(idx)}
                             aria-label={`View photo ${idx + 1}`}
                           >
-                            <img src={url} alt={`View thumbnail ${idx + 1}`} />
+                            <img src={getImageUrl(url, 'thumbnail')} alt={`View thumbnail ${idx + 1}`} />
                           </button>
                         ))}
                       </div>
@@ -746,7 +747,7 @@ export default function LotDetail() {
         <div className={styles.mobileHero}>
           <div className={styles.mobileHeroMain}>
             {mobileMainImage ? (
-              <img src={mobileMainImage} alt="Lot main" className={styles.mobileHeroImage} />
+              <img src={getImageUrl(mobileMainImage, 'hero')} alt="Lot main" className={styles.mobileHeroImage} />
             ) : (
               <div className={styles.imagePlaceholder}>
                 <span>{t('lotDetail.imagePlaceholder')}</span>
@@ -780,7 +781,7 @@ export default function LotDetail() {
               <div className={styles.mobileViewGallery}>
                 <div className={styles.mobileViewMain}>
                   <img
-                    src={mobileViewPhotos[currentViewPhotoIndex]}
+                    src={getImageUrl(mobileViewPhotos[currentViewPhotoIndex], 'hero')}
                     alt={`View photo ${currentViewPhotoIndex + 1}`}
                     className={styles.mobileViewMainImage}
                   />
@@ -815,7 +816,7 @@ export default function LotDetail() {
                       }`}
                       onClick={() => setCurrentViewPhotoIndex(idx)}
                     >
-                      <img src={url} alt={`View photo ${idx + 1}`} />
+                      <img src={getImageUrl(url, 'thumbnail')} alt={`View photo ${idx + 1}`} />
                     </button>
                   ))}
                 </div>

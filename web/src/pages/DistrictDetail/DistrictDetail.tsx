@@ -6,6 +6,7 @@ import PropertyMap from '../../components/PropertyMap/PropertyMap'
 import { ROUTES, getProjectDetailRoute } from '../../constants/routes'
 import { getProjectSlug } from '../../utils/project'
 import { NotFound } from '../../ui/NotFound'
+import { getImageUrl } from '../../utils/imageUrl'
 import styles from './DistrictDetail.module.scss'
 
 export default function DistrictDetail() {
@@ -157,7 +158,7 @@ export default function DistrictDetail() {
                   >
                     {project.media?.cover?.url && (
                       <img
-                        src={project.media.cover.url}
+                        src={getImageUrl(project.media.cover.url, 'card')}
                         alt={project.name}
                         className={styles.propertyImage}
                       />

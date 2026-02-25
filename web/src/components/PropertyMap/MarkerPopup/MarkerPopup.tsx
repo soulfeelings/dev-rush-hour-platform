@@ -6,6 +6,7 @@ import { Typography } from '../../../ui/Typography'
 import { RoiBadge } from '../../../ui/RoiBadge'
 import { splitCompletionDate } from '../../splitCompletionDate'
 import { formatPrice } from '../../../utils/format'
+import { getImageUrl } from '../../../utils/imageUrl'
 import clsx from 'clsx'
 
 interface MarkerPopupProps {
@@ -44,7 +45,7 @@ export const MarkerPopup = ({ project, direction = 'top', currency = 'AED' }: Ma
               ))}
             </div>
           )}
-          {coverImage && <img src={coverImage} alt={project.name} />}
+          {coverImage && <img src={getImageUrl(coverImage, 'card')} alt={project.name} />}
         </div>
 
         <div className="mp-info-container">
@@ -52,7 +53,7 @@ export const MarkerPopup = ({ project, direction = 'top', currency = 'AED' }: Ma
             <div className="mp-project-logo-container">
               {logoUrl && (
                 <div className="mp-project-logo">
-                  <img src={logoUrl} alt={project.developer?.name} />
+                  <img src={getImageUrl(logoUrl, 'thumbnail')} alt={project.developer?.name} />
                 </div>
               )}
             </div>
