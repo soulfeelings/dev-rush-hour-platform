@@ -9,6 +9,15 @@ isProject: false
 
 Развернуть приложение Rush Hour Platform по архитектуре: backend на Railway, frontend на Cloudflare Pages, медиа в Cloudflare Images. Обеспечить работу admin-авторизации (Microsoft OAuth + HttpOnly куки).
 
+## Статус выполнения (чек-лист)
+
+- Этап 1: Cloudflare Images
+- Этап 2: Backend на Railway (кроме 2.5 домена)
+- Этап 3: Frontend на Cloudflare Pages
+- Этап 4: Azure AD и OAuth
+- Этап 5: Проверка (public, media, admin, CORS)
+- Этап 2.5: Кастомный домен API (`api.{domain}`) и финальные CORS/cookie/`MEDIA_PUBLIC_URL`
+
 ## Архитектура
 
 ```mermaid
@@ -76,6 +85,7 @@ Backend уже поддерживает `cloudflare_images`:
 - При необходимости — маппинг в `DB_` (см. [config.go](backend/internal/config/config.go)).
 
 > TODO (вернуться позже): когда основной домен будет подключён, пересобрать значения CORS / cookie:
+>
 > - `CORS_ALLOWED_ORIGIN` → `https://app.{domain}` (или список нескольких origins через запятую);
 > - при необходимости пересмотреть `COOKIE_SAME_SITE` в зависимости от финальной схемы доменов (поддомены / разные домены).
 
@@ -113,6 +123,12 @@ Backend уже поддерживает `cloudflare_images`:
 
 - В Railway: **Settings → Domains** → добавить `api.{domain}`.
 - Настроить CNAME в DNS: `api.{domain}` → значение, выданное Railway.
+
+> TODO (на потом): после того как заказчик подготовит домен, вернуться к этому шагу:
+>
+> - привязать `api.{domain}` в Railway;
+> - создать CNAME в DNS на указанный Railway-хост;
+> - обновить `CORS_ALLOWED_ORIGIN`, `MEDIA_PUBLIC_URL` и cookie-настройки под боевой домен.
 
 ---
 
