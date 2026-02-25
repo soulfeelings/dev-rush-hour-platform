@@ -31,7 +31,6 @@ type ServerConfig struct {
 type AdminConfig struct {
 	JWTSecret       string
 	SuperadminEmail string
-	GoogleClientID  string
 }
 
 type CORSConfig struct {
@@ -80,7 +79,6 @@ func Load() *Config {
 		Admin: AdminConfig{
 			JWTSecret:       getEnv("JWT_SECRET", ""),
 			SuperadminEmail: getEnv("SUPERADMIN_EMAIL", ""),
-			GoogleClientID:  getEnv("GOOGLE_CLIENT_ID", ""),
 		},
 		CORS: CORSConfig{
 			AllowedOrigin: getEnv("CORS_ALLOWED_ORIGIN", "http://localhost:5173"),
