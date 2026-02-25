@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 )
 
 // LocalDelivery implements MediaDelivery for local filesystem
@@ -24,10 +23,9 @@ func NewLocalDelivery(publicURL string) *LocalDelivery {
 
 // GetReadURL returns a direct public URL for local storage
 // No signing needed for local development
-func (d *LocalDelivery) GetReadURL(ctx context.Context, key string, expires time.Duration) (string, error) {
+func (d *LocalDelivery) GetReadURL(ctx context.Context, key string) (string, error) {
 	d.logger.Info("local_delivery_get_read_url",
 		"key", key,
-		"expires", expires,
 	)
 
 	return fmt.Sprintf("%s/%s", d.publicURL, key), nil

@@ -1,14 +1,11 @@
 package delivery
 
-import (
-	"context"
-	"time"
-)
+import "context"
 
 // MediaDelivery defines the interface for generating read URLs for media
 type MediaDelivery interface {
-	// GetReadURL generates a signed URL for reading a media object
-	GetReadURL(ctx context.Context, key string, expires time.Duration) (string, error)
+	// GetReadURL returns a public URL for reading a media object
+	GetReadURL(ctx context.Context, key string) (string, error)
 
 	// Driver returns the delivery driver name
 	Driver() string

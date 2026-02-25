@@ -8,7 +8,7 @@ The Media Service provides file storage and delivery with support for local file
 - **Local mode** (dev): Multipart upload to local filesystem
 - **Cloudflare Images** (production): Proxy upload to CF, delivery via imagedelivery.net
 - **Responsive variants:** thumbnail, card, medium, hero, full (OpenAPI ImageVariant)
-- **expiresIn=0** for CF (URLs don't expire)
+- **expiresIn** is always 0 (URLs don't expire for either driver)
 
 ## Architecture
 
@@ -38,7 +38,6 @@ MEDIA_DRIVER=local
 # Local storage settings
 MEDIA_UPLOAD_DIR=./uploads
 MEDIA_PUBLIC_URL=http://localhost:8080/api/media
-MEDIA_SIGNED_TTL_SECONDS=3600
 
 # Cloudflare Images (required when MEDIA_DRIVER=cloudflare_images)
 CLOUDFLARE_ACCOUNT_ID=your-account-id

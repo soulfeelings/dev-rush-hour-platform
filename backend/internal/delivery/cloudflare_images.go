@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 )
 
 // CFImagesDelivery implements MediaDelivery for Cloudflare Images
@@ -25,7 +24,7 @@ func NewCFImagesDelivery(accountHash string) *CFImagesDelivery {
 
 // GetReadURL returns base URL: https://imagedelivery.net/{hash}/{imageID}
 // Frontend appends /{variant} (e.g. /public, /thumbnail, /card)
-func (d *CFImagesDelivery) GetReadURL(ctx context.Context, imageID string, expires time.Duration) (string, error) {
+func (d *CFImagesDelivery) GetReadURL(ctx context.Context, imageID string) (string, error) {
 	d.logger.Info("cf_images_delivery_get_read_url",
 		"image_id", imageID,
 	)

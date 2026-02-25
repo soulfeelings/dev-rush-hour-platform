@@ -474,7 +474,7 @@ func initMediaService(ctx context.Context, cfg *config.Config, pool *pgxpool.Poo
 		log.Printf("Local storage initialized: dir=%s, url=%s", cfg.Media.UploadDir, cfg.Media.PublicURL)
 	}
 
-	return services.NewMediaService(mediaRepo, mediaStorage, mediaDelivery, cfg.Media.SignedTTLSeconds), nil
+	return services.NewMediaService(mediaRepo, mediaStorage, mediaDelivery), nil
 }
 
 func main() {

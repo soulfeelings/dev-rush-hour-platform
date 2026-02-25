@@ -50,9 +50,6 @@ type MediaConfig struct {
 	UploadDir string
 	PublicURL string
 
-	// Signed URL TTL in seconds (default 3600 = 1 hour)
-	SignedTTLSeconds int
-
 	// Delivery mode (auto-detected from driver if empty)
 	DeliveryMode string
 }
@@ -88,11 +85,10 @@ func Load() *Config {
 			Secure:   getEnvBool("COOKIE_SECURE", false),
 		},
 		Media: MediaConfig{
-			Driver:           getEnv("MEDIA_DRIVER", "local"),
-			UploadDir:        getEnv("MEDIA_UPLOAD_DIR", "./uploads"),
-			PublicURL:        getEnv("MEDIA_PUBLIC_URL", "http://localhost:8080/api/media"),
-			SignedTTLSeconds: getEnvInt("MEDIA_SIGNED_TTL_SECONDS", 3600),
-			DeliveryMode:     getEnv("MEDIA_DELIVERY", ""),
+			Driver:       getEnv("MEDIA_DRIVER", "local"),
+			UploadDir:    getEnv("MEDIA_UPLOAD_DIR", "./uploads"),
+			PublicURL:    getEnv("MEDIA_PUBLIC_URL", "http://localhost:8080/api/media"),
+			DeliveryMode: getEnv("MEDIA_DELIVERY", ""),
 		},
 		CloudflareImages: CloudflareImagesConfig{
 			AccountID:   getEnv("CLOUDFLARE_ACCOUNT_ID", ""),
@@ -105,15 +101,6 @@ func Load() *Config {
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
-	}
-	return defaultValue
-}
-
-func getEnvInt(key string, defaultValue int) int {
-	if value := os.Getenv(key); value != "" {
-		if intVal, err := strconv.Atoi(value); err == nil {
-			return intVal
-		}
 	}
 	return defaultValue
 }

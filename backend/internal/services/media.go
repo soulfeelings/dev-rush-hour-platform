@@ -28,12 +28,11 @@ const (
 )
 
 type MediaService struct {
-	repo        *repo.MediaRepo
-	storage     storage.MediaStorage
-	delivery    delivery.MediaDelivery
-	signedTTL   time.Duration
-	driver      string
-	logger      *slog.Logger
+	repo     *repo.MediaRepo
+	storage  storage.MediaStorage
+	delivery delivery.MediaDelivery
+	driver   string
+	logger   *slog.Logger
 }
 
 // StorageDriver returns the current storage driver name
@@ -46,20 +45,13 @@ func NewMediaService(
 	repo *repo.MediaRepo,
 	storage storage.MediaStorage,
 	delivery delivery.MediaDelivery,
-	signedTTLSeconds int,
 ) *MediaService {
-	ttl := time.Duration(signedTTLSeconds) * time.Second
-	if ttl == 0 {
-		ttl = time.Hour // Default 1 hour
-	}
-
 	return &MediaService{
-		repo:      repo,
-		storage:   storage,
-		delivery:  delivery,
-		signedTTL: ttl,
-		driver:    storage.Driver(),
-		logger:    slog.Default(),
+		repo:     repo,
+		storage:  storage,
+		delivery: delivery,
+		driver:   storage.Driver(),
+		logger:   slog.Default(),
 	}
 }
 
@@ -257,19 +249,14 @@ func (s *MediaService) GetURL(ctx context.Context, id uuid.UUID) (*domain.MediaU
 		return nil, ErrMediaNotFound
 	}
 
-	// Get signed URL
-	url, err := s.delivery.GetReadURL(ctx, media.StorageKey, s.signedTTL)
+	// Get URL
+	url, err := s.delivery.GetReadURL(ctx, media.StorageKey)
 	if err != nil {
 		s.logger.Error("media_service_get_url_sign_failed",
 			"id", id,
 			"error", err.Error(),
 		)
-		return nil, fmt.Errorf("failed to generate signed URL: %w", err)
-	}
-
-	expiresIn := int(s.signedTTL.Seconds())
-	if s.driver == "cloudflare_images" {
-		expiresIn = 0
+		return nil, fmt.Errorf("failed to generate URL: %w", err)
 	}
 
 	s.logger.Info("media_service_get_url_completed",
@@ -277,9 +264,8 @@ func (s *MediaService) GetURL(ctx context.Context, id uuid.UUID) (*domain.MediaU
 	)
 
 	return &domain.MediaURL{
-		ID:        media.ID,
-		URL:       url,
-		ExpiresIn: expiresIn,
+		ID:  media.ID,
+		URL: url,
 	}, nil
 }
 
@@ -323,15 +309,10 @@ func (s *MediaService) GetURLs(ctx context.Context, ids []uuid.UUID) (*GetURLsRe
 		return nil, fmt.Errorf("failed to get media: %w", err)
 	}
 
-	expiresIn := int(s.signedTTL.Seconds())
-	if s.driver == "cloudflare_images" {
-		expiresIn = 0
-	}
-
 	// Generate URLs
 	var items []domain.MediaURL
 	for _, media := range mediaList {
-		url, err := s.delivery.GetReadURL(ctx, media.StorageKey, s.signedTTL)
+		url, err := s.delivery.GetReadURL(ctx, media.StorageKey)
 		if err != nil {
 			s.logger.Error("media_service_get_urls_sign_failed",
 				"id", media.ID,
@@ -342,9 +323,8 @@ func (s *MediaService) GetURLs(ctx context.Context, ids []uuid.UUID) (*GetURLsRe
 		}
 
 		items = append(items, domain.MediaURL{
-			ID:        media.ID,
-			URL:       url,
-			ExpiresIn: expiresIn,
+			ID:  media.ID,
+			URL: url,
 		})
 	}
 
