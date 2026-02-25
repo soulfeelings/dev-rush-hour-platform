@@ -483,7 +483,7 @@ export default function ProjectDetail() {
               {displayLogoUrl && (
                 <div className={styles.projectLogoContainer}>
                   <img
-                    src={displayLogoUrl}
+                    src={getImageUrl(displayLogoUrl, 'thumbnail')}
                     alt={project.name || project.developer?.name}
                     className={styles.projectLogo}
                   />

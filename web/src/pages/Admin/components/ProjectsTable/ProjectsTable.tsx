@@ -5,6 +5,7 @@ import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Select } f
 import type { Project } from '../../../../api/generated/schemas/project'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
+import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './ProjectsTable.module.scss'
 
 const { useAdminListProjects, useAdminListDevelopers, useAdminListAreas, useAdminListCities } = AdminApi
@@ -272,7 +273,7 @@ export function ProjectsTable({
                 <td className={styles.imageCell}>
                   {getProjectImageUrl(project) ? (
                     <img
-                      src={getProjectImageUrl(project) || ''}
+                      src={getImageUrl(getProjectImageUrl(project) || '', 'thumbnail')}
                       alt={project.name || 'Project'}
                       className={styles.image}
                     />

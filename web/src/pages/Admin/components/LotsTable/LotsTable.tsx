@@ -4,6 +4,7 @@ import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Select } f
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
+import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './LotsTable.module.scss'
 import { TrashIcon } from 'lucide-react'
 
@@ -291,7 +292,7 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
                 <td className={styles.imageCell}>
                   {getLotImageUrl(lot) ? (
                     <img
-                      src={getLotImageUrl(lot) || ''}
+                      src={getImageUrl(getLotImageUrl(lot) || '', 'thumbnail')}
                       alt={`Lot ${lot.id}`}
                       className={styles.image}
                     />
