@@ -33,6 +33,7 @@ export * from './Toast'
 export * from './Tooltip'
 export * from './Skeleton'
 export * from './ErrorState'
+export * from './FullPageSpinner'
 
 // Icons: use lucide-react directly
 // import { Search, Heart, Home, MapPin } from 'lucide-react'
