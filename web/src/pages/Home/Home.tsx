@@ -13,7 +13,7 @@ import {
   Scan,
 } from 'lucide-react'
 import styles from './Home.module.scss'
-import { Button, Input, Select, Modal, ModalBody, ModalFooter, Toast, Skeleton } from '../../ui'
+import { Button, Toast, Skeleton } from '../../ui'
 import { ROUTES } from '../../constants/routes'
 import { useListProjects } from '../../api'
 import { ProjectCard } from '../../components/ProjectCard'
@@ -29,12 +29,8 @@ export default function Home() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const isRTL = useIsRTL()
-  const [showModal, setShowModal] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const carouselRef = useRef<HTMLDivElement>(null)
-
-  // Modal form state
-  const [preferredTime, setPreferredTime] = useState('morning')
 
   // Fetch featured projects
   const { data: projects, isLoading: isProjectsLoading } = useListProjects({ featured: true })
@@ -307,14 +303,6 @@ export default function Home() {
             <Button size="lg" onClick={() => navigate(ROUTES.CATALOG)}>
               {t('home.cta.getStarted')}
             </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
-              onClick={() => setShowModal(true)}
-            >
-              {t('home.cta.scheduleCall')}
-            </Button>
           </div>
         </div>
       </section>
@@ -329,102 +317,12 @@ export default function Home() {
               </h3>
               <p>{t('home.footer.tagline')}</p>
             </div>
-            <div className={styles.footerColumn}>
-              <h4>{t('home.footer.properties.title')}</h4>
-              <ul>
-                <li>
-                  <a href="#">{t('home.footer.properties.buy')}</a>
-                </li>
-                <li>
-                  <a href="#">{t('home.footer.properties.rent')}</a>
-                </li>
-                <li>
-                  <a href="#">{t('home.footer.properties.offPlan')}</a>
-                </li>
-                <li>
-                  <a href="#">{t('home.footer.properties.commercial')}</a>
-                </li>
-              </ul>
-            </div>
-            <div className={styles.footerColumn}>
-              <h4>{t('home.footer.company.title')}</h4>
-              <ul>
-                <li>
-                  <a href="#">{t('home.footer.company.about')}</a>
-                </li>
-                <li>
-                  <a href="#">{t('home.footer.company.careers')}</a>
-                </li>
-                <li>
-                  <a href="#">{t('home.footer.company.press')}</a>
-                </li>
-                <li>
-                  <a href="#">{t('home.footer.company.contact')}</a>
-                </li>
-              </ul>
-            </div>
-            <div className={styles.footerColumn}>
-              <h4>{t('home.footer.support.title')}</h4>
-              <ul>
-                <li>
-                  <a href="#">{t('home.footer.support.help')}</a>
-                </li>
-                <li>
-                  <a href="#">{t('home.footer.support.privacy')}</a>
-                </li>
-                <li>
-                  <a href="#">{t('home.footer.support.terms')}</a>
-                </li>
-                <li>
-                  <a href="#">{t('home.footer.support.faq')}</a>
-                </li>
-              </ul>
-            </div>
           </div>
           <div className={styles.footerBottom}>
             <p className={styles.footerCopyright}>{t('home.footer.copyright')}</p>
           </div>
         </div>
       </footer>
-
-      {/* Modal */}
-      <Modal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        title={t('home.modal.scheduleCall.title')}
-      >
-        <ModalBody>
-          <Input
-            label={t('home.modal.scheduleCall.name')}
-            placeholder={t('home.modal.scheduleCall.namePlaceholder')}
-          />
-          <div style={{ marginTop: '16px' }}>
-            <Input
-              label={t('home.modal.scheduleCall.phone')}
-              type="tel"
-              placeholder={t('home.modal.scheduleCall.phonePlaceholder')}
-            />
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <Select
-              label={t('home.modal.scheduleCall.preferredTime')}
-              options={[
-                { value: 'morning', label: t('home.modal.scheduleCall.morning') },
-                { value: 'afternoon', label: t('home.modal.scheduleCall.afternoon') },
-                { value: 'evening', label: t('home.modal.scheduleCall.evening') },
-              ]}
-              value={preferredTime}
-              onChange={setPreferredTime}
-            />
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="ghost" onClick={() => setShowModal(false)}>
-            {t('home.modal.scheduleCall.cancel')}
-          </Button>
-          <Button variant="primary">{t('home.modal.scheduleCall.submit')}</Button>
-        </ModalFooter>
-      </Modal>
 
       {/* Toast */}
       <Toast open={showToast} onClose={() => setShowToast(false)} variant="success">
