@@ -62,6 +62,7 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
     const mapRef = useRef<L.Map | null>(null)
     const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null)
     const spiderfiedMarkersRef = useRef<Set<L.Marker>>(new Set())
+    const initialFitDoneRef = useRef(false)
 
     const updateMarkers = useCallback(() => {
       if (!mapRef.current) return
@@ -220,12 +221,16 @@ const PropertyMap = forwardRef<PropertyMapRef, PropertyMapProps>(
 
       updateMarkers()
 
-      const projectsWithCoords = projects
-        .map(p => getCoordinates(p))
-        .filter((c): c is [number, number] => c !== undefined)
-      if (projectsWithCoords.length > 0 && mapRef.current) {
-        const bounds = L.latLngBounds(projectsWithCoords)
-        mapRef.current.fitBounds(bounds, { padding: [50, 50] })
+      // Only fit bounds on initial load, not on every filter change
+      if (!initialFitDoneRef.current) {
+        const projectsWithCoords = projects
+          .map(p => getCoordinates(p))
+          .filter((c): c is [number, number] => c !== undefined)
+        if (projectsWithCoords.length > 0 && mapRef.current) {
+          const bounds = L.latLngBounds(projectsWithCoords)
+          mapRef.current.fitBounds(bounds, { padding: [50, 50] })
+          initialFitDoneRef.current = true
+        }
       }
 
       return () => {

@@ -9,27 +9,7 @@
   background: $color-bg-card;
   box-sizing: border-box;
   flex-shrink: 0;
-  margin-bottom: $spacing-3;
-}
-
-.searchOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 99;
-  animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  // margin-bottom: $spacing-3;
 }
 
 .filtersBar {
@@ -63,17 +43,8 @@
   transition: z-index 0s;
 
   &.searchFocused {
-    z-index: 100;
-
     .searchInput {
-      width: 400px;
-      background: $color-bg-card;
-      border-color: $color-charcoal-grey-30;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-
-      @media (max-width: $breakpoint-md) {
-        width: calc(100vw - 48px);
-      }
+      border-color: $color-yellow;
     }
   }
 }
@@ -92,7 +63,7 @@
 }
 
 .searchInput {
-  height: 36px;
+  height: 31px;
   width: 250px;
   padding: $spacing-2 $spacing-3 $spacing-2 $spacing-8;
 
@@ -109,7 +80,6 @@
   transition:
     width 0.2s ease-out,
     border-color $transition-fast,
-    box-shadow 0.2s ease-out,
     background 0.2s ease-out;
 
   &::placeholder {

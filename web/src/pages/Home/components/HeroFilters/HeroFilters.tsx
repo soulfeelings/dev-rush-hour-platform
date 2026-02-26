@@ -70,40 +70,39 @@ export default function HeroFilters() {
   }
 
   const handleContactAgent = () => {
-    const cityLabel =
-      cityOptions.find(opt => opt.value === (city || 'all'))?.label ||
-      t('filters.location.placeholder')
-    const developerLabel =
-      developerOptions.find(opt => opt.value === (developer || 'all'))?.label ||
-      t('filters.developer.placeholder')
-    const projectLabel =
-      projectOptions.find(opt => opt.value === (project || 'all'))?.label ||
-      t('filters.project.placeholder')
-    const bedsLabel =
-      bedrooms.length === 0
-        ? t('filters.bedrooms.all')
-        : bedrooms.includes('studio')
-          ? t('filters.bedrooms.studio')
-          : `${bedrooms.join(', ')} ${t('filters.bedrooms.one').replace('1 ', '')}`
-    const bathsLabel =
-      bathrooms.length === 0
-        ? t('home.properties.baths')
-        : `${bathrooms.join(', ')} ${t('home.properties.baths')}`
-    const priceLabel =
-      minPrice || maxPrice
-        ? `${minPrice || '0'} - ${maxPrice || t('filters.price.any')} ${currency}`
-        : t('filters.price.all')
+    const filters: string[] = []
+
+    if (city) {
+      const label = cityOptions.find(opt => opt.value === city)?.label
+      if (label) filters.push(`- City: ${label}`)
+    }
+    if (developer) {
+      const label = developerOptions.find(opt => opt.value === developer)?.label
+      if (label) filters.push(`- Developer: ${label}`)
+    }
+    if (project) {
+      const label = projectOptions.find(opt => opt.value === project)?.label
+      if (label) filters.push(`- Project: ${label}`)
+    }
+    if (bedrooms.length > 0) {
+      const label = bedrooms.includes('studio')
+        ? t('filters.bedrooms.studio')
+        : `${bedrooms.join(', ')} ${t('filters.bedrooms.one').replace('1 ', '')}`
+      filters.push(`- Bedrooms: ${label}`)
+    }
+    if (bathrooms.length > 0) {
+      filters.push(`- Bathrooms: ${bathrooms.join(', ')}`)
+    }
+    if (minPrice || maxPrice) {
+      filters.push(`- Price: ${minPrice || '0'} - ${maxPrice || t('filters.price.any')} ${currency}`)
+    }
+    if (minRoi || maxRoi) {
+      filters.push(`- ROI: ${minRoi || '0'}% - ${maxRoi || t('filters.roi.any')}`)
+    }
 
     const message = [
       "Hello! I'm interested in properties in Dubai.",
-      'Filters:',
-      `- City: ${cityLabel}`,
-      `- Developer: ${developerLabel}`,
-      `- Project: ${projectLabel}`,
-      `- Bedrooms: ${bedsLabel}`,
-      `- Bathrooms: ${bathsLabel}`,
-      `- Price: ${priceLabel}`,
-      `- ROI: ${minRoi || maxRoi ? `${minRoi || '0'}% - ${maxRoi || t('filters.roi.any')}` : t('filters.roi.all')}`,
+      ...(filters.length > 0 ? ['Filters:', ...filters] : []),
     ].join('\n')
 
     openWhatsApp(message)

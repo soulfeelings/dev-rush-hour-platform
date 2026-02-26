@@ -4,14 +4,14 @@ import { Map, LayoutGrid, ChevronRight } from 'lucide-react'
 import { Select } from '../../ui/Select'
 import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
 import PropertyMap from '../../components/PropertyMap'
-import { useListProjects } from '../../api'
-import { getProjectSlug } from '../../utils/project'
+import { useListProjects, useListAreas } from '../../api'
 import { useFilters } from '../../contexts'
 import styles from './Catalog.module.scss'
 import type { PropertyMapRef } from '../../components/PropertyMap/PropertyMap'
 import ProjectsView from './components/ProjectsView'
 import { ListProjectsSort } from '../../api/generated/schemas/listProjectsSort'
 import type { ListProjectsParams } from '../../api/generated/schemas/listProjectsParams'
+
 
 // =====================================
 // LAYOUT MODE PERSISTENCE
@@ -111,8 +111,6 @@ const getPriceRange = (priceRange: string): { min?: number; max?: number } => {
   }
 }
 
-type CatalogTab = 'projects' | 'lots'
-
 // =====================================
 // CATALOG COMPONENT
 // =====================================
@@ -121,7 +119,6 @@ export default function Catalog() {
   const { filters, updateFilter } = useFilters()
   const [layoutMode, setLayoutMode] = useState<DesktopView>(loadLayoutMode)
   const [mobileView, setMobileView] = useState<MobileView>(loadMobileView)
-  const [activeTab, setActiveTab] = useState<CatalogTab>('projects')
   const mapRef = useRef<PropertyMapRef | null>(null)
   const isDesktop = useIsDesktop()
   const { t } = useTranslation()
@@ -211,13 +208,22 @@ export default function Catalog() {
     query: ALWAYS_FRESH_QUERY_OPTIONS,
   })
 
+  // Load all areas for city-filtered area dropdown
+  const { data: allAreas } = useListAreas()
+
+  // Derive area options: filter by selected city
+  const areaOptions = useMemo(() => {
+    if (!allAreas) return undefined
+    let filtered = allAreas.filter(a => !a.deletedAt)
+    if (filters.city) {
+      filtered = filtered.filter(a => a.city === filters.city)
+    }
+    return filtered.map(a => ({ value: a.slug || '', label: a.name || '' }))
+  }, [allAreas, filters.city])
+
   const projects = useMemo(() => {
     if (!projectsData) return []
     let result = [...projectsData]
-
-    if (filters.project) {
-      result = result.filter(p => getProjectSlug(p) === filters.project)
-    }
 
     if (filters.propertyType !== 'all') {
       result = result.filter(p =>
@@ -226,7 +232,7 @@ export default function Catalog() {
     }
 
     return result
-  }, [projectsData, filters.project, filters.propertyType])
+  }, [projectsData, filters.propertyType])
 
   // Desktop layout mode change handler
   const handleLayoutChange = useCallback((mode: DesktopView) => {
@@ -259,30 +265,13 @@ export default function Catalog() {
     [projects]
   )
   const totalResults = activeProjects.length
-  const displayedResults = activeProjects.filter(p => !p.isFeatured).length
 
   const catalogContent = (
     <div className={styles.catalogContent}>
-      <div className={styles.tabSwitcher}>
-        <button
-          className={`${styles.tabButton} ${activeTab === 'projects' ? styles.tabButtonActive : ''}`}
-          onClick={() => setActiveTab('projects')}
-          type="button"
-        >
-          {t('catalog.tabs.projects')}
-        </button>
-        <button
-          className={`${styles.tabButton} ${activeTab === 'lots' ? styles.tabButtonActive : ''}`}
-          onClick={() => setActiveTab('lots')}
-          type="button"
-        >
-          {t('catalog.tabs.lots')}
-        </button>
-      </div>
       <div className={styles.resultsHeader}>
         <span className={styles.resultsCount}>
-          {t(activeTab === 'projects' ? 'catalog.results.count' : 'catalog.results.count.lots', {
-            displayed: displayedResults,
+          {t('catalog.results.count', {
+            displayed: totalResults,
             total: totalResults,
           })}
         </span>
@@ -310,7 +299,7 @@ export default function Catalog() {
 
   return (
     <div className={styles.container}>
-      <CatalogFilters activeTab={activeTab} />
+      <CatalogFilters areaOptions={areaOptions} />
       <div className={styles.contentWrapper}>
         {isDesktop ? (
           /* Desktop: CSS Grid layout with mode switching (>=1024px) */

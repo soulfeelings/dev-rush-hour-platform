@@ -31,10 +31,10 @@ const mapFilterOptions = ({
 }
 
 interface CatalogFiltersProps {
-  activeTab?: 'projects' | 'lots'
+  areaOptions?: { value: string; label: string }[]
 }
 
-export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) => {
+export const CatalogFilters = ({ areaOptions }: CatalogFiltersProps) => {
   const { t } = useTranslation()
   const { filters, options, updateFilter, resetFilters, isLoading } = useFilters()
   const [searchInput, setSearchInput] = useState(filters.search)
@@ -86,21 +86,19 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
         emptyValue: '',
       }),
       area: mapFilterOptions({
-        apiOptions: options?.areas ? [{ value: '', label: '' }, ...options.areas] : undefined,
+        apiOptions: areaOptions
+          ? [{ value: '', label: '' }, ...areaOptions]
+          : options?.areas
+            ? [{ value: '', label: '' }, ...options.areas]
+            : undefined,
         allLabel: t('filters.area.all'),
         fallback: [{ value: '', label: t('filters.area.all') }],
         emptyValue: '',
       }),
       developer: mapFilterOptions({
         apiOptions: options?.developers ? [{ value: '', label: '' }, ...options.developers] : undefined,
-        allLabel: t('filters.developer.all'),
-        fallback: [{ value: '', label: t('filters.developer.all') }],
-        emptyValue: '',
-      }),
-      project: mapFilterOptions({
-        apiOptions: options?.projects ? [{ value: '', label: '' }, ...options.projects] : undefined,
-        allLabel: t('filters.project.all'),
-        fallback: [{ value: '', label: t('filters.project.all') }],
+        allLabel: t('filters.developer.placeholder'),
+        fallback: [{ value: '', label: t('filters.developer.placeholder') }],
         emptyValue: '',
       }),
       propertyType: mapFilterOptions({
@@ -116,59 +114,36 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
           { value: 'triplex', label: t('filters.propertyType.triplex') },
         ],
       }),
-      lotType: [
-        { value: 'all', label: t('filters.lotType.all') },
-        { value: 'apartment', label: t('filters.lotType.apartment') },
-        { value: 'penthouse', label: t('filters.lotType.penthouse') },
-      ] as SelectOption[],
-      roiMin: [
-        { value: '', label: t('filters.roi.all') },
-        { value: '5', label: t('filters.roi.from5') },
-        { value: '7', label: t('filters.roi.from7') },
-        { value: '10', label: t('filters.roi.from10') },
-      ] as SelectOption[],
     }),
-    [options, t]
+    [options, t, areaOptions]
   )
 
   const hasActiveFilters = useMemo(() => {
-    if (activeTab === 'lots') {
-      return (
-        filters.lotType !== 'all' ||
-        filters.roiMin !== '' ||
-        filters.minPrice !== '' ||
-        filters.maxPrice !== '' ||
-        filters.bedrooms.length > 0 ||
-        filters.bathrooms.length > 0 ||
-        filters.status !== 'all' ||
-        filters.search !== ''
-      )
-    }
     return (
+      filters.city !== null ||
+      filters.area !== null ||
+      filters.developer !== null ||
+      filters.project !== null ||
+      filters.search !== '' ||
+      filters.propertyType !== 'all' ||
       filters.minPrice !== '' ||
       filters.maxPrice !== '' ||
       filters.bedrooms.length > 0 ||
       filters.bathrooms.length > 0 ||
-      filters.area !== null ||
-      filters.developer !== null ||
-      filters.project !== null ||
-      filters.propertyType !== 'all' ||
-      filters.status !== 'all' ||
-      filters.search !== ''
+      filters.status !== 'all'
     )
   }, [
-    activeTab,
-    filters.lotType,
-    filters.roiMin,
+    filters.city,
+    filters.area,
+    filters.developer,
+    filters.project,
+    filters.search,
+    filters.propertyType,
     filters.minPrice,
     filters.maxPrice,
     filters.bedrooms,
     filters.bathrooms,
-    filters.area,
-    filters.project,
-    filters.propertyType,
     filters.status,
-    filters.search,
   ])
 
   const handleClearFilters = useCallback(() => {
@@ -182,9 +157,8 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
 
   return (
     <div className={styles.filtersWrapper}>
-      {isSearchFocused && <div className={styles.searchOverlay} onClick={handleSearchBlur} />}
       <div className={styles.filtersBar}>
-        {/* City filter — always visible */}
+        {/* City */}
         <Select
           options={filterOptions.city}
           value={filters.city || ''}
@@ -196,7 +170,31 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
           hideChevronRight
         />
 
-        {/* Search — always visible */}
+        {/* Area */}
+        <Select
+          options={filterOptions.area}
+          value={filters.area || ''}
+          onChange={value => updateFilter('area', value || null)}
+          placeholder={t('filters.area.all')}
+          triggerSize="xs"
+          searchable
+          clearable
+          defaultValue=""
+        />
+
+        {/* Developer */}
+        <Select
+          options={filterOptions.developer}
+          value={filters.developer || ''}
+          onChange={value => updateFilter('developer', value || null)}
+          placeholder={t('filters.developer.placeholder')}
+          triggerSize="xs"
+          searchable
+          clearable
+          defaultValue=""
+        />
+
+        {/* Search by project name */}
         <div className={`${styles.searchWrapper} ${isSearchFocused ? styles.searchFocused : ''}`}>
           <Search size={16} className={styles.searchIcon} />
           <input
@@ -210,138 +208,51 @@ export const CatalogFilters = ({ activeTab = 'projects' }: CatalogFiltersProps) 
           />
         </div>
 
-        {activeTab === 'projects' ? (
-          <>
-            <Select
-              options={filterOptions.project}
-              value={filters.project || ''}
-              onChange={value => updateFilter('project', value || null)}
-              placeholder={t('filters.project.all')}
-              triggerSize="xs"
-              searchable
-              clearable
-              defaultValue=""
-            />
+        {/* Property Type */}
+        <Select
+          options={filterOptions.propertyType}
+          value={filters.propertyType}
+          onChange={value =>
+            updateFilter('propertyType', (value || 'all') as FilterValues['propertyType'])
+          }
+          placeholder={t('filters.propertyType.all')}
+          triggerSize="xs"
+          clearable
+          defaultValue="all"
+        />
 
-            <Select
-              options={filterOptions.area}
-              value={filters.area || ''}
-              onChange={value => updateFilter('area', value || null)}
-              placeholder={t('filters.area.all')}
-              triggerSize="xs"
-              searchable
-              clearable
-              defaultValue=""
-            />
-            <Select
-              options={filterOptions.developer}
-              value={filters.developer || ''}
-              onChange={value => updateFilter('developer', value || null)}
-              placeholder={t('filters.developer.all')}
-              triggerSize="xs"
-              searchable
-              clearable
-              defaultValue=""
-            />
-            <Select
-              options={filterOptions.propertyType}
-              value={filters.propertyType}
-              onChange={value =>
-                updateFilter('propertyType', (value || 'all') as FilterValues['propertyType'])
-              }
-              placeholder={t('filters.propertyType.all')}
-              triggerSize="xs"
-              clearable
-              defaultValue="all"
-            />
+        {/* Price */}
+        <PriceSelect
+          minPrice={filters.minPrice}
+          maxPrice={filters.maxPrice}
+          onMinPriceChange={value => updateFilter('minPrice', value)}
+          onMaxPriceChange={value => updateFilter('maxPrice', value)}
+          placeholder={t('filters.price.placeholder')}
+          size="xs"
+          clearable
+        />
 
-            <PriceSelect
-              minPrice={filters.minPrice}
-              maxPrice={filters.maxPrice}
-              onMinPriceChange={value => updateFilter('minPrice', value)}
-              onMaxPriceChange={value => updateFilter('maxPrice', value)}
-              placeholder={t('filters.price.placeholder')}
-              size="xs"
-              clearable
-            />
+        {/* Beds & Baths */}
+        <BedsBathsSelect
+          bedrooms={filters.bedrooms}
+          bathrooms={filters.bathrooms}
+          onBedroomsChange={value => updateFilter('bedrooms', value)}
+          onBathroomsChange={value => updateFilter('bathrooms', value)}
+          placeholder={t('filters.bathrooms.placeholder')}
+          size="xs"
+          clearable
+        />
 
-            <BedsBathsSelect
-              bedrooms={filters.bedrooms}
-              bathrooms={filters.bathrooms}
-              onBedroomsChange={value => updateFilter('bedrooms', value)}
-              onBathroomsChange={value => updateFilter('bathrooms', value)}
-              placeholder={t('filters.bathrooms.placeholder')}
-              size="xs"
-              clearable
-            />
-
-            <Select
-              options={filterOptions.status}
-              value={filters.status}
-              onChange={value => updateFilter('status', value as FilterValues['status'])}
-              placeholder={t('filters.status.placeholder')}
-              triggerSize="xs"
-              clearable
-              defaultValue="all"
-            />
-          </>
-        ) : (
-          <>
-            {/* Object Type */}
-            <Select
-              options={filterOptions.lotType}
-              value={filters.lotType}
-              onChange={value => updateFilter('lotType', value as FilterValues['lotType'])}
-              placeholder={t('filters.lotType.placeholder')}
-              triggerSize="xs"
-              clearable
-              defaultValue="all"
-            />
-
-            {/* Price */}
-            <PriceSelect
-              minPrice={filters.minPrice}
-              maxPrice={filters.maxPrice}
-              onMinPriceChange={value => updateFilter('minPrice', value)}
-              onMaxPriceChange={value => updateFilter('maxPrice', value)}
-              placeholder={t('filters.price.placeholder')}
-              size="xs"
-              clearable
-            />
-
-            {/* ROI */}
-            <Select
-              options={filterOptions.roiMin}
-              value={filters.roiMin}
-              onChange={value => updateFilter('roiMin', value)}
-              placeholder={t('filters.roi.placeholder')}
-              triggerSize="xs"
-              clearable
-            />
-
-            {/* Bedrooms */}
-            <BedsBathsSelect
-              bedrooms={filters.bedrooms}
-              bathrooms={filters.bathrooms}
-              onBedroomsChange={value => updateFilter('bedrooms', value)}
-              onBathroomsChange={value => updateFilter('bathrooms', value)}
-              placeholder={t('filters.bathrooms.placeholder')}
-              size="xs"
-              clearable
-            />
-
-            {/* Sales status */}
-            <Select
-              options={filterOptions.status}
-              value={filters.status}
-              onChange={value => updateFilter('status', value as FilterValues['status'])}
-              placeholder={t('filters.status.placeholder')}
-              triggerSize="xs"
-              clearable
-              defaultValue="all"
-            />
-          </>
-        )}
+        {/* Status */}
+        <Select
+          options={filterOptions.status}
+          value={filters.status}
+          onChange={value => updateFilter('status', value as FilterValues['status'])}
+          placeholder={t('filters.status.placeholder')}
+          triggerSize="xs"
+          clearable
+          defaultValue="all"
+        />
 
         <div className={styles.rightActions}>
           {hasActiveFilters && (

@@ -222,54 +222,11 @@
   padding: 0 $spacing-4;
   gap: $spacing-3;
   margin-bottom: $spacing-3;
+  margin-top: $spacing-3;
   background: $color-bg-card;
   border: 1px solid rgba($color-border, 0.6);
   border-radius: $radius-full;
   flex-shrink: 0;
-}
-
-// =====================================
-// TAB SWITCHER
-// =====================================
-
-.tabSwitcher {
-  display: flex;
-  align-items: center;
-  gap: $spacing-1;
-  padding: $spacing-1;
-  margin-bottom: $spacing-3;
-  background: $color-bg-card;
-  border: 1px solid rgba($color-border, 0.6);
-  border-radius: $radius-full;
-  flex-shrink: 0;
-}
-
-.tabButton {
-  flex: 1;
-  height: 30px;
-  padding: 0 $spacing-6;
-  border: none;
-  border-radius: $radius-full;
-  background: transparent;
-  color: $color-text-secondary;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  cursor: pointer;
-  transition: all $transition-fast;
-  white-space: nowrap;
-
-  &:hover {
-    color: $color-text;
-  }
-}
-
-.tabButtonActive {
-  background: $color-yellow;
-  color: $color-charcoal-black;
-
-  &:hover {
-    color: $color-charcoal-black;
-  }
 }
 
 .headerActions {
@@ -378,17 +335,6 @@
 }
 
 // =====================================
-// LOTS GRID
-// =====================================
-
-.lotsGrid {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-4;
-  width: 100%;
-}
-
-// =====================================
 // SKELETON: PROJECT CARDS
 // =====================================
 
@@ -462,90 +408,6 @@
   padding: $spacing-2 $spacing-4;
   margin-top: $spacing-1;
   border-bottom: 0.5px solid $color-charcoal-grey-10;
-}
-
-// =====================================
-// SKELETON: LOT CARDS
-// =====================================
-
-.skeletonLotCard {
-  display: flex;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  max-width: 930px;
-
-  @media (max-width: 968px) {
-    flex-direction: column;
-  }
-}
-
-.skeletonLotPhoto {
-  width: 45%;
-  min-width: 200px;
-  height: 350px !important;
-  border-radius: 16px 0 0 16px !important;
-  flex-shrink: 1;
-
-  @media (max-width: 968px) {
-    width: 100% !important;
-    height: 280px !important;
-    border-radius: 16px 16px 0 0 !important;
-  }
-}
-
-.skeletonLotInfo {
-  flex: 1;
-  min-width: 0;
-  height: 350px;
-  background: $color-bg-card;
-  border-radius: 0 16px 16px 0;
-  padding: $spacing-4;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: $spacing-4;
-
-  @media (max-width: 968px) {
-    height: auto;
-    border-radius: 0 0 16px 16px;
-  }
-}
-
-.skeletonLotHeader {
-  display: flex;
-  align-items: center;
-  gap: $spacing-3;
-}
-
-.skeletonLotHeaderText {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.skeletonLotSpecs {
-  display: flex;
-  gap: $spacing-3;
-  flex-wrap: wrap;
-}
-
-.skeletonLotPrices {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-2;
-}
-
-.skeletonLotPriceRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.skeletonLotButton {
-  border-radius: $radius-md !important;
-  margin-top: auto;
 }
 
 // =====================================
