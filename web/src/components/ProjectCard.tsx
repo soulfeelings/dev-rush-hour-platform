@@ -16,6 +16,7 @@ import { getImageUrl } from '../utils/imageUrl'
 import { splitCompletionDate } from './splitCompletionDate'
 import { useSettings } from '../features/Settings/Settings'
 import { formatPrice } from '../utils/format'
+import { openWhatsApp, buildProjectMessage } from '../services/whatsapp'
 
 const MOBILE_BREAKPOINT = 768
 
@@ -49,7 +50,7 @@ export const ProjectCard = ({
   forceHovered,
   compact,
 }: ProjectCardProps) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { currency } = useSettings()
   const isMobile = useIsMobile()
   const [isFavorited, setIsFavorited] = useState(false)
@@ -65,6 +66,20 @@ export const ProjectCard = ({
   const hoverImage = project.media?.hover?.url
   const logoUrl = project.media?.logo?.url
   const pricesByType = project.pricesByType ?? []
+
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    openWhatsApp(buildProjectMessage({
+      projectName: project.name,
+      areaName: project.area?.name,
+      developerName: project.developer?.name,
+      price: project.priceFromUs ?? project.priceFromDeveloper ?? undefined,
+      currency,
+      projectLink: `${window.location.origin}${getProjectDetailRoute(slug)}`,
+      lang: i18n.language,
+    }))
+  }
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -280,7 +295,7 @@ export const ProjectCard = ({
                 ) : null}
 
                 <div className={styles.buttonContainer}>
-                  <Button variant="primary" size="sm" fullWidth align="center">
+                  <Button variant="primary" size="sm" fullWidth align="center" onClick={handleWhatsAppClick}>
                     {t('getDetailsOnWhatsApp')}
                   </Button>
 

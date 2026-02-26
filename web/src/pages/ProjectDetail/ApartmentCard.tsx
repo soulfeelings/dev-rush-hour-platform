@@ -11,7 +11,7 @@ import { IconBed, IconBath, IconArea } from '../../components/icons'
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice, formatArea, capitalize } from '../../utils/format'
 import { getLotDetailRoute, getProjectDetailRoute } from '../../constants/routes'
-import { openWhatsApp } from '../../services/whatsapp'
+import { openWhatsApp, buildLotMessage } from '../../services/whatsapp'
 import { useIsRTL } from '../../hooks/useDirection'
 import { getImageUrl } from '../../utils/imageUrl'
 import { translateBonusKey } from '../../utils/bonusTranslations'
@@ -190,29 +190,22 @@ export function ApartmentCard({
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation()
-    const lang = i18n.language
     const origin = window.location.origin
-    const lotLink = lot.id ? `${origin}${getLotDetailRoute(lot.id)}` : null
-    const projectLink = projectSlug ? `${origin}${getProjectDetailRoute(projectSlug)}` : null
-
-    const lines = [
-      'Hello! I\'m a user from Rush Hour Platform. I\'m interested in this property:',
-      `- Project: ${projectName || '-'}`,
-      areaName ? `- Area: ${areaName}` : null,
-      lot.type ? `- Type: ${capitalize(lot.type)}` : null,
-      lot.bedrooms != null ? `- Bedrooms: ${lot.bedrooms}` : null,
-      lot.bathrooms != null ? `- Bathrooms: ${lot.bathrooms}` : null,
-      lot.areaSqm != null ? `- Size: ${formatArea(lot.areaSqm, unit)}` : null,
-      lot.floor != null ? `- Floor: ${lot.floor}` : null,
-      lotOurPrice ? `- Price: ${formatPrice(lotOurPrice, currency)}` : null,
-      '',
-      lotLink ? `Lot: ${lotLink}` : null,
-      projectLink ? `Project: ${projectLink}` : null,
-      '',
-      `User language: ${lang}`,
-    ].filter(v => v != null).join('\n')
-
-    openWhatsApp(lines)
+    openWhatsApp(buildLotMessage({
+      projectName: projectName || undefined,
+      areaName,
+      typeLabel: lot.type ? capitalize(lot.type) : undefined,
+      bedrooms: lot.bedrooms ?? undefined,
+      bathrooms: lot.bathrooms ?? undefined,
+      areaSqm: lot.areaSqm ?? undefined,
+      floor: lot.floor ?? undefined,
+      price: lotOurPrice,
+      currency,
+      unit,
+      lotLink: lot.id ? `${origin}${getLotDetailRoute(lot.id)}` : null,
+      projectLink: projectSlug ? `${origin}${getProjectDetailRoute(projectSlug)}` : null,
+      lang: i18n.language,
+    }))
   }
 
   const lotOurPrice = lot.priceFromUs

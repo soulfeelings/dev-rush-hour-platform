@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { getLotDetailRoute, getProjectDetailRoute } from '../constants/routes'
 import { Badge } from '../ui/Badge'
 import { useSettings } from '../features/Settings/Settings'
-import { openWhatsApp } from '../services/whatsapp'
+import { openWhatsApp, buildLotMessage } from '../services/whatsapp'
 import { formatPrice, formatArea } from '../utils/format'
 import { translateBonusKey } from '../utils/bonusTranslations'
 import { getImageUrl } from '../utils/imageUrl'
@@ -39,55 +39,6 @@ interface DisplayBadge {
   iconColor?: string
 }
 
-interface WhatsAppMessagePayload {
-  projectName: string
-  areaName?: string
-  typeLabel: string
-  bedrooms?: number
-  bathrooms?: number
-  areaSqm?: number
-  floor?: number
-  ourPrice: number
-  currency: Parameters<typeof formatPrice>[1]
-  unit: Parameters<typeof formatArea>[1]
-  lotLink?: string | null
-  projectLink?: string | null
-  lang: string
-}
-
-const buildLotWhatsAppMessage = ({
-  projectName,
-  areaName,
-  typeLabel,
-  bedrooms,
-  bathrooms,
-  areaSqm,
-  floor,
-  ourPrice,
-  currency,
-  unit,
-  lotLink,
-  projectLink,
-  lang,
-}: WhatsAppMessagePayload) =>
-  [
-    'Hello! I\'m a user from Rush Hour Platform. I\'m interested in this property:',
-    `- Project: ${projectName || '-'}`,
-    areaName ? `- Area: ${areaName}` : null,
-    `- Type: ${typeLabel}`,
-    bedrooms != null ? `- Bedrooms: ${bedrooms}` : null,
-    bathrooms != null ? `- Bathrooms: ${bathrooms}` : null,
-    areaSqm != null ? `- Size: ${formatArea(areaSqm, unit)}` : null,
-    floor != null ? `- Floor: ${floor}` : null,
-    ourPrice ? `- Price: ${formatPrice(ourPrice, currency)}` : null,
-    '',
-    lotLink ? `Lot: ${lotLink}` : null,
-    projectLink ? `Project: ${projectLink}` : null,
-    '',
-    `User language: ${lang}`,
-  ]
-    .filter(v => v != null)
-    .join('\n')
 
 // Функция для разделения completionDate на первые 2 символа и остальное
 const splitCompletionDate = (dateString: string | undefined) => {
@@ -166,23 +117,21 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
     const projectSlug = lot.project?.slug
     const projectLink = projectSlug ? `${origin}${getProjectDetailRoute(projectSlug)}` : null
 
-    openWhatsApp(
-      buildLotWhatsAppMessage({
-        projectName,
-        areaName,
-        typeLabel,
-        bedrooms: lot.bedrooms ?? undefined,
-        bathrooms: lot.bathrooms ?? undefined,
-        areaSqm: lot.areaSqm ?? undefined,
-        floor: lot.floor ?? undefined,
-        ourPrice,
-        currency,
-        unit,
-        lotLink,
-        projectLink,
-        lang,
-      })
-    )
+    openWhatsApp(buildLotMessage({
+      projectName,
+      areaName,
+      typeLabel,
+      bedrooms: lot.bedrooms ?? undefined,
+      bathrooms: lot.bathrooms ?? undefined,
+      areaSqm: lot.areaSqm ?? undefined,
+      floor: lot.floor ?? undefined,
+      price: ourPrice,
+      currency,
+      unit,
+      lotLink,
+      projectLink,
+      lang,
+    }))
   }
 
   const lotMedia = lot.data?.media as LotMedia | undefined
@@ -436,5 +385,61 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
         </div>
       </div>
     </Link>
+  )
+}
+
+export function LotCardSkeleton() {
+  const s = (cls: string) => `${styles[cls]} ${styles.shimmer}`
+
+  return (
+    <div className={styles.skeletonCard}>
+      {/* Photo section */}
+      <div className={`${styles.skeletonPhoto} ${styles.shimmer}`} />
+
+      {/* Info section */}
+      <div className={styles.skeletonInfo}>
+        {/* Developer row */}
+        <div className={styles.skeletonDeveloper}>
+          <div className={s('skeletonLogo')} />
+          <div className={styles.skeletonProjectInfo}>
+            <div className={styles.shimmer} style={{ width: '70%', height: 18 }} />
+            <div className={styles.shimmer} style={{ width: '50%', height: 14 }} />
+            <div className={styles.shimmer} style={{ width: '40%', height: 14 }} />
+          </div>
+          <div className={s('skeletonRoi')} />
+        </div>
+
+        {/* Lot info row */}
+        <div className={styles.skeletonLotInfo}>
+          <div className={styles.shimmer} style={{ width: 80, height: 16 }} />
+          <div className={styles.shimmer} style={{ width: 40, height: 16 }} />
+          <div className={styles.shimmer} style={{ width: 40, height: 16 }} />
+          <div className={styles.shimmer} style={{ width: 60, height: 16 }} />
+        </div>
+
+        {/* Price rows */}
+        <div className={styles.skeletonPrices}>
+          <div className={styles.skeletonPriceRow}>
+            <div className={styles.shimmer} style={{ width: 90, height: 16 }} />
+            <div className={styles.shimmer} style={{ width: 120, height: 16 }} />
+          </div>
+          <div className={styles.skeletonPriceRow}>
+            <div className={styles.shimmer} style={{ width: 110, height: 16 }} />
+            <div className={styles.shimmer} style={{ width: 120, height: 16 }} />
+          </div>
+        </div>
+
+        {/* Date row */}
+        <div className={styles.skeletonDate}>
+          <div className={styles.shimmer} style={{ width: 80, height: 16 }} />
+        </div>
+
+        {/* Button */}
+        <div className={styles.skeletonButton}>
+          <div className={s('skeletonBtn')} />
+          <div className={s('skeletonBtnNote')} />
+        </div>
+      </div>
+    </div>
   )
 }

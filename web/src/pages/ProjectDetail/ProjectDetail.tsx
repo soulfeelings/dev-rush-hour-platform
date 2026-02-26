@@ -25,7 +25,6 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  ArrowRight,
 } from 'lucide-react'
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice, formatArea } from '../../utils/format'
@@ -603,12 +602,12 @@ export default function ProjectDetail() {
         {/* Apartments Sections by Bedroom Count */}
         <div className={styles.apartmentsHeaderTop}>
           <Typography variant="h1">{t('projectDetail.allUnits')}</Typography>
-          <button className={styles.viewAllBtn}>
+          {/* <button className={styles.viewAllBtn}>
             <Typography variant="body" size="small" weight="regular">
               {t('projectDetail.viewTheGrid')}
             </Typography>
             <ArrowRight size={16} />
-          </button>
+          </button> */}
         </div>
         {groupedLots.length > 0 ? (
           groupedLots.map(group => (
@@ -650,8 +649,8 @@ export default function ProjectDetail() {
                       isMobile
                         ? undefined
                         : openedLot => {
-                            setSelectedLot(openedLot)
-                          }
+                          setSelectedLot(openedLot)
+                        }
                     }
                   />
                 ))}
