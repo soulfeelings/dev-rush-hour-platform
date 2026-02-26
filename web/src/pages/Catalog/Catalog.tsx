@@ -4,15 +4,12 @@ import { Map, LayoutGrid, ChevronRight } from 'lucide-react'
 import { Select } from '../../ui/Select'
 import { CatalogFilters } from '@/features/CatalogFilters/CatalogFilters'
 import PropertyMap from '../../components/PropertyMap'
-import { useListProjects, useListLots } from '../../api'
+import { useListProjects } from '../../api'
 import { getProjectSlug } from '../../utils/project'
-import type { Lot } from '../../api'
-import type { ListLotsParams } from '../../api/generated/schemas/listLotsParams'
 import { useFilters } from '../../contexts'
 import styles from './Catalog.module.scss'
 import type { PropertyMapRef } from '../../components/PropertyMap/PropertyMap'
 import ProjectsView from './components/ProjectsView'
-import LotsView from './components/LotsView'
 import { ListProjectsSort } from '../../api/generated/schemas/listProjectsSort'
 import type { ListProjectsParams } from '../../api/generated/schemas/listProjectsParams'
 
@@ -231,24 +228,6 @@ export default function Catalog() {
     return result
   }, [projectsData, filters.project, filters.propertyType])
 
-  // Load all lots without filters — filtering is done on the frontend via useMemo in LotsView
-  const lotsParams = useMemo((): ListLotsParams => ({ limit: 1000 }), [])
-
-  // Load lots — only when lots tab is active
-  const {
-    data: lotsData,
-    isLoading: lotsLoading,
-    error: lotsError,
-  } = useListLots(lotsParams, {
-    query: {
-      enabled: activeTab === 'lots',
-      ...ALWAYS_FRESH_QUERY_OPTIONS,
-    },
-  })
-
-  // State to track displayed lots count
-  const [displayedLotsCount, setDisplayedLotsCount] = useState<number>(0)
-
   // Desktop layout mode change handler
   const handleLayoutChange = useCallback((mode: DesktopView) => {
     setLayoutMode(mode)
@@ -275,20 +254,12 @@ export default function Catalog() {
     setTimeout(() => mapRef.current?.refreshMap(), 350)
   }, [isDesktop])
 
-  const lots = useMemo((): Lot[] => {
-    if (!lotsData?.items) return []
-    return lotsData.items as Lot[]
-  }, [lotsData])
-
   const activeProjects = useMemo(
     () => projects.filter(p => p.status === 'active'),
     [projects]
   )
-  const totalResults = activeTab === 'projects' ? activeProjects.length : lots.length
-  const displayedResults =
-    activeTab === 'projects'
-      ? activeProjects.filter(p => !p.isFeatured).length
-      : displayedLotsCount
+  const totalResults = activeProjects.length
+  const displayedResults = activeProjects.filter(p => !p.isFeatured).length
 
   const catalogContent = (
     <div className={styles.catalogContent}>
@@ -330,18 +301,7 @@ export default function Catalog() {
         </div>
       </div>
       <div className={styles.viewContainer}>
-        {activeTab === 'projects' ? (
-          <ProjectsView projects={projects} isLoading={projectsLoading} error={projectsError} />
-        ) : (
-          <LotsView
-            lots={lots}
-            filters={filters}
-            isLoading={lotsLoading}
-            error={lotsError}
-            onFavoriteClick={() => {}}
-            setDisplayedCount={setDisplayedLotsCount}
-          />
-        )}
+        <ProjectsView projects={projects} isLoading={projectsLoading} error={projectsError} />
       </div>
     </div>
   )
