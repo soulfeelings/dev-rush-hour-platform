@@ -11,14 +11,32 @@ import (
 
 type AreasService struct {
 	areaRepo *repo.AreaRepo
+	cityRepo *repo.CityRepo
 	logger   *slog.Logger
 }
 
-func NewAreasService(areaRepo *repo.AreaRepo) *AreasService {
+func NewAreasService(areaRepo *repo.AreaRepo, cityRepo *repo.CityRepo) *AreasService {
 	return &AreasService{
 		areaRepo: areaRepo,
+		cityRepo: cityRepo,
 		logger:   slog.Default(),
 	}
+}
+
+// resolveCityID looks up the city by slug and sets CityID on the area.
+func (s *AreasService) resolveCityID(area *domain.Area) {
+	if area.City == "" {
+		return
+	}
+	city, err := s.cityRepo.GetBySlug(area.City)
+	if err != nil || city == nil {
+		s.logger.Warn("area_service_resolve_city_id_failed",
+			"city_slug", area.City,
+			"error", err,
+		)
+		return
+	}
+	area.CityID = &city.ID
 }
 
 func (s *AreasService) List(includeBoundary bool) ([]domain.Area, error) {
@@ -77,6 +95,8 @@ func (s *AreasService) Create(area *domain.Area) error {
 		"area_name", area.Name,
 	)
 
+	s.resolveCityID(area)
+
 	err := s.areaRepo.Create(area)
 	if err != nil {
 		s.logger.Error("area_service_create_failed",
@@ -123,6 +143,7 @@ func (s *AreasService) Update(id uuid.UUID, updates *domain.Area) error {
 	}
 	if updates.City != "" {
 		existing.City = updates.City
+		s.resolveCityID(existing)
 	}
 	if updates.Lat != 0 {
 		existing.Lat = updates.Lat

@@ -48,6 +48,13 @@ type Developer = {
 type Area = {
   id?: string
   name?: string
+  city?: string
+}
+
+type City = {
+  id?: string
+  slug?: string
+  name?: string
 }
 
 type ValidationErrors = {
@@ -113,6 +120,7 @@ type FormData = {
 type ProjectFormProps = {
   developers: Developer[]
   areas: Area[]
+  cities: City[]
   badges: Badge[]
   infrastructures: Infrastructure[]
   onSubmit: (data: ProjectCreateRequest) => void
@@ -124,6 +132,7 @@ type ProjectFormProps = {
 export function ProjectForm({
   developers,
   areas,
+  cities,
   badges,
   infrastructures,
   onSubmit,
@@ -132,6 +141,22 @@ export function ProjectForm({
   isEditMode = false,
 }: ProjectFormProps) {
   const { t } = useTranslation()
+
+  // Derive initial city slug from the area that matches initialData.areaId
+  const initialCitySlug = useMemo(() => {
+    if (initialData?.areaId) {
+      const matchingArea = areas.find(a => a.id === initialData.areaId)
+      return matchingArea?.city || ''
+    }
+    return ''
+  }, [initialData, areas])
+
+  const [selectedCitySlug, setSelectedCitySlug] = useState(initialCitySlug)
+
+  const filteredAreas = useMemo(() => {
+    if (!selectedCitySlug) return []
+    return areas.filter(a => a.city === selectedCitySlug)
+  }, [areas, selectedCitySlug])
 
   // Получаем переведенные месяцы
   const MONTHS = useMemo(
@@ -273,7 +298,14 @@ export function ProjectForm({
     const parsed = parseCompletionDate(initialForm.completionDate)
     setSelectedMonth(parsed.month)
     setSelectedYear(parsed.year)
-  }, [initialForm])
+    // Sync city selection for edit mode
+    if (initialForm.areaId) {
+      const matchingArea = areas.find(a => a.id === initialForm.areaId)
+      setSelectedCitySlug(matchingArea?.city || '')
+    } else {
+      setSelectedCitySlug('')
+    }
+  }, [initialForm, areas])
 
   // Обновляем form.completionDate при изменении месяца или года
   useEffect(() => {
@@ -597,13 +629,26 @@ export function ProjectForm({
         onChange={value => setForm({ ...form, developerId: value })}
       />
       <Select
+        label="City"
+        options={[
+          { value: '', label: 'Select City' },
+          ...cities.map(c => ({ value: c.slug || '', label: c.name || '' })),
+        ]}
+        value={selectedCitySlug}
+        onChange={value => {
+          setSelectedCitySlug(value)
+          setForm({ ...form, areaId: '' })
+        }}
+      />
+      <Select
         label="Area"
         options={[
-          { value: '', label: 'None' },
-          ...areas.map(a => ({ value: a.id || '', label: a.name || '' })),
+          { value: '', label: selectedCitySlug ? 'Select Area' : 'Select a city first' },
+          ...filteredAreas.map(a => ({ value: a.id || '', label: a.name || '' })),
         ]}
         value={form.areaId}
         onChange={value => setForm({ ...form, areaId: value })}
+        disabled={!selectedCitySlug}
       />
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Pricing & ROI</h3>

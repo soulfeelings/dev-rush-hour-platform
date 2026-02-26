@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Input, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { Project } from '../../../../api/generated/schemas/project'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
@@ -27,6 +27,7 @@ export function ProjectsTable({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [projectsToDelete, setProjectsToDelete] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [filterCityId, setFilterCityId] = useState<string>('')
   const [filterAreaId, setFilterAreaId] = useState<string>('')
   const [filterDeveloperId, setFilterDeveloperId] = useState<string>('')
@@ -59,6 +60,11 @@ export function ProjectsTable({
   const projectsList = useMemo(() => {
     let filtered = allProjects
 
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      filtered = filtered.filter(p => p.name?.toLowerCase().includes(q))
+    }
+
     if (filterDeveloperId) {
       filtered = filtered.filter(p => p.developerId === filterDeveloperId)
     }
@@ -70,7 +76,7 @@ export function ProjectsTable({
     }
 
     return filtered
-  }, [allProjects, filterDeveloperId, filterAreaId, cityAreaIds])
+  }, [allProjects, searchQuery, filterDeveloperId, filterAreaId, cityAreaIds])
 
   const handleSelectAll = () => {
     if (selectedIds.size === projectsList.length) {
@@ -132,11 +138,12 @@ export function ProjectsTable({
           <Button onClick={onNewClick}>New</Button>
         </div>
         <TableSkeleton
-          headers={['', '', 'Image', 'ID', 'Name', 'Developer', 'Area', 'Slug', 'Status', 'Sale', 'Created At']}
+          headers={['', '', 'Image', 'ID', 'Name', 'Developer', 'Area', 'City', 'Slug', 'Status', 'Sale', 'Created At']}
           columns={[
             { width: '40px' },
             { isActions: true, width: '50px' },
             { isImage: true, width: '80px' },
+            {},
             {},
             {},
             {},
@@ -176,6 +183,11 @@ export function ProjectsTable({
       </div>
 
       <div className={styles.filters}>
+        <Input
+          placeholder="Search by name..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+        />
         <Select
           options={[
             { value: '', label: 'All Cities' },
@@ -206,10 +218,11 @@ export function ProjectsTable({
           clearable
           defaultValue=""
         />
-        {(filterCityId || filterAreaId || filterDeveloperId) && (
+        {(searchQuery || filterCityId || filterAreaId || filterDeveloperId) && (
           <Button
             variant="secondary"
             onClick={() => {
+              setSearchQuery('')
               setFilterCityId('')
               setFilterAreaId('')
               setFilterDeveloperId('')
@@ -241,6 +254,7 @@ export function ProjectsTable({
               <th>Name</th>
               <th>Developer</th>
               <th>Area</th>
+              <th>City</th>
               <th>Slug</th>
               <th>Status</th>
               <th>Sale</th>
@@ -285,6 +299,7 @@ export function ProjectsTable({
                 <td>{project.name || '-'}</td>
                 <td>{project.developer?.name || '-'}</td>
                 <td>{project.area?.name || '-'}</td>
+                <td>{project.area?.city || '-'}</td>
                 <td>{project.slug || '-'}</td>
                 <td>{project.status || '-'}</td>
                 <td>{project.sale || '-'}</td>

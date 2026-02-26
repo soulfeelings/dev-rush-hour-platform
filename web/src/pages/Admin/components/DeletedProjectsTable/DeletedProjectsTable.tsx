@@ -102,9 +102,9 @@ export function DeletedProjectsTable({
           <h2 className={styles.title}>Deleted Projects</h2>
         </div>
         <TableSkeleton
-          headers={['', '', 'ID', 'Name', 'Slug', 'Deleted At']}
-          columns={[{ width: '40px' }, { isActions: true, width: '80px' }, {}, {}, {}, {}]}
-          minWidth="700px"
+          headers={['', '', 'ID', 'Name', 'Developer', 'Area', 'City', 'Slug', 'Deleted At']}
+          columns={[{ width: '40px' }, { isActions: true, width: '80px' }, {}, {}, {}, {}, {}, {}, {}]}
+          minWidth="900px"
         />
       </div>
     )
@@ -161,6 +161,9 @@ export function DeletedProjectsTable({
             <th></th>
             <th>ID</th>
             <th>Name</th>
+            <th>Developer</th>
+            <th>Area</th>
+            <th>City</th>
             <th>Slug</th>
             <th>Deleted At</th>
           </tr>
@@ -206,6 +209,9 @@ export function DeletedProjectsTable({
               </td>
               <td>{project.id}</td>
               <td>{project.name || '-'}</td>
+              <td>{project.developer?.name || '-'}</td>
+              <td>{project.area?.name || '-'}</td>
+              <td>{project.area?.city || '-'}</td>
               <td>{project.slug || '-'}</td>
               <td>
                 {project.deletedAt ? new Date(project.deletedAt).toLocaleDateString('en-US') : '-'}

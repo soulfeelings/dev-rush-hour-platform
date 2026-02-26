@@ -1541,6 +1541,7 @@ export default function Admin() {
             key={formKey}
             developers={developers}
             areas={areas}
+            cities={cities}
             badges={badges}
             infrastructures={infrastructures}
             onSubmit={handleProjectSubmit}

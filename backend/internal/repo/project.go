@@ -100,13 +100,14 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 		FROM projects p
 		LEFT JOIN developers d ON p.developer_id = d.id
 		LEFT JOIN areas a ON p.area_id = a.id
+		LEFT JOIN cities c ON a.city_id = c.id
 	`
 	args := []any{}
 	argPos := 1
 	whereClauses := []string{"p.status = 'active'", "p.deleted_at IS NULL"}
 
 	if filters.CitySlug != nil {
-		whereClauses = append(whereClauses, fmt.Sprintf("a.city = $%d", argPos))
+		whereClauses = append(whereClauses, fmt.Sprintf("c.slug = $%d", argPos))
 		args = append(args, *filters.CitySlug)
 		argPos++
 	}
