@@ -34,7 +34,7 @@ function MsalRedirectHandler() {
             body: JSON.stringify({ access_token: result.accessToken }),
           })
           if (res.ok) {
-            navigate(ADMIN_ROUTES.PROJECTS, { replace: true })
+            window.location.href = ADMIN_ROUTES.PROJECTS
           } else {
             const body = await res.json().catch(() => ({}))
             navigate(ADMIN_ROUTES.AUTH, {
