@@ -33,6 +33,7 @@ type Project struct {
 	Currency          string
 	PropertyTypes     []string
 	Bedrooms          []string
+	Bathrooms         []string
 	AreaSize          *float64
 	AreaUnit          string
 	PricesByType      []PriceByType

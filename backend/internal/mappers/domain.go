@@ -192,6 +192,9 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 	if len(project.Bedrooms) > 0 {
 		result.Bedrooms = &project.Bedrooms
 	}
+	if len(project.Bathrooms) > 0 {
+		result.Bathrooms = &project.Bathrooms
+	}
 	if project.AreaSize != nil {
 		result.AreaSize = float32Ptr(float32(*project.AreaSize))
 	}
@@ -890,6 +893,9 @@ func GeneratedProjectCreateToDomain(req *generated.ProjectCreateRequest) (*domai
 	if req.Bedrooms != nil {
 		project.Bedrooms = *req.Bedrooms
 	}
+	if req.Bathrooms != nil {
+		project.Bathrooms = *req.Bathrooms
+	}
 	if req.AreaSize != nil {
 		as := float64(*req.AreaSize)
 		project.AreaSize = &as
@@ -1003,6 +1009,9 @@ func GeneratedProjectUpdateToDomain(req *generated.ProjectUpdateRequest) (*domai
 	}
 	if req.Bedrooms != nil {
 		project.Bedrooms = *req.Bedrooms
+	}
+	if req.Bathrooms != nil {
+		project.Bathrooms = *req.Bathrooms
 	}
 	if req.AreaSize != nil {
 		as := float64(*req.AreaSize)

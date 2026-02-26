@@ -28,14 +28,26 @@ func NewLotsHandler(lotsService *services.LotsService) *LotsHandler {
 	}
 }
 
+// bedroomsResult holds parsed bedroom filter values
+type bedroomsResult struct {
+	values []int
+	gte    *int // >= threshold for "7+"
+}
+
+// bathroomsResult holds parsed bathroom filter values
+type bathroomsResult struct {
+	values []int
+	gte    *int // >= threshold for "7+"
+}
+
 // parseLotsBedroomsParam parses comma-separated bedroom values for lots (e.g., "1,2,3" or "studio,1,2")
-func parseLotsBedroomsParam(bedroomsStr *string) []int {
+func parseLotsBedroomsParam(bedroomsStr *string) bedroomsResult {
 	if bedroomsStr == nil || *bedroomsStr == "" {
-		return nil
+		return bedroomsResult{}
 	}
 
 	parts := strings.Split(*bedroomsStr, ",")
-	result := make([]int, 0, len(parts))
+	result := bedroomsResult{values: make([]int, 0, len(parts))}
 
 	for _, part := range parts {
 		part = strings.TrimSpace(part)
@@ -45,19 +57,20 @@ func parseLotsBedroomsParam(bedroomsStr *string) []int {
 
 		// Handle "studio" as 0 bedrooms
 		if strings.ToLower(part) == "studio" {
-			result = append(result, 0)
+			result.values = append(result.values, 0)
 			continue
 		}
 
-		// Handle "7+" as 7
+		// Handle "7+" as >= 7
 		if part == "7+" {
-			result = append(result, 7)
+			gte := 7
+			result.gte = &gte
 			continue
 		}
 
 		// Parse numeric value
 		if num, err := strconv.Atoi(part); err == nil && num >= 0 {
-			result = append(result, num)
+			result.values = append(result.values, num)
 		}
 	}
 
@@ -65,13 +78,13 @@ func parseLotsBedroomsParam(bedroomsStr *string) []int {
 }
 
 // parseLotsBathroomsParam parses comma-separated bathroom values for lots (e.g., "1,2,3")
-func parseLotsBathroomsParam(bathroomsStr *string) []int {
+func parseLotsBathroomsParam(bathroomsStr *string) bathroomsResult {
 	if bathroomsStr == nil || *bathroomsStr == "" {
-		return nil
+		return bathroomsResult{}
 	}
 
 	parts := strings.Split(*bathroomsStr, ",")
-	result := make([]int, 0, len(parts))
+	result := bathroomsResult{values: make([]int, 0, len(parts))}
 
 	for _, part := range parts {
 		part = strings.TrimSpace(part)
@@ -79,15 +92,16 @@ func parseLotsBathroomsParam(bathroomsStr *string) []int {
 			continue
 		}
 
-		// Handle "7+" as 7
+		// Handle "7+" as >= 7
 		if part == "7+" {
-			result = append(result, 7)
+			gte := 7
+			result.gte = &gte
 			continue
 		}
 
 		// Parse numeric value
 		if num, err := strconv.Atoi(part); err == nil && num >= 0 {
-			result = append(result, num)
+			result.values = append(result.values, num)
 		}
 	}
 
@@ -104,10 +118,15 @@ func (h *LotsHandler) ListLots(c *fiber.Ctx, params generated.ListLotsParams) er
 		"limit", params.Limit,
 	)
 
+	bedsResult := parseLotsBedroomsParam(params.Bedrooms)
+	bathsResult := parseLotsBathroomsParam(params.Bathrooms)
+
 	filters := repo.LotFilters{
-		Status:    domain.LotStatusActive,
-		Bedrooms:  parseLotsBedroomsParam(params.Bedrooms),
-		Bathrooms: parseLotsBathroomsParam(params.Bathrooms),
+		Status:       domain.LotStatusActive,
+		Bedrooms:     bedsResult.values,
+		BedroomsGte:  bedsResult.gte,
+		Bathrooms:    bathsResult.values,
+		BathroomsGte: bathsResult.gte,
 	}
 
 	if params.Area != nil {

@@ -2290,6 +2290,11 @@ components:
           items:
             type: string
           description: Available bedroom configurations
+        bathrooms:
+          type: array
+          items:
+            type: string
+          description: Available bathroom configurations
         areaSize:
           type: number
           description: Area size
@@ -2436,15 +2441,6 @@ components:
           type: number
         roi:
           type: number
-        ourPrice:
-          type: number
-          description: Наша цена (AED)
-        developerPrice:
-          type: number
-          description: Цена застройщика (AED)
-        roi:
-          type: number
-          description: ROI в процентах
         bonusKeys:
           type: array
           items:
@@ -2595,15 +2591,6 @@ components:
           type: number
         roi:
           type: number
-        ourPrice:
-          type: number
-          description: Наша цена (AED)
-        developerPrice:
-          type: number
-          description: Цена застройщика (AED)
-        roi:
-          type: number
-          description: ROI в процентах
         bonusKeys:
           type: array
           items:
@@ -3218,6 +3205,11 @@ components:
           items:
             type: string
           description: Available bedroom configurations
+        bathrooms:
+          type: array
+          items:
+            type: string
+          description: Available bathroom configurations
         areaSize:
           type: number
           description: Area size
@@ -3323,6 +3315,11 @@ components:
           items:
             type: string
           description: Available bedroom configurations
+        bathrooms:
+          type: array
+          items:
+            type: string
+          description: Available bathroom configurations
         areaSize:
           type: number
           description: Area size
@@ -3382,15 +3379,6 @@ components:
           type: number
         roi:
           type: number
-        ourPrice:
-          type: number
-          description: Наша цена (AED)
-        developerPrice:
-          type: number
-          description: Цена застройщика (AED)
-        roi:
-          type: number
-          description: ROI в процентах
         bonusKeys:
           type: array
           items:
@@ -3428,15 +3416,6 @@ components:
           type: number
         roi:
           type: number
-        ourPrice:
-          type: number
-          description: Наша цена (AED)
-        developerPrice:
-          type: number
-          description: Цена застройщика (AED)
-        roi:
-          type: number
-          description: ROI в процентах
         bonusKeys:
           type: array
           items:

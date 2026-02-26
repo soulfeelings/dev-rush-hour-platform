@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"rush-hour-platform/backend/internal/domain"
 	"rush-hour-platform/backend/internal/sqlc/sqlcgen"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -50,7 +51,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		row.IsFeatured, row.YoutubeUrl,
 		row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 		row.PaymentPlan, row.CompletionDate,
-		row.Currency, row.PropertyTypes, row.Bedrooms,
+		row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
 		row.AreaSize, row.AreaUnit, row.PricesByType,
 		row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 		row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -85,7 +86,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 const projectListColumns = `p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng,
 	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url,
 	p.roi, p.price_from_us, p.price_from_developer, p.payment_plan, p.completion_date,
-	p.currency, p.property_types, p.bedrooms, p.area_size, p.area_unit, p.prices_by_type,
+	p.currency, p.property_types, p.bedrooms, p.bathrooms, p.area_size, p.area_unit, p.prices_by_type,
 	p.timeline_announcement, p.timeline_booking_started, p.timeline_construction_started,
 	p.timeline_construction_progress, p.timeline_construction_progress_pct, p.timeline_expected_completion,
 	p.created_at, p.updated_at`
@@ -134,7 +135,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 		placeholders := make([]string, len(filters.Bedrooms))
 		for i, bed := range filters.Bedrooms {
 			placeholders[i] = fmt.Sprintf("$%d", argPos)
-			args = append(args, bed)
+			args = append(args, strconv.Itoa(bed))
 			argPos++
 		}
 		whereClauses = append(whereClauses, fmt.Sprintf(
@@ -147,11 +148,11 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 		placeholders := make([]string, len(filters.Bathrooms))
 		for i, bath := range filters.Bathrooms {
 			placeholders[i] = fmt.Sprintf("$%d", argPos)
-			args = append(args, bath)
+			args = append(args, strconv.Itoa(bath))
 			argPos++
 		}
 		whereClauses = append(whereClauses, fmt.Sprintf(
-			"p.bedrooms && ARRAY[%s]::text[]",
+			"p.bathrooms && ARRAY[%s]::text[]",
 			strings.Join(placeholders, ", "),
 		))
 	}
@@ -201,14 +202,14 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 	projects := []domain.Project{}
 	for rows.Next() {
 		var (
-			id                                               uuid.UUID
-			slug, name, status                               string
-			sale                                             pgtype.Text
-			developerID, areaID                              uuid.NullUUID
-			lat, lng                                         pgtype.Numeric
-			descBytes, mediaBytes, pricesByTypeBytes         []byte
-			featuresAmenities, tags, propertyTypes, bedrooms []string
-			isFeatured                                       pgtype.Bool
+			id                                                          uuid.UUID
+			slug, name, status                                          string
+			sale                                                        pgtype.Text
+			developerID, areaID                                         uuid.NullUUID
+			lat, lng                                                    pgtype.Numeric
+			descBytes, mediaBytes, pricesByTypeBytes                    []byte
+			featuresAmenities, tags, propertyTypes, bedrooms, bathrooms []string
+			isFeatured                                                  pgtype.Bool
 			youtubeUrl                                       pgtype.Text
 			roi, priceFromUs, priceFromDeveloper             pgtype.Numeric
 			paymentPlan, completionDate                      pgtype.Text
@@ -227,7 +228,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			&developerID, &areaID, &lat, &lng,
 			&descBytes, &mediaBytes, &featuresAmenities, &tags, &isFeatured, &youtubeUrl,
 			&roi, &priceFromUs, &priceFromDeveloper, &paymentPlan, &completionDate,
-			&currency, &propertyTypes, &bedrooms, &areaSize, &areaUnit, &pricesByTypeBytes,
+			&currency, &propertyTypes, &bedrooms, &bathrooms, &areaSize, &areaUnit, &pricesByTypeBytes,
 			&tlAnn, &tlBook, &tlConstStart,
 			&tlConstProg, &tlConstProgPct, &tlExp,
 			&createdAt, &updatedAt,
@@ -243,7 +244,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			isFeatured, youtubeUrl,
 			roi, priceFromUs, priceFromDeveloper,
 			paymentPlan, completionDate,
-			currency, propertyTypes, bedrooms,
+			currency, propertyTypes, bedrooms, bathrooms,
 			areaSize, areaUnit, pricesByTypeBytes,
 			tlAnn, tlBook, tlConstStart,
 			tlConstProg, tlConstProgPct, tlExp,
@@ -330,6 +331,7 @@ func (r *ProjectRepo) Create(project *domain.Project) error {
 		Currency:                        stringToText(project.Currency),
 		PropertyTypes:                   project.PropertyTypes,
 		Bedrooms:                        project.Bedrooms,
+		Bathrooms:                       project.Bathrooms,
 		AreaSize:                        float64PtrToNumeric(project.AreaSize),
 		AreaUnit:                        stringToText(project.AreaUnit),
 		PricesByType:                    pricesByTypeJSON,
@@ -387,6 +389,7 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 		Currency:                        stringToText(project.Currency),
 		PropertyTypes:                   project.PropertyTypes,
 		Bedrooms:                        project.Bedrooms,
+		Bathrooms:                       project.Bathrooms,
 		AreaSize:                        float64PtrToNumeric(project.AreaSize),
 		AreaUnit:                        stringToText(project.AreaUnit),
 		PricesByType:                    pricesByTypeJSON,
@@ -429,7 +432,7 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		row.IsFeatured, row.YoutubeUrl,
 		row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 		row.PaymentPlan, row.CompletionDate,
-		row.Currency, row.PropertyTypes, row.Bedrooms,
+		row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
 		row.AreaSize, row.AreaUnit, row.PricesByType,
 		row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 		row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -462,7 +465,7 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 			row.IsFeatured, row.YoutubeUrl,
 			row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 			row.PaymentPlan, row.CompletionDate,
-			row.Currency, row.PropertyTypes, row.Bedrooms,
+			row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
 			row.AreaSize, row.AreaUnit, row.PricesByType,
 			row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 			row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -509,7 +512,7 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 			row.IsFeatured, row.YoutubeUrl,
 			row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 			row.PaymentPlan, row.CompletionDate,
-			row.Currency, row.PropertyTypes, row.Bedrooms,
+			row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
 			row.AreaSize, row.AreaUnit, row.PricesByType,
 			row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 			row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -542,7 +545,7 @@ func (r *ProjectRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Project, error) 
 		row.IsFeatured, row.YoutubeUrl,
 		row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 		row.PaymentPlan, row.CompletionDate,
-		row.Currency, row.PropertyTypes, row.Bedrooms,
+		row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
 		row.AreaSize, row.AreaUnit, row.PricesByType,
 		row.TimelineAnnouncement, row.TimelineBookingStarted, row.TimelineConstructionStarted,
 		row.TimelineConstructionProgress, row.TimelineConstructionProgressPct, row.TimelineExpectedCompletion,
@@ -639,7 +642,7 @@ func sqlcProjectRowToDomain(
 	roi, priceFromUs, priceFromDeveloper pgtype.Numeric,
 	paymentPlan, completionDate pgtype.Text,
 	currency pgtype.Text,
-	propertyTypes, bedrooms []string,
+	propertyTypes, bedrooms, bathrooms []string,
 	areaSize pgtype.Numeric, areaUnit pgtype.Text,
 	pricesByType []byte,
 	tlAnn, tlBook, tlConstStart, tlConstProg pgtype.Timestamptz,
@@ -669,6 +672,7 @@ func sqlcProjectRowToDomain(
 		Currency:           textToString(currency),
 		PropertyTypes:      propertyTypes,
 		Bedrooms:           bedrooms,
+		Bathrooms:          bathrooms,
 		AreaSize:           numericToFloat64Ptr(areaSize),
 		AreaUnit:           textToString(areaUnit),
 		CreatedAt:          tstzToTime(createdAt),
@@ -688,6 +692,9 @@ func sqlcProjectRowToDomain(
 	}
 	if project.Bedrooms == nil {
 		project.Bedrooms = []string{}
+	}
+	if project.Bathrooms == nil {
+		project.Bathrooms = []string{}
 	}
 
 	// JSONB fields

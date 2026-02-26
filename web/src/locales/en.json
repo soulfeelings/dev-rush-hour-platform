@@ -251,7 +251,7 @@
   "filters.bedrooms.three": "3 Bedrooms",
   "filters.bedrooms.fourPlus": "4+ Bedrooms",
   "filters.bedrooms.placeholder": "Bedrooms",
-  "filters.bathrooms.all": "All",
+  "filters.bathrooms.all": "Bathrooms",
   "filters.bathrooms.placeholder": "Beds & Baths",
   "filters.status.all": "Any Sale Status",
   "filters.status.ready": "Ready",

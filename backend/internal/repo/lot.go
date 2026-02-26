@@ -31,17 +31,19 @@ func NewLotRepo(pool *pgxpool.Pool) *LotRepo {
 }
 
 type LotFilters struct {
-	AreaSlug    *string
-	ProjectSlug *string
-	Type        *domain.LotType
-	Bedrooms    []int
-	Bathrooms   []int
-	PriceMin    *float64
-	PriceMax    *float64
-	AreaMin     *float64
-	AreaMax     *float64
-	BonusKey    *string
-	Status      domain.LotStatus
+	AreaSlug       *string
+	ProjectSlug    *string
+	Type           *domain.LotType
+	Bedrooms       []int
+	BedroomsGte    *int // >= filter for "7+"
+	Bathrooms      []int
+	BathroomsGte   *int // >= filter for "7+"
+	PriceMin       *float64
+	PriceMax       *float64
+	AreaMin        *float64
+	AreaMax        *float64
+	BonusKey       *string
+	Status         domain.LotStatus
 }
 
 type LotSort string
@@ -150,16 +152,23 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		countQuery += ` AND l.status = 'active' AND l.deleted_at IS NULL`
 	}
 
+	if filters.AreaSlug != nil {
+		query += fmt.Sprintf(` AND l.project_id IN (SELECT pr.id FROM projects pr JOIN areas ar ON pr.area_id = ar.id WHERE ar.slug = $%d)`, argPos)
+		countQuery += fmt.Sprintf(` AND l.project_id IN (SELECT pr.id FROM projects pr JOIN areas ar ON pr.area_id = ar.id WHERE ar.slug = $%d)`, argPos)
+		args = append(args, *filters.AreaSlug)
+		argPos++
+	}
+
 	if filters.ProjectSlug != nil {
-		query += fmt.Sprintf(` AND project_id IN (SELECT id FROM projects WHERE slug = $%d)`, argPos)
-		countQuery += fmt.Sprintf(` AND project_id IN (SELECT id FROM projects WHERE slug = $%d)`, argPos)
+		query += fmt.Sprintf(` AND l.project_id IN (SELECT id FROM projects WHERE slug = $%d)`, argPos)
+		countQuery += fmt.Sprintf(` AND l.project_id IN (SELECT id FROM projects WHERE slug = $%d)`, argPos)
 		args = append(args, *filters.ProjectSlug)
 		argPos++
 	}
 
 	if filters.Type != nil {
-		query += fmt.Sprintf(` AND type = $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND type = $%d`, argPos)
+		query += fmt.Sprintf(` AND l.type = $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.type = $%d`, argPos)
 		args = append(args, *filters.Type)
 		argPos++
 	}
@@ -172,8 +181,20 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 			argPos++
 		}
 		inClause := strings.Join(placeholders, ", ")
-		query += fmt.Sprintf(` AND bedrooms IN (%s)`, inClause)
-		countQuery += fmt.Sprintf(` AND bedrooms IN (%s)`, inClause)
+		if filters.BedroomsGte != nil {
+			query += fmt.Sprintf(` AND (l.bedrooms IN (%s) OR l.bedrooms >= $%d)`, inClause, argPos)
+			countQuery += fmt.Sprintf(` AND (l.bedrooms IN (%s) OR l.bedrooms >= $%d)`, inClause, argPos)
+			args = append(args, *filters.BedroomsGte)
+			argPos++
+		} else {
+			query += fmt.Sprintf(` AND l.bedrooms IN (%s)`, inClause)
+			countQuery += fmt.Sprintf(` AND l.bedrooms IN (%s)`, inClause)
+		}
+	} else if filters.BedroomsGte != nil {
+		query += fmt.Sprintf(` AND l.bedrooms >= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.bedrooms >= $%d`, argPos)
+		args = append(args, *filters.BedroomsGte)
+		argPos++
 	}
 
 	if len(filters.Bathrooms) > 0 {
@@ -184,41 +205,53 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 			argPos++
 		}
 		inClause := strings.Join(placeholders, ", ")
-		query += fmt.Sprintf(` AND bathrooms IN (%s)`, inClause)
-		countQuery += fmt.Sprintf(` AND bathrooms IN (%s)`, inClause)
+		if filters.BathroomsGte != nil {
+			query += fmt.Sprintf(` AND (l.bathrooms IN (%s) OR l.bathrooms >= $%d)`, inClause, argPos)
+			countQuery += fmt.Sprintf(` AND (l.bathrooms IN (%s) OR l.bathrooms >= $%d)`, inClause, argPos)
+			args = append(args, *filters.BathroomsGte)
+			argPos++
+		} else {
+			query += fmt.Sprintf(` AND l.bathrooms IN (%s)`, inClause)
+			countQuery += fmt.Sprintf(` AND l.bathrooms IN (%s)`, inClause)
+		}
+	} else if filters.BathroomsGte != nil {
+		query += fmt.Sprintf(` AND l.bathrooms >= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.bathrooms >= $%d`, argPos)
+		args = append(args, *filters.BathroomsGte)
+		argPos++
 	}
 
 	if filters.PriceMin != nil {
-		query += fmt.Sprintf(` AND price_from_us >= $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND price_from_us >= $%d`, argPos)
+		query += fmt.Sprintf(` AND l.price_from_us >= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.price_from_us >= $%d`, argPos)
 		args = append(args, *filters.PriceMin)
 		argPos++
 	}
 
 	if filters.PriceMax != nil {
-		query += fmt.Sprintf(` AND price_from_us <= $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND price_from_us <= $%d`, argPos)
+		query += fmt.Sprintf(` AND l.price_from_us <= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.price_from_us <= $%d`, argPos)
 		args = append(args, *filters.PriceMax)
 		argPos++
 	}
 
 	if filters.AreaMin != nil {
-		query += fmt.Sprintf(` AND area_sqm >= $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND area_sqm >= $%d`, argPos)
+		query += fmt.Sprintf(` AND l.area_sqm >= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.area_sqm >= $%d`, argPos)
 		args = append(args, *filters.AreaMin)
 		argPos++
 	}
 
 	if filters.AreaMax != nil {
-		query += fmt.Sprintf(` AND area_sqm <= $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND area_sqm <= $%d`, argPos)
+		query += fmt.Sprintf(` AND l.area_sqm <= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.area_sqm <= $%d`, argPos)
 		args = append(args, *filters.AreaMax)
 		argPos++
 	}
 
 	if filters.BonusKey != nil {
-		query += fmt.Sprintf(` AND bonus_keys @> $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND bonus_keys @> $%d`, argPos)
+		query += fmt.Sprintf(` AND l.bonus_keys @> $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.bonus_keys @> $%d`, argPos)
 		args = append(args, []string{*filters.BonusKey})
 		argPos++
 	}

@@ -781,7 +781,11 @@ type Media struct {
 
 // MediaItem defines model for MediaItem.
 type MediaItem struct {
-	Id  *string `json:"id,omitempty"`
+	// ExpiresIn 0 = never expires (CF), >0 = seconds until expiry
+	ExpiresIn *int    `json:"expiresIn,omitempty"`
+	Id        *string `json:"id,omitempty"`
+
+	// Url Base URL for CF (append /{variant}), or full URL for local
 	Url *string `json:"url,omitempty"`
 }
 
@@ -817,6 +821,9 @@ type Project struct {
 
 	// Badges Бейджи проекта
 	Badges *[]Badge `json:"badges,omitempty"`
+
+	// Bathrooms Available bathroom configurations
+	Bathrooms *[]string `json:"bathrooms,omitempty"`
 
 	// Bedrooms Available bedroom configurations
 	Bedrooms *[]string `json:"bedrooms,omitempty"`
@@ -913,6 +920,9 @@ type ProjectCreateRequest struct {
 
 	// BadgeIds IDs of badges for the project
 	BadgeIds *[]openapi_types.UUID `json:"badgeIds,omitempty"`
+
+	// Bathrooms Available bathroom configurations
+	Bathrooms *[]string `json:"bathrooms,omitempty"`
 
 	// Bedrooms Available bedroom configurations
 	Bedrooms *[]string `json:"bedrooms,omitempty"`
@@ -1020,6 +1030,9 @@ type ProjectUpdateRequest struct {
 
 	// BadgeIds IDs of badges for the project
 	BadgeIds *[]openapi_types.UUID `json:"badgeIds,omitempty"`
+
+	// Bathrooms Available bathroom configurations
+	Bathrooms *[]string `json:"bathrooms,omitempty"`
 
 	// Bedrooms Available bedroom configurations
 	Bedrooms *[]string `json:"bedrooms,omitempty"`

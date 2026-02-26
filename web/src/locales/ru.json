@@ -251,7 +251,7 @@
   "filters.bedrooms.three": "3 спальни",
   "filters.bedrooms.fourPlus": "4+ спальни",
   "filters.bedrooms.placeholder": "Спальни",
-  "filters.bathrooms.all": "Все",
+  "filters.bathrooms.all": "Ванные",
   "filters.bathrooms.placeholder": "Спальни и ванные",
   "filters.status.all": "Статус продажи",
   "filters.status.ready": "Готов",
