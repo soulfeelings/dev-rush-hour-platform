@@ -83,15 +83,16 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 	// Populate nested project from JOIN
 	if row.Slug.Valid {
 		lot.Project = &domain.Project{
-			Slug:       row.Slug.String,
-			Name:       textToString(row.Name),
-			Sale:       textToString(row.Sale),
-			Status:     domain.ProjectStatus(textToString(row.Status_2)),
-			IsFeatured: pgBoolToBool(row.IsFeatured),
-			Lat:        numericToFloat64Ptr(row.Lat),
-			Lng:        numericToFloat64Ptr(row.Lng),
-			CreatedAt:  tstzToTime(row.CreatedAt_2),
-			UpdatedAt:  tstzToTime(row.UpdatedAt_2),
+			Slug:        row.Slug.String,
+			Name:        textToString(row.Name),
+			Sale:        textToString(row.Sale),
+			Status:      domain.ProjectStatus(textToString(row.Status_2)),
+			IsFeatured:  pgBoolToBool(row.IsFeatured),
+			PaymentPlan: textToString(row.PaymentPlan),
+			Lat:         numericToFloat64Ptr(row.Lat),
+			Lng:         numericToFloat64Ptr(row.Lng),
+			CreatedAt:   tstzToTime(row.CreatedAt_2),
+			UpdatedAt:   tstzToTime(row.UpdatedAt_2),
 		}
 		if lot.ProjectID != nil {
 			lot.Project.ID = *lot.ProjectID

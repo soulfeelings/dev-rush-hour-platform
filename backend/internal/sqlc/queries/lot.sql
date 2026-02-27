@@ -2,7 +2,7 @@
 SELECT
 	l.id, l.status, l.project_id, l.type, l.bedrooms, l.bathrooms,
 	l.area_sqm, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
-	p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at,
+	p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.payment_plan, p.created_at, p.updated_at,
 	d.slug, d.name, d.created_at, d.updated_at,
 	a.slug, a.name, a.lat, a.lng, a.created_at, a.updated_at
 FROM lots l

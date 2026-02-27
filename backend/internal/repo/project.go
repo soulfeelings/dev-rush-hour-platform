@@ -475,6 +475,21 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 			r.logger.Error("project_repo_list_all_unmarshal_failed", "project_id", row.ID, "error", err.Error())
 			return nil, err
 		}
+
+		if row.DevName.Valid {
+			project.Developer = &domain.Developer{
+				Name:    row.DevName.String,
+				LogoURL: textToString(row.DevLogoUrl),
+			}
+		}
+
+		if row.AreaName.Valid {
+			project.Area = &domain.Area{
+				Name: row.AreaName.String,
+				City: textToString(row.AreaCity),
+			}
+		}
+
 		projects = append(projects, *project)
 	}
 
@@ -522,6 +537,21 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 			r.logger.Error("project_repo_list_deleted_unmarshal_failed", "project_id", row.ID, "error", err.Error())
 			return nil, err
 		}
+
+		if row.DevName.Valid {
+			project.Developer = &domain.Developer{
+				Name:    row.DevName.String,
+				LogoURL: textToString(row.DevLogoUrl),
+			}
+		}
+
+		if row.AreaName.Valid {
+			project.Area = &domain.Area{
+				Name: row.AreaName.String,
+				City: textToString(row.AreaCity),
+			}
+		}
+
 		projects = append(projects, *project)
 	}
 

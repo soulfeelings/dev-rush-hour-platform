@@ -158,7 +158,6 @@ type Project struct {
 	Currency                        pgtype.Text        `json:"currency"`
 	PropertyTypes                   []string           `json:"property_types"`
 	Bedrooms                        []string           `json:"bedrooms"`
-	Bathrooms                       []string           `json:"bathrooms"`
 	AreaSize                        pgtype.Numeric     `json:"area_size"`
 	AreaUnit                        pgtype.Text        `json:"area_unit"`
 	PricesByType                    []byte             `json:"prices_by_type"`
@@ -168,6 +167,7 @@ type Project struct {
 	TimelineConstructionProgress    pgtype.Timestamptz `json:"timeline_construction_progress"`
 	TimelineConstructionProgressPct pgtype.Int4        `json:"timeline_construction_progress_pct"`
 	TimelineExpectedCompletion      pgtype.Timestamptz `json:"timeline_expected_completion"`
+	Bathrooms                       []string           `json:"bathrooms"`
 }
 
 type ProjectBadge struct {

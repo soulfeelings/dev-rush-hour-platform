@@ -435,16 +435,20 @@ func (q *Queries) HardDeleteProject(ctx context.Context, id uuid.UUID) error {
 }
 
 const listAllProjects = `-- name: ListAllProjects :many
-SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng,
-	description, media, features_amenities, tags, is_featured, youtube_url,
-	roi, price_from_us, price_from_developer, payment_plan, completion_date,
-	currency, property_types, bedrooms, bathrooms, area_size, area_unit, prices_by_type,
-	timeline_announcement, timeline_booking_started, timeline_construction_started,
-	timeline_construction_progress, timeline_construction_progress_pct, timeline_expected_completion,
-	created_at, updated_at, deleted_at
-FROM projects
-WHERE deleted_at IS NULL
-ORDER BY name
+SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng,
+	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url,
+	p.roi, p.price_from_us, p.price_from_developer, p.payment_plan, p.completion_date,
+	p.currency, p.property_types, p.bedrooms, p.bathrooms, p.area_size, p.area_unit, p.prices_by_type,
+	p.timeline_announcement, p.timeline_booking_started, p.timeline_construction_started,
+	p.timeline_construction_progress, p.timeline_construction_progress_pct, p.timeline_expected_completion,
+	p.created_at, p.updated_at, p.deleted_at,
+	d.name as dev_name, d.logo_url as dev_logo_url,
+	a.name as area_name, a.city as area_city
+FROM projects p
+LEFT JOIN developers d ON p.developer_id = d.id
+LEFT JOIN areas a ON p.area_id = a.id
+WHERE p.deleted_at IS NULL
+ORDER BY p.name
 `
 
 type ListAllProjectsRow struct {
@@ -484,6 +488,10 @@ type ListAllProjectsRow struct {
 	CreatedAt                       pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt                       pgtype.Timestamptz `json:"updated_at"`
 	DeletedAt                       pgtype.Timestamptz `json:"deleted_at"`
+	DevName                         pgtype.Text        `json:"dev_name"`
+	DevLogoUrl                      pgtype.Text        `json:"dev_logo_url"`
+	AreaName                        pgtype.Text        `json:"area_name"`
+	AreaCity                        pgtype.Text        `json:"area_city"`
 }
 
 func (q *Queries) ListAllProjects(ctx context.Context) ([]ListAllProjectsRow, error) {
@@ -532,6 +540,10 @@ func (q *Queries) ListAllProjects(ctx context.Context) ([]ListAllProjectsRow, er
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.DevName,
+			&i.DevLogoUrl,
+			&i.AreaName,
+			&i.AreaCity,
 		); err != nil {
 			return nil, err
 		}
@@ -544,16 +556,20 @@ func (q *Queries) ListAllProjects(ctx context.Context) ([]ListAllProjectsRow, er
 }
 
 const listDeletedProjects = `-- name: ListDeletedProjects :many
-SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng,
-	description, media, features_amenities, tags, is_featured, youtube_url,
-	roi, price_from_us, price_from_developer, payment_plan, completion_date,
-	currency, property_types, bedrooms, bathrooms, area_size, area_unit, prices_by_type,
-	timeline_announcement, timeline_booking_started, timeline_construction_started,
-	timeline_construction_progress, timeline_construction_progress_pct, timeline_expected_completion,
-	created_at, updated_at, deleted_at
-FROM projects
-WHERE deleted_at IS NOT NULL
-ORDER BY deleted_at DESC
+SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng,
+	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url,
+	p.roi, p.price_from_us, p.price_from_developer, p.payment_plan, p.completion_date,
+	p.currency, p.property_types, p.bedrooms, p.bathrooms, p.area_size, p.area_unit, p.prices_by_type,
+	p.timeline_announcement, p.timeline_booking_started, p.timeline_construction_started,
+	p.timeline_construction_progress, p.timeline_construction_progress_pct, p.timeline_expected_completion,
+	p.created_at, p.updated_at, p.deleted_at,
+	d.name as dev_name, d.logo_url as dev_logo_url,
+	a.name as area_name, a.city as area_city
+FROM projects p
+LEFT JOIN developers d ON p.developer_id = d.id
+LEFT JOIN areas a ON p.area_id = a.id
+WHERE p.deleted_at IS NOT NULL
+ORDER BY p.deleted_at DESC
 `
 
 type ListDeletedProjectsRow struct {
@@ -593,6 +609,10 @@ type ListDeletedProjectsRow struct {
 	CreatedAt                       pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt                       pgtype.Timestamptz `json:"updated_at"`
 	DeletedAt                       pgtype.Timestamptz `json:"deleted_at"`
+	DevName                         pgtype.Text        `json:"dev_name"`
+	DevLogoUrl                      pgtype.Text        `json:"dev_logo_url"`
+	AreaName                        pgtype.Text        `json:"area_name"`
+	AreaCity                        pgtype.Text        `json:"area_city"`
 }
 
 func (q *Queries) ListDeletedProjects(ctx context.Context) ([]ListDeletedProjectsRow, error) {
@@ -641,6 +661,10 @@ func (q *Queries) ListDeletedProjects(ctx context.Context) ([]ListDeletedProject
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.DevName,
+			&i.DevLogoUrl,
+			&i.AreaName,
+			&i.AreaCity,
 		); err != nil {
 			return nil, err
 		}
@@ -658,8 +682,25 @@ UPDATE projects SET
 	price_from_developer = (SELECT MIN(l.price_from_developer) FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.price_from_developer IS NOT NULL),
 	roi = (SELECT MAX(l.roi) FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.roi IS NOT NULL),
 	prices_by_type = (
-		SELECT json_agg(json_build_object('type', sub.type, 'price', sub.min_price) ORDER BY sub.type)
-		FROM (SELECT l.type, MIN(l.price_from_us) as min_price FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL GROUP BY l.type) sub
+		SELECT json_agg(json_build_object('type', label, 'price', min_price) ORDER BY label)
+		FROM (
+			SELECT
+				CASE
+					WHEN LOWER(type) = 'apartment' AND bedrooms IS NOT NULL THEN
+						type || ' ' || CASE
+							WHEN bedrooms = 0 THEN 'studio'
+							WHEN bedrooms = 1 THEN '1 bed'
+							WHEN bedrooms = 2 THEN '2 beds'
+							WHEN bedrooms >= 3 THEN '3+ beds'
+							ELSE bedrooms::text || ' beds'
+						END
+					ELSE type
+				END as label,
+				MIN(price_from_us) as min_price
+			FROM lots
+			WHERE project_id = $1 AND deleted_at IS NULL
+			GROUP BY 1
+		) sub
 	),
 	property_types = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.type), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.type IS NOT NULL),
 	bedrooms = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.bedrooms::text), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.bedrooms IS NOT NULL),

@@ -76,7 +76,7 @@ const getLotByID = `-- name: GetLotByID :one
 SELECT
 	l.id, l.status, l.project_id, l.type, l.bedrooms, l.bathrooms,
 	l.area_sqm, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
-	p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at,
+	p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.payment_plan, p.created_at, p.updated_at,
 	d.slug, d.name, d.created_at, d.updated_at,
 	a.slug, a.name, a.lat, a.lng, a.created_at, a.updated_at
 FROM lots l
@@ -112,6 +112,7 @@ type GetLotByIDRow struct {
 	Lng                pgtype.Numeric     `json:"lng"`
 	Media              []byte             `json:"media"`
 	IsFeatured         pgtype.Bool        `json:"is_featured"`
+	PaymentPlan        pgtype.Text        `json:"payment_plan"`
 	CreatedAt_2        pgtype.Timestamptz `json:"created_at_2"`
 	UpdatedAt_2        pgtype.Timestamptz `json:"updated_at_2"`
 	Slug_2             pgtype.Text        `json:"slug_2"`
@@ -155,6 +156,7 @@ func (q *Queries) GetLotByID(ctx context.Context, id uuid.UUID) (GetLotByIDRow, 
 		&i.Lng,
 		&i.Media,
 		&i.IsFeatured,
+		&i.PaymentPlan,
 		&i.CreatedAt_2,
 		&i.UpdatedAt_2,
 		&i.Slug_2,
