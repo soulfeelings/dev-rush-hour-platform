@@ -466,7 +466,7 @@ export default function LotDetail() {
               lot.priceFromUs != null
                 ? Math.round((percent / 100) * lot.priceFromUs)
                 : undefined
-            return { percent, amount }
+            return { percent, amount, stage: undefined, dueDate: undefined }
           })
   const mobileMainImage = selectedMobileImageUrl || floorPlanImages[0] || lotPhotos[0]
   const allProjectLots = projectLotsData?.items || []
