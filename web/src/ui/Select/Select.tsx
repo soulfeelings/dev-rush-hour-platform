@@ -6,6 +6,7 @@ import { Button, type ButtonVariant, type ButtonSize, type ButtonProps } from '.
 import styles from './Select.module.scss'
 import { Typography } from '../Typography'
 import { ChevronUp, X } from 'lucide-react'
+import { useDropdownPosition } from '../../hooks/useDropdownPosition'
 
 export interface SelectOption {
   value: string
@@ -24,6 +25,7 @@ export interface SelectProps {
   fullWidth?: boolean
   fullHeight?: boolean
   searchable?: boolean
+  creatable?: boolean
   hideAllInTrigger?: boolean
   triggerVariant?: ButtonVariant
   triggerSize?: ButtonSize
@@ -49,6 +51,7 @@ export function Select({
   fullWidth = false,
   fullHeight = false,
   searchable = false,
+  creatable = false,
   hideAllInTrigger = false,
   triggerVariant,
   triggerSize,
@@ -64,11 +67,9 @@ export function Select({
   const [isOpen, setIsOpen] = useState(false)
   const [selectingValue, setSelectingValue] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
-  const [positionCalculated, setPositionCalculated] = useState(false)
+  const { triggerRef, dropdownRef, dropdownPos, positionCalculated, recalculate } =
+    useDropdownPosition(isOpen)
   const selectRef = useRef<HTMLDivElement>(null)
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const generatedId = useId()
   const buttonId = `select-${generatedId}`
@@ -76,9 +77,14 @@ export function Select({
   const selectedOption = options.find(opt => opt.value === value)
 
   const filteredOptions =
-    searchable && searchQuery
+    (searchable || creatable) && searchQuery
       ? options.filter(opt => opt.label.toLowerCase().includes(searchQuery.toLowerCase()))
       : options
+
+  const hasExactMatch = options.some(
+    opt => opt.label.toLowerCase() === searchQuery.toLowerCase()
+  )
+  const showCreateOption = creatable && searchQuery.trim() !== '' && !hasExactMatch
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -96,54 +102,13 @@ export function Select({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Focus search input and recalculate position when filtered options change height
   useEffect(() => {
-    if (isOpen && triggerRef.current) {
-      const calculatePosition = () => {
-        if (!triggerRef.current || !dropdownRef.current) return
-
-        const triggerRect = triggerRef.current.getBoundingClientRect()
-        const dropdownRect = dropdownRef.current.getBoundingClientRect()
-
-        const viewportWidth = window.innerWidth
-        const viewportHeight = window.innerHeight
-        const scrollY = window.scrollY
-        const scrollX = window.scrollX
-
-        // Рассчитываем позицию по умолчанию
-        let top = triggerRect.bottom + scrollY + 4
-        let left = triggerRect.left + scrollX
-
-        // Проверяем выход за правую границу
-        const dropdownWidth = dropdownRect.width || 180 // fallback на ширину из стилей
-        if (left + dropdownWidth > viewportWidth + scrollX) {
-          left = viewportWidth + scrollX - dropdownWidth - 8 // 8px отступ от края
+    if (isOpen) {
+      if ((searchable || creatable) && searchInputRef.current) {
+        if (creatable && value && !selectedOption) {
+          setSearchQuery(value)
         }
-
-        // Проверяем выход за левую границу
-        if (left < scrollX) {
-          left = scrollX + 8
-        }
-
-        // Проверяем выход за нижнюю границу
-        const dropdownHeight = dropdownRect.height || 240 // fallback на высоту из стилей
-        const spaceBelow = viewportHeight - triggerRect.bottom
-        const spaceAbove = triggerRect.top
-
-        if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
-          // Открываем вверх, если места сверху больше
-          top = triggerRect.top + scrollY - dropdownHeight - 4
-        }
-
-        setDropdownPos({ top, left })
-        setPositionCalculated(true)
-      }
-
-      // Используем requestAnimationFrame для получения актуальных размеров после рендера
-      requestAnimationFrame(() => {
-        requestAnimationFrame(calculatePosition)
-      })
-
-      if (searchable && searchInputRef.current) {
         setTimeout(() => {
           searchInputRef.current?.focus()
         }, 100)
@@ -151,53 +116,11 @@ export function Select({
     } else {
       setSearchQuery('')
     }
-  }, [isOpen, searchable, filteredOptions.length])
+  }, [isOpen, searchable, creatable])
 
-  // Update position on scroll/resize
   useEffect(() => {
-    if (!isOpen) return
-
-    const updatePos = () => {
-      if (triggerRef.current && dropdownRef.current) {
-        const triggerRect = triggerRef.current.getBoundingClientRect()
-        const dropdownRect = dropdownRef.current.getBoundingClientRect()
-
-        const viewportWidth = window.innerWidth
-        const viewportHeight = window.innerHeight
-        const scrollY = window.scrollY
-        const scrollX = window.scrollX
-
-        let top = triggerRect.bottom + scrollY + 4
-        let left = triggerRect.left + scrollX
-
-        const dropdownWidth = dropdownRect.width || 180
-        if (left + dropdownWidth > viewportWidth + scrollX) {
-          left = viewportWidth + scrollX - dropdownWidth - 8
-        }
-
-        if (left < scrollX) {
-          left = scrollX + 8
-        }
-
-        const dropdownHeight = dropdownRect.height || 240
-        const spaceBelow = viewportHeight - triggerRect.bottom
-        const spaceAbove = triggerRect.top
-
-        if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
-          top = triggerRect.top + scrollY - dropdownHeight - 4
-        }
-
-        setDropdownPos({ top, left })
-      }
-    }
-
-    window.addEventListener('scroll', updatePos, true)
-    window.addEventListener('resize', updatePos)
-    return () => {
-      window.removeEventListener('scroll', updatePos, true)
-      window.removeEventListener('resize', updatePos)
-    }
-  }, [isOpen])
+    if (isOpen) recalculate()
+  }, [filteredOptions.length])
 
   const handleSelect = (optionValue: string) => {
     setSelectingValue(optionValue)
@@ -214,21 +137,28 @@ export function Select({
     setSearchQuery(e.target.value)
   }
 
+  const handleFreeInput = (inputValue: string) => {
+    onChange(inputValue)
+    setIsOpen(false)
+    setSearchQuery('')
+  }
+
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
       setIsOpen(false)
       setSearchQuery('')
-    } else if (e.key === 'Enter' && filteredOptions.length > 0) {
+    } else if (e.key === 'Enter') {
       e.preventDefault()
-      handleSelect(filteredOptions[0].value)
+      if (filteredOptions.length > 0) {
+        handleSelect(filteredOptions[0].value)
+      } else if (creatable && searchQuery.trim()) {
+        handleFreeInput(searchQuery.trim())
+      }
     }
   }
 
   const handleToggle = () => {
     if (!disabled) {
-      if (!isOpen) {
-        setPositionCalculated(false)
-      }
       setIsOpen(!isOpen)
     }
   }
@@ -291,7 +221,9 @@ export function Select({
         >
           {selectedOption && (!hideAllInTrigger || selectedOption.value !== 'all')
             ? selectedOption.label
-            : placeholder}
+            : creatable && value && value !== defaultValue
+              ? value
+              : placeholder}
         </Button>
 
         {createPortal(
@@ -307,18 +239,18 @@ export function Select({
                 exit={{ opacity: 0, y: -8, scale: 0.95 }}
                 transition={{ duration: 0.1, ease: 'easeOut' }}
                 style={{
-                  top: `${dropdownPos.top + 4}px`,
+                  top: `${dropdownPos.top}px`,
                   left: `${dropdownPos.left}px`,
                   visibility: positionCalculated ? 'visible' : 'hidden',
                 }}
               >
-                {searchable && (
+                {(searchable || creatable) && (
                   <div className={styles.searchWrapper}>
                     <input
                       ref={searchInputRef}
                       type="text"
                       className={styles.searchInput}
-                      placeholder={t('ui.select.search')}
+                      placeholder={creatable ? t('ui.select.typeOrSearch') : t('ui.select.search')}
                       value={searchQuery}
                       onChange={handleSearchChange}
                       onKeyDown={handleSearchKeyDown}
@@ -327,6 +259,16 @@ export function Select({
                   </div>
                 )}
                 <div className={styles.options}>
+                  {showCreateOption && (
+                    <div
+                      className={`${styles.option} ${styles['option--create']}`}
+                      onClick={() => handleFreeInput(searchQuery.trim())}
+                    >
+                      <Typography variant="body" size="small" weight="regular">
+                        {t('ui.select.useValue', { value: searchQuery.trim() })}
+                      </Typography>
+                    </div>
+                  )}
                   {filteredOptions.length > 0 ? (
                     filteredOptions.map(option => (
                       <div
@@ -341,9 +283,9 @@ export function Select({
                         </Typography>
                       </div>
                     ))
-                  ) : (
+                  ) : !showCreateOption ? (
                     <div className={styles.noResults}>{t('ui.select.noResults')}</div>
-                  )}
+                  ) : null}
                 </div>
               </motion.div>
             )}

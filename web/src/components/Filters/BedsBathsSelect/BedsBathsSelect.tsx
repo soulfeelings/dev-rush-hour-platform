@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ChevronUp, X } from 'lucide-react'
+import { useDropdownPosition } from '../../../hooks/useDropdownPosition'
 import styles from './BedsBathsSelect.module.scss'
 
 type TriggerSize = 'xs' | 'sm' | 'md' | 'lg'
@@ -37,10 +38,8 @@ export function BedsBathsSelect({
 }: BedsBathsSelectProps) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 })
+  const { triggerRef, dropdownRef, dropdownPos, positionCalculated } = useDropdownPosition(isOpen)
   const selectRef = useRef<HTMLDivElement>(null)
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
   const generatedId = useId()
   const buttonId = `beds-baths-${generatedId}`
 
@@ -93,48 +92,7 @@ export function BedsBathsSelect({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  useEffect(() => {
-    if (isOpen && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setDropdownPos({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-      })
-    }
-  }, [isOpen])
-
-  useEffect(() => {
-    if (!isOpen) return
-
-    const updatePos = () => {
-      if (triggerRef.current) {
-        const rect = triggerRef.current.getBoundingClientRect()
-        setDropdownPos({
-          top: rect.bottom + window.scrollY,
-          left: rect.left + window.scrollX,
-          width: rect.width,
-        })
-      }
-    }
-
-    window.addEventListener('scroll', updatePos, true)
-    window.addEventListener('resize', updatePos)
-    return () => {
-      window.removeEventListener('scroll', updatePos, true)
-      window.removeEventListener('resize', updatePos)
-    }
-  }, [isOpen])
-
   const handleToggle = () => {
-    if (!isOpen && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setDropdownPos({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-      })
-    }
     setIsOpen(!isOpen)
   }
 
@@ -207,9 +165,10 @@ export function BedsBathsSelect({
                 exit={{ opacity: 0, y: -8, scale: 0.95 }}
                 transition={{ duration: 0.1, ease: 'easeOut' }}
                 style={{
-                  top: `${dropdownPos.top + 4}px`,
+                  top: `${dropdownPos.top}px`,
                   left: `${dropdownPos.left}px`,
                   width: `${dropdownPos.width}px`,
+                  visibility: positionCalculated ? 'visible' : 'hidden',
                 }}
               >
                 <div className={styles.content}>

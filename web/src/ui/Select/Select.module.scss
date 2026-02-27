@@ -231,6 +231,19 @@
   &--selecting {
     animation: optionSelect 0.2s ease-out;
   }
+
+  &--create {
+    border-bottom: 1px solid $color-border;
+    border-radius: 0;
+    margin-bottom: $spacing-1;
+    font-style: italic;
+    color: $color-text-secondary;
+
+    &:hover {
+      background: $color-yellow-light;
+      color: $color-text;
+    }
+  }
 }
 
 @keyframes checkPop {

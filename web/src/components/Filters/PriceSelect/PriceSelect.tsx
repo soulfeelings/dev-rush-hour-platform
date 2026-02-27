@@ -4,9 +4,33 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ChevronUp, X } from 'lucide-react'
 import { useSettings } from '../../../features/Settings/Settings'
+import { useDropdownPosition } from '../../../hooks/useDropdownPosition'
 import styles from './PriceSelect.module.scss'
 
 type TriggerSize = 'xs' | 'sm' | 'md' | 'lg'
+
+interface PriceOption {
+  value: string
+  label: string
+}
+
+function generatePriceOptions(): PriceOption[] {
+  const options: PriceOption[] = []
+  const push = (v: number) =>
+    options.push({ value: String(v), label: v.toLocaleString('en-US') })
+  for (let v = 300_000; v <= 3_000_000; v += 100_000) push(v)
+  for (let v = 3_250_000; v <= 5_000_000; v += 250_000) push(v)
+  for (let v = 6_000_000; v <= 50_000_000; v += 1_000_000) push(v)
+  return options
+}
+
+const PRICE_OPTIONS = generatePriceOptions()
+
+function filterOptions(options: PriceOption[], query: string): PriceOption[] {
+  const digits = query.replace(/\D/g, '')
+  if (!digits) return options
+  return options.filter(opt => opt.value.includes(digits))
+}
 
 interface PriceSelectProps {
   minPrice: string
@@ -39,13 +63,14 @@ export function PriceSelect({
   const [isOpen, setIsOpen] = useState(false)
   const [localMinPrice, setLocalMinPrice] = useState(minPrice)
   const [localMaxPrice, setLocalMaxPrice] = useState(maxPrice)
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 })
+  const { triggerRef, dropdownRef, dropdownPos, positionCalculated } = useDropdownPosition(isOpen)
   const selectRef = useRef<HTMLDivElement>(null)
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
   const minInputRef = useRef<HTMLInputElement>(null)
   const generatedId = useId()
   const buttonId = `price-${generatedId}`
+
+  const filteredMinOptions = filterOptions(PRICE_OPTIONS, localMinPrice)
+  const filteredMaxOptions = filterOptions(PRICE_OPTIONS, localMaxPrice)
 
   const handleReset = () => {
     setLocalMinPrice('')
@@ -103,50 +128,14 @@ export function PriceSelect({
   }, [minPrice, maxPrice])
 
   useEffect(() => {
-    if (isOpen && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setDropdownPos({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-      })
+    if (isOpen) {
       setTimeout(() => {
         minInputRef.current?.focus()
       }, 100)
     }
   }, [isOpen])
 
-  useEffect(() => {
-    if (!isOpen) return
-
-    const updatePos = () => {
-      if (triggerRef.current) {
-        const rect = triggerRef.current.getBoundingClientRect()
-        setDropdownPos({
-          top: rect.bottom + window.scrollY,
-          left: rect.left + window.scrollX,
-          width: rect.width,
-        })
-      }
-    }
-
-    window.addEventListener('scroll', updatePos, true)
-    window.addEventListener('resize', updatePos)
-    return () => {
-      window.removeEventListener('scroll', updatePos, true)
-      window.removeEventListener('resize', updatePos)
-    }
-  }, [isOpen])
-
   const handleToggle = () => {
-    if (!isOpen && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setDropdownPos({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-      })
-    }
     setIsOpen(!isOpen)
   }
 
@@ -203,9 +192,10 @@ export function PriceSelect({
                 exit={{ opacity: 0, y: -8, scale: 0.95 }}
                 transition={{ duration: 0.1, ease: 'easeOut' }}
                 style={{
-                  top: `${dropdownPos.top + 4}px`,
+                  top: `${dropdownPos.top}px`,
                   left: `${dropdownPos.left}px`,
                   width: `${dropdownPos.width}px`,
+                  visibility: positionCalculated ? 'visible' : 'hidden',
                 }}
               >
                 <div className={styles.content}>
@@ -220,6 +210,20 @@ export function PriceSelect({
                         value={localMinPrice}
                         onChange={e => setLocalMinPrice(e.target.value)}
                       />
+                      <div className={styles.suggestions}>
+                        {filteredMinOptions.map(opt => (
+                          <div
+                            key={opt.value}
+                            className={`${styles.suggestionItem} ${localMinPrice === opt.value ? styles['suggestionItem--selected'] : ''}`}
+                            onMouseDown={e => {
+                              e.preventDefault()
+                              setLocalMinPrice(opt.value)
+                            }}
+                          >
+                            {opt.label}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     <div className={styles.inputGroup}>
                       <label className={styles.label}>{t('filters.price.maximum')}</label>
@@ -230,6 +234,20 @@ export function PriceSelect({
                         value={localMaxPrice}
                         onChange={e => setLocalMaxPrice(e.target.value)}
                       />
+                      <div className={styles.suggestions}>
+                        {filteredMaxOptions.map(opt => (
+                          <div
+                            key={opt.value}
+                            className={`${styles.suggestionItem} ${localMaxPrice === opt.value ? styles['suggestionItem--selected'] : ''}`}
+                            onMouseDown={e => {
+                              e.preventDefault()
+                              setLocalMaxPrice(opt.value)
+                            }}
+                          >
+                            {opt.label}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
 

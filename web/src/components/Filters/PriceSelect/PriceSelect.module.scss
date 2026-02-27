@@ -234,6 +234,40 @@
   }
 }
 
+.suggestions {
+  max-height: 160px;
+  overflow-y: auto;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-bg-card;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.suggestionItem {
+  padding: $spacing-1 $spacing-3;
+  font-size: $font-size-sm;
+  font-family: inherit;
+  color: $color-text;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: $color-yellow-light;
+  }
+
+  &--selected {
+    background: $color-yellow;
+    font-weight: $font-weight-medium;
+
+    &:hover {
+      background: $color-yellow-hover;
+    }
+  }
+}
+
 .actions {
   display: flex;
   gap: $spacing-2;

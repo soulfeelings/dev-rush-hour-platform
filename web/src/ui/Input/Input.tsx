@@ -27,7 +27,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <input ref={ref} id={inputId} className={inputClassNames} {...props} />
+        <input
+          ref={ref}
+          id={inputId}
+          className={inputClassNames}
+          onWheel={props.type === 'number' ? e => (e.target as HTMLInputElement).blur() : props.onWheel}
+          {...props}
+        />
         {error && <span className={styles.errorText}>{error}</span>}
         {helperText && !error && <span className={styles.helperText}>{helperText}</span>}
       </div>
