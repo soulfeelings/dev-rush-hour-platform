@@ -148,70 +148,72 @@ export function DeletedInfrastructuresTable({
           )}
         </div>
       </div>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th className={styles.checkboxCell}>
-              <Checkbox
-                checked={isAllSelected}
-                onChange={handleSelectAll}
-                aria-label="Select all deleted infrastructures"
-              />
-            </th>
-            <th></th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Slug</th>
-            <th>Deleted At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map(item => (
-            <tr
-              key={item.id}
-              onMouseEnter={() => setHoveredRowId(item.id)}
-              onMouseLeave={() => setHoveredRowId(undefined)}
-              className={item.id && selectedIds.has(item.id) ? styles.selectedRow : ''}
-            >
-              <td className={styles.checkboxCell}>
+      <div className={styles.tableScroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.checkboxCell}>
                 <Checkbox
-                  checked={!!item.id && selectedIds.has(item.id)}
-                  onChange={() => item.id && handleSelectOne(item.id)}
-                  aria-label={`Select ${item.name}`}
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  aria-label="Select all deleted infrastructures"
                 />
-              </td>
-              <td className={styles.actionsCell}>
-                {hoveredRowId === item.id && (
-                  <div className={styles.actionButtons}>
-                    <button
-                      type="button"
-                      className={styles.restoreBtn}
-                      onClick={() => item.id && handleRestoreClick([item.id])}
-                      aria-label="Restore infrastructure"
-                      disabled={isLoading_}
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.deleteBtn}
-                      onClick={() => item.id && handleDeleteClick([item.id])}
-                      aria-label="Permanently delete infrastructure"
-                      disabled={isLoading_}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </td>
-              <td>{item.id}</td>
-              <td>{item.name || '-'}</td>
-              <td>{item.slug || '-'}</td>
-              <td>{item.deletedAt ? new Date(item.deletedAt).toLocaleDateString('en-US') : '-'}</td>
+              </th>
+              <th></th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Deleted At</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {list.map(item => (
+              <tr
+                key={item.id}
+                onMouseEnter={() => setHoveredRowId(item.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+                className={item.id && selectedIds.has(item.id) ? styles.selectedRow : ''}
+              >
+                <td className={styles.checkboxCell}>
+                  <Checkbox
+                    checked={!!item.id && selectedIds.has(item.id)}
+                    onChange={() => item.id && handleSelectOne(item.id)}
+                    aria-label={`Select ${item.name}`}
+                  />
+                </td>
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === item.id && (
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        className={styles.restoreBtn}
+                        onClick={() => item.id && handleRestoreClick([item.id])}
+                        aria-label="Restore infrastructure"
+                        disabled={isLoading_}
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        onClick={() => item.id && handleDeleteClick([item.id])}
+                        aria-label="Permanently delete infrastructure"
+                        disabled={isLoading_}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+                <td>{item.id}</td>
+                <td>{item.name || '-'}</td>
+                <td>{item.slug || '-'}</td>
+                <td>{item.deletedAt ? new Date(item.deletedAt).toLocaleDateString('en-US') : '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">
         <ModalBody>

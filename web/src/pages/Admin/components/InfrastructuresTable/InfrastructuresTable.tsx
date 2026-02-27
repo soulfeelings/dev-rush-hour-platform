@@ -120,54 +120,56 @@ export function InfrastructuresTable({
       {list.length === 0 ? (
         <div className={styles.empty}>No infrastructures</div>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all infrastructures"
-                />
-              </th>
-              <th></th>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>Icon</th>
-              <th>Sort Order</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map(item => (
-              <tr
-                key={item.id}
-                onMouseEnter={() => setHoveredRowId(item.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={item.id && selectedIds.has(item.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.checkboxCell}>
                   <Checkbox
-                    checked={!!item.id && selectedIds.has(item.id)}
-                    onChange={() => item.id && handleSelectOne(item.id)}
-                    aria-label={`Select ${item.name}`}
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
+                    aria-label="Select all infrastructures"
                   />
-                </td>
-                <td className={styles.actionsCell}>
-                  <TableActionButtons
-                    show={hoveredRowId === item.id}
-                    onEdit={() => onEditClick(item)}
-                    onDelete={() => item.id && handleDeleteClick([item.id])}
-                    deleteLoading={deleteLoading}
-                  />
-                </td>
-                <td>{item.name || '-'}</td>
-                <td>{item.slug || '-'}</td>
-                <td>{getInfrastructureIcon(item.icon) || item.icon || '-'}</td>
-                <td>{item.sortOrder ?? 0}</td>
+                </th>
+                <th></th>
+                <th>Name</th>
+                <th>Slug</th>
+                <th>Icon</th>
+                <th>Sort Order</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {list.map(item => (
+                <tr
+                  key={item.id}
+                  onMouseEnter={() => setHoveredRowId(item.id)}
+                  onMouseLeave={() => setHoveredRowId(undefined)}
+                  className={item.id && selectedIds.has(item.id) ? styles.selectedRow : ''}
+                >
+                  <td className={styles.checkboxCell}>
+                    <Checkbox
+                      checked={!!item.id && selectedIds.has(item.id)}
+                      onChange={() => item.id && handleSelectOne(item.id)}
+                      aria-label={`Select ${item.name}`}
+                    />
+                  </td>
+                  <td className={styles.actionsCell}>
+                    <TableActionButtons
+                      show={hoveredRowId === item.id}
+                      onEdit={() => onEditClick(item)}
+                      onDelete={() => item.id && handleDeleteClick([item.id])}
+                      deleteLoading={deleteLoading}
+                    />
+                  </td>
+                  <td>{item.name || '-'}</td>
+                  <td>{item.slug || '-'}</td>
+                  <td>{getInfrastructureIcon(item.icon) || item.icon || '-'}</td>
+                  <td>{item.sortOrder ?? 0}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">

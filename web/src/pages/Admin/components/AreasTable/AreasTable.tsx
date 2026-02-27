@@ -124,64 +124,66 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading }:
       {areasList.length === 0 ? (
         <div className={styles.empty}>No areas</div>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all areas"
-                />
-              </th>
-              <th></th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>City</th>
-              <th>Coordinates</th>
-              <th>Status</th>
-              <th>Created At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {areasList.map(area => (
-              <tr
-                key={area.id}
-                onMouseEnter={() => setHoveredRowId(area.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={area.id && selectedIds.has(area.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.checkboxCell}>
                   <Checkbox
-                    checked={!!area.id && selectedIds.has(area.id)}
-                    onChange={() => area.id && handleSelectOne(area.id)}
-                    aria-label={`Select ${area.name}`}
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
+                    aria-label="Select all areas"
                   />
-                </td>
-                <td className={styles.actionsCell}>
-                  <TableActionButtons
-                    show={hoveredRowId === area.id}
-                    onEdit={() => onEditClick(area)}
-                    onDelete={() => area.id && handleDeleteClick([area.id])}
-                    deleteLoading={deleteLoading}
-                  />
-                </td>
-                <td>{area.id}</td>
-                <td>{area.name || '-'}</td>
-                <td>{area.slug || '-'}</td>
-                <td>{area.city || '-'}</td>
-                <td>
-                  {area.lat && area.lng ? `${area.lat.toFixed(6)}, ${area.lng.toFixed(6)}` : '-'}
-                </td>
-                <td>{area.status || '-'}</td>
-                <td>
-                  {area.createdAt ? new Date(area.createdAt).toLocaleDateString('en-US') : '-'}
-                </td>
+                </th>
+                <th></th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Slug</th>
+                <th>City</th>
+                <th>Coordinates</th>
+                <th>Status</th>
+                <th>Created At</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {areasList.map(area => (
+                <tr
+                  key={area.id}
+                  onMouseEnter={() => setHoveredRowId(area.id)}
+                  onMouseLeave={() => setHoveredRowId(undefined)}
+                  className={area.id && selectedIds.has(area.id) ? styles.selectedRow : ''}
+                >
+                  <td className={styles.checkboxCell}>
+                    <Checkbox
+                      checked={!!area.id && selectedIds.has(area.id)}
+                      onChange={() => area.id && handleSelectOne(area.id)}
+                      aria-label={`Select ${area.name}`}
+                    />
+                  </td>
+                  <td className={styles.actionsCell}>
+                    <TableActionButtons
+                      show={hoveredRowId === area.id}
+                      onEdit={() => onEditClick(area)}
+                      onDelete={() => area.id && handleDeleteClick([area.id])}
+                      deleteLoading={deleteLoading}
+                    />
+                  </td>
+                  <td>{area.id}</td>
+                  <td>{area.name || '-'}</td>
+                  <td>{area.slug || '-'}</td>
+                  <td>{area.city || '-'}</td>
+                  <td>
+                    {area.lat && area.lng ? `${area.lat.toFixed(6)}, ${area.lng.toFixed(6)}` : '-'}
+                  </td>
+                  <td>{area.status || '-'}</td>
+                  <td>
+                    {area.createdAt ? new Date(area.createdAt).toLocaleDateString('en-US') : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">

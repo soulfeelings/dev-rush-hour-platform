@@ -148,72 +148,74 @@ export function DeletedBadgesTable({
           )}
         </div>
       </div>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th className={styles.checkboxCell}>
-              <Checkbox
-                checked={isAllSelected}
-                onChange={handleSelectAll}
-                aria-label="Select all deleted badges"
-              />
-            </th>
-            <th></th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Slug</th>
-            <th>Deleted At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {badgesList.map(badge => (
-            <tr
-              key={badge.id}
-              onMouseEnter={() => setHoveredRowId(badge.id)}
-              onMouseLeave={() => setHoveredRowId(undefined)}
-              className={badge.id && selectedIds.has(badge.id) ? styles.selectedRow : ''}
-            >
-              <td className={styles.checkboxCell}>
+      <div className={styles.tableScroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.checkboxCell}>
                 <Checkbox
-                  checked={!!badge.id && selectedIds.has(badge.id)}
-                  onChange={() => badge.id && handleSelectOne(badge.id)}
-                  aria-label={`Select ${badge.name}`}
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  aria-label="Select all deleted badges"
                 />
-              </td>
-              <td className={styles.actionsCell}>
-                {hoveredRowId === badge.id && (
-                  <div className={styles.actionButtons}>
-                    <button
-                      type="button"
-                      className={styles.restoreBtn}
-                      onClick={() => badge.id && handleRestoreClick([badge.id])}
-                      aria-label="Restore badge"
-                      disabled={isLoading_}
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.deleteBtn}
-                      onClick={() => badge.id && handleDeleteClick([badge.id])}
-                      aria-label="Permanently delete badge"
-                      disabled={isLoading_}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </td>
-              <td>{badge.id}</td>
-              <td>{badge.name || '-'}</td>
-              <td>{badge.slug || '-'}</td>
-              <td>
-                {badge.deletedAt ? new Date(badge.deletedAt).toLocaleDateString('en-US') : '-'}
-              </td>
+              </th>
+              <th></th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Deleted At</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {badgesList.map(badge => (
+              <tr
+                key={badge.id}
+                onMouseEnter={() => setHoveredRowId(badge.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+                className={badge.id && selectedIds.has(badge.id) ? styles.selectedRow : ''}
+              >
+                <td className={styles.checkboxCell}>
+                  <Checkbox
+                    checked={!!badge.id && selectedIds.has(badge.id)}
+                    onChange={() => badge.id && handleSelectOne(badge.id)}
+                    aria-label={`Select ${badge.name}`}
+                  />
+                </td>
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === badge.id && (
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        className={styles.restoreBtn}
+                        onClick={() => badge.id && handleRestoreClick([badge.id])}
+                        aria-label="Restore badge"
+                        disabled={isLoading_}
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        onClick={() => badge.id && handleDeleteClick([badge.id])}
+                        aria-label="Permanently delete badge"
+                        disabled={isLoading_}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+                <td>{badge.id}</td>
+                <td>{badge.name || '-'}</td>
+                <td>{badge.slug || '-'}</td>
+                <td>
+                  {badge.deletedAt ? new Date(badge.deletedAt).toLocaleDateString('en-US') : '-'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">
         <ModalBody>

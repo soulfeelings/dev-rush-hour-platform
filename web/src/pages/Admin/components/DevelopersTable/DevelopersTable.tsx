@@ -131,72 +131,74 @@ export function DevelopersTable({
       {developersList.length === 0 ? (
         <div className={styles.empty}>No developers</div>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all developers"
-                />
-              </th>
-              <th></th>
-              <th>Logo</th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>Status</th>
-              <th>Created At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {developersList.map(developer => (
-              <tr
-                key={developer.id}
-                onMouseEnter={() => setHoveredRowId(developer.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={developer.id && selectedIds.has(developer.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.checkboxCell}>
                   <Checkbox
-                    checked={!!developer.id && selectedIds.has(developer.id)}
-                    onChange={() => developer.id && handleSelectOne(developer.id)}
-                    aria-label={`Select ${developer.name}`}
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
+                    aria-label="Select all developers"
                   />
-                </td>
-                <td className={styles.actionsCell}>
-                  <TableActionButtons
-                    show={hoveredRowId === developer.id}
-                    onEdit={() => onEditClick(developer)}
-                    onDelete={() => developer.id && handleDeleteClick([developer.id])}
-                    deleteLoading={deleteLoading}
-                  />
-                </td>
-                <td className={styles.logoCell}>
-                  {developer.logoUrl ? (
-                    <img
-                      src={getImageUrl(developer.logoUrl!, 'thumbnail')}
-                      alt={`${developer.name} logo`}
-                      className={styles.logoImage}
-                    />
-                  ) : (
-                    <span className={styles.noLogo}>-</span>
-                  )}
-                </td>
-                <td>{developer.id}</td>
-                <td>{developer.name || '-'}</td>
-                <td>{developer.slug || '-'}</td>
-                <td>{developer.status || '-'}</td>
-                <td>
-                  {developer.createdAt
-                    ? new Date(developer.createdAt).toLocaleDateString('en-US')
-                    : '-'}
-                </td>
+                </th>
+                <th></th>
+                <th>Logo</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Slug</th>
+                <th>Status</th>
+                <th>Created At</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {developersList.map(developer => (
+                <tr
+                  key={developer.id}
+                  onMouseEnter={() => setHoveredRowId(developer.id)}
+                  onMouseLeave={() => setHoveredRowId(undefined)}
+                  className={developer.id && selectedIds.has(developer.id) ? styles.selectedRow : ''}
+                >
+                  <td className={styles.checkboxCell}>
+                    <Checkbox
+                      checked={!!developer.id && selectedIds.has(developer.id)}
+                      onChange={() => developer.id && handleSelectOne(developer.id)}
+                      aria-label={`Select ${developer.name}`}
+                    />
+                  </td>
+                  <td className={styles.actionsCell}>
+                    <TableActionButtons
+                      show={hoveredRowId === developer.id}
+                      onEdit={() => onEditClick(developer)}
+                      onDelete={() => developer.id && handleDeleteClick([developer.id])}
+                      deleteLoading={deleteLoading}
+                    />
+                  </td>
+                  <td className={styles.logoCell}>
+                    {developer.logoUrl ? (
+                      <img
+                        src={getImageUrl(developer.logoUrl!, 'thumbnail')}
+                        alt={`${developer.name} logo`}
+                        className={styles.logoImage}
+                      />
+                    ) : (
+                      <span className={styles.noLogo}>-</span>
+                    )}
+                  </td>
+                  <td>{developer.id}</td>
+                  <td>{developer.name || '-'}</td>
+                  <td>{developer.slug || '-'}</td>
+                  <td>{developer.status || '-'}</td>
+                  <td>
+                    {developer.createdAt
+                      ? new Date(developer.createdAt).toLocaleDateString('en-US')
+                      : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">

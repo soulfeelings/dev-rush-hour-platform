@@ -157,86 +157,88 @@ export function DeletedDevelopersTable({
           )}
         </div>
       </div>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th className={styles.checkboxCell}>
-              <Checkbox
-                checked={isAllSelected}
-                onChange={handleSelectAll}
-                aria-label="Select all deleted developers"
-              />
-            </th>
-            <th></th>
-            <th>Logo</th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Slug</th>
-            <th>Deleted At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {developersList.map(developer => (
-            <tr
-              key={developer.id}
-              onMouseEnter={() => setHoveredRowId(developer.id)}
-              onMouseLeave={() => setHoveredRowId(undefined)}
-              className={developer.id && selectedIds.has(developer.id) ? styles.selectedRow : ''}
-            >
-              <td className={styles.checkboxCell}>
+      <div className={styles.tableScroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.checkboxCell}>
                 <Checkbox
-                  checked={!!developer.id && selectedIds.has(developer.id)}
-                  onChange={() => developer.id && handleSelectOne(developer.id)}
-                  aria-label={`Select ${developer.name}`}
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  aria-label="Select all deleted developers"
                 />
-              </td>
-              <td className={styles.actionsCell}>
-                {hoveredRowId === developer.id && (
-                  <div className={styles.actionButtons}>
-                    <button
-                      type="button"
-                      className={styles.restoreBtn}
-                      onClick={() => developer.id && handleRestoreClick([developer.id])}
-                      aria-label="Restore developer"
-                      disabled={isLoading_}
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.deleteBtn}
-                      onClick={() => developer.id && handleDeleteClick([developer.id])}
-                      aria-label="Permanently delete developer"
-                      disabled={isLoading_}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </td>
-              <td className={styles.logoCell}>
-                {developer.logoUrl ? (
-                  <img
-                    src={getImageUrl(developer.logoUrl!, 'thumbnail')}
-                    alt={`${developer.name} logo`}
-                    className={styles.logoImage}
-                  />
-                ) : (
-                  <span className={styles.noLogo}>-</span>
-                )}
-              </td>
-              <td>{developer.id}</td>
-              <td>{developer.name || '-'}</td>
-              <td>{developer.slug || '-'}</td>
-              <td>
-                {developer.deletedAt
-                  ? new Date(developer.deletedAt).toLocaleDateString('en-US')
-                  : '-'}
-              </td>
+              </th>
+              <th></th>
+              <th>Logo</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Deleted At</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {developersList.map(developer => (
+              <tr
+                key={developer.id}
+                onMouseEnter={() => setHoveredRowId(developer.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+                className={developer.id && selectedIds.has(developer.id) ? styles.selectedRow : ''}
+              >
+                <td className={styles.checkboxCell}>
+                  <Checkbox
+                    checked={!!developer.id && selectedIds.has(developer.id)}
+                    onChange={() => developer.id && handleSelectOne(developer.id)}
+                    aria-label={`Select ${developer.name}`}
+                  />
+                </td>
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === developer.id && (
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        className={styles.restoreBtn}
+                        onClick={() => developer.id && handleRestoreClick([developer.id])}
+                        aria-label="Restore developer"
+                        disabled={isLoading_}
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        onClick={() => developer.id && handleDeleteClick([developer.id])}
+                        aria-label="Permanently delete developer"
+                        disabled={isLoading_}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+                <td className={styles.logoCell}>
+                  {developer.logoUrl ? (
+                    <img
+                      src={getImageUrl(developer.logoUrl!, 'thumbnail')}
+                      alt={`${developer.name} logo`}
+                      className={styles.logoImage}
+                    />
+                  ) : (
+                    <span className={styles.noLogo}>-</span>
+                  )}
+                </td>
+                <td>{developer.id}</td>
+                <td>{developer.name || '-'}</td>
+                <td>{developer.slug || '-'}</td>
+                <td>
+                  {developer.deletedAt
+                    ? new Date(developer.deletedAt).toLocaleDateString('en-US')
+                    : '-'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">
         <ModalBody>

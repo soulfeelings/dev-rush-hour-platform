@@ -148,70 +148,72 @@ export function DeletedCitiesTable({
           )}
         </div>
       </div>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th className={styles.checkboxCell}>
-              <Checkbox
-                checked={isAllSelected}
-                onChange={handleSelectAll}
-                aria-label="Select all deleted cities"
-              />
-            </th>
-            <th></th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Slug</th>
-            <th>Deleted At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {citiesList.map(city => (
-            <tr
-              key={city.id}
-              onMouseEnter={() => setHoveredRowId(city.id)}
-              onMouseLeave={() => setHoveredRowId(undefined)}
-              className={city.id && selectedIds.has(city.id) ? styles.selectedRow : ''}
-            >
-              <td className={styles.checkboxCell}>
+      <div className={styles.tableScroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.checkboxCell}>
                 <Checkbox
-                  checked={!!city.id && selectedIds.has(city.id)}
-                  onChange={() => city.id && handleSelectOne(city.id)}
-                  aria-label={`Select ${city.name}`}
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  aria-label="Select all deleted cities"
                 />
-              </td>
-              <td className={styles.actionsCell}>
-                {hoveredRowId === city.id && (
-                  <div className={styles.actionButtons}>
-                    <button
-                      type="button"
-                      className={styles.restoreBtn}
-                      onClick={() => city.id && handleRestoreClick([city.id])}
-                      aria-label="Restore city"
-                      disabled={isLoading_}
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.deleteBtn}
-                      onClick={() => city.id && handleDeleteClick([city.id])}
-                      aria-label="Permanently delete city"
-                      disabled={isLoading_}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </td>
-              <td>{city.id}</td>
-              <td>{city.name || '-'}</td>
-              <td>{city.slug || '-'}</td>
-              <td>{city.deletedAt ? new Date(city.deletedAt).toLocaleDateString('en-US') : '-'}</td>
+              </th>
+              <th></th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Deleted At</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {citiesList.map(city => (
+              <tr
+                key={city.id}
+                onMouseEnter={() => setHoveredRowId(city.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+                className={city.id && selectedIds.has(city.id) ? styles.selectedRow : ''}
+              >
+                <td className={styles.checkboxCell}>
+                  <Checkbox
+                    checked={!!city.id && selectedIds.has(city.id)}
+                    onChange={() => city.id && handleSelectOne(city.id)}
+                    aria-label={`Select ${city.name}`}
+                  />
+                </td>
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === city.id && (
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        className={styles.restoreBtn}
+                        onClick={() => city.id && handleRestoreClick([city.id])}
+                        aria-label="Restore city"
+                        disabled={isLoading_}
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        onClick={() => city.id && handleDeleteClick([city.id])}
+                        aria-label="Permanently delete city"
+                        disabled={isLoading_}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+                <td>{city.id}</td>
+                <td>{city.name || '-'}</td>
+                <td>{city.slug || '-'}</td>
+                <td>{city.deletedAt ? new Date(city.deletedAt).toLocaleDateString('en-US') : '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">
         <ModalBody>

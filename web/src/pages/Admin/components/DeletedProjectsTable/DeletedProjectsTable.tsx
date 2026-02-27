@@ -148,78 +148,80 @@ export function DeletedProjectsTable({
           )}
         </div>
       </div>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th className={styles.checkboxCell}>
-              <Checkbox
-                checked={isAllSelected}
-                onChange={handleSelectAll}
-                aria-label="Select all deleted projects"
-              />
-            </th>
-            <th></th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Developer</th>
-            <th>Area</th>
-            <th>City</th>
-            <th>Slug</th>
-            <th>Deleted At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {projectsList.map(project => (
-            <tr
-              key={project.id}
-              onMouseEnter={() => setHoveredRowId(project.id)}
-              onMouseLeave={() => setHoveredRowId(undefined)}
-              className={project.id && selectedIds.has(project.id) ? styles.selectedRow : ''}
-            >
-              <td className={styles.checkboxCell}>
+      <div className={styles.tableScroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.checkboxCell}>
                 <Checkbox
-                  checked={!!project.id && selectedIds.has(project.id)}
-                  onChange={() => project.id && handleSelectOne(project.id)}
-                  aria-label={`Select ${project.name}`}
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  aria-label="Select all deleted projects"
                 />
-              </td>
-              <td className={styles.actionsCell}>
-                {hoveredRowId === project.id && (
-                  <div className={styles.actionButtons}>
-                    <button
-                      type="button"
-                      className={styles.restoreBtn}
-                      onClick={() => project.id && handleRestoreClick([project.id])}
-                      aria-label="Restore project"
-                      disabled={isLoading_}
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.deleteBtn}
-                      onClick={() => project.id && handleDeleteClick([project.id])}
-                      aria-label="Permanently delete project"
-                      disabled={isLoading_}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </td>
-              <td>{project.id}</td>
-              <td>{project.name || '-'}</td>
-              <td>{project.developer?.name || '-'}</td>
-              <td>{project.area?.name || '-'}</td>
-              <td>{project.area?.city || '-'}</td>
-              <td>{project.slug || '-'}</td>
-              <td>
-                {project.deletedAt ? new Date(project.deletedAt).toLocaleDateString('en-US') : '-'}
-              </td>
+              </th>
+              <th></th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Developer</th>
+              <th>Area</th>
+              <th>City</th>
+              <th>Slug</th>
+              <th>Deleted At</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {projectsList.map(project => (
+              <tr
+                key={project.id}
+                onMouseEnter={() => setHoveredRowId(project.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+                className={project.id && selectedIds.has(project.id) ? styles.selectedRow : ''}
+              >
+                <td className={styles.checkboxCell}>
+                  <Checkbox
+                    checked={!!project.id && selectedIds.has(project.id)}
+                    onChange={() => project.id && handleSelectOne(project.id)}
+                    aria-label={`Select ${project.name}`}
+                  />
+                </td>
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === project.id && (
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        className={styles.restoreBtn}
+                        onClick={() => project.id && handleRestoreClick([project.id])}
+                        aria-label="Restore project"
+                        disabled={isLoading_}
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        onClick={() => project.id && handleDeleteClick([project.id])}
+                        aria-label="Permanently delete project"
+                        disabled={isLoading_}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+                <td>{project.id}</td>
+                <td>{project.name || '-'}</td>
+                <td>{project.developer?.name || '-'}</td>
+                <td>{project.area?.name || '-'}</td>
+                <td>{project.area?.city || '-'}</td>
+                <td>{project.slug || '-'}</td>
+                <td>
+                  {project.deletedAt ? new Date(project.deletedAt).toLocaleDateString('en-US') : '-'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">
         <ModalBody>

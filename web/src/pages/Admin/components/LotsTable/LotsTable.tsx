@@ -240,82 +240,84 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
           {allLots.length === 0 ? 'No lots' : 'No lots match the selected filters'}
         </div>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all lots"
-                />
-              </th>
-              <th></th>
-              <th>Image</th>
-              <th>ID</th>
-              <th>Project</th>
-              <th>Type</th>
-              <th>Bedrooms</th>
-              <th>Bathrooms</th>
-              <th>Area (m²)</th>
-              <th>Floor</th>
-              <th>Price</th>
-              <th>Dev Price</th>
-              <th>ROI</th>
-              <th>Status</th>
-              <th>Created At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lotsList.map(lot => (
-              <tr
-                key={lot.id}
-                onMouseEnter={() => setHoveredRowId(lot.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={lot.id && selectedIds.has(lot.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.checkboxCell}>
                   <Checkbox
-                    checked={!!lot.id && selectedIds.has(lot.id)}
-                    onChange={() => lot.id && handleSelectOne(lot.id)}
-                    aria-label={`Select lot ${lot.id}`}
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
+                    aria-label="Select all lots"
                   />
-                </td>
-                <td className={styles.actionsCell}>
-                  <TableActionButtons
-                    show={hoveredRowId === lot.id}
-                    onEdit={() => onEditClick(lot)}
-                    onDelete={() => lot.id && handleDeleteClick([lot.id])}
-                    deleteLoading={deleteLoading}
-                  />
-                </td>
-                <td className={styles.imageCell}>
-                  {getLotImageUrl(lot) ? (
-                    <img
-                      src={getImageUrl(getLotImageUrl(lot) || '', 'thumbnail')}
-                      alt={`Lot ${lot.id}`}
-                      className={styles.image}
-                    />
-                  ) : (
-                    <div className={styles.noImage}>-</div>
-                  )}
-                </td>
-                <td>{lot.id}</td>
-                <td>{lot.project?.name || '-'}</td>
-                <td>{lot.type || '-'}</td>
-                <td>{lot.bedrooms ?? '-'}</td>
-                <td>{lot.bathrooms ?? '-'}</td>
-                <td>{lot.areaSqm ?? '-'}</td>
-                <td>{lot.floor ?? '-'}</td>
-                <td>{formatPrice(lot.priceFromUs, 'AED')}</td>
-                <td>{formatPrice(lot.priceFromDeveloper, 'AED')}</td>
-                <td>{lot.roi != null ? `${lot.roi}%` : '-'}</td>
-                <td>{lot.status || '-'}</td>
-                <td>{lot.createdAt ? new Date(lot.createdAt).toLocaleDateString('en-US') : '-'}</td>
+                </th>
+                <th></th>
+                <th>Image</th>
+                <th>ID</th>
+                <th>Project</th>
+                <th>Type</th>
+                <th>Bedrooms</th>
+                <th>Bathrooms</th>
+                <th>Area (m²)</th>
+                <th>Floor</th>
+                <th>Price</th>
+                <th>Dev Price</th>
+                <th>ROI</th>
+                <th>Status</th>
+                <th>Created At</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {lotsList.map(lot => (
+                <tr
+                  key={lot.id}
+                  onMouseEnter={() => setHoveredRowId(lot.id)}
+                  onMouseLeave={() => setHoveredRowId(undefined)}
+                  className={lot.id && selectedIds.has(lot.id) ? styles.selectedRow : ''}
+                >
+                  <td className={styles.checkboxCell}>
+                    <Checkbox
+                      checked={!!lot.id && selectedIds.has(lot.id)}
+                      onChange={() => lot.id && handleSelectOne(lot.id)}
+                      aria-label={`Select lot ${lot.id}`}
+                    />
+                  </td>
+                  <td className={styles.actionsCell}>
+                    <TableActionButtons
+                      show={hoveredRowId === lot.id}
+                      onEdit={() => onEditClick(lot)}
+                      onDelete={() => lot.id && handleDeleteClick([lot.id])}
+                      deleteLoading={deleteLoading}
+                    />
+                  </td>
+                  <td className={styles.imageCell}>
+                    {getLotImageUrl(lot) ? (
+                      <img
+                        src={getImageUrl(getLotImageUrl(lot) || '', 'thumbnail')}
+                        alt={`Lot ${lot.id}`}
+                        className={styles.image}
+                      />
+                    ) : (
+                      <div className={styles.noImage}>-</div>
+                    )}
+                  </td>
+                  <td>{lot.id}</td>
+                  <td>{lot.project?.name || '-'}</td>
+                  <td>{lot.type || '-'}</td>
+                  <td>{lot.bedrooms ?? '-'}</td>
+                  <td>{lot.bathrooms ?? '-'}</td>
+                  <td>{lot.areaSqm ?? '-'}</td>
+                  <td>{lot.floor ?? '-'}</td>
+                  <td>{formatPrice(lot.priceFromUs, 'AED')}</td>
+                  <td>{formatPrice(lot.priceFromDeveloper, 'AED')}</td>
+                  <td>{lot.roi != null ? `${lot.roi}%` : '-'}</td>
+                  <td>{lot.status || '-'}</td>
+                  <td>{lot.createdAt ? new Date(lot.createdAt).toLocaleDateString('en-US') : '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">

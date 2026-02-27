@@ -148,72 +148,74 @@ export function DeletedAreasTable({
           )}
         </div>
       </div>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th className={styles.checkboxCell}>
-              <Checkbox
-                checked={isAllSelected}
-                onChange={handleSelectAll}
-                aria-label="Select all deleted areas"
-              />
-            </th>
-            <th></th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Slug</th>
-            <th>City</th>
-            <th>Deleted At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {areasList.map(area => (
-            <tr
-              key={area.id}
-              onMouseEnter={() => setHoveredRowId(area.id)}
-              onMouseLeave={() => setHoveredRowId(undefined)}
-              className={area.id && selectedIds.has(area.id) ? styles.selectedRow : ''}
-            >
-              <td className={styles.checkboxCell}>
+      <div className={styles.tableScroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.checkboxCell}>
                 <Checkbox
-                  checked={!!area.id && selectedIds.has(area.id)}
-                  onChange={() => area.id && handleSelectOne(area.id)}
-                  aria-label={`Select ${area.name}`}
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  aria-label="Select all deleted areas"
                 />
-              </td>
-              <td className={styles.actionsCell}>
-                {hoveredRowId === area.id && (
-                  <div className={styles.actionButtons}>
-                    <button
-                      type="button"
-                      className={styles.restoreBtn}
-                      onClick={() => area.id && handleRestoreClick([area.id])}
-                      aria-label="Restore area"
-                      disabled={isLoading_}
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.deleteBtn}
-                      onClick={() => area.id && handleDeleteClick([area.id])}
-                      aria-label="Permanently delete area"
-                      disabled={isLoading_}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </td>
-              <td>{area.id}</td>
-              <td>{area.name || '-'}</td>
-              <td>{area.slug || '-'}</td>
-              <td>{area.city || '-'}</td>
-              <td>{area.deletedAt ? new Date(area.deletedAt).toLocaleDateString('en-US') : '-'}</td>
+              </th>
+              <th></th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>City</th>
+              <th>Deleted At</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {areasList.map(area => (
+              <tr
+                key={area.id}
+                onMouseEnter={() => setHoveredRowId(area.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+                className={area.id && selectedIds.has(area.id) ? styles.selectedRow : ''}
+              >
+                <td className={styles.checkboxCell}>
+                  <Checkbox
+                    checked={!!area.id && selectedIds.has(area.id)}
+                    onChange={() => area.id && handleSelectOne(area.id)}
+                    aria-label={`Select ${area.name}`}
+                  />
+                </td>
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === area.id && (
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        className={styles.restoreBtn}
+                        onClick={() => area.id && handleRestoreClick([area.id])}
+                        aria-label="Restore area"
+                        disabled={isLoading_}
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        onClick={() => area.id && handleDeleteClick([area.id])}
+                        aria-label="Permanently delete area"
+                        disabled={isLoading_}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+                <td>{area.id}</td>
+                <td>{area.name || '-'}</td>
+                <td>{area.slug || '-'}</td>
+                <td>{area.city || '-'}</td>
+                <td>{area.deletedAt ? new Date(area.deletedAt).toLocaleDateString('en-US') : '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">
         <ModalBody>

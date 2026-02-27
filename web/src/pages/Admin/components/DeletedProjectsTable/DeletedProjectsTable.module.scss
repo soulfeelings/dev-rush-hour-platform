@@ -1,9 +1,13 @@
 .tableWrapper {
   width: 100%;
-  overflow-x: auto;
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid #e0e0e0;
+}
+
+.tableScroll {
+  width: 100%;
+  overflow-x: auto;
 }
 
 .header {

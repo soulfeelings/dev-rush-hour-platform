@@ -153,76 +153,78 @@ export function DeletedLotsTable({
           )}
         </div>
       </div>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th className={styles.checkboxCell}>
-              <Checkbox
-                checked={isAllSelected}
-                onChange={handleSelectAll}
-                aria-label="Select all deleted lots"
-              />
-            </th>
-            <th></th>
-            <th>ID</th>
-            <th>Project</th>
-            <th>Type</th>
-            <th>Bedrooms</th>
-            <th>Area (m²)</th>
-            <th>Price</th>
-            <th>Deleted At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lotsList.map(lot => (
-            <tr
-              key={lot.id}
-              onMouseEnter={() => setHoveredRowId(lot.id)}
-              onMouseLeave={() => setHoveredRowId(undefined)}
-              className={lot.id && selectedIds.has(lot.id) ? styles.selectedRow : ''}
-            >
-              <td className={styles.checkboxCell}>
+      <div className={styles.tableScroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.checkboxCell}>
                 <Checkbox
-                  checked={!!lot.id && selectedIds.has(lot.id)}
-                  onChange={() => lot.id && handleSelectOne(lot.id)}
-                  aria-label={`Select lot ${lot.id}`}
+                  checked={isAllSelected}
+                  onChange={handleSelectAll}
+                  aria-label="Select all deleted lots"
                 />
-              </td>
-              <td className={styles.actionsCell}>
-                {hoveredRowId === lot.id && (
-                  <div className={styles.actionButtons}>
-                    <button
-                      type="button"
-                      className={styles.restoreBtn}
-                      onClick={() => lot.id && handleRestoreClick([lot.id])}
-                      aria-label="Restore lot"
-                      disabled={isLoading_}
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.deleteBtn}
-                      onClick={() => lot.id && handleDeleteClick([lot.id])}
-                      aria-label="Permanently delete lot"
-                      disabled={isLoading_}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </td>
-              <td>{lot.id?.slice(0, 8)}...</td>
-              <td>{lot.project?.name || '-'}</td>
-              <td>{lot.type || '-'}</td>
-              <td>{lot.bedrooms ?? '-'}</td>
-              <td>{lot.areaSqm ?? '-'}</td>
-              <td>{lot.priceFromUs ? `${lot.priceFromUs.toLocaleString()} AED` : '-'}</td>
-              <td>{lot.deletedAt ? new Date(lot.deletedAt).toLocaleDateString('en-US') : '-'}</td>
+              </th>
+              <th></th>
+              <th>ID</th>
+              <th>Project</th>
+              <th>Type</th>
+              <th>Bedrooms</th>
+              <th>Area (m²)</th>
+              <th>Price</th>
+              <th>Deleted At</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {lotsList.map(lot => (
+              <tr
+                key={lot.id}
+                onMouseEnter={() => setHoveredRowId(lot.id)}
+                onMouseLeave={() => setHoveredRowId(undefined)}
+                className={lot.id && selectedIds.has(lot.id) ? styles.selectedRow : ''}
+              >
+                <td className={styles.checkboxCell}>
+                  <Checkbox
+                    checked={!!lot.id && selectedIds.has(lot.id)}
+                    onChange={() => lot.id && handleSelectOne(lot.id)}
+                    aria-label={`Select lot ${lot.id}`}
+                  />
+                </td>
+                <td className={styles.actionsCell}>
+                  {hoveredRowId === lot.id && (
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        className={styles.restoreBtn}
+                        onClick={() => lot.id && handleRestoreClick([lot.id])}
+                        aria-label="Restore lot"
+                        disabled={isLoading_}
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        onClick={() => lot.id && handleDeleteClick([lot.id])}
+                        aria-label="Permanently delete lot"
+                        disabled={isLoading_}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+                <td>{lot.id?.slice(0, 8)}...</td>
+                <td>{lot.project?.name || '-'}</td>
+                <td>{lot.type || '-'}</td>
+                <td>{lot.bedrooms ?? '-'}</td>
+                <td>{lot.areaSqm ?? '-'}</td>
+                <td>{lot.priceFromUs ? `${lot.priceFromUs.toLocaleString()} AED` : '-'}</td>
+                <td>{lot.deletedAt ? new Date(lot.deletedAt).toLocaleDateString('en-US') : '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">
         <ModalBody>

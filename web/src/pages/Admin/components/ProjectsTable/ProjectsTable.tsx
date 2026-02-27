@@ -238,80 +238,82 @@ export function ProjectsTable({
           {allProjects.length === 0 ? 'No projects' : 'No projects match the selected filters'}
         </div>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all projects"
-                />
-              </th>
-              <th></th>
-              <th>Image</th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Developer</th>
-              <th>Area</th>
-              <th>City</th>
-              <th>Slug</th>
-              <th>Status</th>
-              <th>Sale</th>
-              <th>Created At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {projectsList.map(project => (
-              <tr
-                key={project.id}
-                onMouseEnter={() => setHoveredRowId(project.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={project.id && selectedIds.has(project.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.checkboxCell}>
                   <Checkbox
-                    checked={!!project.id && selectedIds.has(project.id)}
-                    onChange={() => project.id && handleSelectOne(project.id)}
-                    aria-label={`Select ${project.name}`}
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
+                    aria-label="Select all projects"
                   />
-                </td>
-                <td className={styles.actionsCell}>
-                  <TableActionButtons
-                    show={hoveredRowId === project.id}
-                    onEdit={() => onEditClick(project)}
-                    onDelete={() => project.id && handleDeleteClick([project.id])}
-                    deleteLoading={deleteLoading}
-                  />
-                </td>
-                <td className={styles.imageCell}>
-                  {getProjectImageUrl(project) ? (
-                    <img
-                      src={getImageUrl(getProjectImageUrl(project) || '', 'thumbnail')}
-                      alt={project.name || 'Project'}
-                      className={styles.image}
-                    />
-                  ) : (
-                    <div className={styles.noImage}>-</div>
-                  )}
-                </td>
-                <td>{project.id}</td>
-                <td>{project.name || '-'}</td>
-                <td>{project.developer?.name || '-'}</td>
-                <td>{project.area?.name || '-'}</td>
-                <td>{project.area?.city || '-'}</td>
-                <td>{project.slug || '-'}</td>
-                <td>{project.status || '-'}</td>
-                <td>{project.sale || '-'}</td>
-                <td>
-                  {project.createdAt
-                    ? new Date(project.createdAt).toLocaleDateString('en-US')
-                    : '-'}
-                </td>
+                </th>
+                <th></th>
+                <th>Image</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Developer</th>
+                <th>Area</th>
+                <th>City</th>
+                <th>Slug</th>
+                <th>Status</th>
+                <th>Sale</th>
+                <th>Created At</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {projectsList.map(project => (
+                <tr
+                  key={project.id}
+                  onMouseEnter={() => setHoveredRowId(project.id)}
+                  onMouseLeave={() => setHoveredRowId(undefined)}
+                  className={project.id && selectedIds.has(project.id) ? styles.selectedRow : ''}
+                >
+                  <td className={styles.checkboxCell}>
+                    <Checkbox
+                      checked={!!project.id && selectedIds.has(project.id)}
+                      onChange={() => project.id && handleSelectOne(project.id)}
+                      aria-label={`Select ${project.name}`}
+                    />
+                  </td>
+                  <td className={styles.actionsCell}>
+                    <TableActionButtons
+                      show={hoveredRowId === project.id}
+                      onEdit={() => onEditClick(project)}
+                      onDelete={() => project.id && handleDeleteClick([project.id])}
+                      deleteLoading={deleteLoading}
+                    />
+                  </td>
+                  <td className={styles.imageCell}>
+                    {getProjectImageUrl(project) ? (
+                      <img
+                        src={getImageUrl(getProjectImageUrl(project) || '', 'thumbnail')}
+                        alt={project.name || 'Project'}
+                        className={styles.image}
+                      />
+                    ) : (
+                      <div className={styles.noImage}>-</div>
+                    )}
+                  </td>
+                  <td>{project.id}</td>
+                  <td>{project.name || '-'}</td>
+                  <td>{project.developer?.name || '-'}</td>
+                  <td>{project.area?.name || '-'}</td>
+                  <td>{project.area?.city || '-'}</td>
+                  <td>{project.slug || '-'}</td>
+                  <td>{project.status || '-'}</td>
+                  <td>{project.sale || '-'}</td>
+                  <td>
+                    {project.createdAt
+                      ? new Date(project.createdAt).toLocaleDateString('en-US')
+                      : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">

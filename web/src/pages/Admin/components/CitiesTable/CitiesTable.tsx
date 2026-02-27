@@ -86,8 +86,8 @@ export function CitiesTable({
           <Button onClick={onNewClick}>New</Button>
         </div>
         <TableSkeleton
-          headers={['', '', 'ID', 'Name', 'Slug', 'Status', 'Created At']}
-          columns={[{ width: '40px' }, { isActions: true, width: '50px' }, {}, {}, {}, {}, {}]}
+          headers={['', '', 'ID', 'Name', 'Slug', 'Created At']}
+          columns={[{ width: '40px' }, { isActions: true, width: '50px' }, {}, {}, {}, {}]}
           minWidth="750px"
         />
       </div>
@@ -119,57 +119,58 @@ export function CitiesTable({
       {citiesList.length === 0 ? (
         <div className={styles.empty}>No cities</div>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all cities"
-                />
-              </th>
-              <th></th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>Status</th>
-              <th>Created At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {citiesList.map(city => (
-              <tr
-                key={city.id}
-                onMouseEnter={() => setHoveredRowId(city.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={city.id && selectedIds.has(city.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.checkboxCell}>
                   <Checkbox
-                    checked={!!city.id && selectedIds.has(city.id)}
-                    onChange={() => city.id && handleSelectOne(city.id)}
-                    aria-label={`Select ${city.name}`}
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
+                    aria-label="Select all cities"
                   />
-                </td>
-                <td className={styles.actionsCell}>
-                  <TableActionButtons
-                    show={hoveredRowId === city.id}
-                    onEdit={() => onEditClick(city)}
-                    onDelete={() => city.id && handleDeleteClick([city.id])}
-                    deleteLoading={deleteLoading}
-                  />
-                </td>
-                <td>{city.id}</td>
-                <td>{city.name || '-'}</td>
-                <td>{city.slug || '-'}</td>
-                <td>
-                  {city.createdAt ? new Date(city.createdAt).toLocaleDateString('en-US') : '-'}
-                </td>
+                </th>
+                <th></th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Slug</th>
+                <th>Created At</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {citiesList.map(city => (
+                <tr
+                  key={city.id}
+                  onMouseEnter={() => setHoveredRowId(city.id)}
+                  onMouseLeave={() => setHoveredRowId(undefined)}
+                  className={city.id && selectedIds.has(city.id) ? styles.selectedRow : ''}
+                >
+                  <td className={styles.checkboxCell}>
+                    <Checkbox
+                      checked={!!city.id && selectedIds.has(city.id)}
+                      onChange={() => city.id && handleSelectOne(city.id)}
+                      aria-label={`Select ${city.name}`}
+                    />
+                  </td>
+                  <td className={styles.actionsCell}>
+                    <TableActionButtons
+                      show={hoveredRowId === city.id}
+                      onEdit={() => onEditClick(city)}
+                      onDelete={() => city.id && handleDeleteClick([city.id])}
+                      deleteLoading={deleteLoading}
+                    />
+                  </td>
+                  <td>{city.id}</td>
+                  <td>{city.name || '-'}</td>
+                  <td>{city.slug || '-'}</td>
+                  <td>
+                    {city.createdAt ? new Date(city.createdAt).toLocaleDateString('en-US') : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">

@@ -127,64 +127,66 @@ export function BadgesTable({
       {badgesList.length === 0 ? (
         <div className={styles.empty}>No badges</div>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all badges"
-                />
-              </th>
-              <th></th>
-              <th>Preview</th>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>Status</th>
-              <th>Sort Order</th>
-            </tr>
-          </thead>
-          <tbody>
-            {badgesList.map(badge => (
-              <tr
-                key={badge.id}
-                onMouseEnter={() => setHoveredRowId(badge.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={badge.id && selectedIds.has(badge.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.checkboxCell}>
                   <Checkbox
-                    checked={!!badge.id && selectedIds.has(badge.id)}
-                    onChange={() => badge.id && handleSelectOne(badge.id)}
-                    aria-label={`Select ${badge.name}`}
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
+                    aria-label="Select all badges"
                   />
-                </td>
-                <td className={styles.actionsCell}>
-                  <TableActionButtons
-                    show={hoveredRowId === badge.id}
-                    onEdit={() => onEditClick(badge)}
-                    onDelete={() => badge.id && handleDeleteClick([badge.id])}
-                    deleteLoading={deleteLoading}
-                  />
-                </td>
-                <td>
-                  <Badge
-                    text={badge.name || 'Badge'}
-                    backgroundColor={badge.backgroundColor || '#000000'}
-                    textColor={badge.textColor || '#FFFFFF'}
-                    iconName={badge.icon}
-                    iconColor={badge.iconColor}
-                    size="small"
-                  />
-                </td>
-                <td>{badge.name || '-'}</td>
-                <td>{badge.slug || '-'}</td>
-                <td>{badge.sortOrder ?? 0}</td>
+                </th>
+                <th></th>
+                <th>Preview</th>
+                <th>Name</th>
+                <th>Slug</th>
+                <th>Status</th>
+                <th>Sort Order</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {badgesList.map(badge => (
+                <tr
+                  key={badge.id}
+                  onMouseEnter={() => setHoveredRowId(badge.id)}
+                  onMouseLeave={() => setHoveredRowId(undefined)}
+                  className={badge.id && selectedIds.has(badge.id) ? styles.selectedRow : ''}
+                >
+                  <td className={styles.checkboxCell}>
+                    <Checkbox
+                      checked={!!badge.id && selectedIds.has(badge.id)}
+                      onChange={() => badge.id && handleSelectOne(badge.id)}
+                      aria-label={`Select ${badge.name}`}
+                    />
+                  </td>
+                  <td className={styles.actionsCell}>
+                    <TableActionButtons
+                      show={hoveredRowId === badge.id}
+                      onEdit={() => onEditClick(badge)}
+                      onDelete={() => badge.id && handleDeleteClick([badge.id])}
+                      deleteLoading={deleteLoading}
+                    />
+                  </td>
+                  <td>
+                    <Badge
+                      text={badge.name || 'Badge'}
+                      backgroundColor={badge.backgroundColor || '#000000'}
+                      textColor={badge.textColor || '#FFFFFF'}
+                      iconName={badge.icon}
+                      iconColor={badge.iconColor}
+                      size="small"
+                    />
+                  </td>
+                  <td>{badge.name || '-'}</td>
+                  <td>{badge.slug || '-'}</td>
+                  <td>{badge.sortOrder ?? 0}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">
