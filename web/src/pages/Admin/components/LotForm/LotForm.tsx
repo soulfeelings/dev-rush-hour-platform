@@ -7,10 +7,6 @@ import { DirectionPicker } from '../DirectionPicker'
 import { MediaPicker } from '../MediaPicker'
 import styles from './LotForm.module.scss'
 
-import { STORAGE_KEYS } from '../../../../constants/storage'
-
-const STORAGE_KEY = STORAGE_KEYS.LOT_FORM
-
 type Project = {
   id?: string
   name?: string
@@ -51,6 +47,8 @@ type LotFormProps = {
   loading: boolean
   initialData?: LotListItem | null
   isEditMode?: boolean
+  draftData?: LotFormData
+  onDataChange?: (data: LotFormData, isDirty: boolean) => void
 }
 
 export function LotForm({
@@ -60,6 +58,8 @@ export function LotForm({
   loading,
   initialData,
   isEditMode = false,
+  draftData,
+  onDataChange,
 }: LotFormProps) {
   const defaultForm = useMemo<LotFormData>(
     () => ({
@@ -85,6 +85,7 @@ export function LotForm({
   )
 
   const initialForm = useMemo<LotFormData>(() => {
+    if (draftData) return draftData
     if (initialData) {
       return {
         projectId: initialData.projectId || '',
@@ -108,36 +109,14 @@ export function LotForm({
           initialData.data?.media?.viewPhotos?.map(p => p.url || '').filter(Boolean) || [],
       }
     }
-    // Load from localStorage for new forms
-    if (!isEditMode) {
-      try {
-        const cached = localStorage.getItem(STORAGE_KEY)
-        if (cached) {
-          return JSON.parse(cached) as LotFormData
-        }
-      } catch {
-        // Ignore parse errors
-      }
-    }
     return defaultForm
-  }, [initialData, defaultForm, isEditMode])
+  }, [initialData, defaultForm, isEditMode, draftData])
 
   const [form, setForm] = useState<LotFormData>(initialForm)
 
   useEffect(() => {
     setForm(initialForm)
   }, [initialForm])
-
-  // Cache form data to localStorage for new forms
-  useEffect(() => {
-    if (!isEditMode) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
-    }
-  }, [form, isEditMode])
-
-  const clearCache = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
-  }, [])
 
   const initialFormData = useMemo(() => {
     if (!initialData) return null
@@ -198,6 +177,22 @@ export function LotForm({
       badgeIdsChanged
     )
   }, [form, initialFormData, isEditMode])
+
+  const stableOnDataChange = useCallback(
+    (f: LotFormData) => {
+      if (!onDataChange) return
+      const isDirty = isEditMode
+        ? hasChanges
+        : JSON.stringify(f) !== JSON.stringify(defaultForm)
+      onDataChange(f, isDirty)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onDataChange, isEditMode, hasChanges, defaultForm]
+  )
+
+  useEffect(() => {
+    stableOnDataChange(form)
+  }, [form, stableOnDataChange])
 
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState(false)
@@ -292,9 +287,6 @@ export function LotForm({
       payload.data = dataPayload
     }
 
-    if (!isEditMode) {
-      clearCache()
-    }
     onSubmit(payload)
   }
 

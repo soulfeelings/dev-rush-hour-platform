@@ -6,33 +6,35 @@ import type { InfrastructureCreateRequest } from '../../../../api/generated/sche
 import type { Infrastructure } from '../../../../api/generated/schemas/infrastructure'
 import styles from './InfrastructureForm.module.scss'
 
-import { STORAGE_KEYS } from '../../../../constants/storage'
-
-const STORAGE_KEY = STORAGE_KEYS.INFRASTRUCTURE_FORM
-
-type InfrastructureFormProps = {
-  onSubmit: (data: InfrastructureCreateRequest) => void
-  loading: boolean
-  initialData?: Infrastructure | null
-  isEditMode?: boolean
-}
-
-type ValidationErrors = {
-  sortOrder?: string
-}
-
-type FormData = {
+type InfrastructureFormData = {
   slug: string
   name: string
   icon: string
   sortOrder: string
 }
 
+type InfrastructureFormProps = {
+  onSubmit: (data: InfrastructureCreateRequest) => void
+  loading: boolean
+  initialData?: Infrastructure | null
+  isEditMode?: boolean
+  draftData?: InfrastructureFormData
+  onDataChange?: (data: InfrastructureFormData, isDirty: boolean) => void
+}
+
+type ValidationErrors = {
+  sortOrder?: string
+}
+
+type FormData = InfrastructureFormData
+
 export function InfrastructureForm({
   onSubmit,
   loading,
   initialData,
   isEditMode = false,
+  draftData,
+  onDataChange,
 }: InfrastructureFormProps) {
   const defaultForm = useMemo(
     () => ({
@@ -45,6 +47,7 @@ export function InfrastructureForm({
   )
 
   const initialForm = useMemo(() => {
+    if (draftData) return draftData
     if (initialData) {
       return {
         slug: initialData.slug || '',
@@ -53,34 +56,14 @@ export function InfrastructureForm({
         sortOrder: initialData.sortOrder?.toString() || '',
       }
     }
-    if (!isEditMode) {
-      try {
-        const cached = localStorage.getItem(STORAGE_KEY)
-        if (cached) {
-          return JSON.parse(cached) as FormData
-        }
-      } catch {
-        // Ignore parse errors
-      }
-    }
     return defaultForm
-  }, [initialData, defaultForm, isEditMode])
+  }, [initialData, defaultForm, draftData])
 
   const [form, setForm] = useState(initialForm)
 
   useEffect(() => {
     setForm(initialForm)
   }, [initialForm])
-
-  useEffect(() => {
-    if (!isEditMode) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
-    }
-  }, [form, isEditMode])
-
-  const clearCache = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
-  }, [])
 
   const initialFormData = useMemo(() => {
     if (!initialData) return null
@@ -101,6 +84,22 @@ export function InfrastructureForm({
       form.sortOrder !== initialFormData.sortOrder
     )
   }, [form, initialFormData, isEditMode])
+
+  const stableOnDataChange = useCallback(
+    (f: FormData) => {
+      if (!onDataChange) return
+      const isDirty = isEditMode
+        ? hasChanges
+        : JSON.stringify(f) !== JSON.stringify(defaultForm)
+      onDataChange(f, isDirty)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onDataChange, isEditMode, hasChanges, defaultForm]
+  )
+
+  useEffect(() => {
+    stableOnDataChange(form)
+  }, [form, stableOnDataChange])
 
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState(false)
@@ -132,9 +131,6 @@ export function InfrastructureForm({
       name: form.name,
       icon: form.icon || undefined,
       sortOrder: parseInt(form.sortOrder, 10),
-    }
-    if (!isEditMode) {
-      clearCache()
     }
     onSubmit(payload)
   }

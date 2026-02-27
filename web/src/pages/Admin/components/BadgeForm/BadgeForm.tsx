@@ -7,24 +7,7 @@ import type { BadgeCreateRequest } from '../../../../api/generated/schemas/badge
 import type { Badge } from '../../../../api/generated/schemas/badge'
 import styles from './BadgeForm.module.scss'
 
-import { STORAGE_KEYS } from '../../../../constants/storage'
-
-const STORAGE_KEY = STORAGE_KEYS.BADGE_FORM
-
-type BadgeFormProps = {
-  onSubmit: (data: BadgeCreateRequest) => void
-  loading: boolean
-  initialData?: Badge | null
-  isEditMode?: boolean
-}
-
-type ValidationErrors = {
-  backgroundColor?: string
-  textColor?: string
-  sortOrder?: string
-}
-
-type FormData = {
+type BadgeFormData = {
   slug: string
   name: string
   backgroundColor: string
@@ -33,6 +16,23 @@ type FormData = {
   iconColor: string
   sortOrder: string
 }
+
+type BadgeFormProps = {
+  onSubmit: (data: BadgeCreateRequest) => void
+  loading: boolean
+  initialData?: Badge | null
+  isEditMode?: boolean
+  draftData?: BadgeFormData
+  onDataChange?: (data: BadgeFormData, isDirty: boolean) => void
+}
+
+type ValidationErrors = {
+  backgroundColor?: string
+  textColor?: string
+  sortOrder?: string
+}
+
+type FormData = BadgeFormData
 
 function getRgb(hex: string): string {
   const clean = hex.replace('#', '')
@@ -66,7 +66,14 @@ const AVAILABLE_ICONS = [
   { name: 'key', component: Key, label: 'Key' },
 ] as const
 
-export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }: BadgeFormProps) {
+export function BadgeForm({
+  onSubmit,
+  loading,
+  initialData,
+  isEditMode = false,
+  draftData,
+  onDataChange,
+}: BadgeFormProps) {
   const defaultForm = useMemo(
     () => ({
       slug: '',
@@ -81,6 +88,7 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
   )
 
   const initialForm = useMemo(() => {
+    if (draftData) return draftData
     if (initialData) {
       return {
         slug: initialData.slug || '',
@@ -92,36 +100,14 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
         sortOrder: initialData.sortOrder?.toString() || '',
       }
     }
-    // Load from localStorage for new forms
-    if (!isEditMode) {
-      try {
-        const cached = localStorage.getItem(STORAGE_KEY)
-        if (cached) {
-          return JSON.parse(cached) as FormData
-        }
-      } catch {
-        // Ignore parse errors
-      }
-    }
     return defaultForm
-  }, [initialData, defaultForm, isEditMode])
+  }, [initialData, defaultForm, draftData])
 
   const [form, setForm] = useState(initialForm)
 
   useEffect(() => {
     setForm(initialForm)
   }, [initialForm])
-
-  // Cache form data to localStorage for new forms
-  useEffect(() => {
-    if (!isEditMode) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
-    }
-  }, [form, isEditMode])
-
-  const clearCache = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
-  }, [])
 
   const initialFormData = useMemo(() => {
     if (!initialData) return null
@@ -148,6 +134,22 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
       form.sortOrder !== initialFormData.sortOrder
     )
   }, [form, initialFormData, isEditMode])
+
+  const stableOnDataChange = useCallback(
+    (f: FormData) => {
+      if (!onDataChange) return
+      const isDirty = isEditMode
+        ? hasChanges
+        : JSON.stringify(f) !== JSON.stringify(defaultForm)
+      onDataChange(f, isDirty)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onDataChange, isEditMode, hasChanges, defaultForm]
+  )
+
+  useEffect(() => {
+    stableOnDataChange(form)
+  }, [form, stableOnDataChange])
 
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState(false)
@@ -188,9 +190,6 @@ export function BadgeForm({ onSubmit, loading, initialData, isEditMode = false }
       icon: form.icon || undefined,
       iconColor: form.iconColor || undefined,
       sortOrder: parseInt(form.sortOrder, 10),
-    }
-    if (!isEditMode) {
-      clearCache()
     }
     onSubmit(payload)
   }

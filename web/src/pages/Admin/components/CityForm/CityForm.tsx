@@ -4,23 +4,30 @@ import { generateSlug } from '../../../../utils/generateSlug'
 import { type CityCreateRequest, type City } from '../../../../api'
 import styles from './CityForm.module.scss'
 
-import { STORAGE_KEYS } from '../../../../constants/storage'
-
-const STORAGE_KEY = STORAGE_KEYS.CITY_FORM
+type CityFormData = {
+  slug: string
+  name: string
+}
 
 type CityFormProps = {
   onSubmit: (data: CityCreateRequest) => void
   loading: boolean
   initialData?: City | null
   isEditMode?: boolean
+  draftData?: CityFormData
+  onDataChange?: (data: CityFormData, isDirty: boolean) => void
 }
 
-type FormData = {
-  slug: string
-  name: string
-}
+type FormData = CityFormData
 
-export function CityForm({ onSubmit, loading, initialData, isEditMode = false }: CityFormProps) {
+export function CityForm({
+  onSubmit,
+  loading,
+  initialData,
+  isEditMode = false,
+  draftData,
+  onDataChange,
+}: CityFormProps) {
   const defaultForm = useMemo(
     () => ({
       slug: '',
@@ -30,42 +37,21 @@ export function CityForm({ onSubmit, loading, initialData, isEditMode = false }:
   )
 
   const initialForm = useMemo(() => {
+    if (draftData) return draftData
     if (initialData) {
       return {
         slug: initialData.slug || '',
         name: initialData.name || '',
       }
     }
-    // Load from localStorage for new forms
-    if (!isEditMode) {
-      try {
-        const cached = localStorage.getItem(STORAGE_KEY)
-        if (cached) {
-          return JSON.parse(cached) as FormData
-        }
-      } catch {
-        // Ignore parse errors
-      }
-    }
     return defaultForm
-  }, [initialData, defaultForm, isEditMode])
+  }, [initialData, defaultForm, draftData])
 
   const [form, setForm] = useState(initialForm)
 
   useEffect(() => {
     setForm(initialForm)
   }, [initialForm])
-
-  // Cache form data to localStorage for new forms
-  useEffect(() => {
-    if (!isEditMode) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
-    }
-  }, [form, isEditMode])
-
-  const clearCache = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
-  }, [])
 
   const initialFormData = useMemo(() => {
     if (!initialData) return null
@@ -80,14 +66,27 @@ export function CityForm({ onSubmit, loading, initialData, isEditMode = false }:
     return form.slug !== initialFormData.slug || form.name !== initialFormData.name
   }, [form, initialFormData, isEditMode])
 
+  const stableOnDataChange = useCallback(
+    (f: FormData) => {
+      if (!onDataChange) return
+      const isDirty = isEditMode
+        ? hasChanges
+        : JSON.stringify(f) !== JSON.stringify(defaultForm)
+      onDataChange(f, isDirty)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onDataChange, isEditMode, hasChanges, defaultForm]
+  )
+
+  useEffect(() => {
+    stableOnDataChange(form)
+  }, [form, stableOnDataChange])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const payload: CityCreateRequest = {
       slug: form.slug,
       name: form.name,
-    }
-    if (!isEditMode) {
-      clearCache()
     }
     onSubmit(payload)
   }

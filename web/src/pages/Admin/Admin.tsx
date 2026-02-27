@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams, useNavigate, Routes, Route, Navigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
@@ -35,8 +35,8 @@ import type { Badge } from '../../api/generated/schemas/badge'
 import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreateRequest'
 import type { Infrastructure } from '../../api/generated/schemas/infrastructure'
 import type { InfrastructureCreateRequest } from '../../api/generated/schemas/infrastructureCreateRequest'
-import { Toast, FullPageSpinner } from '../../ui'
-import { cleanupOldDrafts } from '../../constants/storage'
+import { Toast, FullPageSpinner, Modal, ModalBody, ModalFooter, Button as UIButton } from '../../ui'
+import '../../constants/storage'
 import { Sidebar } from './components/Sidebar'
 import { RightSidebar } from './components/RightSidebar'
 import { DeveloperForm } from './components/DeveloperForm'
@@ -109,8 +109,6 @@ const {
 } = AdminApi
 import styles from './Admin.module.scss'
 
-cleanupOldDrafts()
-
 const isProjectsQueryKey = (queryKey: readonly unknown[]) => {
   const key = queryKey[0]
   return typeof key === 'string' && key.startsWith('/projects')
@@ -120,6 +118,29 @@ type AdminClaims = {
   email: string
   role: 'superadmin' | 'admin'
   permissions: string[]
+}
+
+type FormDraft = {
+  id: string
+  formType: 'developer' | 'project' | 'lot' | 'area' | 'city' | 'badge' | 'infrastructure'
+  data: unknown
+  displayName: string
+  editingEntity?: Project | LotListItem | Developer | Area | City | Badge | Infrastructure
+}
+
+const FORM_TYPE_LABELS: Record<FormDraft['formType'], string> = {
+  developer: 'Developer',
+  project: 'Project',
+  lot: 'Lot',
+  area: 'Area',
+  city: 'City',
+  badge: 'Badge',
+  infrastructure: 'Infrastructure',
+}
+
+function getDraftDisplayName(formType: FormDraft['formType'], data: unknown): string {
+  const name = (data as { name?: string })?.name?.trim() || 'Untitled'
+  return `${FORM_TYPE_LABELS[formType]} · ${name}`
 }
 
 export default function Admin() {
@@ -140,6 +161,19 @@ export default function Admin() {
     Project | LotListItem | Developer | Area | City | Badge | Infrastructure | null
   >(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Session draft state
+  const [formDrafts, setFormDrafts] = useState<FormDraft[]>([])
+  const [saveForSessionOpen, setSaveForSessionOpen] = useState(false)
+  const [pendingDraft, setPendingDraft] = useState<Omit<FormDraft, 'id'> | null>(null)
+  const [activeDraftData, setActiveDraftData] = useState<unknown>(null)
+  const currentFormDataRef = useRef<unknown>(null)
+  const currentFormIsDirtyRef = useRef(false)
+
+  const handleFormDataChange = useCallback((data: unknown, isDirty: boolean) => {
+    currentFormDataRef.current = data
+    currentFormIsDirtyRef.current = isDirty
+  }, [])
 
   // Check existing session via cookie
   useEffect(() => {
@@ -807,8 +841,11 @@ export default function Admin() {
     formType: 'developer' | 'project' | 'lot' | 'area' | 'city' | 'badge' | 'infrastructure'
   ) => {
     setEditingEntity(null)
+    setActiveDraftData(null)
     setRightSidebarForm(formType)
     setRightSidebarOpen(true)
+    currentFormDataRef.current = null
+    currentFormIsDirtyRef.current = false
     setError(null)
     setSuccess(null)
   }
@@ -818,17 +855,71 @@ export default function Admin() {
     formType: 'developer' | 'project' | 'lot' | 'area' | 'city' | 'badge' | 'infrastructure'
   ) => {
     setEditingEntity(entity)
+    setActiveDraftData(null)
     setRightSidebarForm(formType)
     setRightSidebarOpen(true)
+    currentFormDataRef.current = null
+    currentFormIsDirtyRef.current = false
     setError(null)
     setSuccess(null)
   }
 
-  const handleCloseRightSidebar = () => {
+  const doCloseRightSidebar = () => {
     setRightSidebarOpen(false)
     setRightSidebarForm(null)
     setEditingEntity(null)
+    setActiveDraftData(null)
     setFormKey((prev: number) => prev + 1)
+    currentFormDataRef.current = null
+    currentFormIsDirtyRef.current = false
+  }
+
+  const handleCloseRightSidebar = () => {
+    if (currentFormIsDirtyRef.current && currentFormDataRef.current && rightSidebarForm) {
+      setPendingDraft({
+        formType: rightSidebarForm,
+        data: currentFormDataRef.current,
+        displayName: getDraftDisplayName(rightSidebarForm, currentFormDataRef.current),
+        editingEntity: editingEntity ?? undefined,
+      })
+      setSaveForSessionOpen(true)
+      return
+    }
+    doCloseRightSidebar()
+  }
+
+  const handleSaveForSession = () => {
+    if (pendingDraft) {
+      setFormDrafts(prev => [...prev, { ...pendingDraft, id: crypto.randomUUID() }])
+    }
+    setSaveForSessionOpen(false)
+    setPendingDraft(null)
+    doCloseRightSidebar()
+  }
+
+  const handleDiscardSession = () => {
+    setSaveForSessionOpen(false)
+    setPendingDraft(null)
+    doCloseRightSidebar()
+  }
+
+  const handleDraftClick = (draftId: string) => {
+    const draft = formDrafts.find(d => d.id === draftId)
+    if (!draft) return
+    setFormDrafts(prev => prev.filter(d => d.id !== draftId))
+    setEditingEntity(draft.editingEntity ?? null)
+    setRightSidebarForm(draft.formType)
+    setActiveDraftData(draft.data)
+    setRightSidebarOpen(true)
+    currentFormDataRef.current = null
+    currentFormIsDirtyRef.current = false
+    setFormKey((prev: number) => prev + 1)
+    setError(null)
+    setSuccess(null)
+  }
+
+  const handleDraftDiscard = (draftId: string) => {
+    setFormDrafts(prev => prev.filter(d => d.id !== draftId))
   }
 
   const handleDeveloperSubmit = (payload: DeveloperCreateRequest) => {
@@ -1378,6 +1469,9 @@ export default function Admin() {
                   onEditClick={developer => handleEditClick(developer, 'developer')}
                   onDelete={handleDeleteDevelopers}
                   deleteLoading={deleteLoading}
+                  drafts={formDrafts.filter(d => d.formType === 'developer').map(d => ({ id: d.id, displayName: d.displayName }))}
+                  onDraftClick={handleDraftClick}
+                  onDraftDiscard={handleDraftDiscard}
                 />
                 <DeletedDevelopersTable
                   onRestore={handleRestoreDevelopers}
@@ -1397,6 +1491,9 @@ export default function Admin() {
                   onEditClick={project => handleEditClick(project, 'project')}
                   onDelete={handleDeleteProjects}
                   deleteLoading={deleteLoading}
+                  drafts={formDrafts.filter(d => d.formType === 'project').map(d => ({ id: d.id, displayName: d.displayName }))}
+                  onDraftClick={handleDraftClick}
+                  onDraftDiscard={handleDraftDiscard}
                 />
                 <DeletedProjectsTable
                   onRestore={handleRestoreProjects}
@@ -1416,6 +1513,9 @@ export default function Admin() {
                   onEditClick={lot => handleEditClick(lot, 'lot')}
                   onDelete={handleDeleteLots}
                   deleteLoading={deleteLoading}
+                  drafts={formDrafts.filter(d => d.formType === 'lot').map(d => ({ id: d.id, displayName: d.displayName }))}
+                  onDraftClick={handleDraftClick}
+                  onDraftDiscard={handleDraftDiscard}
                 />
                 <DeletedLotsTable
                   onRestore={handleRestoreLots}
@@ -1435,6 +1535,9 @@ export default function Admin() {
                   onEditClick={area => handleEditClick(area, 'area')}
                   onDelete={handleDeleteAreas}
                   deleteLoading={deleteLoading}
+                  drafts={formDrafts.filter(d => d.formType === 'area').map(d => ({ id: d.id, displayName: d.displayName }))}
+                  onDraftClick={handleDraftClick}
+                  onDraftDiscard={handleDraftDiscard}
                 />
                 <DeletedAreasTable
                   onRestore={handleRestoreAreas}
@@ -1454,6 +1557,9 @@ export default function Admin() {
                   onEditClick={city => handleEditClick(city, 'city')}
                   onDelete={handleDeleteCities}
                   deleteLoading={deleteLoading}
+                  drafts={formDrafts.filter(d => d.formType === 'city').map(d => ({ id: d.id, displayName: d.displayName }))}
+                  onDraftClick={handleDraftClick}
+                  onDraftDiscard={handleDraftDiscard}
                 />
                 <DeletedCitiesTable
                   onRestore={handleRestoreCities}
@@ -1473,6 +1579,9 @@ export default function Admin() {
                   onEditClick={badge => handleEditClick(badge, 'badge')}
                   onDelete={handleDeleteBadges}
                   deleteLoading={deleteLoading}
+                  drafts={formDrafts.filter(d => d.formType === 'badge').map(d => ({ id: d.id, displayName: d.displayName }))}
+                  onDraftClick={handleDraftClick}
+                  onDraftDiscard={handleDraftDiscard}
                 />
                 <DeletedBadgesTable
                   onRestore={handleRestoreBadges}
@@ -1493,6 +1602,9 @@ export default function Admin() {
                   onEditClick={infrastructure => handleEditClick(infrastructure, 'infrastructure')}
                   onDelete={handleDeleteInfrastructures}
                   deleteLoading={deleteLoading}
+                  drafts={formDrafts.filter(d => d.formType === 'infrastructure').map(d => ({ id: d.id, displayName: d.displayName }))}
+                  onDraftClick={handleDraftClick}
+                  onDraftDiscard={handleDraftDiscard}
                 />
                 <DeletedInfrastructuresTable
                   onRestore={handleRestoreInfrastructures}
@@ -1534,6 +1646,8 @@ export default function Admin() {
               isEditMode && 'slug' in editingEntity ? (editingEntity as Developer) : null
             }
             isEditMode={isEditMode}
+            draftData={activeDraftData as Parameters<typeof DeveloperForm>[0]['draftData']}
+            onDataChange={handleFormDataChange}
           />
         )}
 
@@ -1549,6 +1663,8 @@ export default function Admin() {
             loading={loading}
             initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as Project) : null}
             isEditMode={isEditMode}
+            draftData={activeDraftData as Parameters<typeof ProjectForm>[0]['draftData']}
+            onDataChange={handleFormDataChange}
           />
         )}
         {rightSidebarForm === 'lot' && (
@@ -1562,6 +1678,8 @@ export default function Admin() {
               isEditMode && 'projectId' in editingEntity ? (editingEntity as LotListItem) : null
             }
             isEditMode={isEditMode}
+            draftData={activeDraftData as Parameters<typeof LotForm>[0]['draftData']}
+            onDataChange={handleFormDataChange}
           />
         )}
         {rightSidebarForm === 'area' && (
@@ -1572,6 +1690,8 @@ export default function Admin() {
             initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as Area) : null}
             isEditMode={isEditMode}
             cities={cities}
+            draftData={activeDraftData as Parameters<typeof AreaForm>[0]['draftData']}
+            onDataChange={handleFormDataChange}
           />
         )}
         {rightSidebarForm === 'city' && (
@@ -1581,6 +1701,8 @@ export default function Admin() {
             loading={loading}
             initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as City) : null}
             isEditMode={isEditMode}
+            draftData={activeDraftData as Parameters<typeof CityForm>[0]['draftData']}
+            onDataChange={handleFormDataChange}
           />
         )}
         {rightSidebarForm === 'badge' && (
@@ -1590,6 +1712,8 @@ export default function Admin() {
             loading={loading}
             initialData={isEditMode && 'slug' in editingEntity ? (editingEntity as Badge) : null}
             isEditMode={isEditMode}
+            draftData={activeDraftData as Parameters<typeof BadgeForm>[0]['draftData']}
+            onDataChange={handleFormDataChange}
           />
         )}
         {rightSidebarForm === 'infrastructure' && (
@@ -1601,6 +1725,8 @@ export default function Admin() {
               isEditMode && 'slug' in editingEntity ? (editingEntity as Infrastructure) : null
             }
             isEditMode={isEditMode}
+            draftData={activeDraftData as Parameters<typeof InfrastructureForm>[0]['draftData']}
+            onDataChange={handleFormDataChange}
           />
         )}
       </RightSidebar>
@@ -1612,6 +1738,17 @@ export default function Admin() {
       <Toast open={!!error} onClose={() => setError(null)} variant="error" duration={5000}>
         {error}
       </Toast>
+
+      <Modal open={saveForSessionOpen} onClose={handleDiscardSession} title="Unsaved Changes">
+        <ModalBody>
+          <p>You have unsaved changes. Save them for this session?</p>
+          {pendingDraft && <p><strong>{pendingDraft.displayName}</strong></p>}
+        </ModalBody>
+        <ModalFooter>
+          <UIButton variant="secondary" onClick={handleDiscardSession}>No, discard</UIButton>
+          <UIButton variant="primary" onClick={handleSaveForSession}>Yes, save</UIButton>
+        </ModalFooter>
+      </Modal>
 
       <button
         type="button"

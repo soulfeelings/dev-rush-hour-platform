@@ -5,6 +5,7 @@ import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../
 import type { City } from '../../../../api/generated/schemas/city'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
+import { CachedSection } from '../CachedSection/CachedSection'
 import styles from './CitiesTable.module.scss'
 
 const { useAdminListCities } = AdminApi
@@ -14,6 +15,9 @@ type CitiesTableProps = {
   onEditClick: (city: City) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
+  drafts?: Array<{ id: string; displayName: string }>
+  onDraftClick?: (id: string) => void
+  onDraftDiscard?: (id: string) => void
 }
 
 export function CitiesTable({
@@ -21,6 +25,9 @@ export function CitiesTable({
   onEditClick,
   onDelete,
   deleteLoading,
+  drafts,
+  onDraftClick,
+  onDraftDiscard,
 }: CitiesTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -100,6 +107,9 @@ export function CitiesTable({
 
   return (
     <div className={styles.tableWrapper}>
+      {drafts && drafts.length > 0 && onDraftClick && onDraftDiscard && (
+        <CachedSection drafts={drafts} onDraftClick={onDraftClick} onDraftDiscard={onDraftDiscard} />
+      )}
       <div className={styles.header}>
         <h2 className={styles.title}>Cities</h2>
         <div className={styles.headerActions}>

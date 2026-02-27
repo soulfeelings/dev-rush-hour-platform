@@ -5,10 +5,14 @@ import { PolygonPicker } from '../PolygonPicker'
 import type { AreaCreateRequest } from '../../../../api/generated/schemas/areaCreateRequest'
 import type { Area } from '../../../../api/generated/schemas/area'
 import type { City } from '../../../../api/generated/schemas/city'
-import { STORAGE_KEYS } from '../../../../constants/storage'
 import styles from './AreaForm.module.scss'
 
-const STORAGE_KEY = STORAGE_KEYS.AREA_FORM
+type AreaFormData = {
+  slug: string
+  name: string
+  city: string
+  polygon: [number, number][]
+}
 
 type AreaFormProps = {
   onSubmit: (data: AreaCreateRequest) => void
@@ -16,6 +20,8 @@ type AreaFormProps = {
   initialData?: Area | null
   isEditMode?: boolean
   cities: City[]
+  draftData?: AreaFormData
+  onDataChange?: (data: AreaFormData, isDirty: boolean) => void
 }
 
 type ValidationErrors = {
@@ -23,12 +29,7 @@ type ValidationErrors = {
   polygon?: string
 }
 
-type FormData = {
-  slug: string
-  name: string
-  city: string
-  polygon: [number, number][]
-}
+type FormData = AreaFormData
 
 export function AreaForm({
   onSubmit,
@@ -36,6 +37,8 @@ export function AreaForm({
   initialData,
   isEditMode = false,
   cities,
+  draftData,
+  onDataChange,
 }: AreaFormProps) {
   const defaultForm = useMemo<FormData>(
     () => ({
@@ -48,6 +51,7 @@ export function AreaForm({
   )
 
   const initialForm = useMemo<FormData>(() => {
+    if (draftData) return draftData
     if (initialData) {
       const points: [number, number][] =
         initialData.data?.boundary?.coordinates?.[0]?.map(
@@ -60,34 +64,14 @@ export function AreaForm({
         polygon: points,
       }
     }
-    if (!isEditMode) {
-      try {
-        const cached = localStorage.getItem(STORAGE_KEY)
-        if (cached) {
-          return JSON.parse(cached) as FormData
-        }
-      } catch {
-        // Ignore parse errors
-      }
-    }
     return defaultForm
-  }, [initialData, defaultForm, isEditMode])
+  }, [initialData, defaultForm, draftData])
 
   const [form, setForm] = useState(initialForm)
 
   useEffect(() => {
     setForm(initialForm)
   }, [initialForm])
-
-  useEffect(() => {
-    if (!isEditMode) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
-    }
-  }, [form, isEditMode])
-
-  const clearCache = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
-  }, [])
 
   const initialFormData = useMemo<FormData | null>(() => {
     if (!initialData) return null
@@ -112,6 +96,22 @@ export function AreaForm({
       JSON.stringify(form.polygon) !== JSON.stringify(initialFormData.polygon)
     )
   }, [form, initialFormData, isEditMode])
+
+  const stableOnDataChange = useCallback(
+    (f: FormData) => {
+      if (!onDataChange) return
+      const isDirty = isEditMode
+        ? hasChanges
+        : JSON.stringify(f) !== JSON.stringify(defaultForm)
+      onDataChange(f, isDirty)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onDataChange, isEditMode, hasChanges, defaultForm]
+  )
+
+  useEffect(() => {
+    stableOnDataChange(form)
+  }, [form, stableOnDataChange])
 
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState(false)
@@ -165,9 +165,6 @@ export function AreaForm({
               },
             }
           : undefined,
-    }
-    if (!isEditMode) {
-      clearCache()
     }
     onSubmit(payload)
   }

@@ -5,6 +5,7 @@ import { Button, Checkbox, ErrorState, Input, Modal, ModalBody, ModalFooter, Sel
 import type { Project } from '../../../../api/generated/schemas/project'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
+import { CachedSection } from '../CachedSection/CachedSection'
 import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './ProjectsTable.module.scss'
 
@@ -15,6 +16,9 @@ type ProjectsTableProps = {
   onEditClick: (project: Project) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
+  drafts?: Array<{ id: string; displayName: string }>
+  onDraftClick?: (id: string) => void
+  onDraftDiscard?: (id: string) => void
 }
 
 export function ProjectsTable({
@@ -22,6 +26,9 @@ export function ProjectsTable({
   onEditClick,
   onDelete,
   deleteLoading,
+  drafts,
+  onDraftClick,
+  onDraftDiscard,
 }: ProjectsTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -165,6 +172,9 @@ export function ProjectsTable({
 
   return (
     <div className={styles.tableWrapper}>
+      {drafts && drafts.length > 0 && onDraftClick && onDraftDiscard && (
+        <CachedSection drafts={drafts} onDraftClick={onDraftClick} onDraftDiscard={onDraftDiscard} />
+      )}
       <div className={styles.header}>
         <h2 className={styles.title}>Projects</h2>
         <div className={styles.headerActions}>

@@ -4,6 +4,7 @@ import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Select } f
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
+import { CachedSection } from '../CachedSection/CachedSection'
 import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './LotsTable.module.scss'
 import { TrashIcon } from 'lucide-react'
@@ -15,9 +16,12 @@ type LotsTableProps = {
   onEditClick: (lot: LotListItem) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
+  drafts?: Array<{ id: string; displayName: string }>
+  onDraftClick?: (id: string) => void
+  onDraftDiscard?: (id: string) => void
 }
 
-export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: LotsTableProps) {
+export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading, drafts, onDraftClick, onDraftDiscard }: LotsTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -184,6 +188,9 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading }: 
 
   return (
     <div className={styles.tableWrapper}>
+      {drafts && drafts.length > 0 && onDraftClick && onDraftDiscard && (
+        <CachedSection drafts={drafts} onDraftClick={onDraftClick} onDraftDiscard={onDraftDiscard} />
+      )}
       <div className={styles.header}>
         <h2 className={styles.title}>Lots</h2>
         <div className={styles.headerActions}>

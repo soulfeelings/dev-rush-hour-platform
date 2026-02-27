@@ -5,6 +5,7 @@ import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../
 import type { Area } from '../../../../api/generated/schemas/area'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
+import { CachedSection } from '../CachedSection/CachedSection'
 import styles from './AreasTable.module.scss'
 
 const { useAdminListAreas } = AdminApi
@@ -14,9 +15,12 @@ type AreasTableProps = {
   onEditClick: (area: Area) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
+  drafts?: Array<{ id: string; displayName: string }>
+  onDraftClick?: (id: string) => void
+  onDraftDiscard?: (id: string) => void
 }
 
-export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading }: AreasTableProps) {
+export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading, drafts, onDraftClick, onDraftDiscard }: AreasTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -105,6 +109,9 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading }:
 
   return (
     <div className={styles.tableWrapper}>
+      {drafts && drafts.length > 0 && onDraftClick && onDraftDiscard && (
+        <CachedSection drafts={drafts} onDraftClick={onDraftClick} onDraftDiscard={onDraftDiscard} />
+      )}
       <div className={styles.header}>
         <h2 className={styles.title}>Areas</h2>
         <div className={styles.headerActions}>

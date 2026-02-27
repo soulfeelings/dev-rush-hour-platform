@@ -22,10 +22,6 @@ import { MediaPicker } from '../MediaPicker'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './ProjectForm.module.scss'
 
-import { STORAGE_KEYS } from '../../../../constants/storage'
-
-const STORAGE_KEY = STORAGE_KEYS.PROJECT_FORM
-
 // Функции для работы с датой формата YYYY-MM
 const parseCompletionDate = (dateStr: string): { month: string; year: string } => {
   if (!dateStr || !dateStr.match(/^\d{4}-\d{2}$/)) {
@@ -127,6 +123,8 @@ type ProjectFormProps = {
   loading: boolean
   initialData?: Project | null
   isEditMode?: boolean
+  draftData?: FormData
+  onDataChange?: (data: FormData, isDirty: boolean) => void
 }
 
 export function ProjectForm({
@@ -139,6 +137,8 @@ export function ProjectForm({
   loading,
   initialData,
   isEditMode = false,
+  draftData,
+  onDataChange,
 }: ProjectFormProps) {
   const { t } = useTranslation()
 
@@ -223,6 +223,7 @@ export function ProjectForm({
   )
 
   const initialForm = useMemo(() => {
+    if (draftData) return draftData
     if (initialData) {
       const descriptionValue = initialData.description
       const descriptionStr =
@@ -267,19 +268,8 @@ export function ProjectForm({
           initialData.infrastructures?.map(i => i.id).filter((id): id is string => !!id) || [],
       }
     }
-    // Load from localStorage for new forms
-    if (!isEditMode) {
-      try {
-        const cached = localStorage.getItem(STORAGE_KEY)
-        if (cached) {
-          return JSON.parse(cached) as FormData
-        }
-      } catch {
-        // Ignore parse errors
-      }
-    }
     return defaultForm
-  }, [initialData, defaultForm, isEditMode])
+  }, [initialData, defaultForm, isEditMode, draftData])
 
   const [form, setForm] = useState(initialForm)
 
@@ -328,17 +318,6 @@ export function ProjectForm({
   const handleYearChange = (year: string) => {
     setSelectedYear(year)
   }
-
-  // Cache form data to localStorage for new forms
-  useEffect(() => {
-    if (!isEditMode) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
-    }
-  }, [form, isEditMode])
-
-  const clearCache = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
-  }, [])
 
   const initialFormData = useMemo(() => {
     if (!initialData) return null
@@ -432,6 +411,22 @@ export function ProjectForm({
       infrastructureIdsChanged
     )
   }, [form, initialFormData, isEditMode])
+
+  const stableOnDataChange = useCallback(
+    (f: FormData) => {
+      if (!onDataChange) return
+      const isDirty = isEditMode
+        ? hasChanges
+        : JSON.stringify(f) !== JSON.stringify(defaultForm)
+      onDataChange(f, isDirty)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onDataChange, isEditMode, hasChanges, defaultForm]
+  )
+
+  useEffect(() => {
+    stableOnDataChange(form)
+  }, [form, stableOnDataChange])
 
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [touched, setTouched] = useState(false)
@@ -546,9 +541,6 @@ export function ProjectForm({
     }
     payload.isFeatured = form.isFeatured
 
-    if (!isEditMode) {
-      clearCache()
-    }
     onSubmit(payload)
   }
 

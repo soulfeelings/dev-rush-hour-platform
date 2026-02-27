@@ -5,6 +5,7 @@ import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../
 import type { Developer } from '../../../../api/generated/schemas/developer'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
+import { CachedSection } from '../CachedSection/CachedSection'
 import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './DevelopersTable.module.scss'
 
@@ -15,6 +16,9 @@ type DevelopersTableProps = {
   onEditClick: (developer: Developer) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
+  drafts?: Array<{ id: string; displayName: string }>
+  onDraftClick?: (id: string) => void
+  onDraftDiscard?: (id: string) => void
 }
 
 export function DevelopersTable({
@@ -22,6 +26,9 @@ export function DevelopersTable({
   onEditClick,
   onDelete,
   deleteLoading,
+  drafts,
+  onDraftClick,
+  onDraftDiscard,
 }: DevelopersTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -112,6 +119,9 @@ export function DevelopersTable({
 
   return (
     <div className={styles.tableWrapper}>
+      {drafts && drafts.length > 0 && onDraftClick && onDraftDiscard && (
+        <CachedSection drafts={drafts} onDraftClick={onDraftClick} onDraftDiscard={onDraftDiscard} />
+      )}
       <div className={styles.header}>
         <h2 className={styles.title}>Developers</h2>
         <div className={styles.headerActions}>

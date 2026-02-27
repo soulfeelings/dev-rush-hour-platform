@@ -5,6 +5,7 @@ import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Badge } fr
 import type { Badge as BadgeSchema } from '../../../../api/generated/schemas/badge'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
+import { CachedSection } from '../CachedSection/CachedSection'
 import styles from './BadgesTable.module.scss'
 
 const { useAdminListBadges } = AdminApi
@@ -14,6 +15,9 @@ type BadgesTableProps = {
   onEditClick: (badge: BadgeSchema) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
+  drafts?: Array<{ id: string; displayName: string }>
+  onDraftClick?: (id: string) => void
+  onDraftDiscard?: (id: string) => void
 }
 
 export function BadgesTable({
@@ -21,6 +25,9 @@ export function BadgesTable({
   onEditClick,
   onDelete,
   deleteLoading,
+  drafts,
+  onDraftClick,
+  onDraftDiscard,
 }: BadgesTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -108,6 +115,9 @@ export function BadgesTable({
 
   return (
     <div className={styles.tableWrapper}>
+      {drafts && drafts.length > 0 && onDraftClick && onDraftDiscard && (
+        <CachedSection drafts={drafts} onDraftClick={onDraftClick} onDraftDiscard={onDraftDiscard} />
+      )}
       <div className={styles.header}>
         <h2 className={styles.title}>Badges</h2>
         <div className={styles.headerActions}>
