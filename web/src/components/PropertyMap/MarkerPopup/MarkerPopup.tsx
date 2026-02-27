@@ -22,7 +22,7 @@ export const MarkerPopup = ({ project, direction = 'top', currency = 'AED' }: Ma
   const roi = project.roi
   const paymentPlan = project.paymentPlan
   const badges = getValidBadges(project.badges)
-  const pricesByType = project.pricesByType ?? []
+  const pricesByType = (project.pricesByType ?? []).slice().sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
   const coverImage = project.media?.cover?.url
   const logoUrl = project.media?.logo?.url
 

@@ -65,7 +65,7 @@ export const ProjectCard = ({
   const coverImage = project.media?.cover?.url
   const hoverImage = project.media?.hover?.url
   const logoUrl = project.media?.logo?.url
-  const pricesByType = project.pricesByType ?? []
+  const pricesByType = (project.pricesByType ?? []).slice().sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
 
   const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.preventDefault()
