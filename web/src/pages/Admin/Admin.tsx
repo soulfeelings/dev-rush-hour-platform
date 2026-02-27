@@ -30,6 +30,7 @@ import {
   getAdminListDeletedInfrastructuresQueryKey,
   getListLotsQueryKey,
 } from '../../api'
+import type { LotsListResponse } from '../../api/generated/schemas/lotsListResponse'
 import type { Badge } from '../../api/generated/schemas/badge'
 import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreateRequest'
 import type { Infrastructure } from '../../api/generated/schemas/infrastructure'
@@ -458,8 +459,8 @@ export default function Admin() {
   const deleteLotMutation = useAdminSoftDeleteLot({
     mutation: {
       onSuccess: (_, variables) => {
-        queryClient.setQueryData<LotListItem[]>(getAdminListLotsQueryKey(), oldData =>
-          oldData ? oldData.filter(item => item.id !== variables.id) : []
+        queryClient.setQueryData<LotsListResponse>(getAdminListLotsQueryKey(), oldData =>
+          oldData ? { ...oldData, items: (oldData.items ?? []).filter(item => item.id !== variables.id) } : { items: [] }
         )
         queryClient.invalidateQueries({ queryKey: getAdminListDeletedLotsQueryKey() })
         invalidatePublicLotCardsCache()

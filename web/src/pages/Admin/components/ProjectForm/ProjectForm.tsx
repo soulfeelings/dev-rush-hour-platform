@@ -298,14 +298,17 @@ export function ProjectForm({
     const parsed = parseCompletionDate(initialForm.completionDate)
     setSelectedMonth(parsed.month)
     setSelectedYear(parsed.year)
-    // Sync city selection for edit mode
+  }, [initialForm])
+
+  // Sync city selection separately so that areas loading doesn't reset the form
+  useEffect(() => {
     if (initialForm.areaId) {
       const matchingArea = areas.find(a => a.id === initialForm.areaId)
       setSelectedCitySlug(matchingArea?.city || '')
     } else {
       setSelectedCitySlug('')
     }
-  }, [initialForm, areas])
+  }, [initialForm.areaId, areas])
 
   // Обновляем form.completionDate при изменении месяца или года
   useEffect(() => {
