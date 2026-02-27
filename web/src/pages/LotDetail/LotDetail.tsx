@@ -454,9 +454,20 @@ export default function LotDetail() {
     setCurrentViewPhotoIndex(prev => (prev === mobileViewPhotos.length - 1 ? 0 : prev + 1))
   }
 
-  const paymentUnitPrice = 10_000_000
-  const paymentFees = 100_000
-  const paymentTotal = paymentUnitPrice + paymentFees
+  const lotPaymentPlanSchedule = lot.data?.paymentPlan?.schedule
+  const paymentPlanSchedule =
+    lotPaymentPlanSchedule && lotPaymentPlanSchedule.length > 0
+      ? lotPaymentPlanSchedule
+      : finalProject?.paymentPlan
+          ?.split('/')
+          .map(pct => {
+            const percent = parseInt(pct, 10)
+            const amount =
+              lot.priceFromUs != null
+                ? Math.round((percent / 100) * lot.priceFromUs)
+                : undefined
+            return { percent, amount }
+          })
   const mobileMainImage = selectedMobileImageUrl || floorPlanImages[0] || lotPhotos[0]
   const allProjectLots = projectLotsData?.items || []
   const targetBedrooms = lot.bedrooms
@@ -531,70 +542,49 @@ export default function LotDetail() {
       </section>
     ) : null
 
-  const paymentPlanSection = (
-    <div className={styles.paymentPlanCard}>
-      <h3 className={styles.paymentPlanTitle}>Payment plan</h3>
-      <div className={styles.paymentPlanRows}>
-        <div className={styles.paymentPlanRow}>
-          <div className={styles.paymentPlanLeft}>
-            <span className={styles.paymentPlanBullet} />
-            <div className={styles.paymentPlanText}>
-              <span className={styles.paymentPlanStage}>Down Payment</span>
-              <span className={styles.paymentPlanMeta}>30%</span>
+  const paymentPlanSection =
+    paymentPlanSchedule && paymentPlanSchedule.length > 0 ? (
+      <div className={styles.paymentPlanCard}>
+        <h3 className={styles.paymentPlanTitle}>Payment plan</h3>
+        <div className={styles.paymentPlanRows}>
+          {paymentPlanSchedule.map((item, idx) => (
+            <div key={idx} className={styles.paymentPlanRow}>
+              <div className={styles.paymentPlanLeft}>
+                <span className={styles.paymentPlanBullet} />
+                <div className={styles.paymentPlanText}>
+                  <span className={styles.paymentPlanStage}>{item.stage}</span>
+                  {item.percent != null && (
+                    <span className={styles.paymentPlanMeta}>{item.percent}%</span>
+                  )}
+                  {item.dueDate && (
+                    <span className={styles.paymentPlanMeta}>{item.dueDate}</span>
+                  )}
+                </div>
+              </div>
+              {item.amount != null && (
+                <div className={styles.paymentPlanRight}>
+                  <span className={styles.paymentPlanAmount}>
+                    {formatPrice(item.amount, currency)}
+                  </span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        {lot.priceFromUs != null && (
+          <div className={styles.paymentPlanSummary}>
+            <div className={styles.paymentPlanSummaryRow}>
+              <div className={styles.paymentPlanSummaryLeft}>
+                <span>Total Price</span>
+              </div>
+              <div className={styles.paymentPlanSummaryRight}>
+                <span>{formatPrice(lot.priceFromUs, currency)}</span>
+              </div>
             </div>
           </div>
-          <div className={styles.paymentPlanRight}>
-            <span className={styles.paymentPlanAmount}>{formatPrice(3_000_000, currency)}</span>
-            <span className={styles.paymentPlanSubmeta}>Fees included 20%</span>
-          </div>
-        </div>
-        <div className={styles.paymentPlanRow}>
-          <div className={styles.paymentPlanLeft}>
-            <span className={styles.paymentPlanBullet} />
-            <div className={styles.paymentPlanText}>
-              <span className={styles.paymentPlanStage}>Pre-Handover Payments</span>
-              <span className={styles.paymentPlanMeta}>10%</span>
-            </div>
-          </div>
-          <div className={styles.paymentPlanRight}>
-            <span className={styles.paymentPlanAmount}>{formatPrice(1_000_000, currency)}</span>
-          </div>
-        </div>
-        <div className={styles.paymentPlanRow}>
-          <div className={styles.paymentPlanLeft}>
-            <span className={styles.paymentPlanBullet} />
-            <div className={styles.paymentPlanText}>
-              <span className={styles.paymentPlanStage}>On Handover</span>
-              <span className={styles.paymentPlanMeta}>60%</span>
-            </div>
-          </div>
-          <div className={styles.paymentPlanRight}>
-            <span className={styles.paymentPlanAmount}>{formatPrice(6_000_000, currency)}</span>
-          </div>
-        </div>
+        )}
       </div>
-      <div className={styles.paymentPlanSummary}>
-        <div className={styles.paymentPlanSummaryRow}>
-          <div className={styles.paymentPlanSummaryLeft}>
-            <span>Unit Price</span>
-            <small>Fees</small>
-          </div>
-          <div className={styles.paymentPlanSummaryRight}>
-            <span>{formatPrice(paymentUnitPrice, currency)}</span>
-            <small>{formatPrice(paymentFees, currency)}</small>
-          </div>
-        </div>
-        <div className={styles.paymentPlanSummaryRow}>
-          <div className={styles.paymentPlanSummaryLeft}>
-            <span>Total Price</span>
-          </div>
-          <div className={styles.paymentPlanSummaryRight}>
-            <span>{formatPrice(paymentTotal, currency)}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+    ) : null
 
   if (!isMobile) {
     return (

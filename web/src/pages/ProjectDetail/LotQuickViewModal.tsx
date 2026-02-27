@@ -84,6 +84,7 @@ export function LotQuickViewModal({
   projectName,
   projectSlug,
   areaName,
+  projectPaymentPlan,
   fallbackRoi,
   lat,
   lng,
@@ -92,7 +93,7 @@ export function LotQuickViewModal({
   const { currency } = useSettings()
   const isRTL = useIsRTL()
   const [lotPhotoIndex, setLotPhotoIndex] = useState(0)
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
+  const [planImageIndex, setPlanImageIndex] = useState(0)
   const viewMapRef = useRef<L.Map | null>(null)
   const viewSectorRef = useRef<L.Polygon | null>(null)
   const [viewMapContainerEl, setViewMapContainerEl] = useState<HTMLDivElement | null>(null)
@@ -114,25 +115,33 @@ export function LotQuickViewModal({
   const lotPhotos = Array.from(
     new Set([...(coverImage ? [coverImage] : []), ...commonGalleryPhotos, ...galleryPhotos])
   )
-  const activePlanImage =
-    (selectedImageUrl && planImages.includes(selectedImageUrl) ? selectedImageUrl : null) ||
-    planImages[0] ||
-    null
+  const activePlanImage = planImages[planImageIndex] || null
   const activeOrientationImage = lotPhotos[lotPhotoIndex] || lotPhotos[0]
-  const unitPrice = 10_000_000
-  const feesAmount = 100_000
-  const totalPrice = unitPrice + feesAmount
+  const lotPaymentPlanSchedule = lotData?.paymentPlan?.schedule
+  const paymentPlanSchedule =
+    lotPaymentPlanSchedule && lotPaymentPlanSchedule.length > 0
+      ? lotPaymentPlanSchedule
+      : projectPaymentPlan
+          ?.split('/')
+          .map(pct => {
+            const percent = parseInt(pct, 10)
+            const amount =
+              lot?.priceFromUs != null
+                ? Math.round((percent / 100) * lot.priceFromUs)
+                : undefined
+            return { percent, amount }
+          })
 
   useEffect(() => {
     if (!open) {
       setLotPhotoIndex(0)
-      setSelectedImageUrl(null)
+      setPlanImageIndex(0)
     }
   }, [open])
 
   useEffect(() => {
     setLotPhotoIndex(0)
-    setSelectedImageUrl(null)
+    setPlanImageIndex(0)
   }, [lot?.id])
 
   useEffect(() => {
@@ -228,6 +237,14 @@ export function LotQuickViewModal({
     setLotPhotoIndex(prev => (prev === lotPhotos.length - 1 ? 0 : prev + 1))
   }
 
+  const goToPlanPrev = () => {
+    setPlanImageIndex(prev => (prev === 0 ? planImages.length - 1 : prev - 1))
+  }
+
+  const goToPlanNext = () => {
+    setPlanImageIndex(prev => (prev === planImages.length - 1 ? 0 : prev + 1))
+  }
+
   const modalTitle = t('apartmentCard.title', {
     type: capitalize(lot?.type),
     count: lot?.bedrooms ?? 0,
@@ -250,11 +267,44 @@ export function LotQuickViewModal({
                 {activePlanImage ? (
                   <>
                     <img src={getImageUrl(activePlanImage, 'hero')} alt={modalTitle} className={styles.floorPlanImage} />
+                    {planImages.length > 1 && (
+                      <>
+                        <button
+                          className={`${styles.planArrow} ${styles.planArrowLeft}`}
+                          onClick={goToPlanPrev}
+                          aria-label={t('apartmentCard.previousImage')}
+                        >
+                          {isRTL ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                        </button>
+                        <button
+                          className={`${styles.planArrow} ${styles.planArrowRight}`}
+                          onClick={goToPlanNext}
+                          aria-label={t('apartmentCard.nextImage')}
+                        >
+                          {isRTL ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+                        </button>
+                      </>
+                    )}
                   </>
                 ) : (
                   <div className={styles.emptyState}>{t('lotDetail.imagePlaceholder')}</div>
                 )}
               </div>
+              {planImages.length > 1 && (
+                <div className={styles.floorPlanThumbs}>
+                  {planImages.map((url, index) => (
+                    <button
+                      type="button"
+                      key={`${url}-${index}`}
+                      className={`${styles.floorPlanThumb} ${index === planImageIndex ? styles.floorPlanThumbActive : ''}`}
+                      onClick={() => setPlanImageIndex(index)}
+                      aria-label={`Floor plan ${index + 1}`}
+                    >
+                      <img src={getImageUrl(url, 'thumbnail')} alt={`Floor plan ${index + 1}`} />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -268,7 +318,10 @@ export function LotQuickViewModal({
                   areaName={areaName}
                   roi={lot.roi ?? fallbackRoi}
                   onClick={() => {}}
-                  onImageClick={imageUrl => setSelectedImageUrl(imageUrl)}
+                  onImageClick={imageUrl => {
+                    const idx = planImages.indexOf(imageUrl)
+                    if (idx >= 0) setPlanImageIndex(idx)
+                  }}
                   fullWidth
                   coverFirst
                   disableHoverLift
@@ -335,70 +388,49 @@ export function LotQuickViewModal({
                 )}
               </div>
 
-              <div className={styles.sectionCard}>
-                <h4>Payment plan</h4>
-                <div className={styles.paymentRows}>
-                  <div className={styles.paymentStages}>
-                    <div className={styles.paymentRow}>
-                      <div className={styles.paymentLeft}>
-                        <span className={styles.paymentBullet} />
-                        <div className={styles.paymentText}>
-                          <span className={styles.paymentStage}>Down Payment</span>
-                          <span className={styles.paymentMeta}>30%</span>
+              {paymentPlanSchedule && paymentPlanSchedule.length > 0 && (
+                <div className={styles.sectionCard}>
+                  <h4>Payment plan</h4>
+                  <div className={styles.paymentRows}>
+                    <div className={styles.paymentStages}>
+                      {paymentPlanSchedule.map((item, idx) => (
+                        <div key={idx} className={styles.paymentRow}>
+                          <div className={styles.paymentLeft}>
+                            <span className={styles.paymentBullet} />
+                            <div className={styles.paymentText}>
+                              {'stage' in item && item.stage && (
+                                <span className={styles.paymentStage}>{item.stage}</span>
+                              )}
+                              {item.percent != null && (
+                                <span className={styles.paymentMeta}>{item.percent}%</span>
+                              )}
+                            </div>
+                          </div>
+                          {item.amount != null && (
+                            <div className={styles.paymentRight}>
+                              <span className={styles.paymentAmount}>
+                                {formatPrice(item.amount, currency)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {lot?.priceFromUs != null && (
+                      <div className={styles.paymentSummary}>
+                        <div className={styles.summaryRow}>
+                          <div className={styles.summaryLeft}>
+                            <span>Total Price</span>
+                          </div>
+                          <div className={styles.summaryRight}>
+                            <span>{formatPrice(lot.priceFromUs, currency)}</span>
+                          </div>
                         </div>
                       </div>
-                      <div className={styles.paymentRight}>
-                        <span className={styles.paymentAmount}>{formatPrice(3_000_000, currency)}</span>
-                        <span className={styles.paymentSubmeta}>Fees included 20%</span>
-                      </div>
-                    </div>
-                    <div className={styles.paymentRow}>
-                      <div className={styles.paymentLeft}>
-                        <span className={styles.paymentBullet} />
-                        <div className={styles.paymentText}>
-                          <span className={styles.paymentStage}>Pre-Handover Payments</span>
-                          <span className={styles.paymentMeta}>10%</span>
-                        </div>
-                      </div>
-                      <div className={styles.paymentRight}>
-                        <span className={styles.paymentAmount}>{formatPrice(1_000_000, currency)}</span>
-                      </div>
-                    </div>
-                    <div className={styles.paymentRow}>
-                      <div className={styles.paymentLeft}>
-                        <span className={styles.paymentBullet} />
-                        <div className={styles.paymentText}>
-                          <span className={styles.paymentStage}>On Handover</span>
-                          <span className={styles.paymentMeta}>60%</span>
-                        </div>
-                      </div>
-                      <div className={styles.paymentRight}>
-                        <span className={styles.paymentAmount}>{formatPrice(6_000_000, currency)}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.paymentSummary}>
-                    <div className={styles.summaryRow}>
-                      <div className={styles.summaryLeft}>
-                        <span>Unit Price</span>
-                        <small>Fees</small>
-                      </div>
-                      <div className={styles.summaryRight}>
-                        <span>{formatPrice(unitPrice, currency)}</span>
-                        <small>{formatPrice(feesAmount, currency)}</small>
-                      </div>
-                    </div>
-                    <div className={styles.summaryRow}>
-                      <div className={styles.summaryLeft}>
-                        <span>Total Price</span>
-                      </div>
-                      <div className={styles.summaryRight}>
-                        <span>{formatPrice(totalPrice, currency)}</span>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
