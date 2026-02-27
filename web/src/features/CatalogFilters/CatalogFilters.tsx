@@ -1,6 +1,6 @@
 import styles from './CatalogFilters.module.scss'
 import { useMemo, useState, useCallback, useEffect } from 'react'
-import { Plane, X, Search } from 'lucide-react'
+import { Plane, X, Search, ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useFilters, type FilterValues } from '@/contexts'
 import { Button } from '@/ui/Button'
@@ -39,6 +39,7 @@ export const CatalogFilters = ({ areaOptions }: CatalogFiltersProps) => {
   const { filters, options, updateFilter, resetFilters, isLoading } = useFilters()
   const [searchInput, setSearchInput] = useState(filters.search)
   const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(true)
   const debouncedSearch = useDebounce(searchInput, 300)
 
   // Sync debounced search to filters
@@ -146,6 +147,22 @@ export const CatalogFilters = ({ areaOptions }: CatalogFiltersProps) => {
     filters.status,
   ])
 
+  const secondaryFiltersCount = useMemo(() => {
+    let count = 0
+    if (filters.propertyType !== 'all') count++
+    if (filters.minPrice !== '' || filters.maxPrice !== '') count++
+    if (filters.bedrooms.length > 0 || filters.bathrooms.length > 0) count++
+    if (filters.status !== 'all') count++
+    return count
+  }, [filters.propertyType, filters.minPrice, filters.maxPrice, filters.bedrooms, filters.bathrooms, filters.status])
+
+  // Auto-expand when secondary filters become active
+  useEffect(() => {
+    if (secondaryFiltersCount > 0) {
+      setIsFiltersExpanded(true)
+    }
+  }, [secondaryFiltersCount])
+
   const handleClearFilters = useCallback(() => {
     setSearchInput('')
     resetFilters()
@@ -157,7 +174,7 @@ export const CatalogFilters = ({ areaOptions }: CatalogFiltersProps) => {
 
   return (
     <div className={styles.filtersWrapper}>
-      <div className={styles.filtersBar}>
+      <div className={`${styles.filtersBar} ${!isFiltersExpanded ? styles.filtersBarCollapsed : ''}`}>
         {/* City */}
         <Select
           options={filterOptions.city}
@@ -266,6 +283,24 @@ export const CatalogFilters = ({ areaOptions }: CatalogFiltersProps) => {
             </Button>
           )}
         </div>
+      </div>
+
+      {/* Toggle button — mobile only */}
+      <div className={styles.filtersToggleRow}>
+        <button
+          className={styles.filtersToggleBtn}
+          onClick={() => setIsFiltersExpanded(prev => !prev)}
+          type="button"
+        >
+          {t(isFiltersExpanded ? 'filters.collapse.button' : 'filters.expand.button')}
+          {!isFiltersExpanded && secondaryFiltersCount > 0 && (
+            <span className={styles.filtersToggleBadge}>{secondaryFiltersCount}</span>
+          )}
+          <ChevronDown
+            size={14}
+            className={`${styles.filtersToggleChevron} ${isFiltersExpanded ? styles.filtersToggleChevronRotated : ''}`}
+          />
+        </button>
       </div>
     </div>
   )

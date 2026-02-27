@@ -25,13 +25,75 @@
   }
 
   @media (max-width: $breakpoint-md) {
-    padding: $spacing-3;
+    flex-wrap: wrap;
+    overflow: hidden;
+    border-bottom: none;
+    padding: $spacing-2 $spacing-3 $spacing-2;
+    gap: $spacing-2;
+    transition: max-height 0.25s ease;
+    max-height: 500px;
+
+    &.filtersBarCollapsed {
+      max-height: 47px;
+    }
   }
 
   // Apply semibold font weight to filter buttons
   :global(button) {
     font-weight: $font-weight-semibold;
   }
+}
+
+// Toggle button — visible on mobile only
+.filtersToggleRow {
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    justify-content: center;
+    padding: $spacing-1 0;
+    border-bottom: 0.5px solid $color-charcoal-grey-10;
+  }
+}
+
+.filtersToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $spacing-1 $spacing-3;
+  background: none;
+  border: none;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $color-text;
+  }
+}
+
+.filtersToggleChevron {
+  transition: transform $transition-fast;
+}
+
+.filtersToggleChevronRotated {
+  transform: rotate(180deg);
+}
+
+.filtersToggleBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 $spacing-1;
+  background: $color-yellow;
+  color: $color-charcoal-black;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
 }
 
 .searchWrapper {
@@ -41,6 +103,10 @@
   flex-shrink: 0;
   z-index: 1;
   transition: z-index 0s;
+
+  @media (max-width: $breakpoint-md) {
+    flex: 1 1 140px;
+  }
 
   &.searchFocused {
     .searchInput {
@@ -91,7 +157,8 @@
   }
 
   @media (max-width: $breakpoint-md) {
-    width: 160px;
+    width: 100%;
+    flex: 1 1 140px;
   }
 }
 
