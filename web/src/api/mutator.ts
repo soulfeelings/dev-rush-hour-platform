@@ -1,5 +1,6 @@
 import { apiClient } from './client'
 import { API_URL, BASE_PATH } from './constants'
+import type { Error as ApiError } from './generated/schemas/error'
 
 type RequestConfig = {
   url: string
@@ -57,8 +58,9 @@ export const customInstance = async <T>(
   })
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: response.statusText }))
-    throw new Error(error.message || `API Error: ${response.statusText}`)
+    const body: ApiError | null = await response.json().catch(() => null)
+    const message = body?.error?.message || `API Error: ${response.statusText}`
+    throw new Error(message)
   }
 
   return response.json()
