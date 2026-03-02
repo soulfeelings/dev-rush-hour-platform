@@ -174,8 +174,7 @@ export function BadgeForm({
     }
   }, [form, touched])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     setTouched(true)
     const validationErrors = validate()
     setErrors(validationErrors)
@@ -195,7 +194,7 @@ export function BadgeForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <div className={styles.form}>
       <Input
         label="Name"
         value={form.name}
@@ -381,7 +380,8 @@ export function BadgeForm({
       />
 
       <Button
-        type="submit"
+        type="button"
+        onClick={handleSubmit}
         disabled={loading || (isEditMode && !hasChanges)}
         fullWidth
         className={isEditMode && hasChanges ? styles.saveButton : ''}
@@ -394,6 +394,6 @@ export function BadgeForm({
             ? 'Save'
             : 'Create Badge'}
       </Button>
-    </form>
+    </div>
   )
 }

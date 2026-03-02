@@ -118,8 +118,7 @@ export function InfrastructureForm({
     }
   }, [form, touched])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     setTouched(true)
     const validationErrors = validate()
     setErrors(validationErrors)
@@ -136,7 +135,7 @@ export function InfrastructureForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <div className={styles.form}>
       <Input
         label="Name"
         value={form.name}
@@ -184,7 +183,8 @@ export function InfrastructureForm({
       />
 
       <Button
-        type="submit"
+        type="button"
+        onClick={handleSubmit}
         disabled={loading || (isEditMode && !hasChanges)}
         fullWidth
         className={isEditMode && hasChanges ? styles.saveButton : ''}
@@ -197,6 +197,6 @@ export function InfrastructureForm({
             ? 'Save'
             : 'Create Infrastructure'}
       </Button>
-    </form>
+    </div>
   )
 }

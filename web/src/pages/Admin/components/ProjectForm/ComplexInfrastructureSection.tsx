@@ -60,7 +60,10 @@ export function ComplexInfrastructureSection({
         {filtered.length > 0 && (
           <div className={styles.badgesList}>
             {filtered.map(infra => (
-              <label key={infra.id} className={styles.badgeItem}>
+              <label
+              key={infra.id}
+              className={`${styles.badgeItem} ${infra.id && selectedIds.includes(infra.id) ? styles.selected : ''}`}
+            >
                 <Checkbox
                   checked={infra.id ? selectedIds.includes(infra.id) : false}
                   onChange={() => infra.id && onToggle(infra.id)}
