@@ -165,7 +165,7 @@ export function DevelopersTable({
               {developersList.map(developer => (
                 <tr
                   key={developer.id}
-                  onMouseEnter={() => setHoveredRowId(developer.id)}
+                  onMouseOver={() => setHoveredRowId(developer.id)}
                   onMouseLeave={() => setHoveredRowId(undefined)}
                   className={developer.id && selectedIds.has(developer.id) ? styles.selectedRow : ''}
                 >

@@ -4,7 +4,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
+  z-index: $z-sidebar-overlay;
 }
 
 .sidebar {
@@ -15,7 +15,7 @@
   width: 280px;
   max-width: 85vw;
   background: $color-bg-card;
-  z-index: 9999;
+  z-index: $z-sidebar;
   box-shadow: $shadow-lg;
   display: flex;
   flex-direction: column;

@@ -173,7 +173,7 @@ export function DeletedProjectsTable({
             {projectsList.map(project => (
               <tr
                 key={project.id}
-                onMouseEnter={() => setHoveredRowId(project.id)}
+                onMouseOver={() => setHoveredRowId(project.id)}
                 onMouseLeave={() => setHoveredRowId(undefined)}
                 className={project.id && selectedIds.has(project.id) ? styles.selectedRow : ''}
               >

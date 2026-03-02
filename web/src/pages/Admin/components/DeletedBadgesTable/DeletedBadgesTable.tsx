@@ -170,7 +170,7 @@ export function DeletedBadgesTable({
             {badgesList.map(badge => (
               <tr
                 key={badge.id}
-                onMouseEnter={() => setHoveredRowId(badge.id)}
+                onMouseOver={() => setHoveredRowId(badge.id)}
                 onMouseLeave={() => setHoveredRowId(undefined)}
                 className={badge.id && selectedIds.has(badge.id) ? styles.selectedRow : ''}
               >

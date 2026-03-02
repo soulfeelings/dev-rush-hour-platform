@@ -152,7 +152,7 @@ export function InfrastructuresTable({
               {list.map(item => (
                 <tr
                   key={item.id}
-                  onMouseEnter={() => setHoveredRowId(item.id)}
+                  onMouseOver={() => setHoveredRowId(item.id)}
                   onMouseLeave={() => setHoveredRowId(undefined)}
                   className={item.id && selectedIds.has(item.id) ? styles.selectedRow : ''}
                 >

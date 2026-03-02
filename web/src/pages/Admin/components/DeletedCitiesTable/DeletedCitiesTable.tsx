@@ -170,7 +170,7 @@ export function DeletedCitiesTable({
             {citiesList.map(city => (
               <tr
                 key={city.id}
-                onMouseEnter={() => setHoveredRowId(city.id)}
+                onMouseOver={() => setHoveredRowId(city.id)}
                 onMouseLeave={() => setHoveredRowId(undefined)}
                 className={city.id && selectedIds.has(city.id) ? styles.selectedRow : ''}
               >

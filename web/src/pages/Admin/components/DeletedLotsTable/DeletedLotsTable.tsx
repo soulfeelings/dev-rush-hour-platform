@@ -178,7 +178,7 @@ export function DeletedLotsTable({
             {lotsList.map(lot => (
               <tr
                 key={lot.id}
-                onMouseEnter={() => setHoveredRowId(lot.id)}
+                onMouseOver={() => setHoveredRowId(lot.id)}
                 onMouseLeave={() => setHoveredRowId(undefined)}
                 className={lot.id && selectedIds.has(lot.id) ? styles.selectedRow : ''}
               >

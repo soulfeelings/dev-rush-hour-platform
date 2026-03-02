@@ -156,7 +156,7 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading, d
               {areasList.map(area => (
                 <tr
                   key={area.id}
-                  onMouseEnter={() => setHoveredRowId(area.id)}
+                  onMouseOver={() => setHoveredRowId(area.id)}
                   onMouseLeave={() => setHoveredRowId(undefined)}
                   className={area.id && selectedIds.has(area.id) ? styles.selectedRow : ''}
                 >
