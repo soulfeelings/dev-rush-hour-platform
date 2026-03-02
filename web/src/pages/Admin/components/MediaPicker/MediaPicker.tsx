@@ -27,6 +27,9 @@ export function MediaPicker({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(
+    null
+  )
 
   const { data: mediaList, isLoading, error } = useMediaList({ status: 'ready', limit: 100 })
   const uploadMutation = useMediaUpload()
@@ -47,26 +50,38 @@ export function MediaPicker({
   const items: MediaItem[] = mediaList || []
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
 
-    // Reset input
     e.target.value = ''
     setUploadError(null)
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setUploadError('Unsupported file type. Please upload JPEG, PNG, WebP, or GIF.')
+    const invalidType = files.find(f => !ALLOWED_TYPES.includes(f.type))
+    if (invalidType) {
+      setUploadError(`"${invalidType.name}" is unsupported. Please upload JPEG, PNG, WebP, or GIF.`)
       return
     }
-    if (file.size > MAX_SIZE) {
-      setUploadError('File is too large. Maximum size is 10 MB.')
+    const tooLarge = files.find(f => f.size > MAX_SIZE)
+    if (tooLarge) {
+      setUploadError(`"${tooLarge.name}" is too large. Maximum size is 10 MB.`)
       return
     }
 
-    try {
-      await uploadMutation.mutateAsync(file)
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : 'Upload failed')
+    setUploadProgress({ done: 0, total: files.length })
+    const errors: string[] = []
+
+    for (const file of files) {
+      try {
+        await uploadMutation.mutateAsync(file)
+        setUploadProgress(prev => (prev ? { ...prev, done: prev.done + 1 } : null))
+      } catch (err) {
+        errors.push(err instanceof Error ? err.message : `Failed to upload "${file.name}"`)
+      }
+    }
+
+    setUploadProgress(null)
+    if (errors.length > 0) {
+      setUploadError(errors.join(' • '))
     }
   }
 
@@ -98,6 +113,7 @@ export function MediaPicker({
   const handleClose = () => {
     setSelectedIds(new Set())
     setUploadError(null)
+    setUploadProgress(null)
     onClose()
   }
 
@@ -107,17 +123,20 @@ export function MediaPicker({
         <div className={styles.header}>
           <Button
             onClick={() => fileInputRef.current?.click()}
-            disabled={uploadMutation.isPending}
+            disabled={uploadProgress !== null}
             iconLeft={<Upload size={16} />}
             variant="secondary"
             size="sm"
           >
-            {uploadMutation.isPending ? 'Uploading...' : 'Upload Image'}
+            {uploadProgress
+              ? `Uploading ${uploadProgress.done}/${uploadProgress.total}...`
+              : 'Upload Images'}
           </Button>
           <input
             ref={fileInputRef}
             type="file"
             accept={ALLOWED_TYPES.join(',')}
+            multiple
             onChange={handleFileSelect}
             className={styles.hiddenInput}
           />
