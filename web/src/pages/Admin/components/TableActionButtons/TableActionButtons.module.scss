@@ -1,3 +1,5 @@
+@use '../../../../styles/variables' as *;
+
 .actionButtons {
   position: absolute;
   top: 50%;
@@ -28,7 +30,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition:
+    background $transition-fast,
+    color $transition-fast;
 
   &:hover {
     background: #e0e0e0;
