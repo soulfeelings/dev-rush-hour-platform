@@ -165,10 +165,10 @@ export default function Home() {
         </section>
       )}
 
-      {/* Features Section */}
-      <section className={styles.features} data-testid="features-section">
-        <h2 className={styles.featuresTitle}>{t('home.features.title')}</h2>
-        <p className={styles.featuresSubtitle}>{t('home.features.subtitle')}</p>
+      {/* Why Choose Us Section */}
+      <section className={styles.whyChooseUs} data-testid="why-choose-us-section">
+        <h2 className={styles.whyChooseUsTitle}>{t('home.whyChooseUs.title')}</h2>
+        <p className={styles.whyChooseUsSubtitle}>{t('home.whyChooseUs.subtitle')}</p>
 
         <div className={styles.videoBlock}>
           <div className={styles.videoContainer}>
@@ -183,10 +183,10 @@ export default function Home() {
 
         <Button
           variant="primary"
-          className={styles.featuresBtn}
+          className={styles.whyChooseUsBtn}
           onClick={() => navigate(ROUTES.CATALOG)}
         >
-          {t('home.features.startChoosing')}
+          {t('home.whyChooseUs.startChoosing')}
         </Button>
       </section>
 

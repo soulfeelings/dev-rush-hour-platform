@@ -464,9 +464,9 @@ $cta-btn-font-size: 24px;
 }
 
 // ----------------
-// FEATURES SECTION
+// WHY CHOOSE US SECTION
 // ----------------
-.features {
+.whyChooseUs {
   padding: $section-padding-top $spacing-4 $section-padding-bottom;
   background: $color-bg-card;
   display: flex;
@@ -479,7 +479,7 @@ $cta-btn-font-size: 24px;
   }
 }
 
-.featuresTitle {
+.whyChooseUsTitle {
   font-size: 40px;
   font-weight: $font-weight-semibold;
   margin: 0;
@@ -490,7 +490,7 @@ $cta-btn-font-size: 24px;
   }
 }
 
-.featuresSubtitle {
+.whyChooseUsSubtitle {
   font-size: 24px;
   font-weight: $font-weight-regular;
   color: $color-charcoal-grey-50;
@@ -572,7 +572,7 @@ $cta-btn-font-size: 24px;
   }
 }
 
-.featuresBtn {
+.whyChooseUsBtn {
   @include landing-cta-btn;
 
   @media (max-width: $breakpoint-sm) {
