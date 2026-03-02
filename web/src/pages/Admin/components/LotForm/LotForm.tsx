@@ -5,6 +5,7 @@ import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import type { Badge } from '../../../../api/generated/schemas/badge'
 import { DirectionPicker } from '../DirectionPicker'
 import { MediaPicker } from '../MediaPicker'
+import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
 import styles from './LotForm.module.scss'
 
 type Project = {
@@ -475,6 +476,7 @@ export function LotForm({
             >
               Browse
             </Button>
+            <ImageUploadButton onUpload={url => setForm({ ...form, coverUrl: url })} />
           </div>
           {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
         </div>
@@ -491,6 +493,11 @@ export function LotForm({
               >
                 Browse
               </Button>
+              <ImageUploadButton
+                multiple
+                onUpload={url => setForm({ ...form, photos: [...form.photos, url] })}
+                onUploadMultiple={urls => setForm({ ...form, photos: [...form.photos, ...urls] })}
+              />
               <Button type="button" onClick={addPhoto} variant="secondary" size="sm">
                 <Plus size={16} />
                 Add Photo
@@ -533,6 +540,11 @@ export function LotForm({
               >
                 Browse
               </Button>
+              <ImageUploadButton
+                multiple
+                onUpload={url => setForm({ ...form, floorPlanImages: [...form.floorPlanImages, url] })}
+                onUploadMultiple={urls => setForm({ ...form, floorPlanImages: [...form.floorPlanImages, ...urls] })}
+              />
               <Button type="button" onClick={addFloorPlanImage} variant="secondary" size="sm">
                 <Plus size={16} />
                 Add Floor Plan
@@ -584,6 +596,11 @@ export function LotForm({
               >
                 Browse
               </Button>
+              <ImageUploadButton
+                multiple
+                onUpload={url => setForm({ ...form, viewPhotos: [...form.viewPhotos, url] })}
+                onUploadMultiple={urls => setForm({ ...form, viewPhotos: [...form.viewPhotos, ...urls] })}
+              />
               <Button type="button" onClick={addViewPhoto} variant="secondary" size="sm">
                 <Plus size={16} />
                 Add View Photo

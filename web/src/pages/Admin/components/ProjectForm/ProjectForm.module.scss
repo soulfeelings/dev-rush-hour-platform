@@ -123,6 +123,32 @@
   align-items: start;
 }
 
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #555;
+  background: none;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+
+  &:hover {
+    background-color: #f0f0f0;
+    border-color: #aaa;
+  }
+}
+
 .badgesList {
   display: flex;
   flex-wrap: wrap;

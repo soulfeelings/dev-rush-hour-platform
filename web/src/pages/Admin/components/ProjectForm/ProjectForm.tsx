@@ -18,6 +18,7 @@ import {
 } from '../../../../api'
 import { MapPicker } from '../MapPicker'
 import { MediaPicker } from '../MediaPicker'
+import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
 import { BadgesSection } from './BadgesSection'
 import { ComplexInfrastructureSection } from './ComplexInfrastructureSection'
 import { generateSlug } from '../../../../utils/generateSlug'
@@ -766,6 +767,7 @@ export function ProjectForm({
             >
               Browse
             </Button>
+            <ImageUploadButton onUpload={url => setForm({ ...form, coverUrl: url })} />
           </div>
           {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
         </div>
@@ -788,6 +790,7 @@ export function ProjectForm({
             >
               Browse
             </Button>
+            <ImageUploadButton onUpload={url => setForm({ ...form, hoverUrl: url })} />
           </div>
           {form.hoverUrl && <ImagePreview src={form.hoverUrl} alt="Hover preview" />}
         </div>
@@ -809,6 +812,7 @@ export function ProjectForm({
             >
               Browse
             </Button>
+            <ImageUploadButton onUpload={url => setForm({ ...form, logoUrl: url })} />
           </div>
           {form.logoUrl && <ImagePreview src={form.logoUrl} alt="Logo preview" />}
         </div>
@@ -825,6 +829,11 @@ export function ProjectForm({
               >
                 Browse
               </Button>
+              <ImageUploadButton
+                multiple
+                onUpload={url => setForm({ ...form, gallery: [...form.gallery, url] })}
+                onUploadMultiple={urls => setForm({ ...form, gallery: [...form.gallery, ...urls] })}
+              />
               <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm">
                 <Plus size={16} />
                 Add Image

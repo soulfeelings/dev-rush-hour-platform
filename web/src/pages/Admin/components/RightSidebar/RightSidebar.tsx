@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import styles from './RightSidebar.module.scss'
@@ -10,7 +11,7 @@ type RightSidebarProps = {
 }
 
 export function RightSidebar({ isOpen, onClose, title, children }: RightSidebarProps) {
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -39,6 +40,7 @@ export function RightSidebar({ isOpen, onClose, title, children }: RightSidebarP
           </motion.aside>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }
