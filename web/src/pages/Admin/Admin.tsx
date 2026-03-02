@@ -257,7 +257,7 @@ export default function Admin() {
         setSuccess('Developer created successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -273,7 +273,7 @@ export default function Admin() {
         setSuccess('Project created successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -290,7 +290,7 @@ export default function Admin() {
         setSuccess('Lot created successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -306,7 +306,7 @@ export default function Admin() {
         setSuccess('Developer updated successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -322,7 +322,7 @@ export default function Admin() {
         setSuccess('Project updated successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -339,7 +339,7 @@ export default function Admin() {
         setSuccess('Lot updated successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -355,7 +355,7 @@ export default function Admin() {
         setSuccess('Area created successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -371,7 +371,7 @@ export default function Admin() {
         setSuccess('Area updated successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -387,7 +387,7 @@ export default function Admin() {
         setSuccess('City created successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -403,7 +403,7 @@ export default function Admin() {
         setSuccess('City updated successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -419,7 +419,7 @@ export default function Admin() {
         setSuccess('Badge created successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -435,7 +435,7 @@ export default function Admin() {
         setSuccess('Badge updated successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -451,7 +451,7 @@ export default function Admin() {
         setSuccess('Infrastructure created successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
@@ -467,7 +467,7 @@ export default function Admin() {
         setSuccess('Infrastructure updated successfully!')
         setFormKey((prev: number) => prev + 1)
         setTimeout(() => {
-          handleCloseRightSidebar()
+          doCloseRightSidebar()
         }, 100)
       },
       onError: err => {
