@@ -125,8 +125,7 @@ export function Select({
   const handleSelect = (optionValue: string) => {
     setSelectingValue(optionValue)
     setTimeout(() => {
-      // Если кликнули на уже выбранное значение - сбрасываем выбор
-      onChange(value === optionValue ? '' : optionValue)
+      onChange(optionValue)
       setIsOpen(false)
       setSelectingValue(null)
       setSearchQuery('')
