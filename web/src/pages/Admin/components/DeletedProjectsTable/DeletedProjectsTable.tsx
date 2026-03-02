@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
-import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
+import { Button, Checkbox, ErrorState, Input, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { TableSkeleton } from '../TableSkeleton'
 import styles from './DeletedProjectsTable.module.scss'
 
@@ -26,6 +26,7 @@ export function DeletedProjectsTable({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [itemsToRestore, setItemsToRestore] = useState<string[]>([])
   const [itemsToDelete, setItemsToDelete] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const {
     data: projects,
     isLoading,
@@ -34,7 +35,13 @@ export function DeletedProjectsTable({
     query: { enabled: true },
   })
 
-  const projectsList = projects || []
+  const allProjects = projects || []
+
+  const projectsList = useMemo(() => {
+    if (!searchQuery) return allProjects
+    const q = searchQuery.toLowerCase()
+    return allProjects.filter(p => p.name?.toLowerCase().includes(q))
+  }, [allProjects, searchQuery])
 
   const handleSelectAll = () => {
     if (selectedIds.size === projectsList.length) {
@@ -114,7 +121,7 @@ export function DeletedProjectsTable({
     return <ErrorState message="Error loading deleted projects" onRetry={() => window.location.reload()} variant="inline" />
   }
 
-  if (projectsList.length === 0) {
+  if (allProjects.length === 0) {
     return null
   }
 
@@ -148,6 +155,17 @@ export function DeletedProjectsTable({
           )}
         </div>
       </div>
+      <div className={styles.filters}>
+        <Input
+          placeholder="Search by name..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {projectsList.length === 0 ? (
+        <div className={styles.empty}>No deleted projects match the search</div>
+      ) : (
       <div className={styles.tableScroll}>
         <table className={styles.table}>
           <thead>
@@ -222,6 +240,7 @@ export function DeletedProjectsTable({
           </tbody>
         </table>
       </div>
+      )}
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">
         <ModalBody>

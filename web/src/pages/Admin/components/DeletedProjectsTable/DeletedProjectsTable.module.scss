@@ -30,6 +30,13 @@
   color: #666;
 }
 
+.filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 .loading,
 .error,
 .empty {
