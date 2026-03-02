@@ -444,9 +444,7 @@ export function ProjectForm({
     if (!form.sale) {
       newErrors.sale = 'Sale status is required'
     }
-    if (!form.hoverUrl) {
-      newErrors.hoverUrl = 'Hover image URL is required'
-    }
+
     const paymentPlanError = validatePaymentPlan(form.paymentPlan)
     if (paymentPlanError) {
       newErrors.paymentPlan = paymentPlanError
@@ -816,7 +814,6 @@ export function ProjectForm({
               onChange={e => setForm({ ...form, hoverUrl: e.target.value })}
               placeholder="https://example.com/hover-image.jpg"
               error={errors.hoverUrl}
-              required
             />
             <Button
               type="button"
