@@ -1,4 +1,4 @@
-import { Heart, Building2, ChevronLeft, ChevronRight, Bed, ShowerHead, Move } from 'lucide-react'
+import { Building2, ChevronLeft, ChevronRight, Bed, ShowerHead, Move } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
@@ -62,11 +62,10 @@ const splitCompletionDate = (dateString: string | undefined) => {
   }
 }
 
-export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
+export const LotCard = ({ lot }: LotCardProps) => {
   const { t, i18n } = useTranslation()
   const { currency, unit } = useSettings()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [isFavorited, setIsFavorited] = useState(false)
 
   const projectName = lot.project?.name || 'Project'
   const developerName = lot.developer?.name || lot.project?.developer?.name || 'Developer'
@@ -81,13 +80,6 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
   const discountPercent = hasDiscount
     ? Math.round(((developerPrice - ourPrice) / developerPrice) * 100)
     : 0
-
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsFavorited(!isFavorited)
-    onFavoriteClick?.(lot.id!)
-  }
 
   const handleImageClick = (e: React.MouseEvent, idx: number) => {
     e.preventDefault()
@@ -198,35 +190,26 @@ export default function LotCard({ lot, onFavoriteClick }: LotCardProps) {
         <div className={styles.photoSection}>
           {allImages.length > 0 ? (
             <div className={styles.galleryContainer}>
-	              <div className={styles.mainImageContainer}>
-	                <img
-	                  src={getImageUrl(allImages[currentImageIndex], 'card')}
-	                  alt={`${projectName} - image ${currentImageIndex + 1}`}
-	                />
-	                {badges.length > 0 && (
-	                  <div className={styles.badgesContainer}>
-	                    {badges.slice(0, 3).map((badge, idx) => (
-	                      <Badge
-	                        key={`${badge.name}-${idx}`}
-	                        text={badge.name}
-	                        backgroundColor={badge.backgroundColor}
-	                        textColor={badge.textColor}
-	                        iconName={badge.icon}
-	                        iconColor={badge.iconColor}
-	                        size="small"
-	                      />
-	                    ))}
-	                  </div>
-	                )}
-	                <button
-	                  className={`${styles.favoriteButton} ${isFavorited ? styles.favorited : ''}`}
-	                  onClick={handleFavoriteClick}
-                  aria-label={
-                    isFavorited ? t('lotCard.removeFromFavorites') : t('lotCard.addToFavorites')
-                  }
-                >
-                  <Heart size={20} />
-                </button>
+              <div className={styles.mainImageContainer}>
+                <img
+                  src={getImageUrl(allImages[currentImageIndex], 'card')}
+                  alt={`${projectName} - image ${currentImageIndex + 1}`}
+                />
+                {badges.length > 0 && (
+                  <div className={styles.badgesContainer}>
+                    {badges.slice(0, 3).map((badge, idx) => (
+                      <Badge
+                        key={`${badge.name}-${idx}`}
+                        text={badge.name}
+                        backgroundColor={badge.backgroundColor}
+                        textColor={badge.textColor}
+                        iconName={badge.icon}
+                        iconColor={badge.iconColor}
+                        size="small"
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {allImages.length > 1 && (
                   <>

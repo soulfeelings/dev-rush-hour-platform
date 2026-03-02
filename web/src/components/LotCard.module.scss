@@ -90,59 +90,6 @@
   }
 }
 
-.favoriteButton {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 44px;
-  height: 44px;
-  border-radius: 183.92px;
-  background: $color-bg-card;
-  border: none;
-  @include flex-center;
-  cursor: pointer;
-  transition: all $transition-fast;
-  z-index: 2;
-  padding: $spacing-3;
-  box-sizing: border-box;
-
-  @include rtl {
-    right: auto;
-    left: 12px;
-  }
-
-  &:hover {
-    background: $color-bg-card;
-    transform: scale(1.05);
-    box-shadow: $shadow-sm;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-    color: rgba(19, 20, 21, 0.3);
-
-    path {
-      fill: rgba(19, 20, 21, 0.3);
-      stroke: none;
-    }
-  }
-
-  &.favorited {
-    svg {
-      color: rgba(255, 30, 0, 0.8);
-
-      path {
-        fill: rgba(255, 30, 0, 0.8);
-      }
-    }
-  }
-}
-
 .navButton {
   @include circle-button(36px);
   position: absolute;
@@ -626,24 +573,6 @@
     }
   }
 
-  .favoriteButton {
-    width: 40px;
-    height: 40px;
-    padding: $spacing-2;
-    top: 8px;
-    right: 8px;
-
-    @include rtl {
-      right: auto;
-      left: 8px;
-    }
-
-    svg {
-      width: 18px;
-      height: 18px;
-    }
-  }
-
   .currencyObjectInfo {
     gap: 6px;
     padding: 6px 12px;
@@ -697,12 +626,7 @@
 }
 
 .shimmer {
-  background: linear-gradient(
-    90deg,
-    #e8e8e8 0%,
-    #f5f5f5 50%,
-    #e8e8e8 100%
-  );
+  background: linear-gradient(90deg, #e8e8e8 0%, #f5f5f5 50%, #e8e8e8 100%);
   background-size: 200% 100%;
   animation: lotCardShimmer 1.5s infinite;
   border-radius: 4px;

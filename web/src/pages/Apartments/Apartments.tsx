@@ -6,7 +6,7 @@ import { Select } from '../../ui/Select'
 import { Button } from '../../ui/Button'
 import { PriceSelect, BedsBathsSelect } from '../../components/Filters'
 import { useListLots, useGetFilterOptions, useListAreas } from '../../api'
-import LotCard, { LotCardSkeleton } from '../../components/LotCard'
+import { LotCard, LotCardSkeleton } from '../../components/LotCard'
 import { ErrorState } from '../../ui'
 import { ListLotsSort } from '../../api/generated/schemas/listLotsSort'
 import type { ListLotsParams } from '../../api/generated/schemas/listLotsParams'
@@ -195,10 +195,6 @@ export default function Apartments() {
     setMaxPrice('')
   }
 
-  const handleFavoriteClick = (lotId: string) => {
-    console.log('Lot favorite clicked:', lotId)
-  }
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -314,7 +310,7 @@ export default function Apartments() {
         ) : (
           <div className={styles.grid}>
             {activeLots.map(lot => (
-              <LotCard key={lot.id} lot={lot} onFavoriteClick={handleFavoriteClick} />
+              <LotCard key={lot.id} lot={lot} />
             ))}
           </div>
         )}

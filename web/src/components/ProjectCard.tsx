@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Heart } from 'lucide-react'
 import clsx from 'clsx'
 import { getProjectDetailRoute } from '../constants/routes'
 import { Typography } from '../ui/Typography'
@@ -39,21 +38,18 @@ const useIsMobile = () => {
 
 interface ProjectCardProps {
   project: Project
-  onFavoriteClick?: (projectId: string) => void
   forceHovered?: boolean
   compact?: boolean
 }
 
 export const ProjectCard = ({
   project,
-  onFavoriteClick,
   forceHovered,
   compact,
 }: ProjectCardProps) => {
   const { t, i18n } = useTranslation()
   const { currency } = useSettings()
   const isMobile = useIsMobile()
-  const [isFavorited, setIsFavorited] = useState(false)
   const [isMouseHovered, setIsMouseHovered] = useState(false)
   const isHovered = forceHovered ?? isMouseHovered
   const isCompact = compact === true
@@ -79,13 +75,6 @@ export const ProjectCard = ({
       projectLink: `${window.location.origin}${getProjectDetailRoute(slug)}`,
       lang: i18n.language,
     }))
-  }
-
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsFavorited(!isFavorited)
-    onFavoriteClick?.(slug)
   }
 
   return (
@@ -132,18 +121,6 @@ export const ProjectCard = ({
                 ))}
               </div>
             )}
-
-            {/* Кнопка избранного */}
-            <button
-              type="button"
-              className={clsx(styles.favoriteButton, isFavorited && styles.favorited)}
-              onClick={handleFavoriteClick}
-              aria-label={
-                isFavorited ? t('projectCard.removeFromFavorites') : t('projectCard.addToFavorites')
-              }
-            >
-              <Heart />
-            </button>
           </div>
 
           {/* Информационная секция */}
