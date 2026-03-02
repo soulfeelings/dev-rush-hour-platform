@@ -7,6 +7,7 @@ import {
   AdminApi,
   type DeveloperCreateRequest,
   type ProjectCreateRequest,
+  type ProjectUpdateRequest,
   type CityCreateRequest,
   type AreaCreateRequest,
   type Project,
@@ -932,13 +933,13 @@ export default function Admin() {
     }
   }
 
-  const handleProjectSubmit = (payload: ProjectCreateRequest) => {
+  const handleProjectSubmit = (payload: ProjectCreateRequest | ProjectUpdateRequest) => {
     setError(null)
     setSuccess(null)
     if (editingEntity && 'id' in editingEntity && editingEntity.id) {
-      updateProjectMutation.mutate({ id: editingEntity.id, data: payload })
+      updateProjectMutation.mutate({ id: editingEntity.id, data: payload as ProjectUpdateRequest })
     } else {
-      createProjectMutation.mutate({ data: payload })
+      createProjectMutation.mutate({ data: payload as ProjectCreateRequest })
     }
   }
 

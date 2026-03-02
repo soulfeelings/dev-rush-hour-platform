@@ -14,12 +14,14 @@ import (
 
 type InfrastructureRepo struct {
 	queries *sqlcgen.Queries
+	pool    *pgxpool.Pool
 	logger  *slog.Logger
 }
 
 func NewInfrastructureRepo(pool *pgxpool.Pool) *InfrastructureRepo {
 	return &InfrastructureRepo{
 		queries: sqlcgen.New(pool),
+		pool:    pool,
 		logger:  slog.Default(),
 	}
 }
@@ -173,15 +175,56 @@ func (r *InfrastructureRepo) HardDelete(id uuid.UUID) error {
 	return nil
 }
 
-// Project-level infrastructure links were removed from schema; keep compatibility for services.
 func (r *InfrastructureRepo) GetProjectInfrastructures(projectID uuid.UUID) ([]domain.Infrastructure, error) {
-	r.logger.Info("infrastructure_repo_get_project_infrastructures_completed", "project_id", projectID, "count", 0)
-	return []domain.Infrastructure{}, nil
+	r.logger.Info("infrastructure_repo_get_project_infrastructures_started", "project_id", projectID)
+
+	rows, err := r.queries.GetProjectInfrastructures(context.Background(), projectID)
+	if err != nil {
+		r.logger.Error("infrastructure_repo_get_project_infrastructures_query_failed", "project_id", projectID, "error", err.Error())
+		return nil, err
+	}
+
+	infrastructures := make([]domain.Infrastructure, len(rows))
+	for i, row := range rows {
+		infrastructures[i] = *sqlcInfraToDomain(row)
+	}
+
+	r.logger.Info("infrastructure_repo_get_project_infrastructures_completed", "project_id", projectID, "count", len(infrastructures))
+	return infrastructures, nil
 }
 
-// Project-level infrastructure links were removed from schema; keep compatibility for services.
 func (r *InfrastructureRepo) SetProjectInfrastructures(projectID uuid.UUID, infrastructureIDs []uuid.UUID) error {
-	r.logger.Info("infrastructure_repo_set_project_infrastructures_completed", "project_id", projectID, "count", len(infrastructureIDs))
+	r.logger.Info("infrastructure_repo_set_project_infrastructures_started", "project_id", projectID, "infrastructure_count", len(infrastructureIDs))
+
+	tx, err := r.pool.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(context.Background())
+
+	qtx := r.queries.WithTx(tx)
+
+	if err := qtx.DeleteProjectInfrastructures(context.Background(), projectID); err != nil {
+		r.logger.Error("infrastructure_repo_set_project_infrastructures_delete_failed", "project_id", projectID, "error", err.Error())
+		return err
+	}
+
+	for i, infraID := range infrastructureIDs {
+		if err := qtx.InsertProjectInfrastructure(context.Background(), sqlcgen.InsertProjectInfrastructureParams{
+			ProjectID:        projectID,
+			InfrastructureID: infraID,
+			SortOrder:        int32(i),
+		}); err != nil {
+			r.logger.Error("infrastructure_repo_set_project_infrastructures_insert_failed", "project_id", projectID, "infrastructure_id", infraID, "error", err.Error())
+			return err
+		}
+	}
+
+	if err := tx.Commit(context.Background()); err != nil {
+		return err
+	}
+
+	r.logger.Info("infrastructure_repo_set_project_infrastructures_completed", "project_id", projectID)
 	return nil
 }
 

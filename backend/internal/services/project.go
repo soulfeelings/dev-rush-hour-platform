@@ -352,6 +352,13 @@ func (s *ProjectsService) GetByID(id uuid.UUID) (*domain.Project, error) {
 		return nil, ErrProjectNotFound
 	}
 
+	if badges, err := s.badgeRepo.GetProjectBadges(project.ID); err == nil {
+		project.Badges = badges
+	}
+	if infras, err := s.infrastructureRepo.GetProjectInfrastructures(project.ID); err == nil {
+		project.Infrastructures = infras
+	}
+
 	s.logger.Info("project_service_get_by_id_completed",
 		"project_id", id,
 		"project_slug", project.Slug,

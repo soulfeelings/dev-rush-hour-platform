@@ -58,6 +58,15 @@ func (q *Queries) DeleteInfrastructure(ctx context.Context, id uuid.UUID) error 
 	return err
 }
 
+const deleteProjectInfrastructures = `-- name: DeleteProjectInfrastructures :exec
+DELETE FROM project_infrastructures WHERE project_id = $1
+`
+
+func (q *Queries) DeleteProjectInfrastructures(ctx context.Context, projectID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteProjectInfrastructures, projectID)
+	return err
+}
+
 const getInfrastructureByID = `-- name: GetInfrastructureByID :one
 SELECT id, slug, name, background_color, text_color, icon, sort_order, created_at, updated_at, deleted_at
 FROM infrastructures
@@ -106,12 +115,67 @@ func (q *Queries) GetInfrastructureByIDWithDeleted(ctx context.Context, id uuid.
 	return i, err
 }
 
+const getProjectInfrastructures = `-- name: GetProjectInfrastructures :many
+SELECT i.id, i.slug, i.name, i.background_color, i.text_color, i.icon, i.sort_order, i.created_at, i.updated_at, i.deleted_at
+FROM infrastructures i
+INNER JOIN project_infrastructures pi ON i.id = pi.infrastructure_id
+WHERE pi.project_id = $1 AND i.deleted_at IS NULL
+ORDER BY pi.sort_order, i.sort_order
+`
+
+func (q *Queries) GetProjectInfrastructures(ctx context.Context, projectID uuid.UUID) ([]Infrastructure, error) {
+	rows, err := q.db.Query(ctx, getProjectInfrastructures, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Infrastructure{}
+	for rows.Next() {
+		var i Infrastructure
+		if err := rows.Scan(
+			&i.ID,
+			&i.Slug,
+			&i.Name,
+			&i.BackgroundColor,
+			&i.TextColor,
+			&i.Icon,
+			&i.SortOrder,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const hardDeleteInfrastructure = `-- name: HardDeleteInfrastructure :exec
 DELETE FROM infrastructures WHERE id = $1
 `
 
 func (q *Queries) HardDeleteInfrastructure(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, hardDeleteInfrastructure, id)
+	return err
+}
+
+const insertProjectInfrastructure = `-- name: InsertProjectInfrastructure :exec
+INSERT INTO project_infrastructures (project_id, infrastructure_id, sort_order)
+VALUES ($1, $2, $3)
+`
+
+type InsertProjectInfrastructureParams struct {
+	ProjectID        uuid.UUID `json:"project_id"`
+	InfrastructureID uuid.UUID `json:"infrastructure_id"`
+	SortOrder        int32     `json:"sort_order"`
+}
+
+func (q *Queries) InsertProjectInfrastructure(ctx context.Context, arg InsertProjectInfrastructureParams) error {
+	_, err := q.db.Exec(ctx, insertProjectInfrastructure, arg.ProjectID, arg.InfrastructureID, arg.SortOrder)
 	return err
 }
 

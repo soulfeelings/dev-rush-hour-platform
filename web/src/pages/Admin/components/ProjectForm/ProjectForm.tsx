@@ -16,6 +16,7 @@ import {
   type Badge,
   type Infrastructure,
 } from '../../../../api'
+import type { ProjectUpdateRequest } from '../../../../api/generated/schemas/projectUpdateRequest'
 import { MapPicker } from '../MapPicker'
 import { MediaPicker } from '../MediaPicker'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
@@ -121,7 +122,7 @@ type ProjectFormProps = {
   cities: City[]
   badges: Badge[]
   infrastructures: Infrastructure[]
-  onSubmit: (data: ProjectCreateRequest) => void
+  onSubmit: (data: ProjectCreateRequest | ProjectUpdateRequest) => void
   loading: boolean
   initialData?: Project | null
   isEditMode?: boolean
@@ -460,86 +461,130 @@ export function ProjectForm({
     }
   }, [form, touched])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setTouched(true)
-    const validationErrors = validate()
-    setErrors(validationErrors)
-    if (Object.keys(validationErrors).length > 0) {
-      return
-    }
+  const buildCreatePayload = (): ProjectCreateRequest => {
     const payload: ProjectCreateRequest = {
       slug: form.slug,
       name: form.name,
       status: form.status as 'active' | 'archived',
       sale: form.sale as 'sale' | 'start of sales' | 'sales announcement',
-      ...(form.developerId && { developerId: form.developerId }),
-      ...(form.areaId && { areaId: form.areaId }),
-      ...(form.lat && { lat: parseFloat(form.lat) }),
-      ...(form.lng && { lng: parseFloat(form.lng) }),
-      ...(form.badgeIds.length > 0 && { badgeIds: form.badgeIds }),
-      ...(form.infrastructureIds.length > 0 && { infrastructureIds: form.infrastructureIds }),
     }
+
+    if (form.developerId) payload.developerId = form.developerId
+    if (form.areaId) payload.areaId = form.areaId
+    if (form.lat) payload.lat = parseFloat(form.lat)
+    if (form.lng) payload.lng = parseFloat(form.lng)
+    if (form.badgeIds.length > 0) payload.badgeIds = form.badgeIds
+    if (form.infrastructureIds.length > 0) payload.infrastructureIds = form.infrastructureIds
 
     const mediaData: Record<string, unknown> = {}
-    if (form.coverUrl) {
-      mediaData.cover = { url: form.coverUrl }
-    }
-    if (form.hoverUrl) {
-      mediaData.hover = { url: form.hoverUrl }
-    }
-    if (form.logoUrl) {
-      mediaData.logo = { url: form.logoUrl }
-    }
-    if (form.gallery.length > 0) {
-      mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
-    }
-    if (Object.keys(mediaData).length > 0) {
-      payload.media = mediaData as ProjectCreateRequest['media']
-    }
+    if (form.coverUrl) mediaData.cover = { url: form.coverUrl }
+    if (form.hoverUrl) mediaData.hover = { url: form.hoverUrl }
+    if (form.logoUrl) mediaData.logo = { url: form.logoUrl }
+    if (form.gallery.length > 0) mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
+    if (Object.keys(mediaData).length > 0) payload.media = mediaData as ProjectCreateRequest['media']
 
-    if (form.youtubeUrl) {
-      payload.youtubeUrl = form.youtubeUrl
-    }
+    if (form.youtubeUrl) payload.youtubeUrl = form.youtubeUrl
 
     const timelineData: Record<string, string | number> = {}
-    if (form.timeline.projectAnnouncement)
-      timelineData.projectAnnouncement = form.timeline.projectAnnouncement
+    if (form.timeline.projectAnnouncement) timelineData.projectAnnouncement = form.timeline.projectAnnouncement
     if (form.timeline.bookingStarted) timelineData.bookingStarted = form.timeline.bookingStarted
-    if (form.timeline.constructionStarted)
-      timelineData.constructionStarted = form.timeline.constructionStarted
-    if (form.timeline.constructionProgress)
-      timelineData.constructionProgress = form.timeline.constructionProgress
+    if (form.timeline.constructionStarted) timelineData.constructionStarted = form.timeline.constructionStarted
+    if (form.timeline.constructionProgress) timelineData.constructionProgress = form.timeline.constructionProgress
     if (form.timeline.constructionProgressPercent)
-      timelineData.constructionProgressPercent = parseInt(
-        form.timeline.constructionProgressPercent,
-        10
-      )
-    if (form.timeline.expectedCompletion)
-      timelineData.expectedCompletion = form.timeline.expectedCompletion
-    if (Object.keys(timelineData).length > 0) {
-      payload.timeline = timelineData as ProjectCreateRequest['timeline']
+      timelineData.constructionProgressPercent = parseInt(form.timeline.constructionProgressPercent, 10)
+    if (form.timeline.expectedCompletion) timelineData.expectedCompletion = form.timeline.expectedCompletion
+    if (Object.keys(timelineData).length > 0) payload.timeline = timelineData as ProjectCreateRequest['timeline']
+
+    if (form.description) payload.description = form.description as ProjectCreateRequest['description']
+    if (form.roi) payload.roi = parseFloat(form.roi)
+    if (form.ourPrice) payload.priceFromUs = parseFloat(form.ourPrice)
+    if (form.developerPrice) payload.priceFromDeveloper = parseFloat(form.developerPrice)
+    if (form.paymentPlan) payload.paymentPlan = form.paymentPlan
+    if (form.completionDate) payload.completionDate = form.completionDate
+    payload.isFeatured = form.isFeatured
+
+    return payload
+  }
+
+  const buildEditPayload = (d: typeof initialFormData): ProjectUpdateRequest => {
+    const payload: ProjectUpdateRequest = {}
+
+    if (form.slug !== d!.slug) payload.slug = form.slug
+    if (form.name !== d!.name) payload.name = form.name
+    if (form.status !== d!.status) payload.status = form.status as 'active' | 'archived'
+    if (form.sale !== d!.sale) payload.sale = form.sale as 'sale' | 'start of sales' | 'sales announcement'
+    if (form.developerId !== d!.developerId) payload.developerId = form.developerId
+    if (form.areaId !== d!.areaId) payload.areaId = form.areaId
+    if (form.lat !== d!.lat) payload.lat = form.lat ? parseFloat(form.lat) : undefined
+    if (form.lng !== d!.lng) payload.lng = form.lng ? parseFloat(form.lng) : undefined
+
+    const badgeIdsChanged =
+      form.badgeIds.length !== d!.badgeIds.length ||
+      form.badgeIds.some((id, i) => id !== d!.badgeIds[i])
+    if (badgeIdsChanged) payload.badgeIds = form.badgeIds
+
+    const infraIdsChanged =
+      form.infrastructureIds.length !== d!.infrastructureIds.length ||
+      form.infrastructureIds.some((id, i) => id !== d!.infrastructureIds[i])
+    if (infraIdsChanged) payload.infrastructureIds = form.infrastructureIds
+
+    const mediaChanged =
+      form.coverUrl !== d!.coverUrl ||
+      form.hoverUrl !== d!.hoverUrl ||
+      form.logoUrl !== d!.logoUrl ||
+      form.gallery.length !== d!.gallery.length ||
+      form.gallery.some((url, i) => url !== d!.gallery[i])
+    if (mediaChanged) {
+      const mediaData: Record<string, unknown> = {}
+      if (form.coverUrl) mediaData.cover = { url: form.coverUrl }
+      if (form.hoverUrl) mediaData.hover = { url: form.hoverUrl }
+      if (form.logoUrl) mediaData.logo = { url: form.logoUrl }
+      if (form.gallery.length > 0) mediaData.gallery = form.gallery.filter(Boolean).map(url => ({ url }))
+      if (Object.keys(mediaData).length > 0) payload.media = mediaData as ProjectCreateRequest['media']
     }
 
-    if (form.description) {
-      payload.description = form.description as ProjectCreateRequest['description']
+    if (form.youtubeUrl !== d!.youtubeUrl) payload.youtubeUrl = form.youtubeUrl
+
+    const timelineChanged =
+      form.timeline.projectAnnouncement !== d!.timeline.projectAnnouncement ||
+      form.timeline.bookingStarted !== d!.timeline.bookingStarted ||
+      form.timeline.constructionStarted !== d!.timeline.constructionStarted ||
+      form.timeline.constructionProgress !== d!.timeline.constructionProgress ||
+      form.timeline.constructionProgressPercent !== d!.timeline.constructionProgressPercent ||
+      form.timeline.expectedCompletion !== d!.timeline.expectedCompletion
+    if (timelineChanged) {
+      const timelineData: Record<string, string | number> = {}
+      if (form.timeline.projectAnnouncement) timelineData.projectAnnouncement = form.timeline.projectAnnouncement
+      if (form.timeline.bookingStarted) timelineData.bookingStarted = form.timeline.bookingStarted
+      if (form.timeline.constructionStarted) timelineData.constructionStarted = form.timeline.constructionStarted
+      if (form.timeline.constructionProgress) timelineData.constructionProgress = form.timeline.constructionProgress
+      if (form.timeline.constructionProgressPercent)
+        timelineData.constructionProgressPercent = parseInt(form.timeline.constructionProgressPercent, 10)
+      if (form.timeline.expectedCompletion) timelineData.expectedCompletion = form.timeline.expectedCompletion
+      if (Object.keys(timelineData).length > 0) payload.timeline = timelineData as ProjectCreateRequest['timeline']
     }
-    if (form.roi) {
-      payload.roi = parseFloat(form.roi)
-    }
-    if (form.ourPrice) {
-      payload.priceFromUs = parseFloat(form.ourPrice)
-    }
-    if (form.developerPrice) {
-      payload.priceFromDeveloper = parseFloat(form.developerPrice)
-    }
-    if (form.paymentPlan) {
-      payload.paymentPlan = form.paymentPlan
-    }
-    if (form.completionDate) {
-      payload.completionDate = form.completionDate
-    }
-    payload.isFeatured = form.isFeatured
+
+    if (form.description !== d!.description) payload.description = form.description as ProjectCreateRequest['description']
+    if (form.roi !== d!.roi) payload.roi = form.roi ? parseFloat(form.roi) : undefined
+    if (form.ourPrice !== d!.ourPrice) payload.priceFromUs = form.ourPrice ? parseFloat(form.ourPrice) : undefined
+    if (form.developerPrice !== d!.developerPrice) payload.priceFromDeveloper = form.developerPrice ? parseFloat(form.developerPrice) : undefined
+    if (form.paymentPlan !== d!.paymentPlan) payload.paymentPlan = form.paymentPlan
+    if (form.completionDate !== d!.completionDate) payload.completionDate = form.completionDate
+    if (form.isFeatured !== d!.isFeatured) payload.isFeatured = form.isFeatured
+
+    return payload
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setTouched(true)
+    const validationErrors = validate()
+    setErrors(validationErrors)
+    if (Object.keys(validationErrors).length > 0) return
+
+    const payload = isEditMode && initialFormData
+      ? buildEditPayload(initialFormData)
+      : buildCreatePayload()
 
     onSubmit(payload)
   }

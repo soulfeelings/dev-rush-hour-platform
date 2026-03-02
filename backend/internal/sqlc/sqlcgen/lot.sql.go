@@ -78,7 +78,7 @@ SELECT
 	l.area_sqm, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
 	p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.payment_plan, p.created_at, p.updated_at,
 	d.slug, d.name, d.created_at, d.updated_at,
-	a.slug, a.name, a.lat, a.lng, a.created_at, a.updated_at
+	a.slug, a.name, a.created_at, a.updated_at
 FROM lots l
 LEFT JOIN projects p ON l.project_id = p.id
 LEFT JOIN developers d ON p.developer_id = d.id
@@ -121,8 +121,6 @@ type GetLotByIDRow struct {
 	UpdatedAt_3        pgtype.Timestamptz `json:"updated_at_3"`
 	Slug_3             pgtype.Text        `json:"slug_3"`
 	Name_3             pgtype.Text        `json:"name_3"`
-	Lat_2              pgtype.Numeric     `json:"lat_2"`
-	Lng_2              pgtype.Numeric     `json:"lng_2"`
 	CreatedAt_4        pgtype.Timestamptz `json:"created_at_4"`
 	UpdatedAt_4        pgtype.Timestamptz `json:"updated_at_4"`
 }
@@ -165,8 +163,6 @@ func (q *Queries) GetLotByID(ctx context.Context, id uuid.UUID) (GetLotByIDRow, 
 		&i.UpdatedAt_3,
 		&i.Slug_3,
 		&i.Name_3,
-		&i.Lat_2,
-		&i.Lng_2,
 		&i.CreatedAt_4,
 		&i.UpdatedAt_4,
 	)

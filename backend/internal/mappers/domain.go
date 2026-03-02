@@ -220,6 +220,15 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 		result.Badges = &badges
 	}
 
+	// Include infrastructures
+	if len(project.Infrastructures) > 0 {
+		infrastructures := make([]generated.Infrastructure, len(project.Infrastructures))
+		for i := range project.Infrastructures {
+			infrastructures[i] = *DomainInfrastructureToGenerated(&project.Infrastructures[i])
+		}
+		result.Infrastructures = &infrastructures
+	}
+
 	return result
 }
 

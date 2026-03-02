@@ -23,8 +23,6 @@ type Area struct {
 	Slug      string             `json:"slug"`
 	Name      string             `json:"name"`
 	City      string             `json:"city"`
-	Lat       pgtype.Numeric     `json:"lat"`
-	Lng       pgtype.Numeric     `json:"lng"`
 	Status    string             `json:"status"`
 	Data      []byte             `json:"data"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
@@ -175,4 +173,11 @@ type ProjectBadge struct {
 	BadgeID   uuid.UUID          `json:"badge_id"`
 	SortOrder int32              `json:"sort_order"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type ProjectInfrastructure struct {
+	ProjectID        uuid.UUID          `json:"project_id"`
+	InfrastructureID uuid.UUID          `json:"infrastructure_id"`
+	SortOrder        int32              `json:"sort_order"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
 }

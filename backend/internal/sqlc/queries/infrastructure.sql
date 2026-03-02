@@ -43,3 +43,17 @@ WHERE id = $1 AND deleted_at IS NOT NULL;
 
 -- name: HardDeleteInfrastructure :exec
 DELETE FROM infrastructures WHERE id = $1;
+
+-- name: GetProjectInfrastructures :many
+SELECT i.id, i.slug, i.name, i.background_color, i.text_color, i.icon, i.sort_order, i.created_at, i.updated_at, i.deleted_at
+FROM infrastructures i
+INNER JOIN project_infrastructures pi ON i.id = pi.infrastructure_id
+WHERE pi.project_id = $1 AND i.deleted_at IS NULL
+ORDER BY pi.sort_order, i.sort_order;
+
+-- name: DeleteProjectInfrastructures :exec
+DELETE FROM project_infrastructures WHERE project_id = $1;
+
+-- name: InsertProjectInfrastructure :exec
+INSERT INTO project_infrastructures (project_id, infrastructure_id, sort_order)
+VALUES ($1, $2, $3);
