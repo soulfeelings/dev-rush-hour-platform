@@ -2138,10 +2138,6 @@ components:
           type: string
         description:
           type: string
-        lat:
-          type: number
-        lng:
-          type: number
         status:
           type: string
           enum: [active, inactive]
@@ -3074,8 +3070,6 @@ components:
         - slug
         - name
         - city
-        - lat
-        - lng
       properties:
         slug:
           type: string
@@ -3083,10 +3077,6 @@ components:
           type: string
         city:
           type: string
-        lat:
-          type: number
-        lng:
-          type: number
         status:
           type: string
           enum: [active, inactive]
@@ -3108,14 +3098,6 @@ components:
           nullable: true
         city:
           type: string
-          nullable: true
-        lat:
-          type: number
-          format: float
-          nullable: true
-        lng:
-          type: number
-          format: float
           nullable: true
         status:
           type: string

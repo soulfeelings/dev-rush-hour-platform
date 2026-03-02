@@ -145,12 +145,6 @@ func (s *AreasService) Update(id uuid.UUID, updates *domain.Area) error {
 		existing.City = updates.City
 		s.resolveCityID(existing)
 	}
-	if updates.Lat != 0 {
-		existing.Lat = updates.Lat
-	}
-	if updates.Lng != 0 {
-		existing.Lng = updates.Lng
-	}
 	if updates.Status != "" {
 		existing.Status = updates.Status
 	}

@@ -39,7 +39,7 @@ func (r *AreaRepo) GetBySlug(slug string) (*domain.Area, error) {
 		return nil, err
 	}
 
-	area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, pgtype.Timestamptz{})
+	area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, pgtype.Timestamptz{})
 	if err != nil {
 		r.logger.Error("area_repo_get_by_slug_unmarshal_failed", "slug", slug, "error", err.Error())
 		return nil, err
@@ -61,7 +61,7 @@ func (r *AreaRepo) List(includeBoundary bool) ([]domain.Area, error) {
 
 	areas := make([]domain.Area, 0, len(rows))
 	for _, row := range rows {
-		area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, pgtype.Timestamptz{})
+		area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, pgtype.Timestamptz{})
 		if err != nil {
 			return nil, err
 		}
@@ -109,8 +109,6 @@ func (r *AreaRepo) Create(area *domain.Area) error {
 		Name:   area.Name,
 		City:   area.City,
 		CityID: uuidPtrToNullUUID(area.CityID),
-		Lat:    float64ToNumeric(area.Lat),
-		Lng:    float64ToNumeric(area.Lng),
 		Status: string(area.Status),
 		Data:   dataJSON,
 	})
@@ -140,8 +138,6 @@ func (r *AreaRepo) Update(id uuid.UUID, area *domain.Area) error {
 		Slug:   area.Slug,
 		Name:   area.Name,
 		City:   area.City,
-		Lat:    float64ToNumeric(area.Lat),
-		Lng:    float64ToNumeric(area.Lng),
 		Status: string(area.Status),
 		Data:   dataJSON,
 		ID:     id,
@@ -170,7 +166,7 @@ func (r *AreaRepo) GetByID(id uuid.UUID) (*domain.Area, error) {
 		return nil, err
 	}
 
-	area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
+	area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
 	if err != nil {
 		r.logger.Error("area_repo_get_by_id_unmarshal_failed", "area_id", id, "error", err.Error())
 		return nil, err
@@ -191,7 +187,7 @@ func (r *AreaRepo) ListAll() ([]domain.Area, error) {
 
 	areas := make([]domain.Area, 0, len(rows))
 	for _, row := range rows {
-		area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
+		area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
 		if err != nil {
 			r.logger.Error("area_repo_list_all_unmarshal_failed", "area_id", row.ID, "error", err.Error())
 			return nil, err
@@ -226,7 +222,7 @@ func (r *AreaRepo) ListDeleted() ([]domain.Area, error) {
 
 	areas := make([]domain.Area, 0, len(rows))
 	for _, row := range rows {
-		area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
+		area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
 		if err != nil {
 			r.logger.Error("area_repo_list_deleted_unmarshal_failed", "area_id", row.ID, "error", err.Error())
 			return nil, err
@@ -250,7 +246,7 @@ func (r *AreaRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Area, error) {
 		return nil, err
 	}
 
-	area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Lat, row.Lng, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
+	area, err := sqlcAreaRowToDomain(row.ID, row.Slug, row.Name, row.City, row.Status, row.Data, row.CreatedAt, row.UpdatedAt, row.DeletedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -283,14 +279,12 @@ func (r *AreaRepo) HardDelete(id uuid.UUID) error {
 }
 
 // sqlcAreaRowToDomain converts sqlc area row fields to domain.Area
-func sqlcAreaRowToDomain(id uuid.UUID, slug, name, city string, lat, lng pgtype.Numeric, status string, data []byte, createdAt, updatedAt, deletedAt pgtype.Timestamptz) (*domain.Area, error) {
+func sqlcAreaRowToDomain(id uuid.UUID, slug, name, city, status string, data []byte, createdAt, updatedAt, deletedAt pgtype.Timestamptz) (*domain.Area, error) {
 	area := &domain.Area{
 		ID:        id,
 		Slug:      slug,
 		Name:      name,
 		City:      city,
-		Lat:       numericToFloat64(lat),
-		Lng:       numericToFloat64(lng),
 		Status:    domain.AreaStatus(status),
 		CreatedAt: tstzToTime(createdAt),
 		UpdatedAt: tstzToTime(updatedAt),

@@ -13,20 +13,18 @@ import (
 )
 
 const createArea = `-- name: CreateArea :one
-INSERT INTO areas (slug, name, city, city_id, lat, lng, status, data)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+INSERT INTO areas (slug, name, city, city_id, status, data)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id, created_at, updated_at
 `
 
 type CreateAreaParams struct {
-	Slug   string         `json:"slug"`
-	Name   string         `json:"name"`
-	City   string         `json:"city"`
-	CityID uuid.NullUUID  `json:"city_id"`
-	Lat    pgtype.Numeric `json:"lat"`
-	Lng    pgtype.Numeric `json:"lng"`
-	Status string         `json:"status"`
-	Data   []byte         `json:"data"`
+	Slug   string        `json:"slug"`
+	Name   string        `json:"name"`
+	City   string        `json:"city"`
+	CityID uuid.NullUUID `json:"city_id"`
+	Status string        `json:"status"`
+	Data   []byte        `json:"data"`
 }
 
 type CreateAreaRow struct {
@@ -41,8 +39,6 @@ func (q *Queries) CreateArea(ctx context.Context, arg CreateAreaParams) (CreateA
 		arg.Name,
 		arg.City,
 		arg.CityID,
-		arg.Lat,
-		arg.Lng,
 		arg.Status,
 		arg.Data,
 	)
@@ -63,7 +59,7 @@ func (q *Queries) DeleteArea(ctx context.Context, id uuid.UUID) error {
 }
 
 const getAreaByID = `-- name: GetAreaByID :one
-SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
+SELECT id, slug, name, city, status, data, created_at, updated_at, deleted_at
 FROM areas
 WHERE id = $1 AND deleted_at IS NULL
 `
@@ -73,8 +69,6 @@ type GetAreaByIDRow struct {
 	Slug      string             `json:"slug"`
 	Name      string             `json:"name"`
 	City      string             `json:"city"`
-	Lat       pgtype.Numeric     `json:"lat"`
-	Lng       pgtype.Numeric     `json:"lng"`
 	Status    string             `json:"status"`
 	Data      []byte             `json:"data"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
@@ -90,8 +84,6 @@ func (q *Queries) GetAreaByID(ctx context.Context, id uuid.UUID) (GetAreaByIDRow
 		&i.Slug,
 		&i.Name,
 		&i.City,
-		&i.Lat,
-		&i.Lng,
 		&i.Status,
 		&i.Data,
 		&i.CreatedAt,
@@ -102,7 +94,7 @@ func (q *Queries) GetAreaByID(ctx context.Context, id uuid.UUID) (GetAreaByIDRow
 }
 
 const getAreaByIDWithDeleted = `-- name: GetAreaByIDWithDeleted :one
-SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
+SELECT id, slug, name, city, status, data, created_at, updated_at, deleted_at
 FROM areas
 WHERE id = $1
 `
@@ -112,8 +104,6 @@ type GetAreaByIDWithDeletedRow struct {
 	Slug      string             `json:"slug"`
 	Name      string             `json:"name"`
 	City      string             `json:"city"`
-	Lat       pgtype.Numeric     `json:"lat"`
-	Lng       pgtype.Numeric     `json:"lng"`
 	Status    string             `json:"status"`
 	Data      []byte             `json:"data"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
@@ -129,8 +119,6 @@ func (q *Queries) GetAreaByIDWithDeleted(ctx context.Context, id uuid.UUID) (Get
 		&i.Slug,
 		&i.Name,
 		&i.City,
-		&i.Lat,
-		&i.Lng,
 		&i.Status,
 		&i.Data,
 		&i.CreatedAt,
@@ -141,7 +129,7 @@ func (q *Queries) GetAreaByIDWithDeleted(ctx context.Context, id uuid.UUID) (Get
 }
 
 const getAreaBySlug = `-- name: GetAreaBySlug :one
-SELECT a.id, a.slug, a.name, a.city, a.city_id, a.lat, a.lng, a.status, a.data, a.created_at, a.updated_at
+SELECT a.id, a.slug, a.name, a.city, a.city_id, a.status, a.data, a.created_at, a.updated_at
 FROM areas a
 WHERE a.slug = $1 AND a.deleted_at IS NULL
 `
@@ -152,8 +140,6 @@ type GetAreaBySlugRow struct {
 	Name      string             `json:"name"`
 	City      string             `json:"city"`
 	CityID    uuid.NullUUID      `json:"city_id"`
-	Lat       pgtype.Numeric     `json:"lat"`
-	Lng       pgtype.Numeric     `json:"lng"`
 	Status    string             `json:"status"`
 	Data      []byte             `json:"data"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
@@ -169,8 +155,6 @@ func (q *Queries) GetAreaBySlug(ctx context.Context, slug string) (GetAreaBySlug
 		&i.Name,
 		&i.City,
 		&i.CityID,
-		&i.Lat,
-		&i.Lng,
 		&i.Status,
 		&i.Data,
 		&i.CreatedAt,
@@ -200,7 +184,7 @@ func (q *Queries) HardDeleteArea(ctx context.Context, id uuid.UUID) error {
 }
 
 const listAllAreas = `-- name: ListAllAreas :many
-SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
+SELECT id, slug, name, city, status, data, created_at, updated_at, deleted_at
 FROM areas
 WHERE deleted_at IS NULL
 ORDER BY name
@@ -211,8 +195,6 @@ type ListAllAreasRow struct {
 	Slug      string             `json:"slug"`
 	Name      string             `json:"name"`
 	City      string             `json:"city"`
-	Lat       pgtype.Numeric     `json:"lat"`
-	Lng       pgtype.Numeric     `json:"lng"`
 	Status    string             `json:"status"`
 	Data      []byte             `json:"data"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
@@ -234,8 +216,6 @@ func (q *Queries) ListAllAreas(ctx context.Context) ([]ListAllAreasRow, error) {
 			&i.Slug,
 			&i.Name,
 			&i.City,
-			&i.Lat,
-			&i.Lng,
 			&i.Status,
 			&i.Data,
 			&i.CreatedAt,
@@ -253,7 +233,7 @@ func (q *Queries) ListAllAreas(ctx context.Context) ([]ListAllAreasRow, error) {
 }
 
 const listAreas = `-- name: ListAreas :many
-SELECT id, slug, name, city, city_id, lat, lng, status, data, created_at, updated_at
+SELECT id, slug, name, city, city_id, status, data, created_at, updated_at
 FROM areas
 WHERE status = 'active' AND deleted_at IS NULL
 ORDER BY name
@@ -265,8 +245,6 @@ type ListAreasRow struct {
 	Name      string             `json:"name"`
 	City      string             `json:"city"`
 	CityID    uuid.NullUUID      `json:"city_id"`
-	Lat       pgtype.Numeric     `json:"lat"`
-	Lng       pgtype.Numeric     `json:"lng"`
 	Status    string             `json:"status"`
 	Data      []byte             `json:"data"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
@@ -288,8 +266,6 @@ func (q *Queries) ListAreas(ctx context.Context) ([]ListAreasRow, error) {
 			&i.Name,
 			&i.City,
 			&i.CityID,
-			&i.Lat,
-			&i.Lng,
 			&i.Status,
 			&i.Data,
 			&i.CreatedAt,
@@ -306,7 +282,7 @@ func (q *Queries) ListAreas(ctx context.Context) ([]ListAreasRow, error) {
 }
 
 const listDeletedAreas = `-- name: ListDeletedAreas :many
-SELECT id, slug, name, city, lat, lng, status, data, created_at, updated_at, deleted_at
+SELECT id, slug, name, city, status, data, created_at, updated_at, deleted_at
 FROM areas
 WHERE deleted_at IS NOT NULL
 ORDER BY deleted_at DESC
@@ -317,8 +293,6 @@ type ListDeletedAreasRow struct {
 	Slug      string             `json:"slug"`
 	Name      string             `json:"name"`
 	City      string             `json:"city"`
-	Lat       pgtype.Numeric     `json:"lat"`
-	Lng       pgtype.Numeric     `json:"lng"`
 	Status    string             `json:"status"`
 	Data      []byte             `json:"data"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
@@ -340,8 +314,6 @@ func (q *Queries) ListDeletedAreas(ctx context.Context) ([]ListDeletedAreasRow, 
 			&i.Slug,
 			&i.Name,
 			&i.City,
-			&i.Lat,
-			&i.Lng,
 			&i.Status,
 			&i.Data,
 			&i.CreatedAt,
@@ -371,20 +343,18 @@ func (q *Queries) RestoreArea(ctx context.Context, id uuid.UUID) error {
 
 const updateArea = `-- name: UpdateArea :one
 UPDATE areas
-SET slug = $1, name = $2, city = $3, lat = $4, lng = $5, status = $6, data = $7, updated_at = NOW()
-WHERE id = $8 AND deleted_at IS NULL
+SET slug = $1, name = $2, city = $3, status = $4, data = $5, updated_at = NOW()
+WHERE id = $6 AND deleted_at IS NULL
 RETURNING updated_at
 `
 
 type UpdateAreaParams struct {
-	Slug   string         `json:"slug"`
-	Name   string         `json:"name"`
-	City   string         `json:"city"`
-	Lat    pgtype.Numeric `json:"lat"`
-	Lng    pgtype.Numeric `json:"lng"`
-	Status string         `json:"status"`
-	Data   []byte         `json:"data"`
-	ID     uuid.UUID      `json:"id"`
+	Slug   string    `json:"slug"`
+	Name   string    `json:"name"`
+	City   string    `json:"city"`
+	Status string    `json:"status"`
+	Data   []byte    `json:"data"`
+	ID     uuid.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateArea(ctx context.Context, arg UpdateAreaParams) (pgtype.Timestamptz, error) {
@@ -392,8 +362,6 @@ func (q *Queries) UpdateArea(ctx context.Context, arg UpdateAreaParams) (pgtype.
 		arg.Slug,
 		arg.Name,
 		arg.City,
-		arg.Lat,
-		arg.Lng,
 		arg.Status,
 		arg.Data,
 		arg.ID,

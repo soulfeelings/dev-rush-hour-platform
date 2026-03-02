@@ -18,10 +18,6 @@ export interface AreaUpdateRequest {
   /** @nullable */
   city?: string | null
   /** @nullable */
-  lat?: number | null
-  /** @nullable */
-  lng?: number | null
-  /** @nullable */
   status?: AreaUpdateRequestStatus
   /** @nullable */
   data?: AreaData

@@ -118,8 +118,6 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		lot.Area = &domain.Area{
 			Slug:      row.Slug_3.String,
 			Name:      textToString(row.Name_3),
-			Lat:       numericToFloat64(row.Lat_2),
-			Lng:       numericToFloat64(row.Lng_2),
 			CreatedAt: tstzToTime(row.CreatedAt_4),
 			UpdatedAt: tstzToTime(row.UpdatedAt_4),
 		}

@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash2, MapPin } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { Area } from '../../../../api/generated/schemas/area'
 import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
 import { CachedSection } from '../CachedSection/CachedSection'
+import { MapViewModal } from '../MapViewModal'
 import styles from './AreasTable.module.scss'
 
 const { useAdminListAreas } = AdminApi
@@ -25,6 +26,7 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading, d
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [areasToDelete, setAreasToDelete] = useState<string[]>([])
+  const [mapModalArea, setMapModalArea] = useState<Area | null>(null)
   const {
     data: areas,
     isLoading,
@@ -180,7 +182,15 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading, d
                   <td>{area.slug || '-'}</td>
                   <td>{area.city || '-'}</td>
                   <td>
-                    {area.lat && area.lng ? `${area.lat.toFixed(6)}, ${area.lng.toFixed(6)}` : '-'}
+                    {area.data?.boundary?.coordinates ? (
+                      <button
+                        className={styles.mapButton}
+                        onClick={() => setMapModalArea(area)}
+                      >
+                        <MapPin size={14} />
+                        View map
+                      </button>
+                    ) : '-'}
                   </td>
                   <td>{area.status || '-'}</td>
                   <td>
@@ -191,6 +201,13 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading, d
             </tbody>
           </table>
         </div>
+      )}
+
+      {mapModalArea && (
+        <MapViewModal
+          area={mapModalArea}
+          onClose={() => setMapModalArea(null)}
+        />
       )}
 
       <Modal open={deleteModalOpen} onClose={handleCancelDelete} title="Confirm Delete">

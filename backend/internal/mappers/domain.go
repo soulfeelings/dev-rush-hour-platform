@@ -61,13 +61,11 @@ func DomainAreaToGenerated(area *domain.Area) *generated.Area {
 	id := openapi_types.UUID(area.ID)
 	status := generated.AreaStatus(area.Status)
 	result := &generated.Area{
-		Id:        &id,
-		Slug:      &area.Slug,
-		Name:      &area.Name,
-		City:      &area.City,
-		Lat:       float32Ptr(float32(area.Lat)),
-		Lng:       float32Ptr(float32(area.Lng)),
-		Status:    &status,
+		Id:     &id,
+		Slug:   &area.Slug,
+		Name:   &area.Name,
+		City:   &area.City,
+		Status: &status,
 		CreatedAt: timePtr(area.CreatedAt),
 		UpdatedAt: timePtr(area.UpdatedAt),
 	}
@@ -710,8 +708,6 @@ func GeneratedAreaCreateToDomain(req *generated.AreaCreateRequest) (*domain.Area
 		Slug:   req.Slug,
 		Name:   req.Name,
 		City:   req.City,
-		Lat:    float64(req.Lat),
-		Lng:    float64(req.Lng),
 		Status: domain.AreaStatusActive,
 	}
 
@@ -739,12 +735,6 @@ func ApplyAreaUpdateRequest(existing *domain.Area, req *generated.AreaUpdateRequ
 	}
 	if req.City != nil {
 		updated.City = *req.City
-	}
-	if req.Lat != nil {
-		updated.Lat = float64(*req.Lat)
-	}
-	if req.Lng != nil {
-		updated.Lng = float64(*req.Lng)
 	}
 	if req.Status != nil {
 		updated.Status = domain.AreaStatus(*req.Status)

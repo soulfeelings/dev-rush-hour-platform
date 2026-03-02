@@ -8,7 +8,6 @@ import {
   YouTubePreview,
   Checkbox,
   Textarea,
-  Badge as BadgeUI,
 } from '../../../../ui'
 import { Plus, X, Image as ImageIcon } from 'lucide-react'
 import {
@@ -19,6 +18,8 @@ import {
 } from '../../../../api'
 import { MapPicker } from '../MapPicker'
 import { MediaPicker } from '../MediaPicker'
+import { BadgesSection } from './BadgesSection'
+import { ComplexInfrastructureSection } from './ComplexInfrastructureSection'
 import { generateSlug } from '../../../../utils/generateSlug'
 import styles from './ProjectForm.module.scss'
 
@@ -716,53 +717,16 @@ export function ProjectForm({
           rows={4}
         />
       </div>
-      {badges.length > 0 && (
-        <div className={styles.mediaSection}>
-          <h3 className={styles.sectionTitle}>Badges</h3>
-          <div className={styles.badgesList}>
-            {badges.map(badge => (
-              <label key={badge.id} className={styles.badgeItem}>
-                <Checkbox
-                  checked={badge.id ? form.badgeIds.includes(badge.id) : false}
-                  onChange={() => badge.id && toggleBadge(badge.id)}
-                />
-                <BadgeUI
-                  text={badge.name || ''}
-                  backgroundColor={badge.backgroundColor || '#e0e0e0'}
-                  textColor={badge.textColor || '#000000'}
-                  iconName={badge.icon}
-                  iconColor={badge.iconColor}
-                  size="small"
-                />
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
-      {infrastructures.length > 0 && (
-        <div className={styles.mediaSection}>
-          <h3 className={styles.sectionTitle}>Complex Infrastructure</h3>
-          <div className={styles.badgesList}>
-            {infrastructures.map(infra => (
-              <label key={infra.id} className={styles.badgeItem}>
-                <Checkbox
-                  checked={infra.id ? form.infrastructureIds.includes(infra.id) : false}
-                  onChange={() => infra.id && toggleInfrastructure(infra.id)}
-                />
-                <span
-                  className={styles.badgeLabel}
-                  style={{
-                    backgroundColor: infra.backgroundColor || '#e0e0e0',
-                    color: infra.textColor || '#000000',
-                  }}
-                >
-                  {infra.name}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
+      <BadgesSection
+        badges={badges}
+        selectedIds={form.badgeIds}
+        onToggle={toggleBadge}
+      />
+      <ComplexInfrastructureSection
+        infrastructures={infrastructures}
+        selectedIds={form.infrastructureIds}
+        onToggle={toggleInfrastructure}
+      />
       <MapPicker
         lat={form.lat}
         lng={form.lng}

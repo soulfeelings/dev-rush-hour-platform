@@ -293,8 +293,6 @@ type Area struct {
 	DeletedAt   *time.Time          `json:"deletedAt"`
 	Description *string             `json:"description,omitempty"`
 	Id          *openapi_types.UUID `json:"id,omitempty"`
-	Lat         *float32            `json:"lat,omitempty"`
-	Lng         *float32            `json:"lng,omitempty"`
 	Name        *string             `json:"name,omitempty"`
 	Slug        *string             `json:"slug,omitempty"`
 	Status      *AreaStatus         `json:"status,omitempty"`
@@ -308,8 +306,6 @@ type AreaStatus string
 type AreaCreateRequest struct {
 	City   string                   `json:"city"`
 	Data   *AreaData                `json:"data,omitempty"`
-	Lat    float32                  `json:"lat"`
-	Lng    float32                  `json:"lng"`
 	Name   string                   `json:"name"`
 	Slug   string                   `json:"slug"`
 	Status *AreaCreateRequestStatus `json:"status,omitempty"`
@@ -332,8 +328,6 @@ type AreaUpdateRequest struct {
 	City        *string                  `json:"city"`
 	Data        *AreaData                `json:"data,omitempty"`
 	Description *string                  `json:"description"`
-	Lat         *float32                 `json:"lat"`
-	Lng         *float32                 `json:"lng"`
 	Name        *string                  `json:"name"`
 	Slug        *string                  `json:"slug"`
 	Status      *AreaUpdateRequestStatus `json:"status"`

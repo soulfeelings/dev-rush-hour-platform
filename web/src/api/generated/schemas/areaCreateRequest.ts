@@ -12,8 +12,6 @@ export interface AreaCreateRequest {
   slug: string
   name: string
   city: string
-  lat: number
-  lng: number
   status?: AreaCreateRequestStatus
   data?: AreaData
 }

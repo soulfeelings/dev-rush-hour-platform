@@ -147,15 +147,10 @@ export function AreaForm({
       return
     }
 
-    const centroidLat = form.polygon.reduce((s, p) => s + p[0], 0) / form.polygon.length
-    const centroidLng = form.polygon.reduce((s, p) => s + p[1], 0) / form.polygon.length
-
     const payload: AreaCreateRequest = {
       slug: form.slug,
       name: form.name,
       city: form.city,
-      lat: centroidLat,
-      lng: centroidLng,
       data:
         form.polygon.length >= 3
           ? {

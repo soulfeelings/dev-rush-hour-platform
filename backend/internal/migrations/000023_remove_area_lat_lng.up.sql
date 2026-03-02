@@ -1,0 +1,2 @@
+ALTER TABLE areas DROP COLUMN lat;
+ALTER TABLE areas DROP COLUMN lng;

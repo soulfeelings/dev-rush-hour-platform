@@ -7,8 +7,6 @@ type AreaResponse struct {
 	Slug      string                 `json:"slug"`
 	Name      string                 `json:"name"`
 	City      string                 `json:"city"`
-	Lat       float64                `json:"lat"`
-	Lng       float64                `json:"lng"`
 	Status    string                 `json:"status"`
 	Data      AreaDataResponse       `json:"data"`
 	CreatedAt string                 `json:"createdAt"`
@@ -33,8 +31,6 @@ func AreaToResponse(area *domain.Area) *AreaResponse {
 		Slug:      area.Slug,
 		Name:      area.Name,
 		City:      area.City,
-		Lat:       area.Lat,
-		Lng:       area.Lng,
 		Status:    string(area.Status),
 		CreatedAt: area.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt: area.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),

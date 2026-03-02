@@ -14,8 +14,6 @@ export interface Area {
   name?: string
   city?: string
   description?: string
-  lat?: number
-  lng?: number
   status?: AreaStatus
   data?: AreaData
   createdAt?: string
