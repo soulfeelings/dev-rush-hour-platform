@@ -472,7 +472,7 @@
   transition: background $transition-fast;
 
   &:hover:not(:disabled) {
-    background: $color-overlay-hover;
+    opacity: 0.8;
   }
 
   &:disabled {
