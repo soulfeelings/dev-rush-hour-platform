@@ -1,7 +1,8 @@
 import { Building2, ChevronLeft, ChevronRight, Bed, ShowerHead, Move } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import useEmblaCarousel from 'embla-carousel-react'
 import { getLotDetailRoute, getProjectDetailRoute } from '../constants/routes'
 import { Badge } from '../ui/Badge'
 import { useSettings } from '../features/Settings/Settings'
@@ -67,6 +68,23 @@ export const LotCard = ({ lot }: LotCardProps) => {
   const { t, i18n } = useTranslation()
   const { currency, unit } = useSettings()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: true, align: 'start' })
+  const didDrag = useRef(false)
+
+  useEffect(() => {
+    if (!emblaApi) return
+    const onSelect = () => setCurrentImageIndex(emblaApi.selectedScrollSnap())
+    const onPointerDown = () => { didDrag.current = false }
+    const onScroll = () => { didDrag.current = true }
+    emblaApi.on('select', onSelect)
+    emblaApi.on('pointerDown', onPointerDown)
+    emblaApi.on('scroll', onScroll)
+    return () => {
+      emblaApi.off('select', onSelect)
+      emblaApi.off('pointerDown', onPointerDown)
+      emblaApi.off('scroll', onScroll)
+    }
+  }, [emblaApi])
 
   const projectName = lot.project?.name || 'Project'
   const developerName = lot.developer?.name || lot.project?.developer?.name || 'Developer'
@@ -85,19 +103,26 @@ export const LotCard = ({ lot }: LotCardProps) => {
   const handleImageClick = (e: React.MouseEvent, idx: number) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImageIndex(idx)
+    emblaApi?.scrollTo(idx)
   }
 
   const handlePrevImage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImageIndex(prev => (prev === 0 ? allImages.length - 1 : prev - 1))
+    emblaApi?.scrollPrev()
   }
 
   const handleNextImage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1))
+    emblaApi?.scrollNext()
+  }
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (didDrag.current) {
+      e.preventDefault()
+      didDrag.current = false
+    }
   }
 
   const handleWhatsAppClick = (e: React.MouseEvent) => {
@@ -185,52 +210,62 @@ export const LotCard = ({ lot }: LotCardProps) => {
   if (!lot.id) return null
 
   return (
-    <Link to={getLotDetailRoute(lot.id)} className={styles.cardLink}>
+    <Link to={getLotDetailRoute(lot.id)} className={styles.cardLink} onClick={handleCardClick}>
       <div className={styles.card}>
         {/* Левая часть - Галерея */}
         <div className={styles.photoSection}>
           {allImages.length > 0 ? (
             <div className={styles.galleryContainer}>
-              <div className={styles.mainImageContainer}>
-                <img
-                  src={getImageUrl(allImages[currentImageIndex], 'card')}
-                  alt={`${projectName} - image ${currentImageIndex + 1}`}
-                />
-                {badges.length > 0 && (
-                  <div className={styles.badgesContainer}>
-                    {badges.slice(0, 3).map((badge, idx) => (
-                      <Badge
-                        key={`${badge.name}-${idx}`}
-                        text={badge.name}
-                        backgroundColor={badge.backgroundColor}
-                        textColor={badge.textColor}
-                        iconName={badge.icon}
-                        iconColor={badge.iconColor}
-                        size="small"
+              {/* Embla viewport */}
+              <div className={styles.emblaViewport} ref={emblaRef}>
+                <div className={styles.emblaContainer}>
+                  {allImages.map((imgUrl, idx) => (
+                    <div className={styles.emblaSlide} key={idx}>
+                      <img
+                        src={getImageUrl(imgUrl, 'card')}
+                        alt={`${projectName} - image ${idx + 1}`}
                       />
-                    ))}
-                  </div>
-                )}
-
-                {allImages.length > 1 && (
-                  <>
-                    <button
-                      className={`${styles.navButton} ${styles.prevButton}`}
-                      onClick={handlePrevImage}
-                      aria-label="Previous image"
-                    >
-                      <ChevronLeft size={16} />
-                    </button>
-                    <button
-                      className={`${styles.navButton} ${styles.nextButton}`}
-                      onClick={handleNextImage}
-                      aria-label="Next image"
-                    >
-                      <ChevronRight size={16} />
-                    </button>
-                  </>
-                )}
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {/* Badges */}
+              {badges.length > 0 && (
+                <div className={styles.badgesContainer}>
+                  {badges.slice(0, 3).map((badge, idx) => (
+                    <Badge
+                      key={`${badge.name}-${idx}`}
+                      text={badge.name}
+                      backgroundColor={badge.backgroundColor}
+                      textColor={badge.textColor}
+                      iconName={badge.icon}
+                      iconColor={badge.iconColor}
+                      size="small"
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Navigation */}
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    className={`${styles.navButton} ${styles.prevButton}`}
+                    onClick={handlePrevImage}
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    className={`${styles.navButton} ${styles.nextButton}`}
+                    onClick={handleNextImage}
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </>
+              )}
 
               {/* Пагинация */}
               {allImages.length > 1 && (
@@ -238,8 +273,7 @@ export const LotCard = ({ lot }: LotCardProps) => {
                   {allImages.map((_, idx) => (
                     <button
                       key={idx}
-                      className={`${styles.paginationDot} ${idx === currentImageIndex ? styles.activePagination : ''
-                        }`}
+                      className={`${styles.paginationDot} ${idx === currentImageIndex ? styles.activePagination : ''}`}
                       onClick={e => handleImageClick(e, idx)}
                       aria-label={`Go to image ${idx + 1}`}
                     />

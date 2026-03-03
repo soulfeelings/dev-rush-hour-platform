@@ -109,9 +109,7 @@ export function LotQuickViewModal({
     lotData?.media?.gallery?.map(item => item.url).filter((url): url is string => !!url) || []
   const coverImage = lotData?.media?.cover?.url
 
-  const planImages = Array.from(
-    new Set([...floorPlanImages, ...(coverImage ? [coverImage] : []), ...commonGalleryPhotos, ...galleryPhotos])
-  )
+  const planImages = floorPlanImages
   const lotPhotos = Array.from(
     new Set([...(coverImage ? [coverImage] : []), ...commonGalleryPhotos, ...galleryPhotos])
   )
@@ -260,53 +258,49 @@ export function LotQuickViewModal({
       aria-label={modalTitle}
     >
       {!lot ? null : (
-        <div className={styles.layout}>
-          <div className={styles.leftPane}>
-            <div className={styles.leftColumn}>
-              <div className={styles.floorPlanFrame}>
-                {activePlanImage ? (
-                  <>
-                    <img src={getImageUrl(activePlanImage, 'hero')} alt={modalTitle} className={styles.floorPlanImage} />
-                    {planImages.length > 1 && (
-                      <>
-                        <button
-                          className={`${styles.planArrow} ${styles.planArrowLeft}`}
-                          onClick={goToPlanPrev}
-                          aria-label={t('apartmentCard.previousImage')}
-                        >
-                          {isRTL ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-                        </button>
-                        <button
-                          className={`${styles.planArrow} ${styles.planArrowRight}`}
-                          onClick={goToPlanNext}
-                          aria-label={t('apartmentCard.nextImage')}
-                        >
-                          {isRTL ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-                        </button>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div className={styles.emptyState}>{t('lotDetail.imagePlaceholder')}</div>
+        <div className={`${styles.layout} ${!activePlanImage ? styles.layoutSingle : ''}`}>
+          {activePlanImage && (
+            <div className={styles.leftPane}>
+              <div className={styles.leftColumn}>
+                <div className={styles.floorPlanFrame}>
+                  <img src={getImageUrl(activePlanImage, 'hero')} alt={modalTitle} className={styles.floorPlanImage} />
+                  {planImages.length > 1 && (
+                    <>
+                      <button
+                        className={`${styles.planArrow} ${styles.planArrowLeft}`}
+                        onClick={goToPlanPrev}
+                        aria-label={t('apartmentCard.previousImage')}
+                      >
+                        {isRTL ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                      </button>
+                      <button
+                        className={`${styles.planArrow} ${styles.planArrowRight}`}
+                        onClick={goToPlanNext}
+                        aria-label={t('apartmentCard.nextImage')}
+                      >
+                        {isRTL ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+                      </button>
+                    </>
+                  )}
+                </div>
+                {planImages.length > 1 && (
+                  <div className={styles.floorPlanThumbs}>
+                    {planImages.map((url, index) => (
+                      <button
+                        type="button"
+                        key={`${url}-${index}`}
+                        className={`${styles.floorPlanThumb} ${index === planImageIndex ? styles.floorPlanThumbActive : ''}`}
+                        onClick={() => setPlanImageIndex(index)}
+                        aria-label={`Floor plan ${index + 1}`}
+                      >
+                        <img src={getImageUrl(url, 'thumbnail')} alt={`Floor plan ${index + 1}`} />
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
-              {planImages.length > 1 && (
-                <div className={styles.floorPlanThumbs}>
-                  {planImages.map((url, index) => (
-                    <button
-                      type="button"
-                      key={`${url}-${index}`}
-                      className={`${styles.floorPlanThumb} ${index === planImageIndex ? styles.floorPlanThumbActive : ''}`}
-                      onClick={() => setPlanImageIndex(index)}
-                      aria-label={`Floor plan ${index + 1}`}
-                    >
-                      <img src={getImageUrl(url, 'thumbnail')} alt={`Floor plan ${index + 1}`} />
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
-          </div>
+          )}
 
           <div className={styles.rightPane}>
             <div className={styles.rightColumn}>

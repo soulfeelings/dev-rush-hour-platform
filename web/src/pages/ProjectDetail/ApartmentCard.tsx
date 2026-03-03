@@ -23,6 +23,8 @@ interface LotData {
   media?: {
     cover?: { url?: string }
     floorPlanImages?: { url?: string }[]
+    gallery?: { url?: string }[]
+    photos?: { url?: string }[]
   }
   bonuses?: Array<{
     title?: string
@@ -76,6 +78,10 @@ export function ApartmentCard({
   const floorPlanImages =
     lotData?.media?.floorPlanImages?.map(img => img.url).filter((u): u is string => Boolean(u)) ||
     []
+  const galleryPhotos =
+    lotData?.media?.gallery?.map(img => img.url).filter((u): u is string => Boolean(u)) || []
+  const photoImages =
+    lotData?.media?.photos?.map(img => img.url).filter((u): u is string => Boolean(u)) || []
   const toBadgeText = (name?: string, slug?: string) => {
     if (name && name.trim().length > 0) return name.trim()
     if (slug && slug.trim().length > 0) {
@@ -147,10 +153,14 @@ export function ApartmentCard({
       ? bonusesFromData
       : fallbackBonusBadges
 
-  // Combine floor plan images + cover into gallery
-  const galleryImages = coverFirst
-    ? [...(coverImage ? [coverImage] : []), ...floorPlanImages]
-    : [...floorPlanImages, ...(coverImage ? [coverImage] : [])]
+  // Combine all available images into gallery (deduplicated, matching modal image sources)
+  const galleryImages = Array.from(
+    new Set(
+      coverFirst
+        ? [...(coverImage ? [coverImage] : []), ...floorPlanImages, ...galleryPhotos, ...photoImages]
+        : [...floorPlanImages, ...(coverImage ? [coverImage] : []), ...galleryPhotos, ...photoImages]
+    )
+  )
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: isRTL ? 'rtl' : 'ltr' })
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -228,8 +238,10 @@ export function ApartmentCard({
   }
 
   const handleGalleryImageClick = (e: React.MouseEvent, imageUrl: string) => {
-    e.stopPropagation()
-    onImageClick?.(imageUrl)
+    if (onImageClick) {
+      e.stopPropagation()
+      onImageClick(imageUrl)
+    }
   }
 
   return (

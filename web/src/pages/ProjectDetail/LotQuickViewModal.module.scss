@@ -32,6 +32,10 @@
   }
 }
 
+.layoutSingle {
+  grid-template-columns: 1fr;
+}
+
 .leftPane {
   align-self: start;
   display: flex;
