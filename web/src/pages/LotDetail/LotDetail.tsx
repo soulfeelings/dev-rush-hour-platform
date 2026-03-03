@@ -10,6 +10,7 @@ import { useGetLot, useGetProject, useListLots } from '../../api'
 import type { Project, Developer, Area } from '../../api'
 import { ROUTES } from '../../constants/routes'
 import { NotFound } from '../../ui/NotFound'
+import { Typography } from '../../ui/Typography'
 import { useSettings } from '../../features/Settings/Settings'
 import { formatPrice, formatArea } from '../../utils/format'
 import { LotDetailSkeleton } from './LotDetailSkeleton'
@@ -615,6 +616,14 @@ export default function LotDetail() {
                             aria-label="Next image"
                           ><ChevronRight size={18} strokeWidth={2.5} />
                           </button>
+                          <div className={styles.progressBar}>
+                            {allImages.map((_, idx) => (
+                              <div
+                                key={idx}
+                                className={`${styles.progressSegment} ${idx === currentImageIndex ? styles.progressSegmentActive : ''}`}
+                              />
+                            ))}
+                          </div>
                         </>
                       )}
                     </>
@@ -665,7 +674,7 @@ export default function LotDetail() {
           <div className={styles.desktopSideColumn}>
             {(lotDataFields?.orientation || mobileViewPhotos.length > 0) && hasCoordinates ? (
               <div className={styles.desktopViewBlock}>
-                <h3 className={styles.desktopSectionTitle}>Apartment View</h3>
+                <Typography as="h3" variant="h1" className={styles.desktopSectionTitle}>Apartment View</Typography>
                 {lotDataFields?.orientation ? (
                   <div ref={setViewMapContainerEl} className={styles.viewMap} />
                 ) : null}
@@ -763,7 +772,7 @@ export default function LotDetail() {
 
         {(lotDataFields?.orientation || mobileViewPhotos.length > 0) && hasCoordinates && (
           <div className={styles.mobileViewBlock}>
-            <h3 className={styles.mobileSectionTitle}>Apartment View</h3>
+            <Typography as="h3" variant="h1" className={styles.mobileSectionTitle}>Apartment View</Typography>
             {lotDataFields?.orientation ? (
               <div ref={setViewMapContainerEl} className={styles.viewMap} />
             ) : null}

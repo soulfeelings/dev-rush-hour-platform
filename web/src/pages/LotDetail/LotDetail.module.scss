@@ -90,7 +90,7 @@
 .projectImage {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
 }
 
@@ -136,26 +136,40 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.4);
-  color: white;
+  background: $color-snow-white-60;
+  backdrop-filter: blur(8px);
+  color: $color-text;
   border: none;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  font-size: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
-  transition: all $transition-fast;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
-  padding: 0;
-  line-height: 1;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background: rgba(0, 0, 0, 0.7);
-    scale: 1.1;
+    transform: translateY(-50%) scale(1.1);
+    background: $color-snow-white;
+    box-shadow: none;
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.95);
+    box-shadow:
+      0 2px 8px rgba($color-yellow, 0.25),
+      0 1px 2px rgba(0, 0, 0, 0.08);
+  }
+
+  svg {
+    position: relative;
+    z-index: 1;
+    transition: all 0.25s ease;
   }
 
   &.prevButton {
@@ -932,13 +946,14 @@
   background: $color-bg-card;
   border-radius: $radius-lg;
   padding: $spacing-2;
+  padding-top: 0;
   display: flex;
   flex-direction: column;
   gap: $spacing-2;
 }
 
 .desktopSectionTitle {
-  margin: 0;
+  margin: 0 0 $spacing-2;
   font-size: $font-size-md;
   color: $color-charcoal-black;
 }
@@ -950,10 +965,8 @@
   gap: $spacing-2;
 
   .navButton {
-    opacity: 1;
     width: 34px;
     height: 34px;
-    font-size: 18px;
     top: 50%;
   }
 
