@@ -209,30 +209,51 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 		existing.BadgeIDs = updates.BadgeIDs
 	}
 	
-	// Safe check for Data field updates (ваша версия более безопасная)
-	hasDataUpdates := false
-	if updates.Data.Media != nil && 
-		(len(updates.Data.Media.Photos) > 0 || len(updates.Data.Media.Gallery) > 0 ||
-		 len(updates.Data.Media.FloorPlanImages) > 0 || updates.Data.Media.Cover != nil) {
-		hasDataUpdates = true
+	// Partial merge of Data fields
+	if updates.Data.Media != nil {
+		if existing.Data.Media == nil {
+			existing.Data.Media = updates.Data.Media
+		} else {
+			if updates.Data.Media.Cover != nil {
+				existing.Data.Media.Cover = updates.Data.Media.Cover
+			}
+			if len(updates.Data.Media.Photos) > 0 {
+				existing.Data.Media.Photos = updates.Data.Media.Photos
+			}
+			if len(updates.Data.Media.Gallery) > 0 {
+				existing.Data.Media.Gallery = updates.Data.Media.Gallery
+			}
+			if len(updates.Data.Media.FloorPlanImages) > 0 {
+				existing.Data.Media.FloorPlanImages = updates.Data.Media.FloorPlanImages
+			}
+			if len(updates.Data.Media.ViewPhotos) > 0 {
+				existing.Data.Media.ViewPhotos = updates.Data.Media.ViewPhotos
+			}
+		}
 	}
-	if updates.Data.PaymentPlan != nil && len(updates.Data.PaymentPlan.Schedule) > 0 {
-		hasDataUpdates = true
+	if updates.Data.View != "" {
+		existing.Data.View = updates.Data.View
 	}
-	if len(updates.Data.Bonuses) > 0 {
-		hasDataUpdates = true
+	if updates.Data.Orientation != "" {
+		existing.Data.Orientation = updates.Data.Orientation
+	}
+	if updates.Data.Furnishing != "" {
+		existing.Data.Furnishing = updates.Data.Furnishing
+	}
+	if len(updates.Data.Features) > 0 {
+		existing.Data.Features = updates.Data.Features
+	}
+	if updates.Data.PaymentPlan != nil {
+		existing.Data.PaymentPlan = updates.Data.PaymentPlan
+	}
+	if len(updates.Data.Tags) > 0 {
+		existing.Data.Tags = updates.Data.Tags
 	}
 	if updates.Data.FloorPosition != nil {
-		hasDataUpdates = true
+		existing.Data.FloorPosition = updates.Data.FloorPosition
 	}
-	if len(updates.Data.Tags) > 0 || updates.Data.View != "" || 
-		updates.Data.Furnishing != "" || updates.Data.Orientation != "" || 
-		len(updates.Data.Features) > 0 {
-		hasDataUpdates = true
-	}
-	
-	if hasDataUpdates {
-		existing.Data = updates.Data
+	if len(updates.Data.Bonuses) > 0 {
+		existing.Data.Bonuses = updates.Data.Bonuses
 	}
 
 	err = s.lotRepo.Update(id, existing)
