@@ -63,7 +63,7 @@ export function DirectionPicker({ value, onChange, lat, lng }: DirectionPickerPr
       mapRef.current = L.map(mapContainerRef.current, {
         center: [lat, lng],
         zoom: 16,
-        zoomControl: true,
+        zoomControl: false,
         attributionControl: false,
         dragging: true,
         scrollWheelZoom: false,
@@ -132,56 +132,60 @@ export function DirectionPicker({ value, onChange, lat, lng }: DirectionPickerPr
   return (
     <div className={styles.wrapper}>
       <label className={styles.label}>Orientation</label>
-      {value ? (
-        <div className={styles.container}>
-          {hasCoordinates && <div ref={mapContainerRef} className={styles.map} />}
-          {!hasCoordinates && <div className={styles.mapPlaceholder} />}
-          <div className={styles.compass}>
-            {DIRECTIONS.map(dir => {
-              const isSelected = value === dir.key
-              const rad = ((dir.angle - 90) * Math.PI) / 180
-              const radius = 42
-              const x = 50 + radius * Math.cos(rad)
-              const y = 50 + radius * Math.sin(rad)
+      <div className={styles.container}>
+        {hasCoordinates && <div ref={mapContainerRef} className={styles.map} />}
+        {!hasCoordinates && <div className={styles.mapPlaceholder} />}
+        <div className={styles.compass}>
+          {DIRECTIONS.map(dir => {
+            const isSelected = value === dir.key
+            const rad = ((dir.angle - 90) * Math.PI) / 180
+            const radius = 42
+            const x = 50 + radius * Math.cos(rad)
+            const y = 50 + radius * Math.sin(rad)
 
-              return (
-                <button
-                  key={dir.key}
-                  type="button"
-                  className={`${styles.segment} ${isSelected ? styles.selected : ''}`}
-                  style={{
-                    left: `${x}%`,
-                    top: `${y}%`,
-                  }}
-                  onClick={() => onChange(isSelected ? '' : dir.key)}
-                  title={dir.key}
-                >
-                  {dir.label}
-                </button>
-              )
-            })}
-            <div className={styles.center} />
-          </div>
-          <span className={styles.value}>{value}</span>
-        </div>
-      ) : (
-        <div className={styles.selectPrompt}>
-          <p>Select orientation to view on map</p>
-          <div className={styles.directionButtons}>
-            {DIRECTIONS.map(dir => (
+            return (
               <button
                 key={dir.key}
                 type="button"
-                className={styles.directionButton}
-                onClick={() => onChange(dir.key)}
+                className={`${styles.segment} ${isSelected ? styles.selected : ''}`}
+                style={{
+                  left: `${x}%`,
+                  top: `${y}%`,
+                }}
+                onClick={() => onChange(isSelected ? '' : dir.key)}
                 title={dir.key}
               >
                 {dir.label}
               </button>
-            ))}
-          </div>
+            )
+          })}
+          <div className={styles.center} />
         </div>
-      )}
+        {hasCoordinates && (
+          <div className={styles.zoomControls}>
+            <button
+              type="button"
+              className={styles.zoomBtn}
+              onClick={() => mapRef.current?.zoomIn()}
+              title="Zoom in"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className={styles.zoomBtn}
+              onClick={() => mapRef.current?.zoomOut()}
+              title="Zoom out"
+            >
+              −
+            </button>
+          </div>
+        )}
+        {value && <span className={styles.value}>{value}</span>}
+        {!hasCoordinates && (
+          <div className={styles.noCoords}>No project coordinates — select a project with lat/lng to see the map</div>
+        )}
+      </div>
     </div>
   )
 }
