@@ -141,14 +141,18 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 	args := []any{}
 	argPos := 1
 
+	// Always exclude soft-deleted lots
+	query += ` AND l.deleted_at IS NULL`
+	countQuery += ` AND l.deleted_at IS NULL`
+
 	if filters.Status != "" {
 		query += fmt.Sprintf(` AND l.status = $%d`, argPos)
 		countQuery += fmt.Sprintf(` AND l.status = $%d`, argPos)
 		args = append(args, filters.Status)
 		argPos++
 	} else {
-		query += ` AND l.status = 'active' AND l.deleted_at IS NULL`
-		countQuery += ` AND l.status = 'active' AND l.deleted_at IS NULL`
+		query += ` AND l.status = 'active'`
+		countQuery += ` AND l.status = 'active'`
 	}
 
 	if filters.AreaSlug != nil {
