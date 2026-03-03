@@ -481,13 +481,10 @@
 
 .whatsappNote {
   color: rgba(19, 20, 21, 0.3);
-  font-size: 13.7px;
-  font-weight: 500;
-  line-height: 17px;
 }
 
 /* Адаптивность */
-@media (max-width: 968px) {
+@include max-lg {
   .card {
     width: 100%;
     height: auto;
@@ -521,6 +518,7 @@
 
   .whatsappNote {
     width: 100%;
+    text-align: center;
   }
 
   .photoPagination {
@@ -533,7 +531,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@include max-md {
   .photoSection {
     height: 220px;
     min-width: 0;
@@ -599,11 +597,6 @@
   .whatsappText {
     font-size: 14px;
     line-height: 18px;
-  }
-
-  .whatsappNote {
-    font-size: 12px;
-    line-height: 15px;
   }
 
   .photoPagination {
@@ -744,7 +737,7 @@
 }
 
 /* Skeleton responsive */
-@media (max-width: 968px) {
+@include max-lg {
   .skeletonCard {
     width: 100%;
     height: auto;
@@ -763,7 +756,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@include max-md {
   .skeletonPhoto {
     height: 220px;
   }

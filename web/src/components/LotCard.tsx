@@ -9,6 +9,7 @@ import { openWhatsApp, buildLotMessage } from '../services/whatsapp'
 import { formatPrice, formatArea } from '../utils/format'
 import { translateBonusKey } from '../utils/bonusTranslations'
 import { getImageUrl } from '../utils/imageUrl'
+import { Typography } from '../ui/Typography/Typography'
 import styles from './LotCard.module.scss'
 import type { Lot } from '../api'
 
@@ -362,7 +363,7 @@ export const LotCard = ({ lot }: LotCardProps) => {
               <button className={styles.whatsappButton} onClick={handleWhatsAppClick}>
                 <span className={styles.whatsappText}>{t('getDetailsOnWhatsApp')}</span>
               </button>
-              <div className={styles.whatsappNote}>{t('investmentDetailsNoSpam')}</div>
+              <Typography as="p" size="small" weight="medium" className={styles.whatsappNote}>{t('investmentDetailsNoSpam')}</Typography>
             </div>
           </div>
         </div>
