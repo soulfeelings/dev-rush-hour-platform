@@ -3,6 +3,10 @@ import { Button, Input, Select, ImagePreview, Checkbox, Badge as BadgeUI } from 
 import { Plus, X, Image as ImageIcon } from 'lucide-react'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import type { Badge } from '../../../../api/generated/schemas/badge'
+import type { LotCreateRequest } from '../../../../api/generated/schemas/lotCreateRequest'
+import type { LotUpdateRequest } from '../../../../api/generated/schemas/lotUpdateRequest'
+import type { LotData } from '../../../../api/generated/schemas/lotData'
+import type { LotMedia } from '../../../../api/generated/schemas/lotMedia'
 import { DirectionPicker } from '../DirectionPicker'
 import { MediaPicker } from '../MediaPicker'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
@@ -44,7 +48,7 @@ type ValidationErrors = {
 type LotFormProps = {
   projects: Project[]
   badges: Badge[]
-  onSubmit: (data: Record<string, unknown>) => void
+  onSubmit: (data: LotCreateRequest | LotUpdateRequest) => void
   loading: boolean
   initialData?: LotListItem | null
   isEditMode?: boolean
@@ -223,70 +227,101 @@ export function LotForm({
     }
   }, [form, touched])
 
+  const buildCreatePayload = (): LotCreateRequest => {
+    const payload: LotCreateRequest = {
+      projectId: form.projectId,
+      type: form.type as LotCreateRequest['type'],
+      status: form.status as LotCreateRequest['status'],
+      priceFromUs: parseFloat(form.priceAmount),
+    }
+
+    if (form.bedrooms) payload.bedrooms = parseInt(form.bedrooms, 10)
+    if (form.bathrooms) payload.bathrooms = parseInt(form.bathrooms, 10)
+    if (form.areaSqm) payload.areaSqm = parseFloat(form.areaSqm)
+    if (form.floor) payload.floor = parseInt(form.floor, 10)
+    if (form.developerPrice) payload.priceFromDeveloper = parseFloat(form.developerPrice)
+    if (form.roi) payload.roi = parseFloat(form.roi)
+    if (form.badgeIds.length > 0) payload.badgeIds = form.badgeIds
+
+    const media: LotMedia = {}
+    if (form.coverUrl) media.cover = { url: form.coverUrl }
+    if (form.photos.length > 0) media.photos = form.photos.filter(Boolean).map(url => ({ url }))
+    if (form.floorPlanImages.length > 0)
+      media.floorPlanImages = form.floorPlanImages.filter(Boolean).map(url => ({ url }))
+    if (form.viewPhotos.length > 0)
+      media.viewPhotos = form.viewPhotos.filter(Boolean).map(url => ({ url }))
+
+    const data: LotData = {}
+    if (Object.keys(media).length > 0) data.media = media
+    if (form.view) data.view = form.view
+    if (form.orientation) data.orientation = form.orientation
+    if (Object.keys(data).length > 0) payload.data = data
+
+    return payload
+  }
+
+  const buildEditPayload = (d: typeof initialFormData): LotUpdateRequest => {
+    const payload: LotUpdateRequest = {}
+
+    if (form.projectId !== d!.projectId) payload.projectId = form.projectId
+    if (form.type !== d!.type) payload.type = form.type as LotUpdateRequest['type']
+    if (form.status !== d!.status) payload.status = form.status as LotUpdateRequest['status']
+    if (form.priceAmount !== d!.priceAmount) payload.priceFromUs = parseFloat(form.priceAmount)
+    if (form.bedrooms !== d!.bedrooms)
+      payload.bedrooms = form.bedrooms ? parseInt(form.bedrooms, 10) : undefined
+    if (form.bathrooms !== d!.bathrooms)
+      payload.bathrooms = form.bathrooms ? parseInt(form.bathrooms, 10) : undefined
+    if (form.areaSqm !== d!.areaSqm)
+      payload.areaSqm = form.areaSqm ? parseFloat(form.areaSqm) : undefined
+    if (form.floor !== d!.floor)
+      payload.floor = form.floor ? parseInt(form.floor, 10) : undefined
+    if (form.developerPrice !== d!.developerPrice)
+      payload.priceFromDeveloper = form.developerPrice ? parseFloat(form.developerPrice) : undefined
+    if (form.roi !== d!.roi)
+      payload.roi = form.roi ? parseFloat(form.roi) : undefined
+
+    const badgeIdsChanged =
+      form.badgeIds.length !== d!.badgeIds.length ||
+      form.badgeIds.some((id, idx) => id !== d!.badgeIds[idx])
+    if (badgeIdsChanged) payload.badgeIds = form.badgeIds
+
+    const mediaChanged =
+      form.coverUrl !== d!.coverUrl ||
+      form.photos.length !== d!.photos.length ||
+      form.photos.some((url, idx) => url !== d!.photos[idx]) ||
+      form.floorPlanImages.length !== d!.floorPlanImages.length ||
+      form.floorPlanImages.some((url, idx) => url !== d!.floorPlanImages[idx]) ||
+      form.viewPhotos.length !== d!.viewPhotos.length ||
+      form.viewPhotos.some((url, idx) => url !== d!.viewPhotos[idx])
+
+    const data: LotData = {}
+    if (mediaChanged) {
+      const media: LotMedia = {}
+      if (form.coverUrl) media.cover = { url: form.coverUrl }
+      if (form.photos.length > 0) media.photos = form.photos.filter(Boolean).map(url => ({ url }))
+      if (form.floorPlanImages.length > 0)
+        media.floorPlanImages = form.floorPlanImages.filter(Boolean).map(url => ({ url }))
+      if (form.viewPhotos.length > 0)
+        media.viewPhotos = form.viewPhotos.filter(Boolean).map(url => ({ url }))
+      if (Object.keys(media).length > 0) data.media = media
+    }
+    if (form.view !== d!.view) data.view = form.view
+    if (form.orientation !== d!.orientation) data.orientation = form.orientation
+    if (Object.keys(data).length > 0) payload.data = data
+
+    return payload
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setTouched(true)
     const validationErrors = validate()
     setErrors(validationErrors)
-    if (Object.keys(validationErrors).length > 0) {
-      return
-    }
-    const payload: Record<string, unknown> = {
-      projectId: form.projectId,
-      type: form.type,
-      status: form.status,
-      priceFromUs: parseFloat(form.priceAmount),
-    }
+    if (Object.keys(validationErrors).length > 0) return
 
-    if (form.bedrooms) {
-      payload.bedrooms = parseInt(form.bedrooms, 10)
-    }
-    if (form.bathrooms) {
-      payload.bathrooms = parseInt(form.bathrooms, 10)
-    }
-    if (form.areaSqm) {
-      payload.areaSqm = parseFloat(form.areaSqm)
-    }
-    if (form.floor) {
-      payload.floor = parseInt(form.floor, 10)
-    }
-    if (form.developerPrice) {
-      payload.priceFromDeveloper = parseFloat(form.developerPrice)
-    }
-    if (form.roi) {
-      payload.roi = parseFloat(form.roi)
-    }
-    if (form.badgeIds.length > 0) {
-      payload.badgeIds = form.badgeIds
-    }
-
-    const mediaData: Record<string, unknown> = {}
-    if (form.coverUrl) {
-      mediaData.cover = { url: form.coverUrl }
-    }
-    if (form.photos.length > 0) {
-      mediaData.photos = form.photos.filter(Boolean).map(url => ({ url }))
-    }
-    if (form.floorPlanImages.length > 0) {
-      mediaData.floorPlanImages = form.floorPlanImages.filter(Boolean).map(url => ({ url }))
-    }
-    if (form.viewPhotos.length > 0) {
-      mediaData.viewPhotos = form.viewPhotos.filter(Boolean).map(url => ({ url }))
-    }
-
-    const dataPayload: Record<string, unknown> = {}
-    if (Object.keys(mediaData).length > 0) {
-      dataPayload.media = mediaData
-    }
-    if (form.view) {
-      dataPayload.view = form.view
-    }
-    if (form.orientation) {
-      dataPayload.orientation = form.orientation
-    }
-    if (Object.keys(dataPayload).length > 0) {
-      payload.data = dataPayload
-    }
+    const payload = isEditMode && initialFormData
+      ? buildEditPayload(initialFormData)
+      : buildCreatePayload()
 
     onSubmit(payload)
   }

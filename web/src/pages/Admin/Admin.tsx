@@ -32,6 +32,8 @@ import {
   getListLotsQueryKey,
 } from '../../api'
 import type { LotsListResponse } from '../../api/generated/schemas/lotsListResponse'
+import type { LotCreateRequest } from '../../api/generated/schemas/lotCreateRequest'
+import type { LotUpdateRequest } from '../../api/generated/schemas/lotUpdateRequest'
 import type { Badge } from '../../api/generated/schemas/badge'
 import type { BadgeCreateRequest } from '../../api/generated/schemas/badgeCreateRequest'
 import type { Infrastructure } from '../../api/generated/schemas/infrastructure'
@@ -943,7 +945,7 @@ export default function Admin() {
     }
   }
 
-  const handleLotSubmit = (payload: Record<string, unknown>) => {
+  const handleLotSubmit = (payload: LotCreateRequest | LotUpdateRequest) => {
     setError(null)
     setSuccess(null)
     if (editingEntity && 'id' in editingEntity && editingEntity.id) {
