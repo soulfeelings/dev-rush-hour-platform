@@ -82,20 +82,8 @@ const pluralizeType = (type: string) => {
   }
   return capitalized + 's'
 }
-
-const getDateLocale = (lang: string) => {
-  switch (lang) {
-    case 'ru':
-      return 'ru-RU'
-    case 'ar':
-      return 'ar-SA'
-    default:
-      return 'en-US'
-  }
-}
-
 export default function ProjectDetail() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { currency, unit } = useSettings()
   const isRTL = useIsRTL()
   const { slug } = useParams<{ slug: string }>()
