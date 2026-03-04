@@ -8,6 +8,7 @@ import {
   YouTubePreview,
   Checkbox,
   Textarea,
+  Typography,
 } from '../../../../ui'
 import { Plus, X, Image as ImageIcon } from 'lucide-react'
 import {
@@ -20,6 +21,7 @@ import type { ProjectUpdateRequest } from '../../../../api/generated/schemas/pro
 import { MapPicker } from '../MapPicker'
 import { MediaPicker } from '../MediaPicker'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
+import { MediaUrlInput } from '../MediaUrlInput'
 import { BadgesSection } from './BadgesSection'
 import { ComplexInfrastructureSection } from './ComplexInfrastructureSection'
 import { generateSlug } from '../../../../utils/generateSlug'
@@ -84,6 +86,7 @@ const validatePaymentPlan = (value: string): string | undefined => {
 }
 
 type FormData = {
+  googleMapsUrl: string
   slug: string
   name: string
   status: string
@@ -191,6 +194,7 @@ export function ProjectForm({
   )
   const defaultForm = useMemo(
     () => ({
+      googleMapsUrl: '',
       slug: '',
       name: '',
       status: '',
@@ -236,6 +240,7 @@ export function ProjectForm({
             ? (descriptionValue as Record<string, string>).en || ''
             : ''
       return {
+        googleMapsUrl: initialData.googleMapsUrl || '',
         slug: initialData.slug || '',
         name: initialData.name || '',
         status: (initialData.status as string) || '',
@@ -332,6 +337,7 @@ export function ProjectForm({
           ? (descriptionValue as Record<string, string>).en || ''
           : ''
     return {
+      googleMapsUrl: initialData.googleMapsUrl || '',
       slug: initialData.slug || '',
       name: initialData.name || '',
       status: (initialData.status as string) || '',
@@ -389,6 +395,7 @@ export function ProjectForm({
       form.infrastructureIds.length !== initialFormData.infrastructureIds.length ||
       form.infrastructureIds.some((id, idx) => id !== initialFormData.infrastructureIds[idx])
     return (
+      form.googleMapsUrl !== initialFormData.googleMapsUrl ||
       form.slug !== initialFormData.slug ||
       form.name !== initialFormData.name ||
       form.status !== initialFormData.status ||
@@ -469,6 +476,7 @@ export function ProjectForm({
       sale: form.sale as 'sale' | 'start of sales' | 'sales announcement',
     }
 
+    if (form.googleMapsUrl) payload.googleMapsUrl = form.googleMapsUrl
     if (form.developerId) payload.developerId = form.developerId
     if (form.areaId) payload.areaId = form.areaId
     if (form.lat) payload.lat = parseFloat(form.lat)
@@ -509,6 +517,7 @@ export function ProjectForm({
   const buildEditPayload = (d: typeof initialFormData): ProjectUpdateRequest => {
     const payload: ProjectUpdateRequest = {}
 
+    if (form.googleMapsUrl !== d!.googleMapsUrl) payload.googleMapsUrl = form.googleMapsUrl
     if (form.slug !== d!.slug) payload.slug = form.slug
     if (form.name !== d!.name) payload.name = form.name
     if (form.status !== d!.status) payload.status = form.status as 'active' | 'archived'
@@ -590,7 +599,7 @@ export function ProjectForm({
   }
 
   const addGalleryItem = () => {
-    setForm({ ...form, gallery: [...form.gallery, ''] })
+    setForm({ ...form, gallery: ['', ...form.gallery] })
   }
 
   const removeGalleryItem = (index: number) => {
@@ -617,8 +626,39 @@ export function ProjectForm({
     setForm({ ...form, infrastructureIds: newInfraIds })
   }
 
+  const handleGoogleMapsUrlChange = (url: string) => {
+    const updates: Partial<FormData> = { googleMapsUrl: url }
+
+    if (url) {
+      // Parse coordinates from @lat,lng in URL
+      const coordMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)
+      if (coordMatch) {
+        updates.lat = coordMatch[1]
+        updates.lng = coordMatch[2]
+      }
+
+      // Parse place name from /maps/place/Name/ segment
+      const nameMatch = url.match(/\/maps\/place\/([^/@]+)/)
+      if (nameMatch) {
+        const decoded = decodeURIComponent(nameMatch[1]).replace(/\+/g, ' ')
+        updates.name = decoded
+        updates.slug = generateSlug(decoded)
+      }
+    }
+
+    setForm(prev => ({ ...prev, ...updates }))
+  }
+
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
+      <Input
+        label="Google Maps URL"
+        type="url"
+        value={form.googleMapsUrl}
+        onChange={e => handleGoogleMapsUrlChange(e.target.value)}
+        placeholder="https://www.google.com/maps/place/..."
+        sublabel="Add URL — name and location will be filled automatically"
+      />
       <Input
         label="Name"
         value={form.name}
@@ -794,73 +834,27 @@ export function ProjectForm({
       />
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Media</h3>
-        <div className={styles.coverImageWrapper}>
-          <div className={styles.inputWithButton}>
-            <Input
-              label="Cover Image URL"
-              type="url"
-              value={form.coverUrl}
-              onChange={e => setForm({ ...form, coverUrl: e.target.value })}
-              placeholder="https://example.com/image.jpg"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => setPickerOpen('coverUrl')}
-              iconLeft={<ImageIcon size={16} />}
-            >
-              Browse
-            </Button>
-            <ImageUploadButton onUpload={url => setForm({ ...form, coverUrl: url })} />
-          </div>
-          {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
-        </div>
-        <div className={styles.coverImageWrapper}>
-          <div className={styles.inputWithButton}>
-            <Input
-              label="Hover Image URL"
-              type="url"
-              value={form.hoverUrl}
-              onChange={e => setForm({ ...form, hoverUrl: e.target.value })}
-              placeholder="https://example.com/hover-image.jpg"
-              error={errors.hoverUrl}
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => setPickerOpen('hoverUrl')}
-              iconLeft={<ImageIcon size={16} />}
-            >
-              Browse
-            </Button>
-            <ImageUploadButton onUpload={url => setForm({ ...form, hoverUrl: url })} />
-          </div>
-          {form.hoverUrl && <ImagePreview src={form.hoverUrl} alt="Hover preview" />}
-        </div>
-        <div className={styles.coverImageWrapper}>
-          <div className={styles.inputWithButton}>
-            <Input
-              label="Project Logo URL"
-              type="url"
-              value={form.logoUrl}
-              onChange={e => setForm({ ...form, logoUrl: e.target.value })}
-              placeholder="https://example.com/logo.png"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => setPickerOpen('logoUrl')}
-              iconLeft={<ImageIcon size={16} />}
-            >
-              Browse
-            </Button>
-            <ImageUploadButton onUpload={url => setForm({ ...form, logoUrl: url })} />
-          </div>
-          {form.logoUrl && <ImagePreview src={form.logoUrl} alt="Logo preview" />}
-        </div>
+        <MediaUrlInput
+          label="Cover Image"
+          value={form.coverUrl}
+          onChange={url => setForm({ ...form, coverUrl: url })}
+          onBrowse={() => setPickerOpen('coverUrl')}
+        />
+        <MediaUrlInput
+          label="Hover Image"
+          value={form.hoverUrl}
+          onChange={url => setForm({ ...form, hoverUrl: url })}
+          onBrowse={() => setPickerOpen('hoverUrl')}
+          placeholder="https://example.com/hover-image.jpg"
+          error={errors.hoverUrl}
+        />
+        <MediaUrlInput
+          label="Project Logo"
+          value={form.logoUrl}
+          onChange={url => setForm({ ...form, logoUrl: url })}
+          onBrowse={() => setPickerOpen('logoUrl')}
+          placeholder="https://example.com/logo.png"
+        />
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
             <label className={styles.mediaListLabel}>Gallery</label>
@@ -879,8 +873,7 @@ export function ProjectForm({
                 onUpload={url => setForm({ ...form, gallery: [...form.gallery, url] })}
                 onUploadMultiple={urls => setForm({ ...form, gallery: [...form.gallery, ...urls] })}
               />
-              <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm">
-                <Plus size={16} />
+              <Button type="button" onClick={addGalleryItem} variant="secondary" size="sm" iconLeft={<Plus size={16} />}>
                 Add Image
               </Button>
             </div>
@@ -893,18 +886,13 @@ export function ProjectForm({
                   value={url}
                   onChange={e => updateGalleryItem(index, e.target.value)}
                   placeholder="https://example.com/image.jpg"
+                  sublabel={<Typography as="p" size="small" color="inherit">You can add here a url from the internet</Typography>}
                 />
                 {url && <ImagePreview src={url} alt={`Gallery ${index + 1} preview`} />}
               </div>
-              <Button
-                type="button"
-                onClick={() => removeGalleryItem(index)}
-                variant="secondary"
-                size="sm"
-                className={styles.removeButton}
-              >
+              <button type="button" onClick={() => removeGalleryItem(index)} className={styles.removeButton}>
                 <X size={16} />
-              </Button>
+              </button>
             </div>
           ))}
         </div>
@@ -916,10 +904,12 @@ export function ProjectForm({
           value={form.youtubeUrl}
           onChange={e => setForm({ ...form, youtubeUrl: e.target.value })}
           placeholder="https://www.youtube.com/watch?v=..."
+          sublabel={<Typography as="p" size="small" color="inherit">You can add here a url from the internet</Typography>}
         />
         <YouTubePreview url={form.youtubeUrl} size="medium" />
       </div>
-      <div className={styles.mediaSection}>
+      {/* Project Timeline — hidden */}
+      {/* <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Project Timeline</h3>
         <Input
           label="Project Announcement"
@@ -996,7 +986,7 @@ export function ProjectForm({
             })
           }
         />
-      </div>
+      </div> */}
       <Button
         type="submit"
         disabled={loading || (isEditMode && !hasChanges)}

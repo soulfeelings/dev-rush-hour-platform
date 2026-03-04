@@ -67,6 +67,12 @@
   }
 }
 
+.sublabel {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  margin-top: -$spacing-1;
+}
+
 .helperText {
   font-size: $font-size-sm;
   color: $color-text-muted;

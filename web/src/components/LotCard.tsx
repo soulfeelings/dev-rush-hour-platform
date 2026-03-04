@@ -141,7 +141,7 @@ export const LotCard = ({ lot }: LotCardProps) => {
       typeLabel,
       bedrooms: lot.bedrooms ?? undefined,
       bathrooms: lot.bathrooms ?? undefined,
-      areaSqm: lot.areaSqm ?? undefined,
+      areaSqft: lot.areaSqft ?? undefined,
       floor: lot.floor ?? undefined,
       price: ourPrice,
       currency,
@@ -346,12 +346,12 @@ export const LotCard = ({ lot }: LotCardProps) => {
                 </>
               )}
 
-              {lot.areaSqm && (
+              {lot.areaSqft && (
                 <div className={styles.infoItem}>
                   <div className={styles.iconContainer}>
                     <Move className={styles.icon} size={16} />
                   </div>
-                  <span className={styles.areaValue}>{formatArea(lot.areaSqm, unit)}</span>
+                  <span className={styles.areaValue}>{formatArea(lot.areaSqft, unit)}</span>
                 </div>
               )}
             </div>

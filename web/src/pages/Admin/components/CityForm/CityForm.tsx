@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { Button, Input } from '../../../../ui'
 import { generateSlug } from '../../../../utils/generateSlug'
+import { searchCities } from '../../../../utils/nominatim'
+import { OsmAutocomplete } from '../OsmAutocomplete'
 import { type CityCreateRequest, type City } from '../../../../api'
 import styles from './CityForm.module.scss'
 
@@ -93,14 +95,13 @@ export function CityForm({
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      <Input
+      <OsmAutocomplete
         label="Name"
         value={form.name}
-        onChange={e => {
-          const newName = e.target.value
-          setForm({ ...form, name: newName, slug: generateSlug(newName) })
-        }}
-        required
+        onChange={newName => setForm({ ...form, name: newName, slug: generateSlug(newName) })}
+        onSelect={result => setForm({ ...form, name: result.name, slug: generateSlug(result.name) })}
+        fetchSuggestions={searchCities}
+        placeholder="e.g., Dubai"
       />
       <Input label="Slug" value={form.slug} disabled />
       <Button

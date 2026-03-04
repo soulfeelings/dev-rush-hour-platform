@@ -1,4 +1,4 @@
-import { forwardRef, useId, type InputHTMLAttributes } from 'react'
+import React, { forwardRef, useId, type InputHTMLAttributes } from 'react'
 import styles from './Input.module.scss'
 
 export type InputState = 'default' | 'error' | 'success'
@@ -7,11 +7,12 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   state?: InputState
   label?: string
   error?: string
-  helperText?: string
+  helperText?: React.ReactNode
+  sublabel?: React.ReactNode
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ state = 'default', label, error, helperText, className, id, ...props }, ref) => {
+  ({ state = 'default', label, sublabel, error, helperText, className, id, ...props }, ref) => {
     const generatedId = useId()
     const inputId = id || `input-${generatedId}`
     const actualState = error ? 'error' : state
@@ -27,6 +28,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
+        {sublabel && <span className={styles.sublabel}>{sublabel}</span>}
         <input
           ref={ref}
           id={inputId}

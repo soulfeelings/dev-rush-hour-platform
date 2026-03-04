@@ -151,7 +151,7 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading, dr
             'Type',
             'Bedrooms',
             'Bathrooms',
-            'Area (m²)',
+            'Area (ft²)',
             'Floor',
             'Price',
             'Dev Price',
@@ -265,7 +265,7 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading, dr
                 <th>Type</th>
                 <th>Bedrooms</th>
                 <th>Bathrooms</th>
-                <th>Area (m²)</th>
+                <th>Area (ft²)</th>
                 <th>Floor</th>
                 <th>Price</th>
                 <th>Dev Price</th>
@@ -313,7 +313,7 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading, dr
                   <td>{lot.type || '-'}</td>
                   <td>{lot.bedrooms ?? '-'}</td>
                   <td>{lot.bathrooms ?? '-'}</td>
-                  <td>{lot.areaSqm ?? '-'}</td>
+                  <td>{lot.areaSqft ?? '-'}</td>
                   <td>{lot.floor ?? '-'}</td>
                   <td>{formatPrice(lot.priceFromUs, 'AED')}</td>
                   <td>{formatPrice(lot.priceFromDeveloper, 'AED')}</td>

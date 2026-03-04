@@ -41,7 +41,7 @@ export interface LotMessageParams {
   typeLabel?: string
   bedrooms?: number
   bathrooms?: number
-  areaSqm?: number
+  areaSqft?: number
   floor?: number
   price?: number
   currency?: Parameters<typeof formatPrice>[1]
@@ -60,8 +60,8 @@ export function buildLotMessage(params: LotMessageParams): string {
     params.typeLabel ? `- Type: ${params.typeLabel}` : null,
     params.bedrooms != null ? `- Bedrooms: ${params.bedrooms}` : null,
     params.bathrooms != null ? `- Bathrooms: ${params.bathrooms}` : null,
-    params.areaSqm != null && params.unit
-      ? `- Size: ${formatArea(params.areaSqm, params.unit)}`
+    params.areaSqft != null && params.unit
+      ? `- Size: ${formatArea(params.areaSqft, params.unit)}`
       : null,
     params.floor != null ? `- Floor: ${params.floor}` : null,
     params.price && params.currency

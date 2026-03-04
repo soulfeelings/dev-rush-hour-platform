@@ -26,8 +26,8 @@ export const useFloorsData = (lots: Lot[]): FloorData[] => {
         const aBedrooms = a.bedrooms ?? 0
         const bBedrooms = b.bedrooms ?? 0
         if (aBedrooms !== bBedrooms) return aBedrooms - bBedrooms
-        const aArea = a.areaSqm ?? 0
-        const bArea = b.areaSqm ?? 0
+        const aArea = a.areaSqft ?? 0
+        const bArea = b.areaSqft ?? 0
         return aArea - bArea
       }),
     }))

@@ -492,10 +492,10 @@ export default function LotDetail() {
 
   const similarUnitsAreaRange = similarUnits.reduce<{ min: number | null; max: number | null }>(
     (acc, similarLot) => {
-      if (similarLot.areaSqm == null) return acc
+      if (similarLot.areaSqft == null) return acc
       return {
-        min: acc.min == null ? similarLot.areaSqm : Math.min(acc.min, similarLot.areaSqm),
-        max: acc.max == null ? similarLot.areaSqm : Math.max(acc.max, similarLot.areaSqm),
+        min: acc.min == null ? similarLot.areaSqft : Math.min(acc.min, similarLot.areaSqft),
+        max: acc.max == null ? similarLot.areaSqft : Math.max(acc.max, similarLot.areaSqft),
       }
     },
     { min: null, max: null }

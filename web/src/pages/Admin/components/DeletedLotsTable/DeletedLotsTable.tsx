@@ -107,7 +107,7 @@ export function DeletedLotsTable({
           <h2 className={styles.title}>Deleted Lots</h2>
         </div>
         <TableSkeleton
-          headers={['', '', 'ID', 'Project', 'Type', 'Bedrooms', 'Area (m²)', 'Price', 'Deleted At']}
+          headers={['', '', 'ID', 'Project', 'Type', 'Bedrooms', 'Area (ft²)', 'Price', 'Deleted At']}
           columns={[{ width: '40px' }, { isActions: true, width: '80px' }, {}, {}, {}, {}, {}, {}, {}]}
           minWidth="900px"
         />
@@ -169,7 +169,7 @@ export function DeletedLotsTable({
               <th>Project</th>
               <th>Type</th>
               <th>Bedrooms</th>
-              <th>Area (m²)</th>
+              <th>Area (ft²)</th>
               <th>Price</th>
               <th>Deleted At</th>
             </tr>
@@ -217,7 +217,7 @@ export function DeletedLotsTable({
                 <td>{lot.project?.name || '-'}</td>
                 <td>{lot.type || '-'}</td>
                 <td>{lot.bedrooms ?? '-'}</td>
-                <td>{lot.areaSqm ?? '-'}</td>
+                <td>{lot.areaSqft ?? '-'}</td>
                 <td>{lot.priceFromUs ? `${lot.priceFromUs.toLocaleString()} AED` : '-'}</td>
                 <td>{lot.deletedAt ? new Date(lot.deletedAt).toLocaleDateString('en-US') : '-'}</td>
               </tr>

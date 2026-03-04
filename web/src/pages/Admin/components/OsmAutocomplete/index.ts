@@ -1,0 +1,1 @@
+export { OsmAutocomplete } from './OsmAutocomplete'

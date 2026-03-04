@@ -38,9 +38,9 @@ export function capitalize(value: string | undefined): string {
   return value.charAt(0).toUpperCase() + value.slice(1)
 }
 
-export function formatArea(areaSqm: number | undefined, unit: Unit): string {
-  if (areaSqm === undefined) return '-'
-  const value = unit === 'ft²' ? areaSqm * SQM_TO_SQFT : areaSqm
+export function formatArea(areaSqft: number | undefined, unit: Unit): string {
+  if (areaSqft === undefined) return '-'
+  const value = unit === 'm²' ? areaSqft / SQM_TO_SQFT : areaSqft
   const locale = getLocale()
   const opts: Intl.NumberFormatOptions = locale === 'ar-SA' ? { numberingSystem: 'latn' } : {}
   return `${Math.round(value).toLocaleString(locale, opts)} ${unit}`

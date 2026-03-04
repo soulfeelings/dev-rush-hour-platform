@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button, Input, Select } from '../../../../ui'
 import { generateSlug } from '../../../../utils/generateSlug'
+import { searchAreas, extractPolygonPoints } from '../../../../utils/nominatim'
+import { OsmAutocomplete } from '../OsmAutocomplete'
 import { PolygonPicker } from '../PolygonPicker'
 import type { AreaCreateRequest } from '../../../../api/generated/schemas/areaCreateRequest'
 import type { Area } from '../../../../api/generated/schemas/area'
@@ -166,14 +168,20 @@ export function AreaForm({
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      <Input
+      <OsmAutocomplete
         label="Name"
         value={form.name}
-        onChange={e => {
-          const newName = e.target.value
-          setForm({ ...form, name: newName, slug: generateSlug(newName) })
+        onChange={newName => setForm({ ...form, name: newName, slug: generateSlug(newName) })}
+        onSelect={result => {
+          const polygon = extractPolygonPoints(result)
+          setForm(prev => ({
+            ...prev,
+            name: result.name,
+            slug: generateSlug(result.name),
+            ...(polygon.length >= 3 ? { polygon } : {}),
+          }))
         }}
-        required
+        fetchSuggestions={query => searchAreas(query, form.city)}
         placeholder="e.g., Dubai Marina"
       />
       <Input label="Slug" value={form.slug} disabled />

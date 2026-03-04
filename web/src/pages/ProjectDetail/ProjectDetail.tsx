@@ -20,7 +20,7 @@ import { ROUTES } from '../../constants/routes'
 import { NotFound } from '../../ui/NotFound'
 import {
   MapPin,
-  Check,
+  // Check, // timeline hidden
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -110,18 +110,18 @@ export default function ProjectDetail() {
   const markerRef = useRef<L.Marker | null>(null)
   const [mapContainerEl, setMapContainerEl] = useState<HTMLDivElement | null>(null)
 
-  const formatDate = useCallback(
-    (dateStr?: string) => {
-      if (!dateStr) return null
-      const date = new Date(dateStr)
-      return date.toLocaleDateString(getDateLocale(i18n.language), {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      })
-    },
-    [i18n.language]
-  )
+  // const formatDate = useCallback(
+  //   (dateStr?: string) => {
+  //     if (!dateStr) return null
+  //     const date = new Date(dateStr)
+  //     return date.toLocaleDateString(getDateLocale(i18n.language), {
+  //       month: 'long',
+  //       day: 'numeric',
+  //       year: 'numeric',
+  //     })
+  //   },
+  //   [i18n.language]
+  // )
 
   // Embla Carousel
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: isRTL ? 'rtl' : 'ltr' })
@@ -203,9 +203,9 @@ export default function ProjectDetail() {
       if (lot.priceFromUs && lot.priceFromUs < groups[bedrooms].minPrice) {
         groups[bedrooms].minPrice = lot.priceFromUs
       }
-      if (lot.areaSqm) {
-        if (lot.areaSqm < groups[bedrooms].minArea) groups[bedrooms].minArea = lot.areaSqm
-        if (lot.areaSqm > groups[bedrooms].maxArea) groups[bedrooms].maxArea = lot.areaSqm
+      if (lot.areaSqft) {
+        if (lot.areaSqft < groups[bedrooms].minArea) groups[bedrooms].minArea = lot.areaSqft
+        if (lot.areaSqft > groups[bedrooms].maxArea) groups[bedrooms].maxArea = lot.areaSqft
       }
     })
 
@@ -361,45 +361,12 @@ export default function ProjectDetail() {
         ? JSON.stringify(project.description)
         : null
 
-  const timeline = project.timeline
+  // const timeline = project.timeline
+  // const timelineItems = [...] // timeline hidden
+
   const { firstPart: completionFirstPart, rest: completionRest } = splitCompletionDate(
     project.completionDate
   )
-
-  const timelineItems = [
-    {
-      label: t('projectDetail.timeline.projectAnnouncement'),
-      value: timeline?.projectAnnouncement
-        ? formatDate(timeline.projectAnnouncement)
-        : undefined,
-      completed: !!timeline?.projectAnnouncement,
-    },
-    {
-      label: t('projectDetail.timeline.bookingStarted'),
-      value: timeline?.bookingStarted ? formatDate(timeline.bookingStarted) : undefined,
-      completed: !!timeline?.bookingStarted,
-    },
-    {
-      label: t('projectDetail.timeline.constructionStarted'),
-      value: timeline?.constructionStarted
-        ? formatDate(timeline.constructionStarted)
-        : undefined,
-      completed: !!timeline?.constructionStarted,
-    },
-    {
-      label: t('projectDetail.timeline.constructionProgress'),
-      value:
-        timeline?.constructionProgressPercent != null
-          ? `${timeline.constructionProgressPercent}%`
-          : undefined,
-      completed: !!timeline?.constructionProgress,
-    },
-    {
-      label: t('projectDetail.timeline.expectedCompletion'),
-      value: timeline?.expectedCompletion ? formatDate(timeline.expectedCompletion) : undefined,
-      completed: false,
-    },
-  ]
 
   const PrevIcon = isRTL ? ChevronRight : ChevronLeft
   const NextIcon = isRTL ? ChevronLeft : ChevronRight
@@ -683,12 +650,22 @@ export default function ProjectDetail() {
                 <MapPin size={14} />
                 <span>{project.area?.name || 'Location'}</span>
               </div>
+              {project.googleMapsUrl && (
+                <a
+                  href={project.googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.openMapsLink}
+                >
+                  {t('projectDetail.openInGoogleMaps')}
+                </a>
+              )}
             </div>
           )}
         </div>
 
-        {/* Project Timeline */}
-        <div className={styles.timelineSection}>
+        {/* Project Timeline — hidden */}
+        {/* <div className={styles.timelineSection}>
           <Typography variant="h1" weight="medium" className={styles.timelineHeader}>{t('projectDetail.timeline.title')}</Typography>
           <div className={styles.timelineCard}>
             <div className={styles.timelineList}>
@@ -707,7 +684,7 @@ export default function ProjectDetail() {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Modals */}

@@ -1,0 +1,137 @@
+@use '../../../../styles/variables' as *;
+@use 'sass:color';
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-2 2.25rem $spacing-2 $spacing-3;
+  font-family: inherit;
+  font-size: $font-size-md;
+  color: $color-text;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  transition: all $transition-fast;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: $color-text-muted;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: color.mix(black, $color-border, 10%);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-yellow;
+    box-shadow: 0 0 0 3px color.change($color-yellow, $alpha: 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.hint {
+  color: $color-text-muted;
+  text-align: center;
+}
+
+.searchButton {
+  position: absolute;
+  right: $spacing-2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: $radius-sm;
+  color: $color-text-muted;
+  cursor: pointer;
+  transition: color $transition-fast;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    color: $color-text;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.dropdown {
+  position: absolute;
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  z-index: $z-dropdown;
+  overflow: hidden;
+}
+
+.option {
+  padding: $spacing-2 $spacing-3;
+  cursor: pointer;
+  transition: background $transition-fast;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid $color-border;
+  }
+
+  &:hover {
+    background: $color-yellow-light;
+  }
+}
+
+.optionName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.optionDetail {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

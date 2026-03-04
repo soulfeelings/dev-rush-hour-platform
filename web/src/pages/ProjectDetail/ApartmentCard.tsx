@@ -207,7 +207,7 @@ export function ApartmentCard({
       typeLabel: lot.type ? capitalize(lot.type) : undefined,
       bedrooms: lot.bedrooms ?? undefined,
       bathrooms: lot.bathrooms ?? undefined,
-      areaSqm: lot.areaSqm ?? undefined,
+      areaSqft: lot.areaSqft ?? undefined,
       floor: lot.floor ?? undefined,
       price: lotOurPrice,
       currency,
@@ -401,7 +401,7 @@ export function ApartmentCard({
           </span>
           <span className={styles.specDivider} />
           <span className={styles.specItem}>
-            <IconArea /> {lot.areaSqm != null ? formatArea(lot.areaSqm, unit) : '-'}
+            <IconArea /> {lot.areaSqft != null ? formatArea(lot.areaSqft, unit) : '-'}
           </span>
         </div>
 

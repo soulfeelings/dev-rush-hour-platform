@@ -34,9 +34,9 @@ export const ApartmentCell = ({
             {lot.bedrooms === 0 ? 'Studio' : `${lot.bedrooms}BR`}
           </div>
         )}
-        {lot.areaSqm !== undefined && lot.areaSqm !== null && (
+        {lot.areaSqft !== undefined && lot.areaSqft !== null && (
           <div className={styles.apartmentArea}>
-            <span className={styles.areaValue}>{formatArea(lot.areaSqm, unit)}</span>
+            <span className={styles.areaValue}>{formatArea(lot.areaSqft, unit)}</span>
           </div>
         )}
         {lot.priceFromUs !== undefined && (

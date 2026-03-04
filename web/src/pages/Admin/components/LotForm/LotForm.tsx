@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { Button, Input, Select, ImagePreview, Checkbox, Badge as BadgeUI } from '../../../../ui'
+import { Button, Input, Select, ImagePreview, Checkbox, Badge as BadgeUI, Typography } from '../../../../ui'
 import { Plus, X, Image as ImageIcon } from 'lucide-react'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
 import type { Badge } from '../../../../api/generated/schemas/badge'
@@ -10,6 +10,7 @@ import type { LotMedia } from '../../../../api/generated/schemas/lotMedia'
 import { DirectionPicker } from '../DirectionPicker'
 import { MediaPicker } from '../MediaPicker'
 import { ImageUploadButton } from '../ImageUploadButton/ImageUploadButton'
+import { MediaUrlInput } from '../MediaUrlInput'
 import styles from './LotForm.module.scss'
 
 type Project = {
@@ -25,7 +26,7 @@ type LotFormData = {
   status: string
   bedrooms: string
   bathrooms: string
-  areaSqm: string
+  areaSqft: string
   floor: string
   priceAmount: string
   developerPrice: string
@@ -73,7 +74,7 @@ export function LotForm({
       status: '',
       bedrooms: '',
       bathrooms: '',
-      areaSqm: '',
+      areaSqft: '',
       floor: '',
       priceAmount: '',
       developerPrice: '',
@@ -98,7 +99,7 @@ export function LotForm({
         status: (initialData.status as string) || '',
         bedrooms: initialData.bedrooms?.toString() || '',
         bathrooms: initialData.bathrooms?.toString() || '',
-        areaSqm: initialData.areaSqm?.toString() || '',
+        areaSqft: initialData.areaSqft?.toString() || '',
         floor: initialData.floor?.toString() || '',
         priceAmount: initialData.priceFromUs?.toString() || '',
         developerPrice: initialData.priceFromDeveloper?.toString() || '',
@@ -131,7 +132,7 @@ export function LotForm({
       status: (initialData.status as string) || '',
       bedrooms: initialData.bedrooms?.toString() || '',
       bathrooms: initialData.bathrooms?.toString() || '',
-      areaSqm: initialData.areaSqm?.toString() || '',
+      areaSqft: initialData.areaSqft?.toString() || '',
       floor: initialData.floor?.toString() || '',
       priceAmount: initialData.priceFromUs?.toString() || '',
       developerPrice: initialData.priceFromDeveloper?.toString() || '',
@@ -168,7 +169,7 @@ export function LotForm({
       form.status !== initialFormData.status ||
       form.bedrooms !== initialFormData.bedrooms ||
       form.bathrooms !== initialFormData.bathrooms ||
-      form.areaSqm !== initialFormData.areaSqm ||
+      form.areaSqft !== initialFormData.areaSqft ||
       form.floor !== initialFormData.floor ||
       form.priceAmount !== initialFormData.priceAmount ||
       form.developerPrice !== initialFormData.developerPrice ||
@@ -237,7 +238,7 @@ export function LotForm({
 
     if (form.bedrooms) payload.bedrooms = parseInt(form.bedrooms, 10)
     if (form.bathrooms) payload.bathrooms = parseInt(form.bathrooms, 10)
-    if (form.areaSqm) payload.areaSqm = parseFloat(form.areaSqm)
+    if (form.areaSqft) payload.areaSqft = parseFloat(form.areaSqft)
     if (form.floor) payload.floor = parseInt(form.floor, 10)
     if (form.developerPrice) payload.priceFromDeveloper = parseFloat(form.developerPrice)
     if (form.roi) payload.roi = parseFloat(form.roi)
@@ -271,8 +272,8 @@ export function LotForm({
       payload.bedrooms = form.bedrooms ? parseInt(form.bedrooms, 10) : undefined
     if (form.bathrooms !== d!.bathrooms)
       payload.bathrooms = form.bathrooms ? parseInt(form.bathrooms, 10) : undefined
-    if (form.areaSqm !== d!.areaSqm)
-      payload.areaSqm = form.areaSqm ? parseFloat(form.areaSqm) : undefined
+    if (form.areaSqft !== d!.areaSqft)
+      payload.areaSqft = form.areaSqft ? parseFloat(form.areaSqft) : undefined
     if (form.floor !== d!.floor)
       payload.floor = form.floor ? parseInt(form.floor, 10) : undefined
     if (form.developerPrice !== d!.developerPrice)
@@ -327,7 +328,7 @@ export function LotForm({
   }
 
   const addPhoto = () => {
-    setForm({ ...form, photos: [...form.photos, ''] })
+    setForm({ ...form, photos: ['', ...form.photos] })
   }
 
   const removePhoto = (index: number) => {
@@ -340,22 +341,8 @@ export function LotForm({
     setForm({ ...form, photos: newPhotos })
   }
 
-  const addFloorPlanImage = () => {
-    setForm({ ...form, floorPlanImages: [...form.floorPlanImages, ''] })
-  }
-
-  const removeFloorPlanImage = (index: number) => {
-    setForm({ ...form, floorPlanImages: form.floorPlanImages.filter((_, i) => i !== index) })
-  }
-
-  const updateFloorPlanImage = (index: number, url: string) => {
-    const newFloorPlanImages = [...form.floorPlanImages]
-    newFloorPlanImages[index] = url
-    setForm({ ...form, floorPlanImages: newFloorPlanImages })
-  }
-
   const addViewPhoto = () => {
-    setForm({ ...form, viewPhotos: [...form.viewPhotos, ''] })
+    setForm({ ...form, viewPhotos: ['', ...form.viewPhotos] })
   }
 
   const removeViewPhoto = (index: number) => {
@@ -456,11 +443,11 @@ export function LotForm({
         onChange={e => setForm({ ...form, bathrooms: e.target.value })}
       />
       <Input
-        label="Area (sqm)"
+        label="Area (sqft)"
         type="number"
         step="any"
-        value={form.areaSqm}
-        onChange={e => setForm({ ...form, areaSqm: e.target.value })}
+        value={form.areaSqft}
+        onChange={e => setForm({ ...form, areaSqft: e.target.value })}
       />
       <Input
         label="Floor"
@@ -493,28 +480,12 @@ export function LotForm({
       )}
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>Media</h3>
-        <div className={styles.coverImageWrapper}>
-          <div className={styles.inputWithButton}>
-            <Input
-              label="Cover Image URL"
-              type="url"
-              value={form.coverUrl}
-              onChange={e => setForm({ ...form, coverUrl: e.target.value })}
-              placeholder="https://example.com/image.jpg"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => setPickerOpen('coverUrl')}
-              iconLeft={<ImageIcon size={16} />}
-            >
-              Browse
-            </Button>
-            <ImageUploadButton onUpload={url => setForm({ ...form, coverUrl: url })} />
-          </div>
-          {form.coverUrl && <ImagePreview src={form.coverUrl} alt="Cover preview" />}
-        </div>
+        <MediaUrlInput
+          label="Cover Image"
+          value={form.coverUrl}
+          onChange={url => setForm({ ...form, coverUrl: url })}
+          onBrowse={() => setPickerOpen('coverUrl')}
+        />
         <div className={styles.mediaList}>
           <div className={styles.mediaListHeader}>
             <label className={styles.mediaListLabel}>Photos</label>
@@ -533,8 +504,7 @@ export function LotForm({
                 onUpload={url => setForm({ ...form, photos: [...form.photos, url] })}
                 onUploadMultiple={urls => setForm({ ...form, photos: [...form.photos, ...urls] })}
               />
-              <Button type="button" onClick={addPhoto} variant="secondary" size="sm">
-                <Plus size={16} />
+              <Button type="button" onClick={addPhoto} variant="secondary" size="sm" iconLeft={<Plus size={16} />}>
                 Add Photo
               </Button>
             </div>
@@ -547,68 +517,23 @@ export function LotForm({
                   value={url}
                   onChange={e => updatePhoto(index, e.target.value)}
                   placeholder="https://example.com/photo.jpg"
+                  sublabel={<Typography as="p" size="small" color="inherit">You can add here a url from the internet</Typography>}
                 />
                 {url && <ImagePreview src={url} alt={`Photo ${index + 1} preview`} />}
               </div>
-              <Button
-                type="button"
-                onClick={() => removePhoto(index)}
-                variant="secondary"
-                size="sm"
-                className={styles.removeButton}
-              >
+              <button type="button" onClick={() => removePhoto(index)} className={styles.removeButton}>
                 <X size={16} />
-              </Button>
+              </button>
             </div>
           ))}
         </div>
-        <div className={styles.mediaList}>
-          <div className={styles.mediaListHeader}>
-            <label className={styles.mediaListLabel}>Floor Plan Images</label>
-            <div className={styles.mediaListActions}>
-              <Button
-                type="button"
-                onClick={() => setPickerOpen('floorPlanImages')}
-                variant="secondary"
-                size="sm"
-                iconLeft={<ImageIcon size={16} />}
-              >
-                Browse
-              </Button>
-              <ImageUploadButton
-                multiple
-                onUpload={url => setForm({ ...form, floorPlanImages: [...form.floorPlanImages, url] })}
-                onUploadMultiple={urls => setForm({ ...form, floorPlanImages: [...form.floorPlanImages, ...urls] })}
-              />
-              <Button type="button" onClick={addFloorPlanImage} variant="secondary" size="sm">
-                <Plus size={16} />
-                Add Floor Plan
-              </Button>
-            </div>
-          </div>
-          {form.floorPlanImages.map((url, index) => (
-            <div key={index} className={styles.mediaItem}>
-              <div className={styles.mediaItemContent}>
-                <Input
-                  type="url"
-                  value={url}
-                  onChange={e => updateFloorPlanImage(index, e.target.value)}
-                  placeholder="https://example.com/floor-plan.jpg"
-                />
-                {url && <ImagePreview src={url} alt={`Floor plan ${index + 1} preview`} />}
-              </div>
-              <Button
-                type="button"
-                onClick={() => removeFloorPlanImage(index)}
-                variant="secondary"
-                size="sm"
-                className={styles.removeButton}
-              >
-                <X size={16} />
-              </Button>
-            </div>
-          ))}
-        </div>
+        <MediaUrlInput
+          label="Floor Plan"
+          value={form.floorPlanImages[0] || ''}
+          onChange={url => setForm({ ...form, floorPlanImages: url ? [url] : [] })}
+          onBrowse={() => setPickerOpen('floorPlanImages')}
+          placeholder="https://example.com/floor-plan.jpg"
+        />
       </div>
       <div className={styles.mediaSection}>
         <h3 className={styles.sectionTitle}>View Details</h3>
@@ -636,8 +561,7 @@ export function LotForm({
                 onUpload={url => setForm({ ...form, viewPhotos: [...form.viewPhotos, url] })}
                 onUploadMultiple={urls => setForm({ ...form, viewPhotos: [...form.viewPhotos, ...urls] })}
               />
-              <Button type="button" onClick={addViewPhoto} variant="secondary" size="sm">
-                <Plus size={16} />
+              <Button type="button" onClick={addViewPhoto} variant="secondary" size="sm" iconLeft={<Plus size={16} />}>
                 Add View Photo
               </Button>
             </div>
@@ -650,18 +574,13 @@ export function LotForm({
                   value={url}
                   onChange={e => updateViewPhoto(index, e.target.value)}
                   placeholder="https://example.com/view-photo.jpg"
+                  sublabel={<Typography as="p" size="small" color="inherit">You can add here a url from the internet</Typography>}
                 />
                 {url && <ImagePreview src={url} alt={`View photo ${index + 1} preview`} />}
               </div>
-              <Button
-                type="button"
-                onClick={() => removeViewPhoto(index)}
-                variant="secondary"
-                size="sm"
-                className={styles.removeButton}
-              >
+              <button type="button" onClick={() => removeViewPhoto(index)} className={styles.removeButton}>
                 <X size={16} />
-              </Button>
+              </button>
             </div>
           ))}
         </div>
@@ -690,10 +609,7 @@ export function LotForm({
       <MediaPicker
         open={pickerOpen === 'floorPlanImages'}
         onClose={() => setPickerOpen(null)}
-        multiple
-        onSelectMultiple={urls =>
-          setForm({ ...form, floorPlanImages: [...form.floorPlanImages, ...urls] })
-        }
+        onSelect={url => setForm({ ...form, floorPlanImages: [url] })}
       />
       <MediaPicker
         open={pickerOpen === 'viewPhotos'}
