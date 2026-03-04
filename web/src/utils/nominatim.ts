@@ -28,7 +28,9 @@ export async function searchCities(query: string): Promise<NominatimResult[]> {
 
 export async function searchAreas(query: string, city: string): Promise<NominatimResult[]> {
   const data = await fetchNominatim({ q: city ? `${query}, ${city}` : query, polygon_geojson: '1' })
-  return data.filter(r => r.geojson?.type === 'Polygon' || r.geojson?.type === 'MultiPolygon').slice(0, 5)
+  return data
+    .filter(r => r.geojson?.type === 'Polygon' || r.geojson?.type === 'MultiPolygon')
+    .slice(0, 5)
 }
 
 export function extractPolygonPoints(result: NominatimResult): [number, number][] {
@@ -38,6 +40,7 @@ export function extractPolygonPoints(result: NominatimResult): [number, number][
     ring = result.geojson.coordinates[0]
   } else {
     // MultiPolygon: take the largest outer ring
+    // @ts-expect-error - GeoJSON type is not typed correctly
     ring = result.geojson.coordinates.reduce((a, b) => (a[0].length > b[0].length ? a : b))[0]
   }
   return ring.map(([lng, lat]) => [lat, lng] as [number, number])
