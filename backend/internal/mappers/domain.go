@@ -163,6 +163,9 @@ func DomainProjectToGenerated(project *domain.Project) *generated.Project {
 	if project.YoutubeURL != "" {
 		result.YoutubeUrl = &project.YoutubeURL
 	}
+	if project.GoogleMapsURL != "" {
+		result.GoogleMapsUrl = &project.GoogleMapsURL
+	}
 	if project.Timeline != nil {
 		result.Timeline = domainTimelineToGenerated(project.Timeline)
 	}
@@ -281,8 +284,8 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 	if lot.Bathrooms != nil {
 		result.Bathrooms = lot.Bathrooms
 	}
-	if lot.AreaSqm != nil {
-		result.AreaSqm = float32Ptr(float32(*lot.AreaSqm))
+	if lot.AreaSqft != nil {
+		result.AreaSqft = float32Ptr(float32(*lot.AreaSqft))
 	}
 	if lot.Floor != nil {
 		result.Floor = lot.Floor
@@ -356,8 +359,8 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 	if lot.Bathrooms != nil {
 		result.Bathrooms = lot.Bathrooms
 	}
-	if lot.AreaSqm != nil {
-		result.AreaSqm = float32Ptr(float32(*lot.AreaSqm))
+	if lot.AreaSqft != nil {
+		result.AreaSqft = float32Ptr(float32(*lot.AreaSqft))
 	}
 	if lot.Floor != nil {
 		result.Floor = lot.Floor
@@ -856,6 +859,9 @@ func GeneratedProjectCreateToDomain(req *generated.ProjectCreateRequest) (*domai
 	if req.YoutubeUrl != nil {
 		project.YoutubeURL = *req.YoutubeUrl
 	}
+	if req.GoogleMapsUrl != nil {
+		project.GoogleMapsURL = *req.GoogleMapsUrl
+	}
 	if req.Timeline != nil {
 		project.Timeline = generatedTimelineToDomain(req.Timeline)
 	}
@@ -972,6 +978,9 @@ func GeneratedProjectUpdateToDomain(req *generated.ProjectUpdateRequest) (*domai
 	}
 	if req.YoutubeUrl != nil {
 		project.YoutubeURL = *req.YoutubeUrl
+	}
+	if req.GoogleMapsUrl != nil {
+		project.GoogleMapsURL = *req.GoogleMapsUrl
 	}
 	if req.Timeline != nil {
 		project.Timeline = generatedTimelineToDomain(req.Timeline)
@@ -1178,9 +1187,9 @@ func GeneratedLotCreateToDomain(req *generated.LotCreateRequest) (*domain.Lot, e
 		bathrooms := int(*req.Bathrooms)
 		lot.Bathrooms = &bathrooms
 	}
-	if req.AreaSqm != nil {
-		areaSqm := float64(*req.AreaSqm)
-		lot.AreaSqm = &areaSqm
+	if req.AreaSqft != nil {
+		areaSqft := float64(*req.AreaSqft)
+		lot.AreaSqft = &areaSqft
 	}
 	if req.Floor != nil {
 		floor := int(*req.Floor)
@@ -1223,9 +1232,9 @@ func GeneratedLotUpdateToDomain(req *generated.LotUpdateRequest) (*domain.Lot, e
 		bathrooms := int(*req.Bathrooms)
 		lot.Bathrooms = &bathrooms
 	}
-	if req.AreaSqm != nil {
-		areaSqm := float64(*req.AreaSqm)
-		lot.AreaSqm = &areaSqm
+	if req.AreaSqft != nil {
+		areaSqft := float64(*req.AreaSqft)
+		lot.AreaSqft = &areaSqft
 	}
 	if req.Floor != nil {
 		floor := int(*req.Floor)

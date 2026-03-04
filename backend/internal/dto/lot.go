@@ -9,7 +9,7 @@ type LotResponse struct {
 	Type          string              `json:"type"`
 	Bedrooms      *int                `json:"bedrooms,omitempty"`
 	Bathrooms     *int                `json:"bathrooms,omitempty"`
-	AreaSqm       *float64            `json:"areaSqm,omitempty"`
+	AreaSqft       *float64            `json:"areaSqft,omitempty"`
 	Floor         *int                `json:"floor,omitempty"`
 	PriceFromUs    float64             `json:"priceAmount"`
 	DeveloperPrice *float64           `json:"developerPrice,omitempty"`
@@ -67,8 +67,8 @@ func LotToResponse(lot *domain.Lot) *LotResponse {
 	if lot.Bathrooms != nil {
 		resp.Bathrooms = lot.Bathrooms
 	}
-	if lot.AreaSqm != nil {
-		resp.AreaSqm = lot.AreaSqm
+	if lot.AreaSqft != nil {
+		resp.AreaSqft = lot.AreaSqft
 	}
 	if lot.Floor != nil {
 		resp.Floor = lot.Floor

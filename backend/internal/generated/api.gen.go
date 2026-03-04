@@ -636,7 +636,7 @@ type LeadUpdateRequestType string
 // Lot defines model for Lot.
 type Lot struct {
 	Area      *Area                 `json:"area,omitempty"`
-	AreaSqm   *float32              `json:"areaSqm,omitempty"`
+	AreaSqft  *float32              `json:"areaSqft,omitempty"`
 	BadgeIds  *[]openapi_types.UUID `json:"badgeIds,omitempty"`
 	Badges    *[]Badge              `json:"badges,omitempty"`
 	Bathrooms *int                  `json:"bathrooms,omitempty"`
@@ -665,7 +665,7 @@ type LotStatus string
 
 // LotCreateRequest defines model for LotCreateRequest.
 type LotCreateRequest struct {
-	AreaSqm            *float32                `json:"areaSqm,omitempty"`
+	AreaSqft           *float32                `json:"areaSqft,omitempty"`
 	BadgeIds           *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
 	Bathrooms          *int                    `json:"bathrooms,omitempty"`
 	Bedrooms           *int                    `json:"bedrooms,omitempty"`
@@ -698,7 +698,7 @@ type LotData struct {
 type LotListItem struct {
 	Area      *Area                 `json:"area,omitempty"`
 	AreaId    *openapi_types.UUID   `json:"areaId,omitempty"`
-	AreaSqm   *float32              `json:"areaSqm,omitempty"`
+	AreaSqft  *float32              `json:"areaSqft,omitempty"`
 	BadgeIds  *[]openapi_types.UUID `json:"badgeIds,omitempty"`
 	Badges    *[]Badge              `json:"badges,omitempty"`
 	Bathrooms *int                  `json:"bathrooms,omitempty"`
@@ -739,7 +739,7 @@ type LotType string
 
 // LotUpdateRequest defines model for LotUpdateRequest.
 type LotUpdateRequest struct {
-	AreaSqm            *float32                `json:"areaSqm,omitempty"`
+	AreaSqft           *float32                `json:"areaSqft,omitempty"`
 	BadgeIds           *[]openapi_types.UUID   `json:"badgeIds,omitempty"`
 	Bathrooms          *int                    `json:"bathrooms,omitempty"`
 	Bedrooms           *int                    `json:"bedrooms,omitempty"`
@@ -835,7 +835,10 @@ type Project struct {
 	Developer         *Developer           `json:"developer,omitempty"`
 	DeveloperId       *openapi_types.UUID  `json:"developerId,omitempty"`
 	FeaturesAmenities *[]string            `json:"featuresAmenities,omitempty"`
-	Id                *openapi_types.UUID  `json:"id,omitempty"`
+
+	// GoogleMapsUrl Google Maps URL for the project location
+	GoogleMapsUrl *string             `json:"googleMapsUrl,omitempty"`
+	Id            *openapi_types.UUID `json:"id,omitempty"`
 
 	// Infrastructures Инфраструктура комплекса
 	Infrastructures *[]Infrastructure `json:"infrastructures,omitempty"`
@@ -929,6 +932,9 @@ type ProjectCreateRequest struct {
 	Description       *ProjectCreateRequest_Description `json:"description,omitempty"`
 	DeveloperId       *openapi_types.UUID               `json:"developerId,omitempty"`
 	FeaturesAmenities *[]string                         `json:"featuresAmenities,omitempty"`
+
+	// GoogleMapsUrl Google Maps URL for the project location
+	GoogleMapsUrl *string `json:"googleMapsUrl,omitempty"`
 
 	// InfrastructureIds IDs of complex infrastructure for the project
 	InfrastructureIds *[]openapi_types.UUID `json:"infrastructureIds,omitempty"`
@@ -1039,6 +1045,9 @@ type ProjectUpdateRequest struct {
 	Description       *ProjectUpdateRequest_Description `json:"description,omitempty"`
 	DeveloperId       *openapi_types.UUID               `json:"developerId,omitempty"`
 	FeaturesAmenities *[]string                         `json:"featuresAmenities,omitempty"`
+
+	// GoogleMapsUrl Google Maps URL for the project location
+	GoogleMapsUrl *string `json:"googleMapsUrl,omitempty"`
 
 	// InfrastructureIds IDs of complex infrastructure for the project
 	InfrastructureIds *[]openapi_types.UUID `json:"infrastructureIds,omitempty"`

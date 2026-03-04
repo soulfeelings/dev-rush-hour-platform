@@ -14,16 +14,16 @@ import (
 
 const createProject = `-- name: CreateProject :one
 INSERT INTO projects (slug, name, status, sale, developer_id, area_id, lat, lng,
-	description, media, features_amenities, tags, is_featured, youtube_url,
+	description, media, features_amenities, tags, is_featured, youtube_url, google_maps_url,
 	roi, price_from_us, price_from_developer, payment_plan, completion_date,
 	currency, property_types, bedrooms, bathrooms, area_size, area_unit, prices_by_type,
 	timeline_announcement, timeline_booking_started, timeline_construction_started,
 	timeline_construction_progress, timeline_construction_progress_pct, timeline_expected_completion)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8,
-	$9, $10, $11, $12, $13, $14,
-	$15, $16, $17, $18, $19,
-	$20, $21, $22, $23, $24, $25, $26,
-	$27, $28, $29, $30, $31, $32)
+	$9, $10, $11, $12, $13, $14, $15,
+	$16, $17, $18, $19, $20,
+	$21, $22, $23, $24, $25, $26, $27,
+	$28, $29, $30, $31, $32, $33)
 RETURNING id, created_at, updated_at
 `
 
@@ -42,6 +42,7 @@ type CreateProjectParams struct {
 	Tags                            []string           `json:"tags"`
 	IsFeatured                      pgtype.Bool        `json:"is_featured"`
 	YoutubeUrl                      pgtype.Text        `json:"youtube_url"`
+	GoogleMapsUrl                   pgtype.Text        `json:"google_maps_url"`
 	Roi                             pgtype.Numeric     `json:"roi"`
 	PriceFromUs                     pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper              pgtype.Numeric     `json:"price_from_developer"`
@@ -84,6 +85,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (C
 		arg.Tags,
 		arg.IsFeatured,
 		arg.YoutubeUrl,
+		arg.GoogleMapsUrl,
 		arg.Roi,
 		arg.PriceFromUs,
 		arg.PriceFromDeveloper,
@@ -121,7 +123,7 @@ func (q *Queries) DeleteProject(ctx context.Context, id uuid.UUID) error {
 
 const getProjectByID = `-- name: GetProjectByID :one
 SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng,
-	description, media, features_amenities, tags, is_featured, youtube_url,
+	description, media, features_amenities, tags, is_featured, youtube_url, google_maps_url,
 	roi, price_from_us, price_from_developer, payment_plan, completion_date,
 	currency, property_types, bedrooms, bathrooms, area_size, area_unit, prices_by_type,
 	timeline_announcement, timeline_booking_started, timeline_construction_started,
@@ -147,6 +149,7 @@ type GetProjectByIDRow struct {
 	Tags                            []string           `json:"tags"`
 	IsFeatured                      pgtype.Bool        `json:"is_featured"`
 	YoutubeUrl                      pgtype.Text        `json:"youtube_url"`
+	GoogleMapsUrl                   pgtype.Text        `json:"google_maps_url"`
 	Roi                             pgtype.Numeric     `json:"roi"`
 	PriceFromUs                     pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper              pgtype.Numeric     `json:"price_from_developer"`
@@ -189,6 +192,7 @@ func (q *Queries) GetProjectByID(ctx context.Context, id uuid.UUID) (GetProjectB
 		&i.Tags,
 		&i.IsFeatured,
 		&i.YoutubeUrl,
+		&i.GoogleMapsUrl,
 		&i.Roi,
 		&i.PriceFromUs,
 		&i.PriceFromDeveloper,
@@ -216,7 +220,7 @@ func (q *Queries) GetProjectByID(ctx context.Context, id uuid.UUID) (GetProjectB
 
 const getProjectByIDWithDeleted = `-- name: GetProjectByIDWithDeleted :one
 SELECT id, slug, name, status, sale, developer_id, area_id, lat, lng,
-	description, media, features_amenities, tags, is_featured, youtube_url,
+	description, media, features_amenities, tags, is_featured, youtube_url, google_maps_url,
 	roi, price_from_us, price_from_developer, payment_plan, completion_date,
 	currency, property_types, bedrooms, bathrooms, area_size, area_unit, prices_by_type,
 	timeline_announcement, timeline_booking_started, timeline_construction_started,
@@ -242,6 +246,7 @@ type GetProjectByIDWithDeletedRow struct {
 	Tags                            []string           `json:"tags"`
 	IsFeatured                      pgtype.Bool        `json:"is_featured"`
 	YoutubeUrl                      pgtype.Text        `json:"youtube_url"`
+	GoogleMapsUrl                   pgtype.Text        `json:"google_maps_url"`
 	Roi                             pgtype.Numeric     `json:"roi"`
 	PriceFromUs                     pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper              pgtype.Numeric     `json:"price_from_developer"`
@@ -284,6 +289,7 @@ func (q *Queries) GetProjectByIDWithDeleted(ctx context.Context, id uuid.UUID) (
 		&i.Tags,
 		&i.IsFeatured,
 		&i.YoutubeUrl,
+		&i.GoogleMapsUrl,
 		&i.Roi,
 		&i.PriceFromUs,
 		&i.PriceFromDeveloper,
@@ -311,7 +317,7 @@ func (q *Queries) GetProjectByIDWithDeleted(ctx context.Context, id uuid.UUID) (
 
 const getProjectBySlug = `-- name: GetProjectBySlug :one
 SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng,
-	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url,
+	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url, p.google_maps_url,
 	p.roi, p.price_from_us, p.price_from_developer, p.payment_plan, p.completion_date,
 	p.currency, p.property_types, p.bedrooms, p.bathrooms, p.area_size, p.area_unit, p.prices_by_type,
 	p.timeline_announcement, p.timeline_booking_started, p.timeline_construction_started,
@@ -341,6 +347,7 @@ type GetProjectBySlugRow struct {
 	Tags                            []string           `json:"tags"`
 	IsFeatured                      pgtype.Bool        `json:"is_featured"`
 	YoutubeUrl                      pgtype.Text        `json:"youtube_url"`
+	GoogleMapsUrl                   pgtype.Text        `json:"google_maps_url"`
 	Roi                             pgtype.Numeric     `json:"roi"`
 	PriceFromUs                     pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper              pgtype.Numeric     `json:"price_from_developer"`
@@ -386,6 +393,7 @@ func (q *Queries) GetProjectBySlug(ctx context.Context, slug string) (GetProject
 		&i.Tags,
 		&i.IsFeatured,
 		&i.YoutubeUrl,
+		&i.GoogleMapsUrl,
 		&i.Roi,
 		&i.PriceFromUs,
 		&i.PriceFromDeveloper,
@@ -436,7 +444,7 @@ func (q *Queries) HardDeleteProject(ctx context.Context, id uuid.UUID) error {
 
 const listAllProjects = `-- name: ListAllProjects :many
 SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng,
-	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url,
+	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url, p.google_maps_url,
 	p.roi, p.price_from_us, p.price_from_developer, p.payment_plan, p.completion_date,
 	p.currency, p.property_types, p.bedrooms, p.bathrooms, p.area_size, p.area_unit, p.prices_by_type,
 	p.timeline_announcement, p.timeline_booking_started, p.timeline_construction_started,
@@ -467,6 +475,7 @@ type ListAllProjectsRow struct {
 	Tags                            []string           `json:"tags"`
 	IsFeatured                      pgtype.Bool        `json:"is_featured"`
 	YoutubeUrl                      pgtype.Text        `json:"youtube_url"`
+	GoogleMapsUrl                   pgtype.Text        `json:"google_maps_url"`
 	Roi                             pgtype.Numeric     `json:"roi"`
 	PriceFromUs                     pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper              pgtype.Numeric     `json:"price_from_developer"`
@@ -519,6 +528,7 @@ func (q *Queries) ListAllProjects(ctx context.Context) ([]ListAllProjectsRow, er
 			&i.Tags,
 			&i.IsFeatured,
 			&i.YoutubeUrl,
+			&i.GoogleMapsUrl,
 			&i.Roi,
 			&i.PriceFromUs,
 			&i.PriceFromDeveloper,
@@ -557,7 +567,7 @@ func (q *Queries) ListAllProjects(ctx context.Context) ([]ListAllProjectsRow, er
 
 const listDeletedProjects = `-- name: ListDeletedProjects :many
 SELECT p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng,
-	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url,
+	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url, p.google_maps_url,
 	p.roi, p.price_from_us, p.price_from_developer, p.payment_plan, p.completion_date,
 	p.currency, p.property_types, p.bedrooms, p.bathrooms, p.area_size, p.area_unit, p.prices_by_type,
 	p.timeline_announcement, p.timeline_booking_started, p.timeline_construction_started,
@@ -588,6 +598,7 @@ type ListDeletedProjectsRow struct {
 	Tags                            []string           `json:"tags"`
 	IsFeatured                      pgtype.Bool        `json:"is_featured"`
 	YoutubeUrl                      pgtype.Text        `json:"youtube_url"`
+	GoogleMapsUrl                   pgtype.Text        `json:"google_maps_url"`
 	Roi                             pgtype.Numeric     `json:"roi"`
 	PriceFromUs                     pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper              pgtype.Numeric     `json:"price_from_developer"`
@@ -640,6 +651,7 @@ func (q *Queries) ListDeletedProjects(ctx context.Context) ([]ListDeletedProject
 			&i.Tags,
 			&i.IsFeatured,
 			&i.YoutubeUrl,
+			&i.GoogleMapsUrl,
 			&i.Roi,
 			&i.PriceFromUs,
 			&i.PriceFromDeveloper,
@@ -728,13 +740,13 @@ func (q *Queries) RestoreProject(ctx context.Context, id uuid.UUID) error {
 const updateProject = `-- name: UpdateProject :one
 UPDATE projects SET
 	slug = $1, name = $2, status = $3, sale = $4, developer_id = $5, area_id = $6, lat = $7, lng = $8,
-	description = $9, media = $10, features_amenities = $11, tags = $12, is_featured = $13, youtube_url = $14,
-	roi = $15, price_from_us = $16, price_from_developer = $17, payment_plan = $18, completion_date = $19,
-	currency = $20, property_types = $21, bedrooms = $22, bathrooms = $23, area_size = $24, area_unit = $25, prices_by_type = $26,
-	timeline_announcement = $27, timeline_booking_started = $28, timeline_construction_started = $29,
-	timeline_construction_progress = $30, timeline_construction_progress_pct = $31, timeline_expected_completion = $32,
+	description = $9, media = $10, features_amenities = $11, tags = $12, is_featured = $13, youtube_url = $14, google_maps_url = $15,
+	roi = $16, price_from_us = $17, price_from_developer = $18, payment_plan = $19, completion_date = $20,
+	currency = $21, property_types = $22, bedrooms = $23, bathrooms = $24, area_size = $25, area_unit = $26, prices_by_type = $27,
+	timeline_announcement = $28, timeline_booking_started = $29, timeline_construction_started = $30,
+	timeline_construction_progress = $31, timeline_construction_progress_pct = $32, timeline_expected_completion = $33,
 	updated_at = NOW()
-WHERE id = $33 AND deleted_at IS NULL
+WHERE id = $34 AND deleted_at IS NULL
 RETURNING updated_at
 `
 
@@ -753,6 +765,7 @@ type UpdateProjectParams struct {
 	Tags                            []string           `json:"tags"`
 	IsFeatured                      pgtype.Bool        `json:"is_featured"`
 	YoutubeUrl                      pgtype.Text        `json:"youtube_url"`
+	GoogleMapsUrl                   pgtype.Text        `json:"google_maps_url"`
 	Roi                             pgtype.Numeric     `json:"roi"`
 	PriceFromUs                     pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper              pgtype.Numeric     `json:"price_from_developer"`
@@ -790,6 +803,7 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (p
 		arg.Tags,
 		arg.IsFeatured,
 		arg.YoutubeUrl,
+		arg.GoogleMapsUrl,
 		arg.Roi,
 		arg.PriceFromUs,
 		arg.PriceFromDeveloper,

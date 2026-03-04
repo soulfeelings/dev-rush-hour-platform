@@ -187,8 +187,8 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 	if updates.Bathrooms != nil {
 		existing.Bathrooms = updates.Bathrooms
 	}
-	if updates.AreaSqm != nil {
-		existing.AreaSqm = updates.AreaSqm
+	if updates.AreaSqft != nil {
+		existing.AreaSqft = updates.AreaSqft
 	}
 	if updates.Floor != nil {
 		existing.Floor = updates.Floor

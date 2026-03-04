@@ -13,7 +13,7 @@ import (
 )
 
 const createLot = `-- name: CreateLot :one
-INSERT INTO lots (status, project_id, type, bedrooms, bathrooms, area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data)
+INSERT INTO lots (status, project_id, type, bedrooms, bathrooms, area_sqft, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING id, created_at, updated_at
 `
@@ -24,7 +24,7 @@ type CreateLotParams struct {
 	Type               string         `json:"type"`
 	Bedrooms           pgtype.Int4    `json:"bedrooms"`
 	Bathrooms          pgtype.Int4    `json:"bathrooms"`
-	AreaSqm            pgtype.Numeric `json:"area_sqm"`
+	AreaSqft           pgtype.Numeric `json:"area_sqft"`
 	Floor              pgtype.Int4    `json:"floor"`
 	PriceFromUs        pgtype.Numeric `json:"price_from_us"`
 	PriceFromDeveloper pgtype.Numeric `json:"price_from_developer"`
@@ -47,7 +47,7 @@ func (q *Queries) CreateLot(ctx context.Context, arg CreateLotParams) (CreateLot
 		arg.Type,
 		arg.Bedrooms,
 		arg.Bathrooms,
-		arg.AreaSqm,
+		arg.AreaSqft,
 		arg.Floor,
 		arg.PriceFromUs,
 		arg.PriceFromDeveloper,
@@ -75,7 +75,7 @@ func (q *Queries) DeleteLot(ctx context.Context, id uuid.UUID) error {
 const getLotByID = `-- name: GetLotByID :one
 SELECT
 	l.id, l.status, l.project_id, l.type, l.bedrooms, l.bathrooms,
-	l.area_sqm, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
+	l.area_sqft, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at, l.deleted_at,
 	p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.payment_plan, p.created_at, p.updated_at,
 	d.slug, d.name, d.created_at, d.updated_at,
 	a.slug, a.name, a.created_at, a.updated_at
@@ -93,7 +93,7 @@ type GetLotByIDRow struct {
 	Type               string             `json:"type"`
 	Bedrooms           pgtype.Int4        `json:"bedrooms"`
 	Bathrooms          pgtype.Int4        `json:"bathrooms"`
-	AreaSqm            pgtype.Numeric     `json:"area_sqm"`
+	AreaSqft           pgtype.Numeric     `json:"area_sqft"`
 	Floor              pgtype.Int4        `json:"floor"`
 	PriceFromUs        pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper pgtype.Numeric     `json:"price_from_developer"`
@@ -135,7 +135,7 @@ func (q *Queries) GetLotByID(ctx context.Context, id uuid.UUID) (GetLotByIDRow, 
 		&i.Type,
 		&i.Bedrooms,
 		&i.Bathrooms,
-		&i.AreaSqm,
+		&i.AreaSqft,
 		&i.Floor,
 		&i.PriceFromUs,
 		&i.PriceFromDeveloper,
@@ -171,7 +171,7 @@ func (q *Queries) GetLotByID(ctx context.Context, id uuid.UUID) (GetLotByIDRow, 
 
 const getLotByIDWithDeleted = `-- name: GetLotByIDWithDeleted :one
 SELECT id, status, project_id, type, bedrooms, bathrooms,
-       area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
+       area_sqft, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
 FROM lots
 WHERE id = $1
 `
@@ -183,7 +183,7 @@ type GetLotByIDWithDeletedRow struct {
 	Type               string             `json:"type"`
 	Bedrooms           pgtype.Int4        `json:"bedrooms"`
 	Bathrooms          pgtype.Int4        `json:"bathrooms"`
-	AreaSqm            pgtype.Numeric     `json:"area_sqm"`
+	AreaSqft           pgtype.Numeric     `json:"area_sqft"`
 	Floor              pgtype.Int4        `json:"floor"`
 	PriceFromUs        pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper pgtype.Numeric     `json:"price_from_developer"`
@@ -206,7 +206,7 @@ func (q *Queries) GetLotByIDWithDeleted(ctx context.Context, id uuid.UUID) (GetL
 		&i.Type,
 		&i.Bedrooms,
 		&i.Bathrooms,
-		&i.AreaSqm,
+		&i.AreaSqft,
 		&i.Floor,
 		&i.PriceFromUs,
 		&i.PriceFromDeveloper,
@@ -223,7 +223,7 @@ func (q *Queries) GetLotByIDWithDeleted(ctx context.Context, id uuid.UUID) (GetL
 
 const getLotsByProjectID = `-- name: GetLotsByProjectID :many
 SELECT id, status, project_id, type, bedrooms, bathrooms,
-       area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at
+       area_sqft, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at
 FROM lots
 WHERE project_id = $1 AND status = 'active'
 ORDER BY created_at DESC
@@ -242,7 +242,7 @@ type GetLotsByProjectIDRow struct {
 	Type               string             `json:"type"`
 	Bedrooms           pgtype.Int4        `json:"bedrooms"`
 	Bathrooms          pgtype.Int4        `json:"bathrooms"`
-	AreaSqm            pgtype.Numeric     `json:"area_sqm"`
+	AreaSqft           pgtype.Numeric     `json:"area_sqft"`
 	Floor              pgtype.Int4        `json:"floor"`
 	PriceFromUs        pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper pgtype.Numeric     `json:"price_from_developer"`
@@ -270,7 +270,7 @@ func (q *Queries) GetLotsByProjectID(ctx context.Context, arg GetLotsByProjectID
 			&i.Type,
 			&i.Bedrooms,
 			&i.Bathrooms,
-			&i.AreaSqm,
+			&i.AreaSqft,
 			&i.Floor,
 			&i.PriceFromUs,
 			&i.PriceFromDeveloper,
@@ -302,7 +302,7 @@ func (q *Queries) HardDeleteLot(ctx context.Context, id uuid.UUID) error {
 
 const listAllLots = `-- name: ListAllLots :many
 SELECT id, status, project_id, type, bedrooms, bathrooms,
-       area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
+       area_sqft, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
 FROM lots
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC
@@ -315,7 +315,7 @@ type ListAllLotsRow struct {
 	Type               string             `json:"type"`
 	Bedrooms           pgtype.Int4        `json:"bedrooms"`
 	Bathrooms          pgtype.Int4        `json:"bathrooms"`
-	AreaSqm            pgtype.Numeric     `json:"area_sqm"`
+	AreaSqft           pgtype.Numeric     `json:"area_sqft"`
 	Floor              pgtype.Int4        `json:"floor"`
 	PriceFromUs        pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper pgtype.Numeric     `json:"price_from_developer"`
@@ -344,7 +344,7 @@ func (q *Queries) ListAllLots(ctx context.Context) ([]ListAllLotsRow, error) {
 			&i.Type,
 			&i.Bedrooms,
 			&i.Bathrooms,
-			&i.AreaSqm,
+			&i.AreaSqft,
 			&i.Floor,
 			&i.PriceFromUs,
 			&i.PriceFromDeveloper,
@@ -368,7 +368,7 @@ func (q *Queries) ListAllLots(ctx context.Context) ([]ListAllLotsRow, error) {
 
 const listDeletedLots = `-- name: ListDeletedLots :many
 SELECT id, status, project_id, type, bedrooms, bathrooms,
-       area_sqm, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
+       area_sqft, floor, price_from_us, price_from_developer, roi, bonus_keys, badge_ids, data, created_at, updated_at, deleted_at
 FROM lots
 WHERE deleted_at IS NOT NULL
 ORDER BY deleted_at DESC
@@ -381,7 +381,7 @@ type ListDeletedLotsRow struct {
 	Type               string             `json:"type"`
 	Bedrooms           pgtype.Int4        `json:"bedrooms"`
 	Bathrooms          pgtype.Int4        `json:"bathrooms"`
-	AreaSqm            pgtype.Numeric     `json:"area_sqm"`
+	AreaSqft           pgtype.Numeric     `json:"area_sqft"`
 	Floor              pgtype.Int4        `json:"floor"`
 	PriceFromUs        pgtype.Numeric     `json:"price_from_us"`
 	PriceFromDeveloper pgtype.Numeric     `json:"price_from_developer"`
@@ -410,7 +410,7 @@ func (q *Queries) ListDeletedLots(ctx context.Context) ([]ListDeletedLotsRow, er
 			&i.Type,
 			&i.Bedrooms,
 			&i.Bathrooms,
-			&i.AreaSqm,
+			&i.AreaSqft,
 			&i.Floor,
 			&i.PriceFromUs,
 			&i.PriceFromDeveloper,
@@ -445,7 +445,7 @@ func (q *Queries) RestoreLot(ctx context.Context, id uuid.UUID) error {
 
 const updateLot = `-- name: UpdateLot :one
 UPDATE lots
-SET status = $1, project_id = $2, type = $3, bedrooms = $4, bathrooms = $5, area_sqm = $6, floor = $7, price_from_us = $8, price_from_developer = $9, roi = $10, bonus_keys = $11, badge_ids = $12, data = $13, updated_at = NOW()
+SET status = $1, project_id = $2, type = $3, bedrooms = $4, bathrooms = $5, area_sqft = $6, floor = $7, price_from_us = $8, price_from_developer = $9, roi = $10, bonus_keys = $11, badge_ids = $12, data = $13, updated_at = NOW()
 WHERE id = $14 AND deleted_at IS NULL
 RETURNING updated_at
 `
@@ -456,7 +456,7 @@ type UpdateLotParams struct {
 	Type               string         `json:"type"`
 	Bedrooms           pgtype.Int4    `json:"bedrooms"`
 	Bathrooms          pgtype.Int4    `json:"bathrooms"`
-	AreaSqm            pgtype.Numeric `json:"area_sqm"`
+	AreaSqft           pgtype.Numeric `json:"area_sqft"`
 	Floor              pgtype.Int4    `json:"floor"`
 	PriceFromUs        pgtype.Numeric `json:"price_from_us"`
 	PriceFromDeveloper pgtype.Numeric `json:"price_from_developer"`
@@ -474,7 +474,7 @@ func (q *Queries) UpdateLot(ctx context.Context, arg UpdateLotParams) (pgtype.Ti
 		arg.Type,
 		arg.Bedrooms,
 		arg.Bathrooms,
-		arg.AreaSqm,
+		arg.AreaSqft,
 		arg.Floor,
 		arg.PriceFromUs,
 		arg.PriceFromDeveloper,

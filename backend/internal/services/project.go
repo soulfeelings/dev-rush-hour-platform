@@ -252,6 +252,9 @@ func (s *ProjectsService) Update(id uuid.UUID, updates *domain.Project) error {
 	if updates.YoutubeURL != "" {
 		existing.YoutubeURL = updates.YoutubeURL
 	}
+	if updates.GoogleMapsURL != "" {
+		existing.GoogleMapsURL = updates.GoogleMapsURL
+	}
 	if updates.Timeline != nil {
 		existing.Timeline = updates.Timeline
 	}

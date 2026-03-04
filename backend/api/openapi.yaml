@@ -2256,6 +2256,9 @@ components:
         youtubeUrl:
           type: string
           description: YouTube video URL for the project
+        googleMapsUrl:
+          type: string
+          description: Google Maps URL for the project location
         timeline:
           $ref: "#/components/schemas/ProjectTimeline"
         roi:
@@ -2427,7 +2430,7 @@ components:
           type: integer
         bathrooms:
           type: integer
-        areaSqm:
+        areaSqft:
           type: number
         floor:
           type: integer
@@ -2577,7 +2580,7 @@ components:
           type: integer
         bathrooms:
           type: integer
-        areaSqm:
+        areaSqft:
           type: number
         floor:
           type: integer
@@ -3157,6 +3160,9 @@ components:
         youtubeUrl:
           type: string
           description: YouTube video URL for the project
+        googleMapsUrl:
+          type: string
+          description: Google Maps URL for the project location
         timeline:
           $ref: "#/components/schemas/ProjectTimeline"
         roi:
@@ -3267,6 +3273,9 @@ components:
         youtubeUrl:
           type: string
           description: YouTube video URL for the project
+        googleMapsUrl:
+          type: string
+          description: Google Maps URL for the project location
         timeline:
           $ref: "#/components/schemas/ProjectTimeline"
         roi:
@@ -3351,7 +3360,7 @@ components:
           type: integer
         bathrooms:
           type: integer
-        areaSqm:
+        areaSqft:
           type: number
         floor:
           type: integer
@@ -3388,7 +3397,7 @@ components:
           type: integer
         bathrooms:
           type: integer
-        areaSqm:
+        areaSqft:
           type: number
         floor:
           type: integer

@@ -101,7 +101,7 @@ type Lot struct {
 	Type               string             `json:"type"`
 	Bedrooms           pgtype.Int4        `json:"bedrooms"`
 	Bathrooms          pgtype.Int4        `json:"bathrooms"`
-	AreaSqm            pgtype.Numeric     `json:"area_sqm"`
+	AreaSqft           pgtype.Numeric     `json:"area_sqft"`
 	Floor              pgtype.Int4        `json:"floor"`
 	PriceFromUs        pgtype.Numeric     `json:"price_from_us"`
 	BonusKeys          []string           `json:"bonus_keys"`
@@ -166,6 +166,7 @@ type Project struct {
 	TimelineConstructionProgressPct pgtype.Int4        `json:"timeline_construction_progress_pct"`
 	TimelineExpectedCompletion      pgtype.Timestamptz `json:"timeline_expected_completion"`
 	Bathrooms                       []string           `json:"bathrooms"`
+	GoogleMapsUrl                   pgtype.Text        `json:"google_maps_url"`
 }
 
 type ProjectBadge struct {

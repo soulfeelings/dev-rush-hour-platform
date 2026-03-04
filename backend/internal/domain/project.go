@@ -25,6 +25,7 @@ type Project struct {
 	Tags              []string
 	IsFeatured        bool
 	YoutubeURL        string
+	GoogleMapsURL     string
 	ROI               *float64
 	PriceFromUs        *float64
 	PriceFromDeveloper *float64

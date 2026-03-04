@@ -70,7 +70,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 
 	lot, err := sqlcLotRowToDomain(
 		row.ID, row.Status, row.ProjectID, row.Type,
-		row.Bedrooms, row.Bathrooms, row.AreaSqm, row.Floor,
+		row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 		row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
 		row.BonusKeys, row.BadgeIds, row.Data,
 		row.CreatedAt, row.UpdatedAt, row.DeletedAt,
@@ -132,7 +132,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 	query := `SELECT
 			l.id, l.status, l.project_id, l.type, l.bedrooms, l.bathrooms,
-			l.area_sqm, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at,
+			l.area_sqft, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at,
 			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at
 		FROM lots l
 		LEFT JOIN projects p ON l.project_id = p.id
@@ -239,15 +239,15 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 	}
 
 	if filters.AreaMin != nil {
-		query += fmt.Sprintf(` AND l.area_sqm >= $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND l.area_sqm >= $%d`, argPos)
+		query += fmt.Sprintf(` AND l.area_sqft >= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.area_sqft >= $%d`, argPos)
 		args = append(args, *filters.AreaMin)
 		argPos++
 	}
 
 	if filters.AreaMax != nil {
-		query += fmt.Sprintf(` AND l.area_sqm <= $%d`, argPos)
-		countQuery += fmt.Sprintf(` AND l.area_sqm <= $%d`, argPos)
+		query += fmt.Sprintf(` AND l.area_sqft <= $%d`, argPos)
+		countQuery += fmt.Sprintf(` AND l.area_sqft <= $%d`, argPos)
 		args = append(args, *filters.AreaMax)
 		argPos++
 	}
@@ -265,7 +265,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 	case LotSortPriceDesc:
 		query += ` ORDER BY l.price_from_us DESC`
 	case LotSortAreaDesc:
-		query += ` ORDER BY l.area_sqm DESC NULLS LAST`
+		query += ` ORDER BY l.area_sqft DESC NULLS LAST`
 	case LotSortNewest:
 		query += ` ORDER BY l.created_at DESC`
 	default:
@@ -297,7 +297,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 			projectID                            uuid.NullUUID
 			lotType                              string
 			bedrooms, bathrooms, floor           pgtype.Int4
-			areaSqm                              pgtype.Numeric
+			areaSqft                              pgtype.Numeric
 			priceFromUs, priceFromDeveloper, roi pgtype.Numeric
 			bonusKeys                            []string
 			badgeIDs                             []uuid.UUID
@@ -313,7 +313,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 		if err := rows.Scan(
 			&lotID, &lotStatus, &projectID,
-			&lotType, &bedrooms, &bathrooms, &areaSqm, &floor,
+			&lotType, &bedrooms, &bathrooms, &areaSqft, &floor,
 			&priceFromUs, &priceFromDeveloper, &roi, &bonusKeys, &badgeIDs, &dataJSON,
 			&createdAt, &updatedAt,
 			&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projMediaJSON, &projIsFeatured, &projCreatedAt, &projUpdatedAt,
@@ -323,7 +323,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 		lot, err := sqlcLotRowToDomain(
 			lotID, lotStatus, projectID, lotType,
-			bedrooms, bathrooms, areaSqm, floor,
+			bedrooms, bathrooms, areaSqft, floor,
 			priceFromUs, priceFromDeveloper, roi,
 			bonusKeys, badgeIDs, dataJSON,
 			createdAt, updatedAt, pgtype.Timestamptz{},
@@ -382,7 +382,7 @@ func (r *LotRepo) Create(lot *domain.Lot) error {
 		Type:               string(lot.Type),
 		Bedrooms:           intPtrToInt4(lot.Bedrooms),
 		Bathrooms:          intPtrToInt4(lot.Bathrooms),
-		AreaSqm:            float64PtrToNumeric(lot.AreaSqm),
+		AreaSqft:            float64PtrToNumeric(lot.AreaSqft),
 		Floor:              intPtrToInt4(lot.Floor),
 		PriceFromUs:        float64ToNumeric(lot.PriceFromUs),
 		PriceFromDeveloper: float64PtrToNumeric(lot.PriceFromDeveloper),
@@ -419,7 +419,7 @@ func (r *LotRepo) Update(id uuid.UUID, lot *domain.Lot) error {
 		Type:               string(lot.Type),
 		Bedrooms:           intPtrToInt4(lot.Bedrooms),
 		Bathrooms:          intPtrToInt4(lot.Bathrooms),
-		AreaSqm:            float64PtrToNumeric(lot.AreaSqm),
+		AreaSqft:            float64PtrToNumeric(lot.AreaSqft),
 		Floor:              intPtrToInt4(lot.Floor),
 		PriceFromUs:        float64ToNumeric(lot.PriceFromUs),
 		PriceFromDeveloper: float64PtrToNumeric(lot.PriceFromDeveloper),
@@ -461,7 +461,7 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 	for _, row := range rows {
 		lot, err := sqlcLotRowToDomain(
 			row.ID, row.Status, row.ProjectID, row.Type,
-			row.Bedrooms, row.Bathrooms, row.AreaSqm, row.Floor,
+			row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 			row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
 			row.BonusKeys, row.BadgeIds, row.Data,
 			row.CreatedAt, row.UpdatedAt, pgtype.Timestamptz{},
@@ -502,7 +502,7 @@ func (r *LotRepo) ListAll() ([]domain.Lot, error) {
 	for _, row := range rows {
 		lot, err := sqlcLotRowToDomain(
 			row.ID, row.Status, row.ProjectID, row.Type,
-			row.Bedrooms, row.Bathrooms, row.AreaSqm, row.Floor,
+			row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 			row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
 			row.BonusKeys, row.BadgeIds, row.Data,
 			row.CreatedAt, row.UpdatedAt, row.DeletedAt,
@@ -530,7 +530,7 @@ func (r *LotRepo) ListDeleted() ([]domain.Lot, error) {
 	for _, row := range rows {
 		lot, err := sqlcLotRowToDomain(
 			row.ID, row.Status, row.ProjectID, row.Type,
-			row.Bedrooms, row.Bathrooms, row.AreaSqm, row.Floor,
+			row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 			row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
 			row.BonusKeys, row.BadgeIds, row.Data,
 			row.CreatedAt, row.UpdatedAt, row.DeletedAt,
@@ -557,7 +557,7 @@ func (r *LotRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Lot, error) {
 
 	lot, err := sqlcLotRowToDomain(
 		row.ID, row.Status, row.ProjectID, row.Type,
-		row.Bedrooms, row.Bathrooms, row.AreaSqm, row.Floor,
+		row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 		row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
 		row.BonusKeys, row.BadgeIds, row.Data,
 		row.CreatedAt, row.UpdatedAt, row.DeletedAt,
@@ -596,7 +596,7 @@ func (r *LotRepo) HardDelete(id uuid.UUID) error {
 // sqlcLotRowToDomain converts sqlc lot row fields to domain.Lot.
 func sqlcLotRowToDomain(
 	id uuid.UUID, status string, projectID uuid.NullUUID, typ string,
-	bedrooms, bathrooms pgtype.Int4, areaSqm pgtype.Numeric, floor pgtype.Int4,
+	bedrooms, bathrooms pgtype.Int4, areaSqft pgtype.Numeric, floor pgtype.Int4,
 	priceFromUs, priceFromDeveloper, roi pgtype.Numeric,
 	bonusKeys []string, badgeIDs []uuid.UUID, data []byte,
 	createdAt, updatedAt, deletedAt pgtype.Timestamptz,
@@ -608,7 +608,7 @@ func sqlcLotRowToDomain(
 		Type:               domain.LotType(typ),
 		Bedrooms:           int4ToIntPtr(bedrooms),
 		Bathrooms:          int4ToIntPtr(bathrooms),
-		AreaSqm:            numericToFloat64Ptr(areaSqm),
+		AreaSqft:            numericToFloat64Ptr(areaSqft),
 		Floor:              int4ToIntPtr(floor),
 		PriceFromUs:        numericToFloat64(priceFromUs),
 		PriceFromDeveloper: numericToFloat64Ptr(priceFromDeveloper),

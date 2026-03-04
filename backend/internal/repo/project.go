@@ -48,7 +48,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 		row.ID, row.Slug, row.Name, row.Status, row.Sale,
 		row.DeveloperID, row.AreaID, row.Lat, row.Lng,
 		row.Description, row.Media, row.FeaturesAmenities, row.Tags,
-		row.IsFeatured, row.YoutubeUrl,
+		row.IsFeatured, row.YoutubeUrl, row.GoogleMapsUrl,
 		row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 		row.PaymentPlan, row.CompletionDate,
 		row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
@@ -84,7 +84,7 @@ func (r *ProjectRepo) GetBySlug(slug string) (*domain.Project, error) {
 
 // projectListColumns is the aliased column list for the dynamic List query.
 const projectListColumns = `p.id, p.slug, p.name, p.status, p.sale, p.developer_id, p.area_id, p.lat, p.lng,
-	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url,
+	p.description, p.media, p.features_amenities, p.tags, p.is_featured, p.youtube_url, p.google_maps_url,
 	p.roi, p.price_from_us, p.price_from_developer, p.payment_plan, p.completion_date,
 	p.currency, p.property_types, p.bedrooms, p.bathrooms, p.area_size, p.area_unit, p.prices_by_type,
 	p.timeline_announcement, p.timeline_booking_started, p.timeline_construction_started,
@@ -210,7 +210,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			descBytes, mediaBytes, pricesByTypeBytes                    []byte
 			featuresAmenities, tags, propertyTypes, bedrooms, bathrooms []string
 			isFeatured                                                  pgtype.Bool
-			youtubeUrl                                       pgtype.Text
+			youtubeUrl, googleMapsUrl                        pgtype.Text
 			roi, priceFromUs, priceFromDeveloper             pgtype.Numeric
 			paymentPlan, completionDate                      pgtype.Text
 			currency                                         pgtype.Text
@@ -226,7 +226,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 		if err := rows.Scan(
 			&id, &slug, &name, &status, &sale,
 			&developerID, &areaID, &lat, &lng,
-			&descBytes, &mediaBytes, &featuresAmenities, &tags, &isFeatured, &youtubeUrl,
+			&descBytes, &mediaBytes, &featuresAmenities, &tags, &isFeatured, &youtubeUrl, &googleMapsUrl,
 			&roi, &priceFromUs, &priceFromDeveloper, &paymentPlan, &completionDate,
 			&currency, &propertyTypes, &bedrooms, &bathrooms, &areaSize, &areaUnit, &pricesByTypeBytes,
 			&tlAnn, &tlBook, &tlConstStart,
@@ -241,7 +241,7 @@ func (r *ProjectRepo) List(filters domain.ProjectFilters, sort domain.ProjectSor
 			id, slug, name, status, sale,
 			developerID, areaID, lat, lng,
 			descBytes, mediaBytes, featuresAmenities, tags,
-			isFeatured, youtubeUrl,
+			isFeatured, youtubeUrl, googleMapsUrl,
 			roi, priceFromUs, priceFromDeveloper,
 			paymentPlan, completionDate,
 			currency, propertyTypes, bedrooms, bathrooms,
@@ -323,6 +323,7 @@ func (r *ProjectRepo) Create(project *domain.Project) error {
 		Tags:                            project.Tags,
 		IsFeatured:                      boolToPgBool(project.IsFeatured),
 		YoutubeUrl:                      stringToText(project.YoutubeURL),
+		GoogleMapsUrl:                   stringToText(project.GoogleMapsURL),
 		Roi:                             float64PtrToNumeric(project.ROI),
 		PriceFromUs:                     float64PtrToNumeric(project.PriceFromUs),
 		PriceFromDeveloper:              float64PtrToNumeric(project.PriceFromDeveloper),
@@ -381,6 +382,7 @@ func (r *ProjectRepo) Update(id uuid.UUID, project *domain.Project) error {
 		Tags:                            project.Tags,
 		IsFeatured:                      boolToPgBool(project.IsFeatured),
 		YoutubeUrl:                      stringToText(project.YoutubeURL),
+		GoogleMapsUrl:                   stringToText(project.GoogleMapsURL),
 		Roi:                             float64PtrToNumeric(project.ROI),
 		PriceFromUs:                     float64PtrToNumeric(project.PriceFromUs),
 		PriceFromDeveloper:              float64PtrToNumeric(project.PriceFromDeveloper),
@@ -429,7 +431,7 @@ func (r *ProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 		row.ID, row.Slug, row.Name, row.Status, row.Sale,
 		row.DeveloperID, row.AreaID, row.Lat, row.Lng,
 		row.Description, row.Media, row.FeaturesAmenities, row.Tags,
-		row.IsFeatured, row.YoutubeUrl,
+		row.IsFeatured, row.YoutubeUrl, row.GoogleMapsUrl,
 		row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 		row.PaymentPlan, row.CompletionDate,
 		row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
@@ -462,7 +464,7 @@ func (r *ProjectRepo) ListAll() ([]domain.Project, error) {
 			row.ID, row.Slug, row.Name, row.Status, row.Sale,
 			row.DeveloperID, row.AreaID, row.Lat, row.Lng,
 			row.Description, row.Media, row.FeaturesAmenities, row.Tags,
-			row.IsFeatured, row.YoutubeUrl,
+			row.IsFeatured, row.YoutubeUrl, row.GoogleMapsUrl,
 			row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 			row.PaymentPlan, row.CompletionDate,
 			row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
@@ -524,7 +526,7 @@ func (r *ProjectRepo) ListDeleted() ([]domain.Project, error) {
 			row.ID, row.Slug, row.Name, row.Status, row.Sale,
 			row.DeveloperID, row.AreaID, row.Lat, row.Lng,
 			row.Description, row.Media, row.FeaturesAmenities, row.Tags,
-			row.IsFeatured, row.YoutubeUrl,
+			row.IsFeatured, row.YoutubeUrl, row.GoogleMapsUrl,
 			row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 			row.PaymentPlan, row.CompletionDate,
 			row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
@@ -572,7 +574,7 @@ func (r *ProjectRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Project, error) 
 		row.ID, row.Slug, row.Name, row.Status, row.Sale,
 		row.DeveloperID, row.AreaID, row.Lat, row.Lng,
 		row.Description, row.Media, row.FeaturesAmenities, row.Tags,
-		row.IsFeatured, row.YoutubeUrl,
+		row.IsFeatured, row.YoutubeUrl, row.GoogleMapsUrl,
 		row.Roi, row.PriceFromUs, row.PriceFromDeveloper,
 		row.PaymentPlan, row.CompletionDate,
 		row.Currency, row.PropertyTypes, row.Bedrooms, row.Bathrooms,
@@ -668,7 +670,7 @@ func sqlcProjectRowToDomain(
 	id uuid.UUID, slug, name, status string, sale pgtype.Text,
 	developerID, areaID uuid.NullUUID, lat, lng pgtype.Numeric,
 	description, media []byte, featuresAmenities, tags []string,
-	isFeatured pgtype.Bool, youtubeUrl pgtype.Text,
+	isFeatured pgtype.Bool, youtubeUrl pgtype.Text, googleMapsUrl pgtype.Text,
 	roi, priceFromUs, priceFromDeveloper pgtype.Numeric,
 	paymentPlan, completionDate pgtype.Text,
 	currency pgtype.Text,
@@ -694,6 +696,7 @@ func sqlcProjectRowToDomain(
 		Tags:               tags,
 		IsFeatured:         pgBoolToBool(isFeatured),
 		YoutubeURL:         textToString(youtubeUrl),
+		GoogleMapsURL:      textToString(googleMapsUrl),
 		ROI:                numericToFloat64Ptr(roi),
 		PriceFromUs:        numericToFloat64Ptr(priceFromUs),
 		PriceFromDeveloper: numericToFloat64Ptr(priceFromDeveloper),

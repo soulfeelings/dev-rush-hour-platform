@@ -13,7 +13,7 @@ type Lot struct {
 	Type          LotType
 	Bedrooms      *int
 	Bathrooms     *int
-	AreaSqm       *float64
+	AreaSqft      *float64
 	Floor         *int
 	PriceFromUs    float64
 	PriceFromDeveloper *float64
