@@ -14,6 +14,7 @@ const { useAdminListLots, useAdminListProjects } = AdminApi
 type LotsTableProps = {
   onNewClick: () => void
   onEditClick: (lot: LotListItem) => void
+  onCopyClick: (lot: LotListItem) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
   drafts?: Array<{ id: string; displayName: string }>
@@ -21,7 +22,7 @@ type LotsTableProps = {
   onDraftDiscard?: (id: string) => void
 }
 
-export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading, drafts, onDraftClick, onDraftDiscard }: LotsTableProps) {
+export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, deleteLoading, drafts, onDraftClick, onDraftDiscard }: LotsTableProps) {
   const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -293,6 +294,7 @@ export function LotsTable({ onNewClick, onEditClick, onDelete, deleteLoading, dr
                     <TableActionButtons
                       show={hoveredRowId === lot.id}
                       onEdit={() => onEditClick(lot)}
+                      onCopy={() => onCopyClick(lot)}
                       onDelete={() => lot.id && handleDeleteClick([lot.id])}
                       deleteLoading={deleteLoading}
                     />

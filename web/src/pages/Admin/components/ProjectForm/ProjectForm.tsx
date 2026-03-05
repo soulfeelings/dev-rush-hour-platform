@@ -197,8 +197,8 @@ export function ProjectForm({
       googleMapsUrl: '',
       slug: '',
       name: '',
-      status: '',
-      sale: '',
+      status: 'active',
+      sale: 'sale',
       developerId: '',
       areaId: '',
       lat: '',
@@ -298,13 +298,15 @@ export function ProjectForm({
     setSelectedYear(parsed.year)
   }, [initialForm])
 
-  // Sync city selection separately so that areas loading doesn't reset the form
+  // Sync city selection separately so that areas loading doesn't reset the form.
+  // Only run when initialForm.areaId changes (edit/draft restore); never reset
+  // selectedCitySlug to '' just because areas reloaded (that wipes user's city pick).
   useEffect(() => {
     if (initialForm.areaId) {
       const matchingArea = areas.find(a => a.id === initialForm.areaId)
-      setSelectedCitySlug(matchingArea?.city || '')
-    } else {
-      setSelectedCitySlug('')
+      if (matchingArea) {
+        setSelectedCitySlug(matchingArea.city || '')
+      }
     }
   }, [initialForm.areaId, areas])
 

@@ -117,6 +117,22 @@ const isProjectsQueryKey = (queryKey: readonly unknown[]) => {
   return typeof key === 'string' && key.startsWith('/projects')
 }
 
+function getLotErrorMessage(err: unknown): string {
+  const msg = err instanceof Error ? err.message : ''
+  if (msg.includes('uniq_lots_project_spec')) {
+    return 'A lot with the same project, type, bedrooms, bathrooms, area, floor, and price already exists. Please change at least one of these fields.'
+  }
+  return msg || 'Failed to save lot'
+}
+
+function getProjectErrorMessage(err: unknown): string {
+  const msg = err instanceof Error ? err.message : ''
+  if (msg.includes('projects_slug_key')) {
+    return 'A project with this name already exists. Please use a different name.'
+  }
+  return msg || 'Failed to save project'
+}
+
 type AdminClaims = {
   email: string
   role: 'superadmin' | 'admin'
@@ -163,6 +179,7 @@ export default function Admin() {
   const [editingEntity, setEditingEntity] = useState<
     Project | LotListItem | Developer | Area | City | Badge | Infrastructure | null
   >(null)
+  const [copyInitialData, setCopyInitialData] = useState<LotListItem | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Session draft state
@@ -170,6 +187,7 @@ export default function Admin() {
   const [saveForSessionOpen, setSaveForSessionOpen] = useState(false)
   const [pendingDraft, setPendingDraft] = useState<Omit<FormDraft, 'id'> | null>(null)
   const [activeDraftData, setActiveDraftData] = useState<unknown>(null)
+  const pendingTabChangeRef = useRef<string | null>(null)
   const currentFormDataRef = useRef<unknown>(null)
   const currentFormIsDirtyRef = useRef(false)
 
@@ -280,7 +298,7 @@ export default function Admin() {
         }, 100)
       },
       onError: err => {
-        setError(err instanceof Error ? err.message : 'Failed to create project')
+        setError(getProjectErrorMessage(err))
       },
     },
   })
@@ -297,7 +315,7 @@ export default function Admin() {
         }, 100)
       },
       onError: err => {
-        setError(err instanceof Error ? err.message : 'Failed to create lot')
+        setError(getLotErrorMessage(err))
       },
     },
   })
@@ -329,7 +347,7 @@ export default function Admin() {
         }, 100)
       },
       onError: err => {
-        setError(err instanceof Error ? err.message : 'Failed to update project')
+        setError(getProjectErrorMessage(err))
       },
     },
   })
@@ -346,7 +364,7 @@ export default function Admin() {
         }, 100)
       },
       onError: err => {
-        setError(err instanceof Error ? err.message : 'Failed to update lot')
+        setError(getLotErrorMessage(err))
       },
     },
   })
@@ -835,7 +853,19 @@ export default function Admin() {
       'media-list': ADMIN_ROUTE_SEGMENTS.MEDIA,
       'team-list': ADMIN_ROUTE_SEGMENTS.TEAM,
     }
-    navigate(`${ADMIN_ROUTES.BASE}/${pathMap[tab]}`)
+    const targetPath = `${ADMIN_ROUTES.BASE}/${pathMap[tab]}`
+    if (currentFormIsDirtyRef.current && currentFormDataRef.current && rightSidebarForm) {
+      pendingTabChangeRef.current = targetPath
+      setPendingDraft({
+        formType: rightSidebarForm,
+        data: currentFormDataRef.current,
+        displayName: getDraftDisplayName(rightSidebarForm, currentFormDataRef.current),
+        editingEntity: editingEntity ?? undefined,
+      })
+      setSaveForSessionOpen(true)
+      return
+    }
+    navigate(targetPath)
     setRightSidebarOpen(false)
     setRightSidebarForm(null)
   }
@@ -867,10 +897,23 @@ export default function Admin() {
     setSuccess(null)
   }
 
+  const handleCopyLotClick = (lot: LotListItem) => {
+    setEditingEntity(null)
+    setCopyInitialData(lot)
+    setActiveDraftData(null)
+    setRightSidebarForm('lot')
+    setRightSidebarOpen(true)
+    currentFormDataRef.current = null
+    currentFormIsDirtyRef.current = false
+    setError(null)
+    setSuccess(null)
+  }
+
   const doCloseRightSidebar = () => {
     setRightSidebarOpen(false)
     setRightSidebarForm(null)
     setEditingEntity(null)
+    setCopyInitialData(null)
     setActiveDraftData(null)
     setFormKey((prev: number) => prev + 1)
     currentFormDataRef.current = null
@@ -897,13 +940,19 @@ export default function Admin() {
     }
     setSaveForSessionOpen(false)
     setPendingDraft(null)
+    const tabPath = pendingTabChangeRef.current
+    pendingTabChangeRef.current = null
     doCloseRightSidebar()
+    if (tabPath) navigate(tabPath)
   }
 
   const handleDiscardSession = () => {
     setSaveForSessionOpen(false)
     setPendingDraft(null)
+    const tabPath = pendingTabChangeRef.current
+    pendingTabChangeRef.current = null
     doCloseRightSidebar()
+    if (tabPath) navigate(tabPath)
   }
 
   const handleDraftClick = (draftId: string) => {
@@ -1436,7 +1485,11 @@ export default function Admin() {
     const isEditMode = !!editingEntity
     if (rightSidebarForm === 'developer') return isEditMode ? 'Edit Developer' : 'Create Developer'
     if (rightSidebarForm === 'project') return isEditMode ? 'Edit Project' : 'Create Project'
-    if (rightSidebarForm === 'lot') return isEditMode ? 'Edit Lot' : 'Create Lot'
+    if (rightSidebarForm === 'lot') {
+      if (isEditMode) return 'Edit Lot'
+      if (copyInitialData) return 'Copy Lot'
+      return 'Create Lot'
+    }
     if (rightSidebarForm === 'area') return isEditMode ? 'Edit Area' : 'Create Area'
     if (rightSidebarForm === 'city') return isEditMode ? 'Edit City' : 'Create City'
     if (rightSidebarForm === 'badge') return isEditMode ? 'Edit Badge' : 'Create Badge'
@@ -1514,6 +1567,7 @@ export default function Admin() {
                 <LotsTable
                   onNewClick={() => handleNewClick('lot')}
                   onEditClick={lot => handleEditClick(lot, 'lot')}
+                  onCopyClick={handleCopyLotClick}
                   onDelete={handleDeleteLots}
                   deleteLoading={deleteLoading}
                   drafts={formDrafts.filter(d => d.formType === 'lot').map(d => ({ id: d.id, displayName: d.displayName }))}
@@ -1678,7 +1732,11 @@ export default function Admin() {
             onSubmit={handleLotSubmit}
             loading={loading}
             initialData={
-              isEditMode && 'projectId' in editingEntity ? (editingEntity as LotListItem) : null
+              copyInitialData
+                ? copyInitialData
+                : isEditMode && editingEntity && 'projectId' in editingEntity
+                  ? (editingEntity as LotListItem)
+                  : null
             }
             isEditMode={isEditMode}
             draftData={activeDraftData as Parameters<typeof LotForm>[0]['draftData']}
