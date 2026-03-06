@@ -165,10 +165,11 @@ export const ProjectCard = ({
               {project.priceFromUs && (
                 <motion.div
                   initial={false}
-                  animate={{ height: isHovered || isMobile ? 'auto' : 0 }}
+                  animate={{ gridTemplateRows: isHovered || isMobile ? '1fr' : '0fr' }}
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  style={{ overflow: 'hidden' }}
+                  style={{ display: 'grid' }}
                 >
+                <div style={{ overflow: 'hidden' }}>
                   <div className={styles.priceRow}>
                     <div className={styles.priceLabelContainer}>
                       <Typography
@@ -194,6 +195,7 @@ export const ProjectCard = ({
                       </Typography>
                     </div>
                   </div>
+                </div>
                 </motion.div>
               )}
               {/* Developer price */}
@@ -246,10 +248,11 @@ export const ProjectCard = ({
             {/* Дополнительная информация (появляется при наведении) */}
             <motion.div
               initial={false}
-              animate={{ height: isHovered || isMobile ? 'auto' : 0 }}
+              animate={{ gridTemplateRows: isHovered || isMobile ? '1fr' : '0fr' }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              style={{ overflow: 'hidden' }}
+              style={{ display: 'grid' }}
             >
+              <div style={{ overflow: 'hidden' }}>
               <div className={styles.additionalInfo}>
                 {pricesByType.length > 0 ? (
                   <div className={styles.additionalInfoGrid}>
@@ -280,6 +283,7 @@ export const ProjectCard = ({
                     {t('investmentDetailsNoSpam')}
                   </Typography>
                 </div>
+              </div>
               </div>
             </motion.div>
           </div>
