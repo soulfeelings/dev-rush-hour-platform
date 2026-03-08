@@ -178,7 +178,8 @@ export function MediaPicker({
                     >
                       <Checkbox
                         checked={isSelected}
-                        onChange={() => {}}
+                        onChange={e => e.stopPropagation()}
+                        onClick={e => e.stopPropagation()}
                         aria-label={`Select ${item.originalName || item.id}`}
                       />
                     </div>
