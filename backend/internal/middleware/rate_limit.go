@@ -1,16 +1,16 @@
 package middleware
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
-// LeadsRateLimit создает rate limiter для POST /api/leads
-// Limit: 5 requests per minute per IP
-func LeadsRateLimit() fiber.Handler {
+func rateLimitHandler(max int, expiration time.Duration) fiber.Handler {
 	return limiter.New(limiter.Config{
-		Max:        5,
-		Expiration: 60, // seconds
+		Max:        max,
+		Expiration: expiration,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return c.IP()
 		},
@@ -22,20 +22,20 @@ func LeadsRateLimit() fiber.Handler {
 				},
 			})
 		},
-		SkipFailedRequests:     false,
-		SkipSuccessfulRequests: false,
 	})
 }
 
-// LeadsRateLimitMiddleware применяет rate limiting только к POST /api/leads
-func LeadsRateLimitMiddleware() fiber.Handler {
-	limiter := LeadsRateLimit()
-	return func(c *fiber.Ctx) error {
-		// Применяем rate limiting только к POST /api/leads
-		if c.Method() == "POST" && c.Path() == "/api/leads" {
-			return limiter(c)
-		}
-		return c.Next()
-	}
+// PublicRateLimit applies rate limiting to public API endpoints (180 req/min per IP).
+func PublicRateLimit() fiber.Handler {
+	return rateLimitHandler(180, time.Minute)
 }
 
+// AuthRateLimit applies strict rate limiting to auth endpoints (10 req/min per IP).
+func AuthRateLimit() fiber.Handler {
+	return rateLimitHandler(30, time.Minute)
+}
+
+// AdminRateLimit applies rate limiting to admin API endpoints (180 req/min per IP).
+func AdminRateLimit() fiber.Handler {
+	return rateLimitHandler(180, time.Minute)
+}

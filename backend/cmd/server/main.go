@@ -528,6 +528,12 @@ func main() {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
+	// === Auth rate limiting ===
+	app.Use("/api/admin/auth", middleware.AuthRateLimit())
+
+	// === Public rate limiting  ===
+	app.Use("/api", middleware.PublicRateLimit())
+
 	// === Public media endpoints (no auth) ===
 	app.Get("/api/media/:id/url", mediaV2Handler.GetURL)
 	app.Post("/api/media/urls", mediaV2Handler.GetURLs)
@@ -539,15 +545,15 @@ func main() {
 	app.Use(middleware.AdminAuth(cfg))
 	app.Use(middleware.RequireEntityPermission())
 
+	// === Admin rate limiting  ===
+	app.Use("/api/admin", middleware.AdminRateLimit())
+
 	// === Admin media routes (registered separately, not in generated spec) ===
 	app.Post("/api/admin/media/init", mediaV2Handler.InitUpload)
 	app.Post("/api/admin/media/complete", mediaV2Handler.CompleteUpload)
 	app.Delete("/api/admin/media/:id", mediaV2Handler.Delete)
 	app.Get("/api/admin/media", mediaV2Handler.List)
 	app.Post("/api/admin/media/upload", mediaV2Handler.Upload)
-
-	// === Rate limiting (leads only, checks path internally) ===
-	app.Use(middleware.LeadsRateLimitMiddleware())
 
 	// === Generated OpenAPI routes (public + admin) ===
 	generated.RegisterHandlersWithOptions(app, server, generated.FiberServerOptions{
