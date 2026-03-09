@@ -23,8 +23,6 @@ const (
 	// UploadPolicyTTL is the expiration time for upload policies
 	UploadPolicyTTL = 5 * time.Minute
 
-	// MaxBatchSize is the maximum number of IDs in a batch request
-	MaxBatchSize = 50
 )
 
 type MediaService struct {
@@ -280,15 +278,6 @@ func (s *MediaService) GetURLs(ctx context.Context, ids []uuid.UUID) (*GetURLsRe
 	s.logger.Info("media_service_get_urls_started",
 		"count", len(ids),
 	)
-
-	// Validate batch size
-	if len(ids) > MaxBatchSize {
-		s.logger.Warn("media_service_get_urls_batch_too_large",
-			"count", len(ids),
-			"max", MaxBatchSize,
-		)
-		return nil, ErrBatchTooLarge
-	}
 
 	// Deduplicate IDs
 	seen := make(map[uuid.UUID]bool)

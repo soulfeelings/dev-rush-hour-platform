@@ -1,7 +1,7 @@
-import { useState, useRef, useMemo } from 'react'
-import { Upload } from 'lucide-react'
+import { useState, useRef, useMemo, useEffect } from 'react'
+import { Upload, Loader } from 'lucide-react'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
-import { useMediaList, useMediaUpload, useMediaUrls } from '../../../../services/media'
+import { useInfiniteMediaList, useMediaUpload, useMediaUrls } from '../../../../services/media'
 import type { MediaItem } from '../../../../services/media'
 import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './MediaPicker.module.scss'
@@ -25,16 +25,26 @@ export function MediaPicker({
   onSelectMultiple,
 }: MediaPickerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(
     null
   )
 
-  const { data: mediaList, isLoading, error } = useMediaList({ status: 'ready', limit: 100 })
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteMediaList({ status: 'ready' })
   const uploadMutation = useMediaUpload()
 
-  const mediaIds = useMemo(() => (mediaList || []).map(m => m.id), [mediaList])
+  const items: MediaItem[] = useMemo(() => data?.pages.flat() ?? [], [data])
+
+  const mediaIds = useMemo(() => items.map(m => m.id), [items])
   const { data: urlsData } = useMediaUrls(mediaIds)
 
   const urlMap = useMemo(() => {
@@ -47,7 +57,21 @@ export function MediaPicker({
     return map
   }, [urlsData])
 
-  const items: MediaItem[] = mediaList || []
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 0.1 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -157,46 +181,51 @@ export function MediaPicker({
         ) : items.length === 0 ? (
           <div className={styles.empty}>No media files. Upload an image to get started.</div>
         ) : (
-          <div className={styles.grid}>
-            {items.map(item => {
-              const url = urlMap[item.id]
-              const isSelected = selectedIds.has(item.id)
+          <div className={styles.scrollArea}>
+            <div className={styles.grid}>
+              {items.map(item => {
+                const url = urlMap[item.id]
+                const isSelected = selectedIds.has(item.id)
 
-              return (
-                <div
-                  key={item.id}
-                  className={`${styles.card} ${isSelected ? styles.selected : ''}`}
-                  onClick={() => handleSelectOne(item.id)}
-                >
-                  {multiple && (
-                    <div
-                      className={styles.cardCheckbox}
-                      onClick={e => {
-                        e.stopPropagation()
-                        handleSelectOne(item.id)
-                      }}
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={e => e.stopPropagation()}
-                        onClick={e => e.stopPropagation()}
-                        aria-label={`Select ${item.originalName || item.id}`}
+                return (
+                  <div
+                    key={item.id}
+                    className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+                    onClick={() => handleSelectOne(item.id)}
+                  >
+                    {multiple && (
+                      <div
+                        className={styles.cardCheckbox}
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleSelectOne(item.id)
+                        }}
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={e => e.stopPropagation()}
+                          onClick={e => e.stopPropagation()}
+                          aria-label={`Select ${item.originalName || item.id}`}
+                        />
+                      </div>
+                    )}
+                    {url ? (
+                      <img
+                        src={getImageUrl(url, 'thumbnail')}
+                        alt={item.originalName || 'media'}
+                        className={styles.thumbnail}
+                        loading="lazy"
                       />
-                    </div>
-                  )}
-                  {url ? (
-                    <img
-                      src={getImageUrl(url, 'thumbnail')}
-                      alt={item.originalName || 'media'}
-                      className={styles.thumbnail}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className={styles.thumbnailPlaceholder}>Loading...</div>
-                  )}
-                </div>
-              )
-            })}
+                    ) : (
+                      <div className={styles.thumbnailPlaceholder}>Loading...</div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+            <div ref={sentinelRef} className={styles.sentinel}>
+              {isFetchingNextPage && <Loader size={20} className={styles.spinner} />}
+            </div>
           </div>
         )}
       </ModalBody>

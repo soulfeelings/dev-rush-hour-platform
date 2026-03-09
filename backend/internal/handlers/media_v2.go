@@ -431,16 +431,6 @@ func (h *MediaV2Handler) GetURLs(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validate batch size
-	if len(req.IDs) > 50 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": fiber.Map{
-				"code":    "batch_too_large",
-				"message": "Maximum 50 IDs allowed per request",
-			},
-		})
-	}
-
 	if len(req.IDs) == 0 {
 		return c.Status(fiber.StatusOK).JSON(GetURLsResponse{
 			Items:    []GetURLResponse{},
@@ -462,15 +452,6 @@ func (h *MediaV2Handler) GetURLs(c *fiber.Ctx) error {
 
 	result, err := h.service.GetURLs(c.Context(), uuids)
 	if err != nil {
-		if err == services.ErrBatchTooLarge {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": fiber.Map{
-					"code":    "batch_too_large",
-					"message": "Maximum 50 IDs allowed per request",
-				},
-			})
-		}
-
 		h.logger.Error("media_v2_handler_get_urls_failed",
 			"error", err.Error(),
 		)

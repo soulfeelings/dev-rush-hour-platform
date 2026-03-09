@@ -56,12 +56,6 @@ func TestGetExtForMimeType(t *testing.T) {
 	}
 }
 
-func TestMaxBatchSize(t *testing.T) {
-	if MaxBatchSize != 50 {
-		t.Errorf("MaxBatchSize = %d, want 50", MaxBatchSize)
-	}
-}
-
 func TestMaxUploadSize(t *testing.T) {
 	expectedSize := int64(10 * 1024 * 1024) // 10 MB
 	if MaxUploadSize != expectedSize {

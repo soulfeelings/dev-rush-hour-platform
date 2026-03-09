@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { API_URL, BASE_PATH } from '../api/constants'
 
 const MEDIA_QUERY_KEY = 'admin-media'
@@ -88,6 +88,8 @@ export async function deleteMedia(id: string): Promise<void> {
   }
 }
 
+export const PAGE_SIZE = 30
+
 export async function getMediaUrls(ids: string[]): Promise<MediaUrlsResponse> {
   if (ids.length === 0) return { items: [], notFound: [] }
 
@@ -109,6 +111,19 @@ export function useMediaList(params?: { status?: string; limit?: number; offset?
   return useQuery({
     queryKey: [MEDIA_QUERY_KEY, params],
     queryFn: () => listMedia(params),
+  })
+}
+
+export function useInfiniteMediaList(params?: { status?: string }) {
+  return useInfiniteQuery({
+    queryKey: [MEDIA_QUERY_KEY, 'infinite', params],
+    queryFn: ({ pageParam = 0 }) =>
+      listMedia({ ...params, limit: PAGE_SIZE, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined
+      return allPages.flat().length
+    },
   })
 }
 

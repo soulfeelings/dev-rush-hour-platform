@@ -16,6 +16,5 @@ var (
 	ErrMediaNotFound       = errors.New("media not found")
 	ErrInvalidMimeType     = errors.New("invalid or unsupported mime type")
 	ErrInvalidOriginalName = errors.New("original name is required")
-	ErrUploadNotFound      = errors.New("upload not found in storage")
-	ErrBatchTooLarge       = errors.New("batch size exceeds maximum allowed (50)")
+	ErrUploadNotFound = errors.New("upload not found in storage")
 )
