@@ -4,7 +4,6 @@ import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import { getInfrastructureIcon } from '../../../../utils/infrastructureIcons'
 import type { Infrastructure } from '../../../../api/generated/schemas/infrastructure'
-import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
 import { CachedSection } from '../CachedSection/CachedSection'
 import styles from './InfrastructuresTable.module.scss'
@@ -30,7 +29,7 @@ export function InfrastructuresTable({
   onDraftClick,
   onDraftDiscard,
 }: InfrastructuresTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [itemsToDelete, setItemsToDelete] = useState<string[]>([])
@@ -93,11 +92,16 @@ export function InfrastructuresTable({
           <h2 className={styles.title}>Infrastructures</h2>
           <Button onClick={onNewClick}>New</Button>
         </div>
-        <TableSkeleton
-          headers={['', '', 'Name', 'Slug', 'Icon', 'Sort Order']}
-          columns={[{ width: '40px' }, { isActions: true, width: '50px' }, {}, {}, {}, {}]}
-          minWidth="600px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={styles.skeletonIcon} />
+              <div className={`${styles.skeletonLine} ${styles.wide}`} />
+              <div className={styles.skeletonLine} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -114,6 +118,13 @@ export function InfrastructuresTable({
       <div className={styles.header}>
         <h2 className={styles.title}>Infrastructures</h2>
         <div className={styles.headerActions}>
+          {list.length > 0 && (
+            <Checkbox
+              checked={isAllSelected}
+              onChange={handleSelectAll}
+              aria-label="Select all infrastructures"
+            />
+          )}
           {isSomeSelected && (
             <Button
               variant="secondary"
@@ -130,55 +141,42 @@ export function InfrastructuresTable({
       {list.length === 0 ? (
         <div className={styles.empty}>No infrastructures</div>
       ) : (
-        <div className={styles.tableScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.checkboxCell}>
+        <div className={styles.grid}>
+          {list.map(item => {
+            const isSelected = !!item.id && selectedIds.has(item.id)
+
+            return (
+              <div
+                key={item.id}
+                className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+                onMouseOver={() => setHoveredCardId(item.id)}
+                onMouseLeave={() => setHoveredCardId(undefined)}
+                onClick={() => onEditClick(item)}
+              >
+                <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
                   <Checkbox
-                    checked={isAllSelected}
-                    onChange={handleSelectAll}
-                    aria-label="Select all infrastructures"
+                    checked={isSelected}
+                    onChange={() => item.id && handleSelectOne(item.id)}
+                    aria-label={`Select ${item.name}`}
                   />
-                </th>
-                <th></th>
-                <th>Name</th>
-                <th>Slug</th>
-                <th>Icon</th>
-                <th>Sort Order</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map(item => (
-                <tr
-                  key={item.id}
-                  onMouseOver={() => setHoveredRowId(item.id)}
-                  onMouseLeave={() => setHoveredRowId(undefined)}
-                  className={item.id && selectedIds.has(item.id) ? styles.selectedRow : ''}
-                >
-                  <td className={styles.checkboxCell}>
-                    <Checkbox
-                      checked={!!item.id && selectedIds.has(item.id)}
-                      onChange={() => item.id && handleSelectOne(item.id)}
-                      aria-label={`Select ${item.name}`}
-                    />
-                  </td>
-                  <td className={styles.actionsCell}>
-                    <TableActionButtons
-                      show={hoveredRowId === item.id}
-                      onEdit={() => onEditClick(item)}
-                      onDelete={() => item.id && handleDeleteClick([item.id])}
-                      deleteLoading={deleteLoading}
-                    />
-                  </td>
-                  <td>{item.name || '-'}</td>
-                  <td>{item.slug || '-'}</td>
-                  <td>{getInfrastructureIcon(item.icon) || item.icon || '-'}</td>
-                  <td>{item.sortOrder ?? 0}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                </div>
+                <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                  <TableActionButtons
+                    show={hoveredCardId === item.id}
+                    onEdit={() => onEditClick(item)}
+                    onDelete={() => item.id && handleDeleteClick([item.id])}
+                    deleteLoading={deleteLoading}
+                  />
+                </div>
+                <div className={styles.infraIcon}>
+                  {getInfrastructureIcon(item.icon) || item.icon || '-'}
+                </div>
+                <h3 className={styles.infraName}>{item.name || '-'}</h3>
+                <div className={styles.infraSlug}>{item.slug || '-'}</div>
+                <div className={styles.infraSortOrder}>Order: {item.sortOrder ?? 0}</div>
+              </div>
+            )
+          })}
         </div>
       )}
 

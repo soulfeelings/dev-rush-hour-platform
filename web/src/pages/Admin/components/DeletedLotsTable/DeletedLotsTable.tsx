@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
-import { TableSkeleton } from '../TableSkeleton'
 import styles from './DeletedLotsTable.module.scss'
 
 const { useAdminListDeletedLots } = AdminApi
@@ -20,7 +19,7 @@ export function DeletedLotsTable({
   restoreLoading,
   hardDeleteLoading,
 }: DeletedLotsTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [restoreModalOpen, setRestoreModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -106,11 +105,15 @@ export function DeletedLotsTable({
         <div className={styles.header}>
           <h2 className={styles.title}>Deleted Lots</h2>
         </div>
-        <TableSkeleton
-          headers={['', '', 'ID', 'Project', 'Type', 'Bedrooms', 'Area (ft²)', 'Price', 'Deleted At']}
-          columns={[{ width: '40px' }, { isActions: true, width: '80px' }, {}, {}, {}, {}, {}, {}, {}]}
-          minWidth="900px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={`${styles.skeletonLine} ${styles.wide}`} />
+              <div className={styles.skeletonLine} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -130,6 +133,11 @@ export function DeletedLotsTable({
       <div className={styles.header}>
         <h2 className={styles.title}>Deleted Lots</h2>
         <div className={styles.headerActions}>
+          <Checkbox
+            checked={isAllSelected}
+            onChange={handleSelectAll}
+            aria-label="Select all deleted lots"
+          />
           {isSomeSelected && (
             <>
               <Button
@@ -153,77 +161,46 @@ export function DeletedLotsTable({
           )}
         </div>
       </div>
-      <div className={styles.tableScroll}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all deleted lots"
-                />
-              </th>
-              <th></th>
-              <th>ID</th>
-              <th>Project</th>
-              <th>Type</th>
-              <th>Bedrooms</th>
-              <th>Area (ft²)</th>
-              <th>Price</th>
-              <th>Deleted At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lotsList.map(lot => (
-              <tr
-                key={lot.id}
-                onMouseOver={() => setHoveredRowId(lot.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={lot.id && selectedIds.has(lot.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
-                  <Checkbox
-                    checked={!!lot.id && selectedIds.has(lot.id)}
-                    onChange={() => lot.id && handleSelectOne(lot.id)}
-                    aria-label={`Select lot ${lot.id}`}
-                  />
-                </td>
-                <td className={styles.actionsCell}>
-                  {hoveredRowId === lot.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.restoreBtn}
-                        onClick={() => lot.id && handleRestoreClick([lot.id])}
-                        aria-label="Restore lot"
-                        disabled={isLoading_}
-                      >
-                        <RotateCcw size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteBtn}
-                        onClick={() => lot.id && handleDeleteClick([lot.id])}
-                        aria-label="Permanently delete lot"
-                        disabled={isLoading_}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
-                </td>
-                <td>{lot.id?.slice(0, 8)}...</td>
-                <td>{lot.project?.name || '-'}</td>
-                <td>{lot.type || '-'}</td>
-                <td>{lot.bedrooms ?? '-'}</td>
-                <td>{lot.areaSqft ?? '-'}</td>
-                <td>{lot.priceFromUs ? `${lot.priceFromUs.toLocaleString()} AED` : '-'}</td>
-                <td>{lot.deletedAt ? new Date(lot.deletedAt).toLocaleDateString('en-US') : '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className={styles.grid}>
+        {lotsList.map(lot => {
+          const isSelected = !!lot.id && selectedIds.has(lot.id)
+          return (
+            <div
+              key={lot.id}
+              className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+              onMouseOver={() => setHoveredCardId(lot.id)}
+              onMouseLeave={() => setHoveredCardId(undefined)}
+            >
+              <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
+                <Checkbox checked={isSelected} onChange={() => lot.id && handleSelectOne(lot.id)} aria-label={`Select lot ${lot.id}`} />
+              </div>
+              <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                {hoveredCardId === lot.id && (
+                  <>
+                    <button type="button" className={styles.restoreBtn} onClick={() => lot.id && handleRestoreClick([lot.id])} aria-label="Restore" disabled={isLoading_}>
+                      <RotateCcw size={16} />
+                    </button>
+                    <button type="button" className={styles.deleteBtn} onClick={() => lot.id && handleDeleteClick([lot.id])} aria-label="Permanently delete" disabled={isLoading_}>
+                      <Trash2 size={16} />
+                    </button>
+                  </>
+                )}
+              </div>
+              <h3 className={styles.itemName}>{lot.type || 'Lot'} #{lot.id?.slice(0, 8)}</h3>
+              {lot.project?.name && <div className={styles.itemMeta}>{lot.project.name}</div>}
+              {(lot.bedrooms != null || lot.areaSqft != null) && (
+                <div className={styles.itemMeta}>
+                  {[
+                    lot.bedrooms != null ? `${lot.bedrooms} BR` : null,
+                    lot.areaSqft != null ? `${lot.areaSqft} ft²` : null,
+                  ].filter(Boolean).join(' · ')}
+                </div>
+              )}
+              {lot.priceFromUs && <div className={styles.itemPrice}>{lot.priceFromUs.toLocaleString()} AED</div>}
+              <div className={styles.itemDate}>Deleted: {lot.deletedAt ? new Date(lot.deletedAt).toLocaleDateString('en-US') : '-'}</div>
+            </div>
+          )
+        })}
       </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">

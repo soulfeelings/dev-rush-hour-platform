@@ -3,7 +3,6 @@ import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Input, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { Project } from '../../../../api/generated/schemas/project'
-import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
 import { CachedSection } from '../CachedSection/CachedSection'
 import { getImageUrl } from '../../../../utils/imageUrl'
@@ -30,7 +29,7 @@ export function ProjectsTable({
   onDraftClick,
   onDraftDiscard,
 }: ProjectsTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [projectsToDelete, setProjectsToDelete] = useState<string[]>([])
@@ -56,7 +55,6 @@ export function ProjectsTable({
   const areas = areasData || []
   const cities = citiesData || []
 
-  // Build a set of area IDs belonging to the selected city
   const cityAreaIds = useMemo(() => {
     if (!filterCityId) return null
     const city = cities.find(c => c.id === filterCityId)
@@ -144,24 +142,18 @@ export function ProjectsTable({
           <h2 className={styles.title}>Projects</h2>
           <Button onClick={onNewClick}>New</Button>
         </div>
-        <TableSkeleton
-          headers={['', '', 'Image', 'ID', 'Name', 'Developer', 'Area', 'City', 'Slug', 'Status', 'Sale', 'Created At']}
-          columns={[
-            { width: '40px' },
-            { isActions: true, width: '50px' },
-            { isImage: true, width: '80px' },
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-          ]}
-          minWidth="1000px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={styles.skeletonImage} />
+              <div className={styles.skeletonInfo}>
+                <div className={`${styles.skeletonLine} ${styles.wide}`} />
+                <div className={styles.skeletonLine} />
+                <div className={`${styles.skeletonLine} ${styles.short}`} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -178,6 +170,13 @@ export function ProjectsTable({
       <div className={styles.header}>
         <h2 className={styles.title}>Projects</h2>
         <div className={styles.headerActions}>
+          {projectsList.length > 0 && (
+            <Checkbox
+              checked={isAllSelected}
+              onChange={handleSelectAll}
+              aria-label="Select all projects"
+            />
+          )}
           {isSomeSelected && (
             <Button
               variant="secondary"
@@ -248,81 +247,67 @@ export function ProjectsTable({
           {allProjects.length === 0 ? 'No projects' : 'No projects match the selected filters'}
         </div>
       ) : (
-        <div className={styles.tableScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.checkboxCell}>
+        <div className={styles.grid}>
+          {projectsList.map(project => {
+            const isSelected = !!project.id && selectedIds.has(project.id)
+            const imageUrl = getProjectImageUrl(project)
+
+            return (
+              <div
+                key={project.id}
+                className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+                onMouseOver={() => setHoveredCardId(project.id)}
+                onMouseLeave={() => setHoveredCardId(undefined)}
+                onClick={() => onEditClick(project)}
+              >
+                <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
                   <Checkbox
-                    checked={isAllSelected}
-                    onChange={handleSelectAll}
-                    aria-label="Select all projects"
+                    checked={isSelected}
+                    onChange={() => project.id && handleSelectOne(project.id)}
+                    aria-label={`Select ${project.name}`}
                   />
-                </th>
-                <th></th>
-                <th>Image</th>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Developer</th>
-                <th>Area</th>
-                <th>City</th>
-                <th>Slug</th>
-                <th>Status</th>
-                <th>Sale</th>
-                <th>Created At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projectsList.map(project => (
-                <tr
-                  key={project.id}
-                  onMouseOver={() => setHoveredRowId(project.id)}
-                  onMouseLeave={() => setHoveredRowId(undefined)}
-                  className={project.id && selectedIds.has(project.id) ? styles.selectedRow : ''}
-                >
-                  <td className={styles.checkboxCell}>
-                    <Checkbox
-                      checked={!!project.id && selectedIds.has(project.id)}
-                      onChange={() => project.id && handleSelectOne(project.id)}
-                      aria-label={`Select ${project.name}`}
-                    />
-                  </td>
-                  <td className={styles.actionsCell}>
-                    <TableActionButtons
-                      show={hoveredRowId === project.id}
-                      onEdit={() => onEditClick(project)}
-                      onDelete={() => project.id && handleDeleteClick([project.id])}
-                      deleteLoading={deleteLoading}
-                    />
-                  </td>
-                  <td className={styles.imageCell}>
-                    {getProjectImageUrl(project) ? (
-                      <img
-                        src={getImageUrl(getProjectImageUrl(project) || '', 'thumbnail')}
-                        alt={project.name || 'Project'}
-                        className={styles.image}
-                      />
-                    ) : (
-                      <div className={styles.noImage}>-</div>
-                    )}
-                  </td>
-                  <td>{project.id}</td>
-                  <td>{project.name || '-'}</td>
-                  <td>{project.developer?.name || '-'}</td>
-                  <td>{project.area?.name || '-'}</td>
-                  <td>{project.area?.city || '-'}</td>
-                  <td>{project.slug || '-'}</td>
-                  <td>{project.status || '-'}</td>
-                  <td>{project.sale || '-'}</td>
-                  <td>
+                </div>
+                <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                  <TableActionButtons
+                    show={hoveredCardId === project.id}
+                    onEdit={() => onEditClick(project)}
+                    onDelete={() => project.id && handleDeleteClick([project.id])}
+                    deleteLoading={deleteLoading}
+                  />
+                </div>
+                {imageUrl ? (
+                  <img
+                    src={getImageUrl(imageUrl, 'thumbnail')}
+                    alt={project.name || 'Project'}
+                    className={styles.projectImage}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className={styles.noImage}>No image</div>
+                )}
+                <div className={styles.cardInfo}>
+                  <h3 className={styles.projectName}>{project.name || '-'}</h3>
+                  {project.developer?.name && (
+                    <div className={styles.projectMeta}>{project.developer.name}</div>
+                  )}
+                  {(project.area?.name || project.area?.city) && (
+                    <div className={styles.projectMeta}>
+                      {[project.area?.name, project.area?.city].filter(Boolean).join(', ')}
+                    </div>
+                  )}
+                  <div className={styles.projectTags}>
+                    {project.status && <span className={styles.tag}>{project.status}</span>}
+                    {project.sale && <span className={styles.tag}>{project.sale}</span>}
+                  </div>
+                  <div className={styles.projectDate}>
                     {project.createdAt
                       ? new Date(project.createdAt).toLocaleDateString('en-US')
                       : '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 

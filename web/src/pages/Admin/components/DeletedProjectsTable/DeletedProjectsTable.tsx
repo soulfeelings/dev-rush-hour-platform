@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Input, Modal, ModalBody, ModalFooter } from '../../../../ui'
-import { TableSkeleton } from '../TableSkeleton'
 import styles from './DeletedProjectsTable.module.scss'
 
 const { useAdminListDeletedProjects } = AdminApi
@@ -20,7 +19,7 @@ export function DeletedProjectsTable({
   restoreLoading,
   hardDeleteLoading,
 }: DeletedProjectsTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [restoreModalOpen, setRestoreModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -42,14 +41,6 @@ export function DeletedProjectsTable({
     const q = searchQuery.toLowerCase()
     return allProjects.filter(p => p.name?.toLowerCase().includes(q))
   }, [allProjects, searchQuery])
-
-  const handleSelectAll = () => {
-    if (selectedIds.size === projectsList.length) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(projectsList.map(p => p.id).filter((id): id is string => !!id)))
-    }
-  }
 
   const handleSelectOne = (id: string) => {
     const newSelected = new Set(selectedIds)
@@ -95,6 +86,14 @@ export function DeletedProjectsTable({
     setItemsToDelete([])
   }
 
+  const handleSelectAll = () => {
+    if (selectedIds.size === projectsList.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(projectsList.map(p => p.id).filter((id): id is string => !!id)))
+    }
+  }
+
   const isAllSelected = projectsList.length > 0 && selectedIds.size === projectsList.length
   const isSomeSelected = selectedIds.size > 0
 
@@ -108,11 +107,15 @@ export function DeletedProjectsTable({
         <div className={styles.header}>
           <h2 className={styles.title}>Deleted Projects</h2>
         </div>
-        <TableSkeleton
-          headers={['', '', 'ID', 'Name', 'Developer', 'Area', 'City', 'Slug', 'Deleted At']}
-          columns={[{ width: '40px' }, { isActions: true, width: '80px' }, {}, {}, {}, {}, {}, {}, {}]}
-          minWidth="900px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={`${styles.skeletonLine} ${styles.wide}`} />
+              <div className={styles.skeletonLine} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -132,6 +135,11 @@ export function DeletedProjectsTable({
       <div className={styles.header}>
         <h2 className={styles.title}>Deleted Projects</h2>
         <div className={styles.headerActions}>
+          <Checkbox
+            checked={isAllSelected}
+            onChange={handleSelectAll}
+            aria-label="Select all deleted projects"
+          />
           {isSomeSelected && (
             <>
               <Button
@@ -166,79 +174,41 @@ export function DeletedProjectsTable({
       {projectsList.length === 0 ? (
         <div className={styles.empty}>No deleted projects match the search</div>
       ) : (
-      <div className={styles.tableScroll}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all deleted projects"
-                />
-              </th>
-              <th></th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Developer</th>
-              <th>Area</th>
-              <th>City</th>
-              <th>Slug</th>
-              <th>Deleted At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {projectsList.map(project => (
-              <tr
-                key={project.id}
-                onMouseOver={() => setHoveredRowId(project.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={project.id && selectedIds.has(project.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
-                  <Checkbox
-                    checked={!!project.id && selectedIds.has(project.id)}
-                    onChange={() => project.id && handleSelectOne(project.id)}
-                    aria-label={`Select ${project.name}`}
-                  />
-                </td>
-                <td className={styles.actionsCell}>
-                  {hoveredRowId === project.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.restoreBtn}
-                        onClick={() => project.id && handleRestoreClick([project.id])}
-                        aria-label="Restore project"
-                        disabled={isLoading_}
-                      >
-                        <RotateCcw size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteBtn}
-                        onClick={() => project.id && handleDeleteClick([project.id])}
-                        aria-label="Permanently delete project"
-                        disabled={isLoading_}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
-                </td>
-                <td>{project.id}</td>
-                <td>{project.name || '-'}</td>
-                <td>{project.developer?.name || '-'}</td>
-                <td>{project.area?.name || '-'}</td>
-                <td>{project.area?.city || '-'}</td>
-                <td>{project.slug || '-'}</td>
-                <td>
-                  {project.deletedAt ? new Date(project.deletedAt).toLocaleDateString('en-US') : '-'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className={styles.grid}>
+        {projectsList.map(project => {
+          const isSelected = !!project.id && selectedIds.has(project.id)
+          return (
+            <div
+              key={project.id}
+              className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+              onMouseOver={() => setHoveredCardId(project.id)}
+              onMouseLeave={() => setHoveredCardId(undefined)}
+            >
+              <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
+                <Checkbox checked={isSelected} onChange={() => project.id && handleSelectOne(project.id)} aria-label={`Select ${project.name}`} />
+              </div>
+              <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                {hoveredCardId === project.id && (
+                  <>
+                    <button type="button" className={styles.restoreBtn} onClick={() => project.id && handleRestoreClick([project.id])} aria-label="Restore" disabled={isLoading_}>
+                      <RotateCcw size={16} />
+                    </button>
+                    <button type="button" className={styles.deleteBtn} onClick={() => project.id && handleDeleteClick([project.id])} aria-label="Permanently delete" disabled={isLoading_}>
+                      <Trash2 size={16} />
+                    </button>
+                  </>
+                )}
+              </div>
+              <h3 className={styles.itemName}>{project.name || '-'}</h3>
+              {project.developer?.name && <div className={styles.itemMeta}>{project.developer.name}</div>}
+              {(project.area?.name || project.area?.city) && (
+                <div className={styles.itemMeta}>{[project.area?.name, project.area?.city].filter(Boolean).join(', ')}</div>
+              )}
+              <div className={styles.itemSlug}>{project.slug || '-'}</div>
+              <div className={styles.itemDate}>Deleted: {project.deletedAt ? new Date(project.deletedAt).toLocaleDateString('en-US') : '-'}</div>
+            </div>
+          )
+        })}
       </div>
       )}
 

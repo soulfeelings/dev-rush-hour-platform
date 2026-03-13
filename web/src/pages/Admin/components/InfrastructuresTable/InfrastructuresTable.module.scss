@@ -2,11 +2,6 @@
   width: 100%;
 }
 
-.tableScroll {
-  width: 100%;
-  overflow-x: auto;
-}
-
 .header {
   display: flex;
   align-items: center;
@@ -27,69 +22,154 @@
   color: #333;
 }
 
-.loading,
-.error,
 .empty {
-  padding: 2rem;
+  padding: 3rem;
   text-align: center;
   color: #666;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.error {
-  color: #c33;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.skeletonCard {
   background: white;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-width: 700px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.table thead {
+.skeletonIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLine {
+  height: 14px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+  width: 100%;
+
+  &.wide {
+    width: 80%;
+    height: 18px;
+  }
+
+  &.short {
+    width: 50%;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.card {
+  position: relative;
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:hover .cardActions {
+    opacity: 1;
+  }
+
+  &.selected {
+    outline: 2px solid #2563eb;
+    outline-offset: -2px;
+  }
+}
+
+.cardCheckbox {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.cardActions {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.infraIcon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #f5f5f5;
+  border-radius: 50%;
 }
 
-.table th {
-  padding: 1rem;
-  text-align: left;
+.infraName {
+  font-size: 1rem;
   font-weight: 600;
   color: #333;
-  border-bottom: 2px solid #e0e0e0;
+  margin: 0 0 0.25rem;
+  padding: 0 2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e0e0e0;
-  color: #666;
+.infraSlug {
+  font-size: 0.8rem;
+  color: #999;
+  font-family: monospace;
+  background: #f5f5f5;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 0.5rem;
 }
 
-.table tbody tr:hover {
-  background: #f9f9f9;
-}
-
-.table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.checkboxCell {
-  width: 40px;
-  padding: 0.5rem !important;
-  text-align: center;
-}
-
-.actionsCell {
-  width: 50px;
-  padding: 0.5rem !important;
-  text-align: center;
-  position: relative;
-}
-
-.selectedRow {
-  background: #fef9c3 !important;
+.infraSortOrder {
+  font-size: 0.75rem;
+  color: #aaa;
 }
 
 .deleteItemNames {

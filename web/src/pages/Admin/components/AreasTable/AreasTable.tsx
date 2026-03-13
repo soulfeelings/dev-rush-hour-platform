@@ -3,7 +3,6 @@ import { Trash2, MapPin } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { Area } from '../../../../api/generated/schemas/area'
-import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
 import { CachedSection } from '../CachedSection/CachedSection'
 import { MapViewModal } from '../MapViewModal'
@@ -22,7 +21,7 @@ type AreasTableProps = {
 }
 
 export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading, drafts, onDraftClick, onDraftDiscard }: AreasTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [areasToDelete, setAreasToDelete] = useState<string[]>([])
@@ -86,21 +85,16 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading, d
           <h2 className={styles.title}>Areas</h2>
           <Button onClick={onNewClick}>New</Button>
         </div>
-        <TableSkeleton
-          headers={['', '', 'ID', 'Name', 'Slug', 'City', 'Coordinates', 'Status', 'Created At']}
-          columns={[
-            { width: '40px' },
-            { isActions: true, width: '50px' },
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-          ]}
-          minWidth="950px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={`${styles.skeletonLine} ${styles.wide}`} />
+              <div className={styles.skeletonLine} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -115,7 +109,16 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading, d
         <CachedSection drafts={drafts} onDraftClick={onDraftClick} onDraftDiscard={onDraftDiscard} />
       )}
       <div className={styles.header}>
-        <h2 className={styles.title}>Areas</h2>
+        <div className={styles.headerActions}>
+          {areasList.length > 0 && (
+            <Checkbox
+              checked={isAllSelected}
+              onChange={handleSelectAll}
+              aria-label="Select all areas"
+            />
+          )}
+          <h2 className={styles.title}>Areas</h2>
+        </div>
         <div className={styles.headerActions}>
           {isSomeSelected && (
             <Button
@@ -133,73 +136,52 @@ export function AreasTable({ onNewClick, onEditClick, onDelete, deleteLoading, d
       {areasList.length === 0 ? (
         <div className={styles.empty}>No areas</div>
       ) : (
-        <div className={styles.tableScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.checkboxCell}>
-                  <Checkbox
-                    checked={isAllSelected}
-                    onChange={handleSelectAll}
-                    aria-label="Select all areas"
-                  />
-                </th>
-                <th></th>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Slug</th>
-                <th>City</th>
-                <th>Coordinates</th>
-                <th>Status</th>
-                <th>Created At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {areasList.map(area => (
-                <tr
-                  key={area.id}
-                  onMouseOver={() => setHoveredRowId(area.id)}
-                  onMouseLeave={() => setHoveredRowId(undefined)}
-                  className={area.id && selectedIds.has(area.id) ? styles.selectedRow : ''}
-                >
-                  <td className={styles.checkboxCell}>
-                    <Checkbox
-                      checked={!!area.id && selectedIds.has(area.id)}
-                      onChange={() => area.id && handleSelectOne(area.id)}
-                      aria-label={`Select ${area.name}`}
-                    />
-                  </td>
-                  <td className={styles.actionsCell}>
-                    <TableActionButtons
-                      show={hoveredRowId === area.id}
-                      onEdit={() => onEditClick(area)}
-                      onDelete={() => area.id && handleDeleteClick([area.id])}
-                      deleteLoading={deleteLoading}
-                    />
-                  </td>
-                  <td>{area.id}</td>
-                  <td>{area.name || '-'}</td>
-                  <td>{area.slug || '-'}</td>
-                  <td>{area.city || '-'}</td>
-                  <td>
-                    {area.data?.boundary?.coordinates ? (
-                      <button
-                        className={styles.mapButton}
-                        onClick={() => setMapModalArea(area)}
-                      >
-                        <MapPin size={14} />
-                        View map
-                      </button>
-                    ) : '-'}
-                  </td>
-                  <td>{area.status || '-'}</td>
-                  <td>
-                    {area.createdAt ? new Date(area.createdAt).toLocaleDateString('en-US') : '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className={styles.grid}>
+          {areasList.map(area => (
+            <div
+              key={area.id}
+              className={`${styles.card}${area.id && selectedIds.has(area.id) ? ` ${styles.selected}` : ''}`}
+              onMouseOver={() => setHoveredCardId(area.id)}
+              onMouseLeave={() => setHoveredCardId(undefined)}
+              onClick={() => onEditClick(area)}
+            >
+              <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
+                <Checkbox
+                  checked={!!area.id && selectedIds.has(area.id)}
+                  onChange={() => area.id && handleSelectOne(area.id)}
+                  aria-label={`Select ${area.name}`}
+                />
+              </div>
+              <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                <TableActionButtons
+                  show={hoveredCardId === area.id}
+                  onEdit={() => onEditClick(area)}
+                  onDelete={() => area.id && handleDeleteClick([area.id])}
+                  deleteLoading={deleteLoading}
+                />
+              </div>
+              <h3 className={styles.areaName}>{area.name || '-'}</h3>
+              <div className={styles.areaSlug}>{area.slug || '-'}</div>
+              {area.city && <div className={styles.areaCity}>{area.city}</div>}
+              {area.status && <div className={styles.areaStatus}>{area.status}</div>}
+              <div className={styles.cardFooter}>
+                <div className={styles.areaDate}>
+                  {area.createdAt ? new Date(area.createdAt).toLocaleDateString('en-US') : '-'}
+                </div>
+                {area.data?.boundary?.coordinates ? (
+                  <button
+                    className={styles.mapButton}
+                    onClick={e => {
+                      e.stopPropagation()
+                      setMapModalArea(area)
+                    }}
+                  >
+                    <MapPin size={14} /> Map
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

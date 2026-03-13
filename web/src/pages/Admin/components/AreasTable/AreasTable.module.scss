@@ -2,11 +2,6 @@
   width: 100%;
 }
 
-.tableScroll {
-  width: 100%;
-  overflow-x: auto;
-}
-
 .header {
   display: flex;
   align-items: center;
@@ -27,81 +22,151 @@
   color: #333;
 }
 
-.loading,
-.error,
 .empty {
-  padding: 2rem;
+  padding: 3rem;
   text-align: center;
   color: #666;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.error {
-  color: #c33;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.skeletonCard {
   background: white;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-width: 900px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.table thead {
-  background: #f5f5f5;
+.skeletonLine {
+  height: 14px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+
+  &.wide {
+    width: 80%;
+    height: 18px;
+  }
+
+  &.short {
+    width: 50%;
+  }
 }
 
-.table th {
-  padding: 1rem;
-  text-align: left;
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.card {
+  position: relative;
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+  cursor: default;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:hover .cardActions {
+    opacity: 1;
+  }
+
+  &.selected {
+    outline: 2px solid #2563eb;
+    outline-offset: -2px;
+  }
+}
+
+.cardCheckbox {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.cardActions {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.areaName {
+  font-size: 1rem;
   font-weight: 600;
   color: #333;
-  border-bottom: 2px solid #e0e0e0;
+  margin: 0 0 0.5rem;
+  padding-right: 2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+.areaSlug {
+  font-size: 0.8rem;
+  color: #999;
+  font-family: monospace;
+  background: #f5f5f5;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.areaCity {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.areaStatus {
+  font-size: 0.75rem;
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: #f0f0f0;
   color: #666;
 }
 
-.table tbody tr:hover {
-  background: #f9f9f9;
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.25rem;
 }
 
-.table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.checkboxCell {
-  width: 40px;
-  padding: 0.5rem !important;
-  text-align: center;
-}
-
-.actionsCell {
-  width: 50px;
-  padding: 0.5rem !important;
-  text-align: center;
-  position: relative;
-}
-
-.selectedRow {
-  background: #fef9c3 !important;
-}
-
-.deleteItemNames {
-  font-weight: 500;
-  color: #333;
-  word-break: break-word;
-}
-
-.deleteWarning {
-  color: #dc2626;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
+.areaDate {
+  font-size: 0.75rem;
+  color: #aaa;
 }
 
 .mapButton {
@@ -122,4 +187,16 @@
     border-color: #9ca3af;
     color: #333;
   }
+}
+
+.deleteItemNames {
+  font-weight: 500;
+  color: #333;
+  word-break: break-word;
+}
+
+.deleteWarning {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
 }

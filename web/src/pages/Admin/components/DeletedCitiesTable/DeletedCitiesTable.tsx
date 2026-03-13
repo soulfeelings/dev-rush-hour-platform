@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
-import { TableSkeleton } from '../TableSkeleton'
 import styles from './DeletedCitiesTable.module.scss'
 
 const { useAdminListDeletedCities } = AdminApi
@@ -20,7 +19,7 @@ export function DeletedCitiesTable({
   restoreLoading,
   hardDeleteLoading,
 }: DeletedCitiesTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [restoreModalOpen, setRestoreModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -35,14 +34,6 @@ export function DeletedCitiesTable({
   })
 
   const citiesList = cities || []
-
-  const handleSelectAll = () => {
-    if (selectedIds.size === citiesList.length) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(citiesList.map(c => c.id).filter((id): id is string => !!id)))
-    }
-  }
 
   const handleSelectOne = (id: string) => {
     const newSelected = new Set(selectedIds)
@@ -88,6 +79,14 @@ export function DeletedCitiesTable({
     setItemsToDelete([])
   }
 
+  const handleSelectAll = () => {
+    if (selectedIds.size === citiesList.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(citiesList.map(c => c.id).filter((id): id is string => !!id)))
+    }
+  }
+
   const isAllSelected = citiesList.length > 0 && selectedIds.size === citiesList.length
   const isSomeSelected = selectedIds.size > 0
 
@@ -101,11 +100,15 @@ export function DeletedCitiesTable({
         <div className={styles.header}>
           <h2 className={styles.title}>Deleted Cities</h2>
         </div>
-        <TableSkeleton
-          headers={['', '', 'ID', 'Name', 'Slug', 'Deleted At']}
-          columns={[{ width: '40px' }, { isActions: true, width: '80px' }, {}, {}, {}, {}]}
-          minWidth="700px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={`${styles.skeletonLine} ${styles.wide}`} />
+              <div className={styles.skeletonLine} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -125,6 +128,11 @@ export function DeletedCitiesTable({
       <div className={styles.header}>
         <h2 className={styles.title}>Deleted Cities</h2>
         <div className={styles.headerActions}>
+          <Checkbox
+            checked={isAllSelected}
+            onChange={handleSelectAll}
+            aria-label="Select all deleted cities"
+          />
           {isSomeSelected && (
             <>
               <Button
@@ -148,71 +156,37 @@ export function DeletedCitiesTable({
           )}
         </div>
       </div>
-      <div className={styles.tableScroll}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all deleted cities"
-                />
-              </th>
-              <th></th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>Deleted At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {citiesList.map(city => (
-              <tr
-                key={city.id}
-                onMouseOver={() => setHoveredRowId(city.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={city.id && selectedIds.has(city.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
-                  <Checkbox
-                    checked={!!city.id && selectedIds.has(city.id)}
-                    onChange={() => city.id && handleSelectOne(city.id)}
-                    aria-label={`Select ${city.name}`}
-                  />
-                </td>
-                <td className={styles.actionsCell}>
-                  {hoveredRowId === city.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.restoreBtn}
-                        onClick={() => city.id && handleRestoreClick([city.id])}
-                        aria-label="Restore city"
-                        disabled={isLoading_}
-                      >
-                        <RotateCcw size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteBtn}
-                        onClick={() => city.id && handleDeleteClick([city.id])}
-                        aria-label="Permanently delete city"
-                        disabled={isLoading_}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
-                </td>
-                <td>{city.id}</td>
-                <td>{city.name || '-'}</td>
-                <td>{city.slug || '-'}</td>
-                <td>{city.deletedAt ? new Date(city.deletedAt).toLocaleDateString('en-US') : '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className={styles.grid}>
+        {citiesList.map(city => {
+          const isSelected = !!city.id && selectedIds.has(city.id)
+          return (
+            <div
+              key={city.id}
+              className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+              onMouseOver={() => setHoveredCardId(city.id)}
+              onMouseLeave={() => setHoveredCardId(undefined)}
+            >
+              <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
+                <Checkbox checked={isSelected} onChange={() => city.id && handleSelectOne(city.id)} aria-label={`Select ${city.name}`} />
+              </div>
+              <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                {hoveredCardId === city.id && (
+                  <>
+                    <button type="button" className={styles.restoreBtn} onClick={() => city.id && handleRestoreClick([city.id])} aria-label="Restore" disabled={isLoading_}>
+                      <RotateCcw size={16} />
+                    </button>
+                    <button type="button" className={styles.deleteBtn} onClick={() => city.id && handleDeleteClick([city.id])} aria-label="Permanently delete" disabled={isLoading_}>
+                      <Trash2 size={16} />
+                    </button>
+                  </>
+                )}
+              </div>
+              <h3 className={styles.itemName}>{city.name || '-'}</h3>
+              <div className={styles.itemSlug}>{city.slug || '-'}</div>
+              <div className={styles.itemDate}>Deleted: {city.deletedAt ? new Date(city.deletedAt).toLocaleDateString('en-US') : '-'}</div>
+            </div>
+          )
+        })}
       </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">

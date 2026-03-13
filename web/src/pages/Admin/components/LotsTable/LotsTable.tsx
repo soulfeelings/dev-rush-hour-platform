@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
-import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
 import { CachedSection } from '../CachedSection/CachedSection'
 import { getImageUrl } from '../../../../utils/imageUrl'
@@ -23,7 +22,7 @@ type LotsTableProps = {
 }
 
 export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, deleteLoading, drafts, onDraftClick, onDraftDiscard }: LotsTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [lotsToDelete, setLotsToDelete] = useState<string[]>([])
@@ -45,7 +44,6 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
   const allLots = lotsResponse?.items || []
   const projects = projectsData || []
 
-  // Frontend filtering
   const lotsList = useMemo(() => {
     let filtered = allLots
 
@@ -61,7 +59,6 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
     return filtered
   }, [allLots, filterProjectId, filterBedrooms])
 
-  // Get unique bedroom options from all lots
   const bedroomOptions = useMemo(() => {
     const uniqueBedrooms = new Set<number>()
     allLots.forEach(lot => {
@@ -142,43 +139,18 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
           <h2 className={styles.title}>Lots</h2>
           <Button onClick={onNewClick}>New</Button>
         </div>
-        <TableSkeleton
-          headers={[
-            '',
-            '',
-            'Image',
-            'ID',
-            'Project',
-            'Type',
-            'Bedrooms',
-            'Bathrooms',
-            'Area (ft²)',
-            'Floor',
-            'Price',
-            'Dev Price',
-            'ROI',
-            'Status',
-            'Created At',
-          ]}
-          columns={[
-            { width: '40px' },
-            { isActions: true, width: '50px' },
-            { isImage: true, width: '80px' },
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-          ]}
-          minWidth="1200px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={styles.skeletonImage} />
+              <div className={styles.skeletonInfo}>
+                <div className={`${styles.skeletonLine} ${styles.wide}`} />
+                <div className={styles.skeletonLine} />
+                <div className={`${styles.skeletonLine} ${styles.short}`} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -195,6 +167,11 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
       <div className={styles.header}>
         <h2 className={styles.title}>Lots</h2>
         <div className={styles.headerActions}>
+          <Checkbox
+            checked={isAllSelected}
+            onChange={handleSelectAll}
+            aria-label="Select all lots"
+          />
           {isSomeSelected && (
             <Button
               variant="secondary"
@@ -248,84 +225,73 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
           {allLots.length === 0 ? 'No lots' : 'No lots match the selected filters'}
         </div>
       ) : (
-        <div className={styles.tableScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.checkboxCell}>
+        <div className={styles.grid}>
+          {lotsList.map(lot => {
+            const isSelected = !!lot.id && selectedIds.has(lot.id)
+            const imageUrl = getLotImageUrl(lot)
+            return (
+              <div
+                key={lot.id}
+                className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+                onClick={() => onEditClick(lot)}
+                onMouseOver={() => setHoveredCardId(lot.id)}
+                onMouseLeave={() => setHoveredCardId(undefined)}
+              >
+                <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
                   <Checkbox
-                    checked={isAllSelected}
-                    onChange={handleSelectAll}
-                    aria-label="Select all lots"
+                    checked={isSelected}
+                    onChange={() => lot.id && handleSelectOne(lot.id)}
+                    aria-label={`Select lot ${lot.id}`}
                   />
-                </th>
-                <th></th>
-                <th>Image</th>
-                <th>ID</th>
-                <th>Project</th>
-                <th>Type</th>
-                <th>Bedrooms</th>
-                <th>Bathrooms</th>
-                <th>Area (ft²)</th>
-                <th>Floor</th>
-                <th>Price</th>
-                <th>Dev Price</th>
-                <th>ROI</th>
-                <th>Status</th>
-                <th>Created At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lotsList.map(lot => (
-                <tr
-                  key={lot.id}
-                  onMouseOver={() => setHoveredRowId(lot.id)}
-                  onMouseLeave={() => setHoveredRowId(undefined)}
-                  className={lot.id && selectedIds.has(lot.id) ? styles.selectedRow : ''}
-                >
-                  <td className={styles.checkboxCell}>
-                    <Checkbox
-                      checked={!!lot.id && selectedIds.has(lot.id)}
-                      onChange={() => lot.id && handleSelectOne(lot.id)}
-                      aria-label={`Select lot ${lot.id}`}
-                    />
-                  </td>
-                  <td className={styles.actionsCell}>
+                </div>
+                <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                  {hoveredCardId === lot.id && (
                     <TableActionButtons
-                      show={hoveredRowId === lot.id}
+                      show
                       onEdit={() => onEditClick(lot)}
                       onCopy={() => onCopyClick(lot)}
                       onDelete={() => lot.id && handleDeleteClick([lot.id])}
                       deleteLoading={deleteLoading}
                     />
-                  </td>
-                  <td className={styles.imageCell}>
-                    {getLotImageUrl(lot) ? (
-                      <img
-                        src={getImageUrl(getLotImageUrl(lot) || '', 'thumbnail')}
-                        alt={`Lot ${lot.id}`}
-                        className={styles.image}
-                      />
-                    ) : (
-                      <div className={styles.noImage}>-</div>
+                  )}
+                </div>
+                {imageUrl ? (
+                  <img
+                    src={getImageUrl(imageUrl, 'thumbnail')}
+                    alt={`Lot ${lot.id}`}
+                    className={styles.lotImage}
+                  />
+                ) : (
+                  <div className={styles.noImage}>No image</div>
+                )}
+                <div className={styles.cardInfo}>
+                  <h3 className={styles.lotTitle}>{lot.type || 'Lot'} #{lot.id?.slice(0, 8)}</h3>
+                  <div className={styles.lotProject}>{lot.project?.name || '-'}</div>
+                  <div className={styles.lotSpecs}>
+                    {lot.bedrooms != null && <span className={styles.spec}>{lot.bedrooms} BR</span>}
+                    {lot.bathrooms != null && <span className={styles.spec}>{lot.bathrooms} BA</span>}
+                    {lot.areaSqft != null && <span className={styles.spec}>{lot.areaSqft} ft²</span>}
+                    {lot.floor != null && <span className={styles.spec}>Floor {lot.floor}</span>}
+                  </div>
+                  <div className={styles.lotPrices}>
+                    <div className={styles.lotPrice}>{formatPrice(lot.priceFromUs, 'AED')}</div>
+                    {lot.priceFromDeveloper && (
+                      <div className={styles.lotPriceDev}>Dev: {formatPrice(lot.priceFromDeveloper, 'AED')}</div>
                     )}
-                  </td>
-                  <td>{lot.id}</td>
-                  <td>{lot.project?.name || '-'}</td>
-                  <td>{lot.type || '-'}</td>
-                  <td>{lot.bedrooms ?? '-'}</td>
-                  <td>{lot.bathrooms ?? '-'}</td>
-                  <td>{lot.areaSqft ?? '-'}</td>
-                  <td>{lot.floor ?? '-'}</td>
-                  <td>{formatPrice(lot.priceFromUs, 'AED')}</td>
-                  <td>{formatPrice(lot.priceFromDeveloper, 'AED')}</td>
-                  <td>{lot.roi != null ? `${lot.roi}%` : '-'}</td>
-                  <td>{lot.status || '-'}</td>
-                  <td>{lot.createdAt ? new Date(lot.createdAt).toLocaleDateString('en-US') : '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    {lot.roi != null && (
+                      <div className={styles.lotPriceDev}>ROI: {lot.roi}%</div>
+                    )}
+                  </div>
+                  <div className={styles.lotFooter}>
+                    <span className={styles.lotStatus}>{lot.status || '-'}</span>
+                    <span className={styles.lotDate}>
+                      {lot.createdAt ? new Date(lot.createdAt).toLocaleDateString('en-US') : '-'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 

@@ -5,11 +5,6 @@
   border-top: 1px solid #e0e0e0;
 }
 
-.tableScroll {
-  width: 100%;
-  overflow-x: auto;
-}
-
 .header {
   display: flex;
   align-items: center;
@@ -30,73 +25,96 @@
   color: #666;
 }
 
-.loading,
-.error,
-.empty {
-  padding: 2rem;
-  text-align: center;
-  color: #666;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
 }
 
-.error {
-  color: #c33;
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
+.skeletonCard {
   background: white;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-width: 700px;
-  opacity: 0.8;
-}
-
-.table thead {
-  background: #f5f5f5;
-}
-
-.table th {
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: #333;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-.table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e0e0e0;
-  color: #999;
-}
-
-.table tbody tr:hover {
-  background: #f9f9f9;
-  opacity: 1;
-}
-
-.table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.checkboxCell {
-  width: 40px;
-  padding: 0.5rem !important;
-  text-align: center;
-}
-
-.actionsCell {
-  width: 70px;
-  padding: 0.5rem !important;
-  text-align: center;
-}
-
-.actionButtons {
+  padding: 1.25rem;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  opacity: 0.7;
+}
+
+.skeletonLine {
+  height: 14px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+
+  &.wide {
+    width: 80%;
+    height: 18px;
+  }
+
+  &.short {
+    width: 50%;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.card {
+  position: relative;
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s, opacity 0.2s;
+  opacity: 0.7;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 1;
+  }
+
+  &:hover .cardActions {
+    opacity: 1;
+  }
+
+  &.selected {
+    outline: 2px solid #2563eb;
+    outline-offset: -2px;
+    opacity: 1;
+  }
+}
+
+.cardCheckbox {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.cardActions {
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  display: flex;
   gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.15s;
 }
 
 .restoreBtn,
@@ -104,7 +122,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.375rem;
   border-radius: 4px;
   color: #666;
   display: inline-flex;
@@ -123,20 +141,12 @@
     background: #dcfce7;
     color: #16a34a;
   }
-
-  &:active {
-    background: #bbf7d0;
-  }
 }
 
 .deleteBtn {
   &:hover {
     background: #fee2e2;
     color: #dc2626;
-  }
-
-  &:active {
-    background: #fecaca;
   }
 }
 
@@ -148,9 +158,34 @@
   }
 }
 
-.selectedRow {
-  background: #fef9c3 !important;
-  opacity: 1 !important;
+.itemName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.5rem;
+  padding-right: 3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemSlug {
+  font-size: 0.8rem;
+  color: #999;
+  font-family: monospace;
+  background: #f5f5f5;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemDate {
+  font-size: 0.75rem;
+  color: #aaa;
 }
 
 .itemNames {

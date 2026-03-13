@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
-import { TableSkeleton } from '../TableSkeleton'
 import styles from './DeletedAreasTable.module.scss'
 
 const { useAdminListDeletedAreas } = AdminApi
@@ -20,7 +19,7 @@ export function DeletedAreasTable({
   restoreLoading,
   hardDeleteLoading,
 }: DeletedAreasTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [restoreModalOpen, setRestoreModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -35,14 +34,6 @@ export function DeletedAreasTable({
   })
 
   const areasList = areas || []
-
-  const handleSelectAll = () => {
-    if (selectedIds.size === areasList.length) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(areasList.map(a => a.id).filter((id): id is string => !!id)))
-    }
-  }
 
   const handleSelectOne = (id: string) => {
     const newSelected = new Set(selectedIds)
@@ -88,6 +79,14 @@ export function DeletedAreasTable({
     setItemsToDelete([])
   }
 
+  const handleSelectAll = () => {
+    if (selectedIds.size === areasList.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(areasList.map(a => a.id).filter((id): id is string => !!id)))
+    }
+  }
+
   const isAllSelected = areasList.length > 0 && selectedIds.size === areasList.length
   const isSomeSelected = selectedIds.size > 0
 
@@ -101,11 +100,15 @@ export function DeletedAreasTable({
         <div className={styles.header}>
           <h2 className={styles.title}>Deleted Areas</h2>
         </div>
-        <TableSkeleton
-          headers={['', '', 'ID', 'Name', 'Slug', 'City', 'Deleted At']}
-          columns={[{ width: '40px' }, { isActions: true, width: '80px' }, {}, {}, {}, {}, {}]}
-          minWidth="750px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={`${styles.skeletonLine} ${styles.wide}`} />
+              <div className={styles.skeletonLine} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -125,6 +128,11 @@ export function DeletedAreasTable({
       <div className={styles.header}>
         <h2 className={styles.title}>Deleted Areas</h2>
         <div className={styles.headerActions}>
+          <Checkbox
+            checked={isAllSelected}
+            onChange={handleSelectAll}
+            aria-label="Select all deleted areas"
+          />
           {isSomeSelected && (
             <>
               <Button
@@ -148,73 +156,38 @@ export function DeletedAreasTable({
           )}
         </div>
       </div>
-      <div className={styles.tableScroll}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all deleted areas"
-                />
-              </th>
-              <th></th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>City</th>
-              <th>Deleted At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {areasList.map(area => (
-              <tr
-                key={area.id}
-                onMouseOver={() => setHoveredRowId(area.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={area.id && selectedIds.has(area.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
-                  <Checkbox
-                    checked={!!area.id && selectedIds.has(area.id)}
-                    onChange={() => area.id && handleSelectOne(area.id)}
-                    aria-label={`Select ${area.name}`}
-                  />
-                </td>
-                <td className={styles.actionsCell}>
-                  {hoveredRowId === area.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.restoreBtn}
-                        onClick={() => area.id && handleRestoreClick([area.id])}
-                        aria-label="Restore area"
-                        disabled={isLoading_}
-                      >
-                        <RotateCcw size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteBtn}
-                        onClick={() => area.id && handleDeleteClick([area.id])}
-                        aria-label="Permanently delete area"
-                        disabled={isLoading_}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
-                </td>
-                <td>{area.id}</td>
-                <td>{area.name || '-'}</td>
-                <td>{area.slug || '-'}</td>
-                <td>{area.city || '-'}</td>
-                <td>{area.deletedAt ? new Date(area.deletedAt).toLocaleDateString('en-US') : '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className={styles.grid}>
+        {areasList.map(area => {
+          const isSelected = !!area.id && selectedIds.has(area.id)
+          return (
+            <div
+              key={area.id}
+              className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+              onMouseOver={() => setHoveredCardId(area.id)}
+              onMouseLeave={() => setHoveredCardId(undefined)}
+            >
+              <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
+                <Checkbox checked={isSelected} onChange={() => area.id && handleSelectOne(area.id)} aria-label={`Select ${area.name}`} />
+              </div>
+              <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                {hoveredCardId === area.id && (
+                  <>
+                    <button type="button" className={styles.restoreBtn} onClick={() => area.id && handleRestoreClick([area.id])} aria-label="Restore" disabled={isLoading_}>
+                      <RotateCcw size={16} />
+                    </button>
+                    <button type="button" className={styles.deleteBtn} onClick={() => area.id && handleDeleteClick([area.id])} aria-label="Permanently delete" disabled={isLoading_}>
+                      <Trash2 size={16} />
+                    </button>
+                  </>
+                )}
+              </div>
+              <h3 className={styles.itemName}>{area.name || '-'}</h3>
+              <div className={styles.itemSlug}>{area.slug || '-'}</div>
+              {area.city && <div className={styles.itemCity}>{area.city}</div>}
+              <div className={styles.itemDate}>Deleted: {area.deletedAt ? new Date(area.deletedAt).toLocaleDateString('en-US') : '-'}</div>
+            </div>
+          )
+        })}
       </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">

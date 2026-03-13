@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
-import { TableSkeleton } from '../TableSkeleton'
 import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './DeletedDevelopersTable.module.scss'
 
@@ -21,7 +20,7 @@ export function DeletedDevelopersTable({
   restoreLoading,
   hardDeleteLoading,
 }: DeletedDevelopersTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [restoreModalOpen, setRestoreModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -36,14 +35,6 @@ export function DeletedDevelopersTable({
   })
 
   const developersList = developers || []
-
-  const handleSelectAll = () => {
-    if (selectedIds.size === developersList.length) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(developersList.map(d => d.id).filter((id): id is string => !!id)))
-    }
-  }
 
   const handleSelectOne = (id: string) => {
     const newSelected = new Set(selectedIds)
@@ -89,6 +80,14 @@ export function DeletedDevelopersTable({
     setDevelopersToDelete([])
   }
 
+  const handleSelectAll = () => {
+    if (selectedIds.size === developersList.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(developersList.map(d => d.id).filter((id): id is string => !!id)))
+    }
+  }
+
   const isAllSelected = developersList.length > 0 && selectedIds.size === developersList.length
   const isSomeSelected = selectedIds.size > 0
 
@@ -102,19 +101,15 @@ export function DeletedDevelopersTable({
         <div className={styles.header}>
           <h2 className={styles.title}>Deleted Developers</h2>
         </div>
-        <TableSkeleton
-          headers={['', '', 'Logo', 'ID', 'Name', 'Slug', 'Deleted At']}
-          columns={[
-            { width: '40px' },
-            { isActions: true, width: '80px' },
-            { width: '60px' },
-            {},
-            {},
-            {},
-            {},
-          ]}
-          minWidth="750px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={`${styles.skeletonLine} ${styles.wide}`} />
+              <div className={styles.skeletonLine} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -134,6 +129,11 @@ export function DeletedDevelopersTable({
       <div className={styles.header}>
         <h2 className={styles.title}>Deleted Developers</h2>
         <div className={styles.headerActions}>
+          <Checkbox
+            checked={isAllSelected}
+            onChange={handleSelectAll}
+            aria-label="Select all deleted developers"
+          />
           {isSomeSelected && (
             <>
               <Button
@@ -157,87 +157,42 @@ export function DeletedDevelopersTable({
           )}
         </div>
       </div>
-      <div className={styles.tableScroll}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.checkboxCell}>
-                <Checkbox
-                  checked={isAllSelected}
-                  onChange={handleSelectAll}
-                  aria-label="Select all deleted developers"
-                />
-              </th>
-              <th></th>
-              <th>Logo</th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>Deleted At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {developersList.map(developer => (
-              <tr
-                key={developer.id}
-                onMouseOver={() => setHoveredRowId(developer.id)}
-                onMouseLeave={() => setHoveredRowId(undefined)}
-                className={developer.id && selectedIds.has(developer.id) ? styles.selectedRow : ''}
-              >
-                <td className={styles.checkboxCell}>
-                  <Checkbox
-                    checked={!!developer.id && selectedIds.has(developer.id)}
-                    onChange={() => developer.id && handleSelectOne(developer.id)}
-                    aria-label={`Select ${developer.name}`}
-                  />
-                </td>
-                <td className={styles.actionsCell}>
-                  {hoveredRowId === developer.id && (
-                    <div className={styles.actionButtons}>
-                      <button
-                        type="button"
-                        className={styles.restoreBtn}
-                        onClick={() => developer.id && handleRestoreClick([developer.id])}
-                        aria-label="Restore developer"
-                        disabled={isLoading_}
-                      >
-                        <RotateCcw size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.deleteBtn}
-                        onClick={() => developer.id && handleDeleteClick([developer.id])}
-                        aria-label="Permanently delete developer"
-                        disabled={isLoading_}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
-                </td>
-                <td className={styles.logoCell}>
-                  {developer.logoUrl ? (
-                    <img
-                      src={getImageUrl(developer.logoUrl!, 'thumbnail')}
-                      alt={`${developer.name} logo`}
-                      className={styles.logoImage}
-                    />
-                  ) : (
-                    <span className={styles.noLogo}>-</span>
-                  )}
-                </td>
-                <td>{developer.id}</td>
-                <td>{developer.name || '-'}</td>
-                <td>{developer.slug || '-'}</td>
-                <td>
-                  {developer.deletedAt
-                    ? new Date(developer.deletedAt).toLocaleDateString('en-US')
-                    : '-'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className={styles.grid}>
+        {developersList.map(developer => {
+          const isSelected = !!developer.id && selectedIds.has(developer.id)
+          return (
+            <div
+              key={developer.id}
+              className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+              onMouseOver={() => setHoveredCardId(developer.id)}
+              onMouseLeave={() => setHoveredCardId(undefined)}
+            >
+              <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
+                <Checkbox checked={isSelected} onChange={() => developer.id && handleSelectOne(developer.id)} aria-label={`Select ${developer.name}`} />
+              </div>
+              <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                {hoveredCardId === developer.id && (
+                  <>
+                    <button type="button" className={styles.restoreBtn} onClick={() => developer.id && handleRestoreClick([developer.id])} aria-label="Restore" disabled={isLoading_}>
+                      <RotateCcw size={16} />
+                    </button>
+                    <button type="button" className={styles.deleteBtn} onClick={() => developer.id && handleDeleteClick([developer.id])} aria-label="Permanently delete" disabled={isLoading_}>
+                      <Trash2 size={16} />
+                    </button>
+                  </>
+                )}
+              </div>
+              {developer.logoUrl ? (
+                <img src={getImageUrl(developer.logoUrl!, 'thumbnail')} alt={`${developer.name} logo`} className={styles.logoImage} />
+              ) : (
+                <span className={styles.noLogo}>No logo</span>
+              )}
+              <h3 className={styles.itemName}>{developer.name || '-'}</h3>
+              <div className={styles.itemSlug}>{developer.slug || '-'}</div>
+              <div className={styles.itemDate}>Deleted: {developer.deletedAt ? new Date(developer.deletedAt).toLocaleDateString('en-US') : '-'}</div>
+            </div>
+          )
+        })}
       </div>
 
       <Modal open={restoreModalOpen} onClose={handleCancelRestore} title="Confirm Restore">

@@ -3,7 +3,6 @@ import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter } from '../../../../ui'
 import type { City } from '../../../../api/generated/schemas/city'
-import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
 import { CachedSection } from '../CachedSection/CachedSection'
 import styles from './CitiesTable.module.scss'
@@ -29,7 +28,7 @@ export function CitiesTable({
   onDraftClick,
   onDraftDiscard,
 }: CitiesTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [citiesToDelete, setCitiesToDelete] = useState<string[]>([])
@@ -92,11 +91,15 @@ export function CitiesTable({
           <h2 className={styles.title}>Cities</h2>
           <Button onClick={onNewClick}>New</Button>
         </div>
-        <TableSkeleton
-          headers={['', '', 'ID', 'Name', 'Slug', 'Created At']}
-          columns={[{ width: '40px' }, { isActions: true, width: '50px' }, {}, {}, {}, {}]}
-          minWidth="750px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={`${styles.skeletonLine} ${styles.wide}`} />
+              <div className={styles.skeletonLine} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -113,6 +116,13 @@ export function CitiesTable({
       <div className={styles.header}>
         <h2 className={styles.title}>Cities</h2>
         <div className={styles.headerActions}>
+          {citiesList.length > 0 && (
+            <Checkbox
+              checked={isAllSelected}
+              onChange={handleSelectAll}
+              aria-label="Select all cities"
+            />
+          )}
           {isSomeSelected && (
             <Button
               variant="secondary"
@@ -129,57 +139,41 @@ export function CitiesTable({
       {citiesList.length === 0 ? (
         <div className={styles.empty}>No cities</div>
       ) : (
-        <div className={styles.tableScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.checkboxCell}>
+        <div className={styles.grid}>
+          {citiesList.map(city => {
+            const isSelected = !!city.id && selectedIds.has(city.id)
+
+            return (
+              <div
+                key={city.id}
+                className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+                onMouseOver={() => setHoveredCardId(city.id)}
+                onMouseLeave={() => setHoveredCardId(undefined)}
+                onClick={() => onEditClick(city)}
+              >
+                <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
                   <Checkbox
-                    checked={isAllSelected}
-                    onChange={handleSelectAll}
-                    aria-label="Select all cities"
+                    checked={isSelected}
+                    onChange={() => city.id && handleSelectOne(city.id)}
+                    aria-label={`Select ${city.name}`}
                   />
-                </th>
-                <th></th>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Slug</th>
-                <th>Created At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {citiesList.map(city => (
-                <tr
-                  key={city.id}
-                  onMouseOver={() => setHoveredRowId(city.id)}
-                  onMouseLeave={() => setHoveredRowId(undefined)}
-                  className={city.id && selectedIds.has(city.id) ? styles.selectedRow : ''}
-                >
-                  <td className={styles.checkboxCell}>
-                    <Checkbox
-                      checked={!!city.id && selectedIds.has(city.id)}
-                      onChange={() => city.id && handleSelectOne(city.id)}
-                      aria-label={`Select ${city.name}`}
-                    />
-                  </td>
-                  <td className={styles.actionsCell}>
-                    <TableActionButtons
-                      show={hoveredRowId === city.id}
-                      onEdit={() => onEditClick(city)}
-                      onDelete={() => city.id && handleDeleteClick([city.id])}
-                      deleteLoading={deleteLoading}
-                    />
-                  </td>
-                  <td>{city.id}</td>
-                  <td>{city.name || '-'}</td>
-                  <td>{city.slug || '-'}</td>
-                  <td>
-                    {city.createdAt ? new Date(city.createdAt).toLocaleDateString('en-US') : '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                </div>
+                <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                  <TableActionButtons
+                    show={hoveredCardId === city.id}
+                    onEdit={() => onEditClick(city)}
+                    onDelete={() => city.id && handleDeleteClick([city.id])}
+                    deleteLoading={deleteLoading}
+                  />
+                </div>
+                <h3 className={styles.cityName}>{city.name || '-'}</h3>
+                <div className={styles.citySlug}>{city.slug || '-'}</div>
+                <div className={styles.cityDate}>
+                  {city.createdAt ? new Date(city.createdAt).toLocaleDateString('en-US') : '-'}
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 

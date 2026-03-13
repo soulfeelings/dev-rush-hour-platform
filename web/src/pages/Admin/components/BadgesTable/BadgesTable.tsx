@@ -3,7 +3,6 @@ import { Trash2 } from 'lucide-react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Badge } from '../../../../ui'
 import type { Badge as BadgeSchema } from '../../../../api/generated/schemas/badge'
-import { TableSkeleton } from '../TableSkeleton'
 import { TableActionButtons } from '../TableActionButtons'
 import { CachedSection } from '../CachedSection/CachedSection'
 import styles from './BadgesTable.module.scss'
@@ -29,7 +28,7 @@ export function BadgesTable({
   onDraftClick,
   onDraftDiscard,
 }: BadgesTableProps) {
-  const [hoveredRowId, setHoveredRowId] = useState<string | undefined>(undefined)
+  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [badgesToDelete, setBadgesToDelete] = useState<string[]>([])
@@ -92,19 +91,15 @@ export function BadgesTable({
           <h2 className={styles.title}>Badges</h2>
           <Button onClick={onNewClick}>New</Button>
         </div>
-        <TableSkeleton
-          headers={['', '', 'Preview', 'Name', 'Slug', 'Status', 'Sort Order']}
-          columns={[
-            { width: '40px' },
-            { isActions: true, width: '50px' },
-            { width: '150px' },
-            {},
-            {},
-            {},
-            {},
-          ]}
-          minWidth="750px"
-        />
+        <div className={styles.skeletonGrid}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={`${styles.skeletonLine} ${styles.wide}`} />
+              <div className={styles.skeletonLine} />
+              <div className={`${styles.skeletonLine} ${styles.short}`} />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -121,6 +116,13 @@ export function BadgesTable({
       <div className={styles.header}>
         <h2 className={styles.title}>Badges</h2>
         <div className={styles.headerActions}>
+          {badgesList.length > 0 && (
+            <Checkbox
+              checked={isAllSelected}
+              onChange={handleSelectAll}
+              aria-label="Select all badges"
+            />
+          )}
           {isSomeSelected && (
             <Button
               variant="secondary"
@@ -137,65 +139,49 @@ export function BadgesTable({
       {badgesList.length === 0 ? (
         <div className={styles.empty}>No badges</div>
       ) : (
-        <div className={styles.tableScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.checkboxCell}>
+        <div className={styles.grid}>
+          {badgesList.map(badge => {
+            const isSelected = !!badge.id && selectedIds.has(badge.id)
+
+            return (
+              <div
+                key={badge.id}
+                className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+                onMouseOver={() => setHoveredCardId(badge.id)}
+                onMouseLeave={() => setHoveredCardId(undefined)}
+                onClick={() => onEditClick(badge)}
+              >
+                <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
                   <Checkbox
-                    checked={isAllSelected}
-                    onChange={handleSelectAll}
-                    aria-label="Select all badges"
+                    checked={isSelected}
+                    onChange={() => badge.id && handleSelectOne(badge.id)}
+                    aria-label={`Select ${badge.name}`}
                   />
-                </th>
-                <th></th>
-                <th>Preview</th>
-                <th>Name</th>
-                <th>Slug</th>
-                <th>Status</th>
-                <th>Sort Order</th>
-              </tr>
-            </thead>
-            <tbody>
-              {badgesList.map(badge => (
-                <tr
-                  key={badge.id}
-                  onMouseOver={() => setHoveredRowId(badge.id)}
-                  onMouseLeave={() => setHoveredRowId(undefined)}
-                  className={badge.id && selectedIds.has(badge.id) ? styles.selectedRow : ''}
-                >
-                  <td className={styles.checkboxCell}>
-                    <Checkbox
-                      checked={!!badge.id && selectedIds.has(badge.id)}
-                      onChange={() => badge.id && handleSelectOne(badge.id)}
-                      aria-label={`Select ${badge.name}`}
-                    />
-                  </td>
-                  <td className={styles.actionsCell}>
-                    <TableActionButtons
-                      show={hoveredRowId === badge.id}
-                      onEdit={() => onEditClick(badge)}
-                      onDelete={() => badge.id && handleDeleteClick([badge.id])}
-                      deleteLoading={deleteLoading}
-                    />
-                  </td>
-                  <td>
-                    <Badge
-                      text={badge.name || 'Badge'}
-                      backgroundColor={badge.backgroundColor || '#000000'}
-                      textColor={badge.textColor || '#FFFFFF'}
-                      iconName={badge.icon}
-                      iconColor={badge.iconColor}
-                      size="small"
-                    />
-                  </td>
-                  <td>{badge.name || '-'}</td>
-                  <td>{badge.slug || '-'}</td>
-                  <td>{badge.sortOrder ?? 0}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                </div>
+                <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                  <TableActionButtons
+                    show={hoveredCardId === badge.id}
+                    onEdit={() => onEditClick(badge)}
+                    onDelete={() => badge.id && handleDeleteClick([badge.id])}
+                    deleteLoading={deleteLoading}
+                  />
+                </div>
+                <div className={styles.badgePreview}>
+                  <Badge
+                    text={badge.name || 'Badge'}
+                    backgroundColor={badge.backgroundColor || '#000000'}
+                    textColor={badge.textColor || '#FFFFFF'}
+                    iconName={badge.icon}
+                    iconColor={badge.iconColor}
+                    size="small"
+                  />
+                </div>
+                <h3 className={styles.badgeName}>{badge.name || '-'}</h3>
+                <div className={styles.badgeSlug}>{badge.slug || '-'}</div>
+                <div className={styles.badgeSortOrder}>Order: {badge.sortOrder ?? 0}</div>
+              </div>
+            )
+          })}
         </div>
       )}
 
