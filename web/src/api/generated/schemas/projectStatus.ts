@@ -9,6 +9,7 @@
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]
 
 export const ProjectStatus = {
+  draft: 'draft',
   active: 'active',
   archived: 'archived',
 } as const

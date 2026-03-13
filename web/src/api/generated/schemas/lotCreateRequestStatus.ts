@@ -10,6 +10,7 @@ export type LotCreateRequestStatus =
   (typeof LotCreateRequestStatus)[keyof typeof LotCreateRequestStatus]
 
 export const LotCreateRequestStatus = {
+  draft: 'draft',
   active: 'active',
   hidden: 'hidden',
   reserved: 'reserved',

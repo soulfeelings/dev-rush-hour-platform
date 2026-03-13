@@ -9,6 +9,7 @@
 export type LotStatus = (typeof LotStatus)[keyof typeof LotStatus]
 
 export const LotStatus = {
+  draft: 'draft',
   active: 'active',
   hidden: 'hidden',
   reserved: 'reserved',
