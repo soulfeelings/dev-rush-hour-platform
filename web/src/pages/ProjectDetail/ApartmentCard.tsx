@@ -417,6 +417,12 @@ export function ApartmentCard({
             {t('getDetailsOnWhatsApp')}
           </Button>
         </div>
+
+        {lot.dldPermitNo && (
+          <div className={styles.permitNo}>
+            {t('permitNo')}: {lot.dldPermitNo}
+          </div>
+        )}
       </div>
     </div>
   )

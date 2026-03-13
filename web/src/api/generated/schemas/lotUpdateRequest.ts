@@ -23,4 +23,5 @@ export interface LotUpdateRequest {
   bonusKeys?: string[]
   badgeIds?: string[]
   data?: LotData
+  dldPermitNo?: string
 }

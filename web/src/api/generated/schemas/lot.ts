@@ -29,6 +29,7 @@ export interface Lot {
   badgeIds?: string[]
   badges?: Badge[]
   data?: LotData
+  dldPermitNo?: string
   /** Вложенный объект проекта (если загружен) */
   project?: Project
   /** Вложенный объект застройщика из проекта (если загружен) */

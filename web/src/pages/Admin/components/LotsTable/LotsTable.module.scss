@@ -347,6 +347,12 @@
   color: #16a34a;
 }
 
+.lotPermitNo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
 .lotDate {
   font-size: 0.7rem;
   color: #bbb;

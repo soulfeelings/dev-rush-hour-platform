@@ -31,6 +31,7 @@ export interface LotListItem {
   badgeIds?: string[]
   badges?: Badge[]
   data?: LotData
+  dldPermitNo?: string
   /** Вложенный объект проекта */
   project?: Project
   /** Вложенный объект застройщика */

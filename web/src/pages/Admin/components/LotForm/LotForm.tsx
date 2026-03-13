@@ -38,6 +38,7 @@ type LotFormData = {
   photos: string[]
   floorPlanImages: string[]
   viewPhotos: string[]
+  dldPermitNo: string
 }
 
 type ValidationErrors = {
@@ -88,6 +89,7 @@ export const LotForm = forwardRef<LotFormHandle, LotFormProps>(function LotForm(
       photos: [],
       floorPlanImages: [],
       viewPhotos: [],
+      dldPermitNo: '',
     }),
     []
   )
@@ -115,6 +117,7 @@ export const LotForm = forwardRef<LotFormHandle, LotFormProps>(function LotForm(
           initialData.data?.media?.floorPlanImages?.map(p => p.url || '').filter(Boolean) || [],
         viewPhotos:
           initialData.data?.media?.viewPhotos?.map(p => p.url || '').filter(Boolean) || [],
+        dldPermitNo: initialData.dldPermitNo || '',
       }
     }
     return defaultForm
@@ -148,6 +151,7 @@ export const LotForm = forwardRef<LotFormHandle, LotFormProps>(function LotForm(
         initialData.data?.media?.floorPlanImages?.map(p => p.url || '').filter(Boolean) || [],
       viewPhotos:
         initialData.data?.media?.viewPhotos?.map(p => p.url || '').filter(Boolean) || [],
+      dldPermitNo: initialData.dldPermitNo || '',
     }
   }, [initialData])
 
@@ -179,6 +183,7 @@ export const LotForm = forwardRef<LotFormHandle, LotFormProps>(function LotForm(
       form.view !== initialFormData.view ||
       form.orientation !== initialFormData.orientation ||
       form.coverUrl !== initialFormData.coverUrl ||
+      form.dldPermitNo !== initialFormData.dldPermitNo ||
       photosChanged ||
       floorPlanImagesChanged ||
       viewPhotosChanged ||
@@ -259,6 +264,7 @@ export const LotForm = forwardRef<LotFormHandle, LotFormProps>(function LotForm(
     if (form.view) data.view = form.view
     if (form.orientation) data.orientation = form.orientation
     if (Object.keys(data).length > 0) payload.data = data
+    if (form.dldPermitNo) payload.dldPermitNo = form.dldPermitNo
 
     return payload
   }
@@ -311,6 +317,7 @@ export const LotForm = forwardRef<LotFormHandle, LotFormProps>(function LotForm(
     if (form.view !== d!.view) data.view = form.view
     if (form.orientation !== d!.orientation) data.orientation = form.orientation
     if (Object.keys(data).length > 0) payload.data = data
+    if (form.dldPermitNo !== d!.dldPermitNo) payload.dldPermitNo = form.dldPermitNo
 
     return payload
   }
@@ -463,6 +470,15 @@ export const LotForm = forwardRef<LotFormHandle, LotFormProps>(function LotForm(
         type="number"
         value={form.floor}
         onChange={e => setForm({ ...form, floor: e.target.value })}
+      />
+      <Input
+        label="DLD Permit No."
+        value={form.dldPermitNo}
+        onChange={e => {
+          const v = e.target.value.replace(/\s/g, '').replace(/\D/g, '')
+          setForm({ ...form, dldPermitNo: v })
+        }}
+        placeholder="e.g. 12345678"
       />
       {badges.length > 0 && (
         <div className={styles.mediaSection}>

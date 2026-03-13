@@ -334,6 +334,13 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
                     )}
                   </div>
 
+                  {lot.dldPermitNo && (
+                    <div className={styles.lotPermitNo}>
+                      <span className={styles.priceLabel}>DLD Permit No.</span>
+                      <span className={styles.detailValue}>{lot.dldPermitNo}</span>
+                    </div>
+                  )}
+
                   <div className={styles.lotDate}>
                     {lot.createdAt ? new Date(lot.createdAt).toLocaleDateString('en-US') : '-'}
                   </div>

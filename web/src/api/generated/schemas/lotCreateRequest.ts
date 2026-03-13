@@ -23,4 +23,5 @@ export interface LotCreateRequest {
   bonusKeys?: string[]
   badgeIds?: string[]
   data?: LotData
+  dldPermitNo?: string
 }
