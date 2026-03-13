@@ -157,7 +157,15 @@ const FORM_TYPE_LABELS: Record<FormDraft['formType'], string> = {
   infrastructure: 'Infrastructure',
 }
 
-function getDraftDisplayName(formType: FormDraft['formType'], data: unknown): string {
+function getDraftDisplayName(formType: FormDraft['formType'], data: unknown, projects?: Project[]): string {
+  if (formType === 'lot') {
+    const d = data as { bedrooms?: string; projectId?: string }
+    const project = projects?.find(p => p.id === d?.projectId)
+    const parts: string[] = []
+    if (d?.bedrooms) parts.push(`${d.bedrooms} BR`)
+    if (project?.name) parts.push(project.name)
+    return `Lot · ${parts.length > 0 ? parts.join(' · ') : 'Untitled'}`
+  }
   const name = (data as { name?: string })?.name?.trim() || 'Untitled'
   return `${FORM_TYPE_LABELS[formType]} · ${name}`
 }
@@ -873,7 +881,7 @@ export default function Admin() {
       setPendingDraft({
         formType: rightSidebarForm,
         data: currentFormDataRef.current,
-        displayName: getDraftDisplayName(rightSidebarForm, currentFormDataRef.current),
+        displayName: getDraftDisplayName(rightSidebarForm, currentFormDataRef.current, projects),
         editingEntity: editingEntity ?? undefined,
       })
       setSaveForSessionOpen(true)
@@ -939,7 +947,7 @@ export default function Admin() {
       setPendingDraft({
         formType: rightSidebarForm,
         data: currentFormDataRef.current,
-        displayName: getDraftDisplayName(rightSidebarForm, currentFormDataRef.current),
+        displayName: getDraftDisplayName(rightSidebarForm, currentFormDataRef.current, projects),
         editingEntity: editingEntity ?? undefined,
       })
       setSaveForSessionOpen(true)
