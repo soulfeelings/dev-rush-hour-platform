@@ -67,6 +67,14 @@
   padding: $spacing-4;
 }
 
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

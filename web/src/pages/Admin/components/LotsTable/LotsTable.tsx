@@ -2,11 +2,10 @@ import { useState, useMemo } from 'react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
-import { TableActionButtons } from '../TableActionButtons'
 import { CachedSection } from '../CachedSection/CachedSection'
 import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './LotsTable.module.scss'
-import { TrashIcon } from 'lucide-react'
+import { Copy, Pencil, Trash2, TrashIcon } from 'lucide-react'
 
 const { useAdminListLots, useAdminListProjects } = AdminApi
 
@@ -22,7 +21,6 @@ type LotsTableProps = {
 }
 
 export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, deleteLoading, drafts, onDraftClick, onDraftDiscard }: LotsTableProps) {
-  const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [lotsToDelete, setLotsToDelete] = useState<string[]>([])
@@ -234,8 +232,6 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
                 key={lot.id}
                 className={`${styles.card} ${isSelected ? styles.selected : ''}`}
                 onClick={() => onEditClick(lot)}
-                onMouseOver={() => setHoveredCardId(lot.id)}
-                onMouseLeave={() => setHoveredCardId(undefined)}
               >
                 <div className={styles.cardCheckbox} onClick={e => e.stopPropagation()}>
                   <Checkbox
@@ -245,15 +241,18 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
                   />
                 </div>
                 <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
-                  {hoveredCardId === lot.id && (
-                    <TableActionButtons
-                      show
-                      onEdit={() => onEditClick(lot)}
-                      onCopy={() => onCopyClick(lot)}
-                      onDelete={() => lot.id && handleDeleteClick([lot.id])}
-                      deleteLoading={deleteLoading}
-                    />
-                  )}
+                  <button type="button" className={styles.actionBtn} onClick={() => onEditClick(lot)} aria-label="Edit">
+                    <Pencil size={15} />
+                    <span>Edit</span>
+                  </button>
+                  <button type="button" className={styles.actionBtn} onClick={() => onCopyClick(lot)} aria-label="Copy">
+                    <Copy size={15} />
+                    <span>Copy</span>
+                  </button>
+                  <button type="button" className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => lot.id && handleDeleteClick([lot.id])} aria-label="Delete" disabled={deleteLoading}>
+                    <Trash2 size={15} />
+                    <span>Delete</span>
+                  </button>
                 </div>
                 {imageUrl ? (
                   <img
@@ -265,28 +264,62 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
                   <div className={styles.noImage}>No image</div>
                 )}
                 <div className={styles.cardInfo}>
-                  <h3 className={styles.lotTitle}>{lot.type || 'Lot'} #{lot.id?.slice(0, 8)}</h3>
-                  <div className={styles.lotProject}>{lot.project?.name || '-'}</div>
-                  <div className={styles.lotSpecs}>
-                    {lot.bedrooms != null && <span className={styles.spec}>{lot.bedrooms} BR</span>}
-                    {lot.bathrooms != null && <span className={styles.spec}>{lot.bathrooms} BA</span>}
-                    {lot.areaSqft != null && <span className={styles.spec}>{lot.areaSqft} ft²</span>}
-                    {lot.floor != null && <span className={styles.spec}>Floor {lot.floor}</span>}
+                  <div className={styles.lotHeader}>
+                    <h3 className={styles.lotTitle}>{lot.type || 'Lot'}</h3>
+                    <span className={styles.lotStatus}>{lot.status || '-'}</span>
                   </div>
-                  <div className={styles.lotPrices}>
-                    <div className={styles.lotPrice}>{formatPrice(lot.priceFromUs, 'AED')}</div>
-                    {lot.priceFromDeveloper && (
-                      <div className={styles.lotPriceDev}>Dev: {formatPrice(lot.priceFromDeveloper, 'AED')}</div>
+                  <div className={styles.lotProject}>{lot.project?.name || '-'}</div>
+
+                  <div className={styles.lotDetails}>
+                    <div className={styles.detailRow}>
+                      {lot.bedrooms != null && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailLabel}>Beds</span>
+                          <span className={styles.detailValue}>{lot.bedrooms}</span>
+                        </div>
+                      )}
+                      {lot.bathrooms != null && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailLabel}>Baths</span>
+                          <span className={styles.detailValue}>{lot.bathrooms}</span>
+                        </div>
+                      )}
+                      {lot.areaSqft != null && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailLabel}>Area</span>
+                          <span className={styles.detailValue}>{lot.areaSqft} ft²</span>
+                        </div>
+                      )}
+                      {lot.floor != null && (
+                        <div className={styles.detailItem}>
+                          <span className={styles.detailLabel}>Floor</span>
+                          <span className={styles.detailValue}>{lot.floor}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={styles.lotPricing}>
+                    <div className={styles.priceMain}>
+                      <span className={styles.priceLabel}>Price</span>
+                      <span className={styles.priceValue}>{formatPrice(lot.priceFromUs, 'AED')}</span>
+                    </div>
+                    {lot.priceFromDeveloper != null && (
+                      <div className={styles.priceSub}>
+                        <span className={styles.priceLabel}>Dev price</span>
+                        <span className={styles.priceSubValue}>{formatPrice(lot.priceFromDeveloper, 'AED')}</span>
+                      </div>
                     )}
                     {lot.roi != null && (
-                      <div className={styles.lotPriceDev}>ROI: {lot.roi}%</div>
+                      <div className={styles.priceSub}>
+                        <span className={styles.priceLabel}>ROI</span>
+                        <span className={styles.roiValue}>{lot.roi}%</span>
+                      </div>
                     )}
                   </div>
-                  <div className={styles.lotFooter}>
-                    <span className={styles.lotStatus}>{lot.status || '-'}</span>
-                    <span className={styles.lotDate}>
-                      {lot.createdAt ? new Date(lot.createdAt).toLocaleDateString('en-US') : '-'}
-                    </span>
+
+                  <div className={styles.lotDate}>
+                    {lot.createdAt ? new Date(lot.createdAt).toLocaleDateString('en-US') : '-'}
                   </div>
                 </div>
               </div>
