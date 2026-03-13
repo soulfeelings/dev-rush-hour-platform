@@ -111,9 +111,9 @@ DELETE FROM projects WHERE id = $1;
 
 -- name: RecalculateProjectPrices :exec
 UPDATE projects SET
-	price_from_us = (SELECT MIN(l.price_from_us) FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL),
-	price_from_developer = (SELECT MIN(l.price_from_developer) FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.price_from_developer IS NOT NULL),
-	roi = (SELECT MAX(l.roi) FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.roi IS NOT NULL),
+	price_from_us = (SELECT MIN(l.price_from_us) FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.status = 'active'),
+	price_from_developer = (SELECT MIN(l.price_from_developer) FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.status = 'active' AND l.price_from_developer IS NOT NULL),
+	roi = (SELECT MAX(l.roi) FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.status = 'active' AND l.roi IS NOT NULL),
 	prices_by_type = (
 		SELECT json_agg(json_build_object('type', label, 'price', min_price) ORDER BY label)
 		FROM (
@@ -131,12 +131,12 @@ UPDATE projects SET
 				END as label,
 				MIN(price_from_us) as min_price
 			FROM lots
-			WHERE project_id = $1 AND deleted_at IS NULL
+			WHERE project_id = $1 AND deleted_at IS NULL AND status = 'active'
 			GROUP BY 1
 		) sub
 	),
-	property_types = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.type), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.type IS NOT NULL),
-	bedrooms = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.bedrooms::text), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.bedrooms IS NOT NULL),
-	bathrooms = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.bathrooms::text), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.bathrooms IS NOT NULL),
+	property_types = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.type), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.status = 'active' AND l.type IS NOT NULL),
+	bedrooms = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.bedrooms::text), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.status = 'active' AND l.bedrooms IS NOT NULL),
+	bathrooms = (SELECT COALESCE(ARRAY_AGG(DISTINCT l.bathrooms::text), '{}') FROM lots l WHERE l.project_id = $1 AND l.deleted_at IS NULL AND l.status = 'active' AND l.bathrooms IS NOT NULL),
 	updated_at = NOW()
 WHERE id = $1 AND deleted_at IS NULL;

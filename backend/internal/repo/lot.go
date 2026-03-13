@@ -150,9 +150,6 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		countQuery += fmt.Sprintf(` AND l.status = $%d`, argPos)
 		args = append(args, filters.Status)
 		argPos++
-	} else {
-		query += ` AND l.status = 'active'`
-		countQuery += ` AND l.status = 'active'`
 	}
 
 	if filters.AreaSlug != nil {

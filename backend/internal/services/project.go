@@ -90,6 +90,13 @@ func (s *ProjectsService) GetBySlug(slug string, includeLots *int) (*domain.Proj
 		)
 		return nil, nil, ErrProjectNotFound
 	}
+	if project.Status != domain.ProjectStatusActive {
+		s.logger.Warn("project_service_get_by_slug_not_active",
+			"slug", slug,
+			"status", project.Status,
+		)
+		return nil, nil, ErrProjectNotFound
+	}
 
 	if badges, err := s.badgeRepo.GetProjectBadges(project.ID); err != nil {
 		s.logger.Warn("project_service_get_by_slug_get_badges_failed",

@@ -2219,7 +2219,7 @@ components:
           type: string
         status:
           type: string
-          enum: [active, archived]
+          enum: [draft, active, archived]
         sale:
           type: string
           enum: [sale, start of sales, sales announcement]
@@ -2420,7 +2420,7 @@ components:
           format: uuid
         status:
           type: string
-          enum: [active, hidden, reserved, sold]
+          enum: [draft, active, hidden, reserved, sold]
         projectId:
           type: string
           format: uuid
@@ -2564,7 +2564,7 @@ components:
           format: uuid
         status:
           type: string
-          enum: [active, hidden, reserved, sold]
+          enum: [draft, active, hidden, reserved, sold]
         projectId:
           type: string
           format: uuid
@@ -3122,8 +3122,8 @@ components:
           type: string
         status:
           type: string
-          enum: [active, archived]
-          default: active
+          enum: [draft, active, archived]
+          default: draft
         sale:
           type: string
           enum: [sale, start of sales, sales announcement]
@@ -3236,7 +3236,7 @@ components:
           type: string
         status:
           type: string
-          enum: [active, archived]
+          enum: [draft, active, archived]
         sale:
           type: string
           enum: [sale, start of sales, sales announcement]
@@ -3354,8 +3354,8 @@ components:
           $ref: "#/components/schemas/LotType"
         status:
           type: string
-          enum: [active, hidden, reserved, sold]
-          default: active
+          enum: [draft, active, hidden, reserved, sold]
+          default: draft
         bedrooms:
           type: integer
         bathrooms:
@@ -3392,7 +3392,7 @@ components:
           $ref: "#/components/schemas/LotType"
         status:
           type: string
-          enum: [active, hidden, reserved, sold]
+          enum: [draft, active, hidden, reserved, sold]
         bedrooms:
           type: integer
         bathrooms:

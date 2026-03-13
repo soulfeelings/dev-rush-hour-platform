@@ -1,0 +1,2 @@
+ALTER TABLE projects ALTER COLUMN status SET DEFAULT 'active';
+ALTER TABLE lots ALTER COLUMN status SET DEFAULT 'active';

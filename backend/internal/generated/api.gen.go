@@ -121,6 +121,7 @@ const (
 // Defines values for LotStatus.
 const (
 	LotStatusActive   LotStatus = "active"
+	LotStatusDraft    LotStatus = "draft"
 	LotStatusHidden   LotStatus = "hidden"
 	LotStatusReserved LotStatus = "reserved"
 	LotStatusSold     LotStatus = "sold"
@@ -129,6 +130,7 @@ const (
 // Defines values for LotCreateRequestStatus.
 const (
 	LotCreateRequestStatusActive   LotCreateRequestStatus = "active"
+	LotCreateRequestStatusDraft    LotCreateRequestStatus = "draft"
 	LotCreateRequestStatusHidden   LotCreateRequestStatus = "hidden"
 	LotCreateRequestStatusReserved LotCreateRequestStatus = "reserved"
 	LotCreateRequestStatusSold     LotCreateRequestStatus = "sold"
@@ -137,6 +139,7 @@ const (
 // Defines values for LotListItemStatus.
 const (
 	LotListItemStatusActive   LotListItemStatus = "active"
+	LotListItemStatusDraft    LotListItemStatus = "draft"
 	LotListItemStatusHidden   LotListItemStatus = "hidden"
 	LotListItemStatusReserved LotListItemStatus = "reserved"
 	LotListItemStatusSold     LotListItemStatus = "sold"
@@ -155,6 +158,7 @@ const (
 // Defines values for LotUpdateRequestStatus.
 const (
 	LotUpdateRequestStatusActive   LotUpdateRequestStatus = "active"
+	LotUpdateRequestStatusDraft    LotUpdateRequestStatus = "draft"
 	LotUpdateRequestStatusHidden   LotUpdateRequestStatus = "hidden"
 	LotUpdateRequestStatusReserved LotUpdateRequestStatus = "reserved"
 	LotUpdateRequestStatusSold     LotUpdateRequestStatus = "sold"
@@ -171,6 +175,7 @@ const (
 const (
 	ProjectStatusActive   ProjectStatus = "active"
 	ProjectStatusArchived ProjectStatus = "archived"
+	ProjectStatusDraft    ProjectStatus = "draft"
 )
 
 // Defines values for ProjectCreateRequestSale.
@@ -184,6 +189,7 @@ const (
 const (
 	ProjectCreateRequestStatusActive   ProjectCreateRequestStatus = "active"
 	ProjectCreateRequestStatusArchived ProjectCreateRequestStatus = "archived"
+	ProjectCreateRequestStatusDraft    ProjectCreateRequestStatus = "draft"
 )
 
 // Defines values for ProjectUpdateRequestSale.
@@ -197,6 +203,7 @@ const (
 const (
 	Active   ProjectUpdateRequestStatus = "active"
 	Archived ProjectUpdateRequestStatus = "archived"
+	Draft    ProjectUpdateRequestStatus = "draft"
 )
 
 // Defines values for AdminListLeadsParamsStatus.

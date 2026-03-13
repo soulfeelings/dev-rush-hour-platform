@@ -822,7 +822,7 @@ func GeneratedProjectCreateToDomain(req *generated.ProjectCreateRequest) (*domai
 	project := &domain.Project{
 		Slug:   req.Slug,
 		Name:   req.Name,
-		Status: domain.ProjectStatusActive,
+		Status: domain.ProjectStatusDraft,
 	}
 
 	if req.Status != nil {
@@ -1160,7 +1160,7 @@ func GeneratedLotCreateToDomain(req *generated.LotCreateRequest) (*domain.Lot, e
 	lot := &domain.Lot{
 		ProjectID:     &projectID,
 		Type:          domain.LotType(req.Type),
-		Status:        domain.LotStatusActive,
+		Status:        domain.LotStatusDraft,
 		PriceFromUs:   float64(req.PriceFromUs),
 		BonusKeys:     []string{},
 	}

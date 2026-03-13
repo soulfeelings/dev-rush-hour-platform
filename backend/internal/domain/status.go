@@ -14,6 +14,7 @@ const (
 type ProjectStatus string
 
 const (
+	ProjectStatusDraft    ProjectStatus = "draft"
 	ProjectStatusActive   ProjectStatus = "active"
 	ProjectStatusArchived ProjectStatus = "archived"
 )
@@ -21,6 +22,7 @@ const (
 type LotStatus string
 
 const (
+	LotStatusDraft    LotStatus = "draft"
 	LotStatusActive   LotStatus = "active"
 	LotStatusHidden   LotStatus = "hidden"
 	LotStatusReserved LotStatus = "reserved"

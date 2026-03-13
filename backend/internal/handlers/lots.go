@@ -244,6 +244,19 @@ func (h *LotsHandler) GetLot(c *fiber.Ctx, id openapi_types.UUID) error {
 		})
 	}
 
+	if lot.Status != domain.LotStatusActive {
+		return c.Status(fiber.StatusNotFound).JSON(generated.NotFound{
+			Error: &struct {
+				Code    *string                        `json:"code,omitempty"`
+				Details *generated.Error_Error_Details `json:"details,omitempty"`
+				Message *string                        `json:"message,omitempty"`
+			}{
+				Code:    stringPtr("not_found"),
+				Message: stringPtr("lot not found"),
+			},
+		})
+	}
+
 	// Use the new LotListItem type that includes nested objects for single lot response
 	lotResponse := mappers.DomainLotToGeneratedLotListItem(lot)
 
