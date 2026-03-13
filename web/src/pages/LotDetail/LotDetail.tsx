@@ -471,24 +471,16 @@ export default function LotDetail() {
           })
   const mobileMainImage = selectedMobileImageUrl || floorPlanImages[0] || lotPhotos[0]
   const allProjectLots = projectLotsData?.items || []
-  const targetBedrooms = lot.bedrooms
-  const targetMinPrice = lot.priceFromUs
   const similarUnits = allProjectLots.filter(projectLot => {
     if (!projectLot.id || projectLot.id === lot.id) return false
-    if (targetBedrooms != null && projectLot.bedrooms !== targetBedrooms) return false
-    if (targetMinPrice != null && targetMinPrice > 0) {
-      if (projectLot.priceFromUs == null || projectLot.priceFromUs < targetMinPrice) return false
-    }
     return true
   })
 
-  const similarUnitsFromPrice =
-    lot.priceFromUs ??
-    similarUnits.reduce<number | null>((minPrice, similarLot) => {
-      if (similarLot.priceFromUs == null) return minPrice
-      if (minPrice == null) return similarLot.priceFromUs
-      return Math.min(minPrice, similarLot.priceFromUs)
-    }, null)
+  const similarUnitsFromPrice = similarUnits.reduce<number | null>((minPrice, similarLot) => {
+    if (similarLot.priceFromUs == null) return minPrice
+    if (minPrice == null) return similarLot.priceFromUs
+    return Math.min(minPrice, similarLot.priceFromUs)
+  }, null)
 
   const similarUnitsAreaRange = similarUnits.reduce<{ min: number | null; max: number | null }>(
     (acc, similarLot) => {
@@ -512,11 +504,9 @@ export default function LotDetail() {
     similarUnits.length > 0 ? (
       <section className={styles.similarUnitsSection}>
         <div className={styles.similarUnitsHeader}>
-          <h3 className={styles.similarUnitsTitle}>Similar Units</h3>
+          <h3 className={styles.similarUnitsTitle}>{t('unitsFromThisProject')}</h3>
           <p className={styles.similarUnitsType}>{pluralizeType(lot.type)}</p>
           <div className={styles.similarUnitsStats}>
-            <span>{t('projectDetail.beds', { count: lot.bedrooms ?? 0 })}</span>
-            <span className={styles.similarUnitsDivider} />
             <span>
               {t('from')}{' '}
               {similarUnitsFromPrice != null ? formatPrice(similarUnitsFromPrice, currency) : '-'}
@@ -546,7 +536,7 @@ export default function LotDetail() {
   const paymentPlanSection =
     paymentPlanSchedule && paymentPlanSchedule.length > 0 ? (
       <div className={styles.paymentPlanCard}>
-        <h3 className={styles.paymentPlanTitle}>Payment plan</h3>
+        <h3 className={styles.paymentPlanTitle}>{t('paymentPlan')}</h3>
         <div className={styles.paymentPlanRows}>
           {paymentPlanSchedule.map((item, idx) => (
             <div key={idx} className={styles.paymentPlanRow}>
@@ -576,7 +566,7 @@ export default function LotDetail() {
           <div className={styles.paymentPlanSummary}>
             <div className={styles.paymentPlanSummaryRow}>
               <div className={styles.paymentPlanSummaryLeft}>
-                <span>Total Price</span>
+                <span>{t('totalPrice')}</span>
               </div>
               <div className={styles.paymentPlanSummaryRight}>
                 <span>{formatPrice(lot.priceFromUs, currency)}</span>
@@ -674,7 +664,7 @@ export default function LotDetail() {
           <div className={styles.desktopSideColumn}>
             {(lotDataFields?.orientation || mobileViewPhotos.length > 0) && hasCoordinates ? (
               <div className={styles.desktopViewBlock}>
-                <Typography as="h3" variant="h1" className={styles.desktopSectionTitle}>Apartment View</Typography>
+                <Typography as="h3" variant="h1" className={styles.desktopSectionTitle}>{t('apartmentView')}</Typography>
                 {lotDataFields?.orientation ? (
                   <div ref={setViewMapContainerEl} className={styles.viewMap} />
                 ) : null}
@@ -772,7 +762,7 @@ export default function LotDetail() {
 
         {(lotDataFields?.orientation || mobileViewPhotos.length > 0) && hasCoordinates && (
           <div className={styles.mobileViewBlock}>
-            <Typography as="h3" variant="h1" className={styles.mobileSectionTitle}>Apartment View</Typography>
+            <Typography as="h3" variant="h1" className={styles.mobileSectionTitle}>{t('apartmentView')}</Typography>
             {lotDataFields?.orientation ? (
               <div ref={setViewMapContainerEl} className={styles.viewMap} />
             ) : null}

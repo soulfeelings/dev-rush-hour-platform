@@ -384,7 +384,7 @@ export function LotQuickViewModal({
 
               {paymentPlanSchedule && paymentPlanSchedule.length > 0 && (
                 <div className={styles.sectionCard}>
-                  <h4>Payment plan</h4>
+                  <h4>{t('paymentPlan')}</h4>
                   <div className={styles.paymentRows}>
                     <div className={styles.paymentStages}>
                       {paymentPlanSchedule.map((item, idx) => (
@@ -414,7 +414,7 @@ export function LotQuickViewModal({
                       <div className={styles.paymentSummary}>
                         <div className={styles.summaryRow}>
                           <div className={styles.summaryLeft}>
-                            <span>Total Price</span>
+                            <span>{t('totalPrice')}</span>
                           </div>
                           <div className={styles.summaryRight}>
                             <span>{formatPrice(lot.priceFromUs, currency)}</span>
