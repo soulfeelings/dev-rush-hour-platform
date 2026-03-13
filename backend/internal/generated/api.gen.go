@@ -655,6 +655,7 @@ type Lot struct {
 	// DeletedAt Время мягкого удаления (если null - не удален)
 	DeletedAt          *time.Time          `json:"deletedAt"`
 	Developer          *Developer          `json:"developer,omitempty"`
+	DldPermitNo        *string             `json:"dldPermitNo,omitempty"`
 	Floor              *int                `json:"floor,omitempty"`
 	Id                 *openapi_types.UUID `json:"id,omitempty"`
 	PriceFromDeveloper *float32            `json:"priceFromDeveloper,omitempty"`
@@ -678,6 +679,7 @@ type LotCreateRequest struct {
 	Bedrooms           *int                    `json:"bedrooms,omitempty"`
 	BonusKeys          *[]string               `json:"bonusKeys,omitempty"`
 	Data               *LotData                `json:"data,omitempty"`
+	DldPermitNo        *string                 `json:"dldPermitNo,omitempty"`
 	Floor              *int                    `json:"floor,omitempty"`
 	PriceFromDeveloper *float32                `json:"priceFromDeveloper,omitempty"`
 	PriceFromUs        float32                 `json:"priceFromUs"`
@@ -718,6 +720,7 @@ type LotListItem struct {
 	DeletedAt          *time.Time          `json:"deletedAt"`
 	Developer          *Developer          `json:"developer,omitempty"`
 	DeveloperId        *openapi_types.UUID `json:"developerId,omitempty"`
+	DldPermitNo        *string             `json:"dldPermitNo,omitempty"`
 	Floor              *int                `json:"floor,omitempty"`
 	Id                 *openapi_types.UUID `json:"id,omitempty"`
 	PriceFromDeveloper *float32            `json:"priceFromDeveloper,omitempty"`
@@ -752,6 +755,7 @@ type LotUpdateRequest struct {
 	Bedrooms           *int                    `json:"bedrooms,omitempty"`
 	BonusKeys          *[]string               `json:"bonusKeys,omitempty"`
 	Data               *LotData                `json:"data,omitempty"`
+	DldPermitNo        *string                 `json:"dldPermitNo,omitempty"`
 	Floor              *int                    `json:"floor,omitempty"`
 	PriceFromDeveloper *float32                `json:"priceFromDeveloper,omitempty"`
 	PriceFromUs        *float32                `json:"priceFromUs,omitempty"`

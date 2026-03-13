@@ -298,7 +298,6 @@ func (h *LotsHandler) GetLot(c *fiber.Ctx, id openapi_types.UUID) error {
 	if len(lot.Data.Features) > 0 {
 		dataMap["features"] = lot.Data.Features
 	}
-
 	h.logger.Info("get_lot_completed",
 		"lot_id", uuidID,
 	)

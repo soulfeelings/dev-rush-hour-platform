@@ -291,6 +291,10 @@ func DomainLotToGenerated(lot *domain.Lot) *generated.Lot {
 		result.Floor = lot.Floor
 	}
 
+	if lot.DLDPermitNo != "" {
+		result.DldPermitNo = &lot.DLDPermitNo
+	}
+
 	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil || lot.Data.View != "" || lot.Data.Orientation != "" {
 		result.Data = &generated.LotData{
 			Media:         domainLotMediaToGenerated(lot.Data.Media),
@@ -364,6 +368,10 @@ func DomainLotToGeneratedLotListItem(lot *domain.Lot) *generated.LotListItem {
 	}
 	if lot.Floor != nil {
 		result.Floor = lot.Floor
+	}
+
+	if lot.DLDPermitNo != "" {
+		result.DldPermitNo = &lot.DLDPermitNo
 	}
 
 	if lot.Data.Media != nil || lot.Data.PaymentPlan != nil || lot.Data.Bonuses != nil || lot.Data.FloorPosition != nil || lot.Data.Tags != nil || lot.Data.View != "" || lot.Data.Orientation != "" {
@@ -1204,6 +1212,9 @@ func GeneratedLotCreateToDomain(req *generated.LotCreateRequest) (*domain.Lot, e
 			lot.BadgeIDs[i] = uuid.UUID(id)
 		}
 	}
+	if req.DldPermitNo != nil {
+		lot.DLDPermitNo = *req.DldPermitNo
+	}
 	if req.Data != nil {
 		lot.Data = domainLotDataFromGenerated(req.Data)
 	}
@@ -1259,6 +1270,9 @@ func GeneratedLotUpdateToDomain(req *generated.LotUpdateRequest) (*domain.Lot, e
 		for i, id := range *req.BadgeIds {
 			lot.BadgeIDs[i] = uuid.UUID(id)
 		}
+	}
+	if req.DldPermitNo != nil {
+		lot.DLDPermitNo = *req.DldPermitNo
 	}
 	if req.Data != nil {
 		lot.Data = domainLotDataFromGenerated(req.Data)

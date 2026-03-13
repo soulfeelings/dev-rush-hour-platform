@@ -20,6 +20,7 @@ type Lot struct {
 	ROI            *float64
 	BonusKeys      []string
 	BadgeIDs      []uuid.UUID
+	DLDPermitNo   string
 	Data          LotData
 	CreatedAt     time.Time
 	UpdatedAt     time.Time

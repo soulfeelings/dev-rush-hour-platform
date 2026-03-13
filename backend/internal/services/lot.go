@@ -208,7 +208,10 @@ func (s *LotsService) Update(id uuid.UUID, updates *domain.Lot) error {
 	if updates.BadgeIDs != nil {
 		existing.BadgeIDs = updates.BadgeIDs
 	}
-	
+	if updates.DLDPermitNo != "" {
+		existing.DLDPermitNo = updates.DLDPermitNo
+	}
+
 	// Partial merge of Data fields
 	if updates.Data.Media != nil {
 		if existing.Data.Media == nil {

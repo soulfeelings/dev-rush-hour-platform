@@ -1,0 +1,1 @@
+ALTER TABLE lots ADD COLUMN dld_permit_no TEXT NOT NULL DEFAULT '';

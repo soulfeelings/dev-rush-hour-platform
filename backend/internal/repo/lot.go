@@ -72,7 +72,7 @@ func (r *LotRepo) GetByID(id uuid.UUID) (*domain.Lot, error) {
 		row.ID, row.Status, row.ProjectID, row.Type,
 		row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 		row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
-		row.BonusKeys, row.BadgeIds, row.Data,
+		row.BonusKeys, row.BadgeIds, row.Data, row.DldPermitNo,
 		row.CreatedAt, row.UpdatedAt, row.DeletedAt,
 	)
 	if err != nil {
@@ -132,7 +132,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 
 	query := `SELECT
 			l.id, l.status, l.project_id, l.type, l.bedrooms, l.bathrooms,
-			l.area_sqft, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.created_at, l.updated_at,
+			l.area_sqft, l.floor, l.price_from_us, l.price_from_developer, l.roi, l.bonus_keys, l.badge_ids, l.data, l.dld_permit_no, l.created_at, l.updated_at,
 			p.slug, p.name, p.sale, p.status, p.lat, p.lng, p.media, p.is_featured, p.created_at, p.updated_at
 		FROM lots l
 		LEFT JOIN projects p ON l.project_id = p.id
@@ -299,6 +299,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 			bonusKeys                            []string
 			badgeIDs                             []uuid.UUID
 			dataJSON                             []byte
+			dldPermitNo                          string
 			createdAt, updatedAt                 pgtype.Timestamptz
 			// Project join fields
 			projSlug, projName, projSale, projStatus pgtype.Text
@@ -311,7 +312,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 		if err := rows.Scan(
 			&lotID, &lotStatus, &projectID,
 			&lotType, &bedrooms, &bathrooms, &areaSqft, &floor,
-			&priceFromUs, &priceFromDeveloper, &roi, &bonusKeys, &badgeIDs, &dataJSON,
+			&priceFromUs, &priceFromDeveloper, &roi, &bonusKeys, &badgeIDs, &dataJSON, &dldPermitNo,
 			&createdAt, &updatedAt,
 			&projSlug, &projName, &projSale, &projStatus, &projLat, &projLng, &projMediaJSON, &projIsFeatured, &projCreatedAt, &projUpdatedAt,
 		); err != nil {
@@ -322,7 +323,7 @@ func (r *LotRepo) List(filters LotFilters, sort LotSort, limit, offset int) ([]d
 			lotID, lotStatus, projectID, lotType,
 			bedrooms, bathrooms, areaSqft, floor,
 			priceFromUs, priceFromDeveloper, roi,
-			bonusKeys, badgeIDs, dataJSON,
+			bonusKeys, badgeIDs, dataJSON, dldPermitNo,
 			createdAt, updatedAt, pgtype.Timestamptz{},
 		)
 		if err != nil {
@@ -387,6 +388,7 @@ func (r *LotRepo) Create(lot *domain.Lot) error {
 		BonusKeys:          lot.BonusKeys,
 		BadgeIds:           lot.BadgeIDs,
 		Data:               dataJSON,
+		DldPermitNo:        lot.DLDPermitNo,
 	})
 	if err != nil {
 		r.logger.Error("lot_repo_create_failed", "lot_type", lot.Type, "error", err.Error())
@@ -424,6 +426,7 @@ func (r *LotRepo) Update(id uuid.UUID, lot *domain.Lot) error {
 		BonusKeys:          lot.BonusKeys,
 		BadgeIds:           lot.BadgeIDs,
 		Data:               dataJSON,
+		DldPermitNo:        lot.DLDPermitNo,
 		ID:                 id,
 	})
 	if err != nil {
@@ -460,7 +463,7 @@ func (r *LotRepo) GetByProjectID(projectID uuid.UUID, limit int) ([]domain.Lot, 
 			row.ID, row.Status, row.ProjectID, row.Type,
 			row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 			row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
-			row.BonusKeys, row.BadgeIds, row.Data,
+			row.BonusKeys, row.BadgeIds, row.Data, row.DldPermitNo,
 			row.CreatedAt, row.UpdatedAt, pgtype.Timestamptz{},
 		)
 		if err != nil {
@@ -501,7 +504,7 @@ func (r *LotRepo) ListAll() ([]domain.Lot, error) {
 			row.ID, row.Status, row.ProjectID, row.Type,
 			row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 			row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
-			row.BonusKeys, row.BadgeIds, row.Data,
+			row.BonusKeys, row.BadgeIds, row.Data, row.DldPermitNo,
 			row.CreatedAt, row.UpdatedAt, row.DeletedAt,
 		)
 		if err != nil {
@@ -529,7 +532,7 @@ func (r *LotRepo) ListDeleted() ([]domain.Lot, error) {
 			row.ID, row.Status, row.ProjectID, row.Type,
 			row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 			row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
-			row.BonusKeys, row.BadgeIds, row.Data,
+			row.BonusKeys, row.BadgeIds, row.Data, row.DldPermitNo,
 			row.CreatedAt, row.UpdatedAt, row.DeletedAt,
 		)
 		if err != nil {
@@ -556,7 +559,7 @@ func (r *LotRepo) GetByIDWithDeleted(id uuid.UUID) (*domain.Lot, error) {
 		row.ID, row.Status, row.ProjectID, row.Type,
 		row.Bedrooms, row.Bathrooms, row.AreaSqft, row.Floor,
 		row.PriceFromUs, row.PriceFromDeveloper, row.Roi,
-		row.BonusKeys, row.BadgeIds, row.Data,
+		row.BonusKeys, row.BadgeIds, row.Data, row.DldPermitNo,
 		row.CreatedAt, row.UpdatedAt, row.DeletedAt,
 	)
 	if err != nil {
@@ -595,7 +598,7 @@ func sqlcLotRowToDomain(
 	id uuid.UUID, status string, projectID uuid.NullUUID, typ string,
 	bedrooms, bathrooms pgtype.Int4, areaSqft pgtype.Numeric, floor pgtype.Int4,
 	priceFromUs, priceFromDeveloper, roi pgtype.Numeric,
-	bonusKeys []string, badgeIDs []uuid.UUID, data []byte,
+	bonusKeys []string, badgeIDs []uuid.UUID, data []byte, dldPermitNo string,
 	createdAt, updatedAt, deletedAt pgtype.Timestamptz,
 ) (*domain.Lot, error) {
 	lot := &domain.Lot{
@@ -612,6 +615,7 @@ func sqlcLotRowToDomain(
 		ROI:                numericToFloat64Ptr(roi),
 		BonusKeys:          bonusKeys,
 		BadgeIDs:           badgeIDs,
+		DLDPermitNo:        dldPermitNo,
 		CreatedAt:          tstzToTime(createdAt),
 		UpdatedAt:          tstzToTime(updatedAt),
 		DeletedAt:          tstzToTimePtr(deletedAt),

@@ -2455,6 +2455,8 @@ components:
             $ref: "#/components/schemas/Badge"
         data:
           $ref: "#/components/schemas/LotData"
+        dldPermitNo:
+          type: string
         project:
           $ref: "#/components/schemas/Project"
           description: Вложенный объект проекта (если загружен)
@@ -2605,6 +2607,8 @@ components:
             $ref: "#/components/schemas/Badge"
         data:
           $ref: "#/components/schemas/LotData"
+        dldPermitNo:
+          type: string
         project:
           $ref: "#/components/schemas/Project"
           description: Вложенный объект проекта
@@ -3381,6 +3385,8 @@ components:
             format: uuid
         data:
           $ref: "#/components/schemas/LotData"
+        dldPermitNo:
+          type: string
 
     LotUpdateRequest:
       type: object
@@ -3418,6 +3424,8 @@ components:
             format: uuid
         data:
           $ref: "#/components/schemas/LotData"
+        dldPermitNo:
+          type: string
 
     AdminMicrosoftLoginRequest:
       type: object

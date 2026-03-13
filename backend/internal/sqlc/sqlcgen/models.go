@@ -112,6 +112,7 @@ type Lot struct {
 	BadgeIds           []uuid.UUID        `json:"badge_ids"`
 	PriceFromDeveloper pgtype.Numeric     `json:"price_from_developer"`
 	Roi                pgtype.Numeric     `json:"roi"`
+	DldPermitNo        string             `json:"dld_permit_no"`
 }
 
 type Medium struct {
