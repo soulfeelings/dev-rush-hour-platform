@@ -43,8 +43,8 @@ import '../../constants/storage'
 import { Sidebar } from './components/Sidebar'
 import { RightSidebar } from './components/RightSidebar'
 import { DeveloperForm } from './components/DeveloperForm'
-import { ProjectForm } from './components/ProjectForm'
-import { LotForm } from './components/LotForm'
+import { ProjectForm, type ProjectFormHandle } from './components/ProjectForm'
+import { LotForm, type LotFormHandle } from './components/LotForm'
 import { AreaForm } from './components/AreaForm'
 import { ProjectsTable } from './components/ProjectsTable'
 import { LotsTable } from './components/LotsTable'
@@ -188,6 +188,8 @@ export default function Admin() {
   const [pendingDraft, setPendingDraft] = useState<Omit<FormDraft, 'id'> | null>(null)
   const [activeDraftData, setActiveDraftData] = useState<unknown>(null)
   const pendingTabChangeRef = useRef<string | null>(null)
+  const projectFormRef = useRef<ProjectFormHandle>(null)
+  const lotFormRef = useRef<LotFormHandle>(null)
   const currentFormDataRef = useRef<unknown>(null)
   const currentFormIsDirtyRef = useRef(false)
 
@@ -293,8 +295,11 @@ export default function Admin() {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.PROJECTS] })
         setSuccess('Project created successfully!')
         setFormKey((prev: number) => prev + 1)
+        const tabPath = pendingTabChangeRef.current
+        pendingTabChangeRef.current = null
         setTimeout(() => {
           doCloseRightSidebar()
+          if (tabPath) navigate(tabPath)
         }, 100)
       },
       onError: err => {
@@ -310,8 +315,11 @@ export default function Admin() {
         invalidatePublicLotCardsCache()
         setSuccess('Lot created successfully!')
         setFormKey((prev: number) => prev + 1)
+        const tabPath = pendingTabChangeRef.current
+        pendingTabChangeRef.current = null
         setTimeout(() => {
           doCloseRightSidebar()
+          if (tabPath) navigate(tabPath)
         }, 100)
       },
       onError: err => {
@@ -342,8 +350,11 @@ export default function Admin() {
         queryClient.invalidateQueries({ queryKey: [ADMIN_API_ENDPOINTS.PROJECTS] })
         setSuccess('Project updated successfully!')
         setFormKey((prev: number) => prev + 1)
+        const tabPath = pendingTabChangeRef.current
+        pendingTabChangeRef.current = null
         setTimeout(() => {
           doCloseRightSidebar()
+          if (tabPath) navigate(tabPath)
         }, 100)
       },
       onError: err => {
@@ -359,8 +370,11 @@ export default function Admin() {
         invalidatePublicLotCardsCache()
         setSuccess('Lot updated successfully!')
         setFormKey((prev: number) => prev + 1)
+        const tabPath = pendingTabChangeRef.current
+        pendingTabChangeRef.current = null
         setTimeout(() => {
           doCloseRightSidebar()
+          if (tabPath) navigate(tabPath)
         }, 100)
       },
       onError: err => {
@@ -955,6 +969,16 @@ export default function Admin() {
     if (tabPath) navigate(tabPath)
   }
 
+  const handleSaveToServer = () => {
+    setSaveForSessionOpen(false)
+    setPendingDraft(null)
+    if (pendingDraft?.formType === 'project') {
+      projectFormRef.current?.submit()
+    } else if (pendingDraft?.formType === 'lot') {
+      lotFormRef.current?.submit()
+    }
+  }
+
   const handleDraftClick = (draftId: string) => {
     const draft = formDrafts.find(d => d.id === draftId)
     if (!draft) return
@@ -1547,9 +1571,6 @@ export default function Admin() {
                   onEditClick={project => handleEditClick(project, 'project')}
                   onDelete={handleDeleteProjects}
                   deleteLoading={deleteLoading}
-                  drafts={formDrafts.filter(d => d.formType === 'project').map(d => ({ id: d.id, displayName: d.displayName }))}
-                  onDraftClick={handleDraftClick}
-                  onDraftDiscard={handleDraftDiscard}
                 />
                 <DeletedProjectsTable
                   onRestore={handleRestoreProjects}
@@ -1570,9 +1591,6 @@ export default function Admin() {
                   onCopyClick={handleCopyLotClick}
                   onDelete={handleDeleteLots}
                   deleteLoading={deleteLoading}
-                  drafts={formDrafts.filter(d => d.formType === 'lot').map(d => ({ id: d.id, displayName: d.displayName }))}
-                  onDraftClick={handleDraftClick}
-                  onDraftDiscard={handleDraftDiscard}
                 />
                 <DeletedLotsTable
                   onRestore={handleRestoreLots}
@@ -1710,6 +1728,7 @@ export default function Admin() {
 
         {rightSidebarForm === 'project' && (
           <ProjectForm
+            ref={projectFormRef}
             key={formKey}
             developers={developers}
             areas={areas}
@@ -1726,6 +1745,7 @@ export default function Admin() {
         )}
         {rightSidebarForm === 'lot' && (
           <LotForm
+            ref={lotFormRef}
             key={formKey}
             projects={projects}
             badges={badges}
@@ -1802,12 +1822,22 @@ export default function Admin() {
 
       <Modal open={saveForSessionOpen} onClose={handleDiscardSession} title="Unsaved Changes">
         <ModalBody>
-          <p>You have unsaved changes. Save them for this session?</p>
+          <p>
+            {pendingDraft?.formType === 'project' || pendingDraft?.formType === 'lot'
+              ? 'You have unsaved changes. Save to server?'
+              : 'You have unsaved changes. Save them for this session?'}
+          </p>
           {pendingDraft && <p><strong>{pendingDraft.displayName}</strong></p>}
         </ModalBody>
         <ModalFooter>
           <UIButton variant="secondary" onClick={handleDiscardSession}>No, discard</UIButton>
-          <UIButton variant="primary" onClick={handleSaveForSession}>Yes, save</UIButton>
+          {pendingDraft?.formType === 'project' || pendingDraft?.formType === 'lot' ? (
+            <UIButton variant="primary" onClick={handleSaveToServer}>
+              {pendingDraft?.editingEntity ? 'Save changes' : 'Save as Draft'}
+            </UIButton>
+          ) : (
+            <UIButton variant="primary" onClick={handleSaveForSession}>Yes, save</UIButton>
+          )}
         </ModalFooter>
       </Modal>
 

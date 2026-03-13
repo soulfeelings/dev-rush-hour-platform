@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { Button, Input, Select, ImagePreview, Checkbox, Badge as BadgeUI, Typography } from '../../../../ui'
 import { Plus, X, Image as ImageIcon } from 'lucide-react'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
@@ -57,7 +57,9 @@ type LotFormProps = {
   onDataChange?: (data: LotFormData, isDirty: boolean) => void
 }
 
-export function LotForm({
+export type LotFormHandle = { submit: () => void }
+
+export const LotForm = forwardRef<LotFormHandle, LotFormProps>(function LotForm({
   projects,
   badges,
   onSubmit,
@@ -66,12 +68,12 @@ export function LotForm({
   isEditMode = false,
   draftData,
   onDataChange,
-}: LotFormProps) {
+}, ref) {
   const defaultForm = useMemo<LotFormData>(
     () => ({
       projectId: '',
       type: '',
-      status: '',
+      status: 'draft',
       bedrooms: '',
       bathrooms: '',
       areaSqft: '',
@@ -313,8 +315,7 @@ export function LotForm({
     return payload
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const submitForm = () => {
     setTouched(true)
     const validationErrors = validate()
     setErrors(validationErrors)
@@ -325,6 +326,13 @@ export function LotForm({
       : buildCreatePayload()
 
     onSubmit(payload)
+  }
+
+  useImperativeHandle(ref, () => ({ submit: submitForm }))
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    submitForm()
   }
 
   const addPhoto = () => {
@@ -399,6 +407,7 @@ export function LotForm({
         label="Status"
         options={[
           { value: '', label: 'Select Status' },
+          { value: 'draft', label: 'Draft' },
           { value: 'active', label: 'Active' },
           { value: 'hidden', label: 'Hidden' },
           { value: 'reserved', label: 'Reserved' },
@@ -619,4 +628,4 @@ export function LotForm({
       />
     </form>
   )
-}
+})

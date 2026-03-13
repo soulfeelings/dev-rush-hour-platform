@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { LotListItem } from '../../../../api/generated/schemas/lotListItem'
-import { CachedSection } from '../CachedSection/CachedSection'
 import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './LotsTable.module.scss'
 import { Copy, Pencil, Trash2, TrashIcon } from 'lucide-react'
@@ -15,17 +14,15 @@ type LotsTableProps = {
   onCopyClick: (lot: LotListItem) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
-  drafts?: Array<{ id: string; displayName: string }>
-  onDraftClick?: (id: string) => void
-  onDraftDiscard?: (id: string) => void
 }
 
-export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, deleteLoading, drafts, onDraftClick, onDraftDiscard }: LotsTableProps) {
+export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, deleteLoading }: LotsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [lotsToDelete, setLotsToDelete] = useState<string[]>([])
   const [filterProjectId, setFilterProjectId] = useState<string>('')
   const [filterBedrooms, setFilterBedrooms] = useState<string>('')
+  const [filterStatus, setFilterStatus] = useState<string>('')
 
   const {
     data: lotsResponse,
@@ -54,8 +51,12 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
       filtered = filtered.filter(lot => lot.bedrooms === bedroomsNum)
     }
 
+    if (filterStatus) {
+      filtered = filtered.filter(lot => lot.status === filterStatus)
+    }
+
     return filtered
-  }, [allLots, filterProjectId, filterBedrooms])
+  }, [allLots, filterProjectId, filterBedrooms, filterStatus])
 
   const bedroomOptions = useMemo(() => {
     const uniqueBedrooms = new Set<number>()
@@ -159,9 +160,6 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
 
   return (
     <div className={styles.tableWrapper}>
-      {drafts && drafts.length > 0 && onDraftClick && onDraftDiscard && (
-        <CachedSection drafts={drafts} onDraftClick={onDraftClick} onDraftDiscard={onDraftDiscard} />
-      )}
       <div className={styles.header}>
         <h2 className={styles.title}>Lots</h2>
         <div className={styles.headerActions}>
@@ -205,12 +203,27 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
           clearable
           defaultValue=""
         />
-        {(filterProjectId || filterBedrooms) && (
+        <Select
+          options={[
+            { value: '', label: 'All Statuses' },
+            { value: 'draft', label: 'Draft' },
+            { value: 'active', label: 'Active' },
+            { value: 'hidden', label: 'Hidden' },
+            { value: 'reserved', label: 'Reserved' },
+            { value: 'sold', label: 'Sold' },
+          ]}
+          value={filterStatus}
+          onChange={setFilterStatus}
+          clearable
+          defaultValue=""
+        />
+        {(filterProjectId || filterBedrooms || filterStatus) && (
           <Button
             variant="secondary"
             onClick={() => {
               setFilterProjectId('')
               setFilterBedrooms('')
+              setFilterStatus('')
             }}
           >
             Clear Filters
@@ -254,6 +267,9 @@ export function LotsTable({ onNewClick, onEditClick, onCopyClick, onDelete, dele
                     <span>Delete</span>
                   </button>
                 </div>
+                {lot.status === 'draft' && (
+                  <div className={styles.draftBadge}>Draft</div>
+                )}
                 {imageUrl ? (
                   <img
                     src={getImageUrl(imageUrl, 'thumbnail')}

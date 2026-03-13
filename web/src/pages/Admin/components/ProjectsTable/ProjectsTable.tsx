@@ -4,7 +4,6 @@ import { AdminApi } from '../../../../api'
 import { Button, Checkbox, ErrorState, Input, Modal, ModalBody, ModalFooter, Select } from '../../../../ui'
 import type { Project } from '../../../../api/generated/schemas/project'
 import { TableActionButtons } from '../TableActionButtons'
-import { CachedSection } from '../CachedSection/CachedSection'
 import { getImageUrl } from '../../../../utils/imageUrl'
 import styles from './ProjectsTable.module.scss'
 
@@ -15,9 +14,6 @@ type ProjectsTableProps = {
   onEditClick: (project: Project) => void
   onDelete: (ids: string[]) => void
   deleteLoading?: boolean
-  drafts?: Array<{ id: string; displayName: string }>
-  onDraftClick?: (id: string) => void
-  onDraftDiscard?: (id: string) => void
 }
 
 export function ProjectsTable({
@@ -25,9 +21,6 @@ export function ProjectsTable({
   onEditClick,
   onDelete,
   deleteLoading,
-  drafts,
-  onDraftClick,
-  onDraftDiscard,
 }: ProjectsTableProps) {
   const [hoveredCardId, setHoveredCardId] = useState<string | undefined>(undefined)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -37,6 +30,7 @@ export function ProjectsTable({
   const [filterCityId, setFilterCityId] = useState<string>('')
   const [filterAreaId, setFilterAreaId] = useState<string>('')
   const [filterDeveloperId, setFilterDeveloperId] = useState<string>('')
+  const [filterStatus, setFilterStatus] = useState<string>('')
 
   const {
     data: projects,
@@ -80,8 +74,12 @@ export function ProjectsTable({
       filtered = filtered.filter(p => p.areaId && cityAreaIds.has(p.areaId))
     }
 
+    if (filterStatus) {
+      filtered = filtered.filter(p => p.status === filterStatus)
+    }
+
     return filtered
-  }, [allProjects, searchQuery, filterDeveloperId, filterAreaId, cityAreaIds])
+  }, [allProjects, searchQuery, filterDeveloperId, filterAreaId, cityAreaIds, filterStatus])
 
   const handleSelectAll = () => {
     if (selectedIds.size === projectsList.length) {
@@ -164,9 +162,6 @@ export function ProjectsTable({
 
   return (
     <div className={styles.tableWrapper}>
-      {drafts && drafts.length > 0 && onDraftClick && onDraftDiscard && (
-        <CachedSection drafts={drafts} onDraftClick={onDraftClick} onDraftDiscard={onDraftDiscard} />
-      )}
       <div className={styles.header}>
         <h2 className={styles.title}>Projects</h2>
         <div className={styles.headerActions}>
@@ -227,7 +222,19 @@ export function ProjectsTable({
           clearable
           defaultValue=""
         />
-        {(searchQuery || filterCityId || filterAreaId || filterDeveloperId) && (
+        <Select
+          options={[
+            { value: '', label: 'All Statuses' },
+            { value: 'draft', label: 'Draft' },
+            { value: 'active', label: 'Active' },
+            { value: 'archived', label: 'Archived' },
+          ]}
+          value={filterStatus}
+          onChange={setFilterStatus}
+          clearable
+          defaultValue=""
+        />
+        {(searchQuery || filterCityId || filterAreaId || filterDeveloperId || filterStatus) && (
           <Button
             variant="secondary"
             onClick={() => {
@@ -235,6 +242,7 @@ export function ProjectsTable({
               setFilterCityId('')
               setFilterAreaId('')
               setFilterDeveloperId('')
+              setFilterStatus('')
             }}
           >
             Clear Filters
@@ -275,6 +283,9 @@ export function ProjectsTable({
                     deleteLoading={deleteLoading}
                   />
                 </div>
+                {project.status === 'draft' && (
+                  <div className={styles.draftBadge}>Draft</div>
+                )}
                 {imageUrl ? (
                   <img
                     src={getImageUrl(imageUrl, 'thumbnail')}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Button,
@@ -133,7 +133,9 @@ type ProjectFormProps = {
   onDataChange?: (data: FormData, isDirty: boolean) => void
 }
 
-export function ProjectForm({
+export type ProjectFormHandle = { submit: () => void }
+
+export const ProjectForm = forwardRef<ProjectFormHandle, ProjectFormProps>(function ProjectForm({
   developers,
   areas,
   cities,
@@ -145,7 +147,7 @@ export function ProjectForm({
   isEditMode = false,
   draftData,
   onDataChange,
-}: ProjectFormProps) {
+}, ref) {
   const { t } = useTranslation()
 
   // Derive initial city slug from the area that matches initialData.areaId
@@ -197,7 +199,7 @@ export function ProjectForm({
       googleMapsUrl: '',
       slug: '',
       name: '',
-      status: 'active',
+      status: 'draft',
       sale: 'sale',
       developerId: '',
       areaId: '',
@@ -474,7 +476,7 @@ export function ProjectForm({
     const payload: ProjectCreateRequest = {
       slug: form.slug,
       name: form.name,
-      status: form.status as 'active' | 'archived',
+      status: form.status as 'draft' | 'active' | 'archived',
       sale: form.sale as 'sale' | 'start of sales' | 'sales announcement',
     }
 
@@ -522,7 +524,7 @@ export function ProjectForm({
     if (form.googleMapsUrl !== d!.googleMapsUrl) payload.googleMapsUrl = form.googleMapsUrl
     if (form.slug !== d!.slug) payload.slug = form.slug
     if (form.name !== d!.name) payload.name = form.name
-    if (form.status !== d!.status) payload.status = form.status as 'active' | 'archived'
+    if (form.status !== d!.status) payload.status = form.status as 'draft' | 'active' | 'archived'
     if (form.sale !== d!.sale) payload.sale = form.sale as 'sale' | 'start of sales' | 'sales announcement'
     if (form.developerId !== d!.developerId) payload.developerId = form.developerId
     if (form.areaId !== d!.areaId) payload.areaId = form.areaId
@@ -586,8 +588,7 @@ export function ProjectForm({
     return payload
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const submitForm = () => {
     setTouched(true)
     const validationErrors = validate()
     setErrors(validationErrors)
@@ -598,6 +599,13 @@ export function ProjectForm({
       : buildCreatePayload()
 
     onSubmit(payload)
+  }
+
+  useImperativeHandle(ref, () => ({ submit: submitForm }))
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    submitForm()
   }
 
   const addGalleryItem = () => {
@@ -675,6 +683,7 @@ export function ProjectForm({
         label="Status"
         options={[
           { value: '', label: 'Select Status' },
+          { value: 'draft', label: 'Draft' },
           { value: 'active', label: 'Active' },
           { value: 'archived', label: 'Archived' },
         ]}
@@ -1028,4 +1037,4 @@ export function ProjectForm({
       />
     </form>
   )
-}
+})

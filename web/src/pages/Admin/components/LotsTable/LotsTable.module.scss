@@ -194,6 +194,21 @@
   }
 }
 
+.draftBadge {
+  position: absolute;
+  top: 44px;
+  right: 10px;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .lotImage {
   width: 100%;
   aspect-ratio: 16 / 9;
